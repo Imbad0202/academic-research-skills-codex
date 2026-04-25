@@ -32,6 +32,14 @@ Use the Claude Code repo when you want the native Claude Code skill layout,
 Claude-specific agent-team behavior, or the original ARS development history.
 Use this repo when you want the Codex-native single-suite skill.
 
+## Versioning
+
+This Codex package is version `0.1.1`. The repo-root `VERSION` file,
+`skills/academic-research-suite/SKILL.md` metadata version, and
+`skills/academic-research-suite/manifest.json` `adapter_version` track the
+Codex package version independently of the vendored ARS suite. Vendored upstream
+versions are recorded by commit in `manifest.source_repositories[]`.
+
 ## Install
 
 Install the skill from this repo path:
