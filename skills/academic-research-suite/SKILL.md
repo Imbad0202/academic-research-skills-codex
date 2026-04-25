@@ -71,6 +71,41 @@ For multi-review phases, preserve independence by writing each reviewer section
 before synthesizing. Do not let the final synthesis erase critical findings from
 devil's advocate or methodology roles.
 
+## Canonical Agent Files
+
+Use these exact filenames. Do not invent hyphenated alternatives or rename files
+from memory.
+
+`ars/deep-research/agents/`:
+`bibliography_agent.md`, `devils_advocate_agent.md`,
+`editor_in_chief_agent.md`, `ethics_review_agent.md`,
+`meta_analysis_agent.md`, `monitoring_agent.md`,
+`report_compiler_agent.md`, `research_architect_agent.md`,
+`research_question_agent.md`, `risk_of_bias_agent.md`,
+`socratic_mentor_agent.md`, `source_verification_agent.md`,
+`synthesis_agent.md`.
+
+`ars/academic-paper/agents/`:
+`abstract_bilingual_agent.md`, `argument_builder_agent.md`,
+`citation_compliance_agent.md`, `draft_writer_agent.md`,
+`formatter_agent.md`, `intake_agent.md`,
+`literature_strategist_agent.md`, `peer_reviewer_agent.md`,
+`revision_coach_agent.md`, `socratic_mentor_agent.md`,
+`structure_architect_agent.md`, `visualization_agent.md`.
+
+`ars/academic-paper-reviewer/agents/`:
+`devils_advocate_reviewer_agent.md`, `domain_reviewer_agent.md`,
+`editorial_synthesizer_agent.md`, `eic_agent.md`,
+`field_analyst_agent.md`, `methodology_reviewer_agent.md`,
+`perspective_reviewer_agent.md`.
+
+`ars/academic-pipeline/agents/`:
+`collaboration_depth_agent.md`, `integrity_verification_agent.md`,
+`pipeline_orchestrator_agent.md`, `state_tracker_agent.md`.
+
+`ars/experiment-agent/agents/`:
+`code_runner_agent.md`, `study_manager_agent.md`.
+
 ## Shared Resources
 
 Use `ars/shared/` for cross-workflow contracts and quality gates:
