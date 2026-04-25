@@ -22,6 +22,16 @@ The original Claude Code ARS checkout is not modified. Upstream content is copie
 from fresh GitHub clones and adapted through the Codex router in
 `skills/academic-research-suite/SKILL.md`.
 
+## Claude Code Version
+
+This repository is the Codex package. For the original Claude Code version of
+Academic Research Skills, use
+[Imbad0202/academic-research-skills](https://github.com/Imbad0202/academic-research-skills).
+
+Use the Claude Code repo when you want the native Claude Code skill layout,
+Claude-specific agent-team behavior, or the original ARS development history.
+Use this repo when you want the Codex-native single-suite skill.
+
 ## Install
 
 Install the skill from this repo path:
