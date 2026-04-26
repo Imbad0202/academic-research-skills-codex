@@ -32,6 +32,14 @@ Use the Claude Code repo when you want the native Claude Code skill layout,
 Claude-specific agent-team behavior, or the original ARS development history.
 Use this repo when you want the Codex-native single-suite skill.
 
+## Versioning
+
+This Codex package is version `0.1.1`. The repo-root `VERSION` file,
+`skills/academic-research-suite/SKILL.md` metadata version, and
+`skills/academic-research-suite/manifest.json` `adapter_version` track the
+Codex package version independently of the vendored ARS suite. Vendored upstream
+versions are recorded by commit in `manifest.source_repositories[]`.
+
 ## Install
 
 Install the skill from this repo path:
@@ -109,7 +117,10 @@ ARS was originally written for Claude Code. In this Codex package:
 - Cross-model verification is disabled by default. When explicitly requested in
   this Codex package, configure `ARS_CROSS_MODEL=claude-opus-4.7` and
   `ANTHROPIC_API_KEY`; the external reviewer uses Anthropic Claude Opus 4.7 API,
-  not Codex/OpenAI API.
+  not Codex/OpenAI API. Upstream GPT/Gemini secondary-dispatch instructions are
+  ignored unless this explicit Anthropic configuration is present.
+- Upstream references to a "fresh Claude Code session" mean a new Codex
+  conversation in this package; Material Passport reset semantics still apply.
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
@@ -155,3 +166,11 @@ directories.
 Updates are manual cherry-picks from upstream ARS. Do not mirror the Claude Code
 repo blindly; review path references and Claude-specific runtime language before
 updating this Codex package.
+
+### Inactive Upstream Scripts
+
+Some upstream maintenance scripts are vendored but intentionally inactive in
+this Codex package because they require non-vendored Claude Code inputs such as
+`.claude/CLAUDE.md`. See `inactive_upstream_scripts` in
+`skills/academic-research-suite/manifest.json` before wiring any upstream script
+into Codex CI.

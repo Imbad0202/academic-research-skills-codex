@@ -11,7 +11,7 @@ description: >
   study protocol support. This skill vendors ARS role prompts, references,
   templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 ---
@@ -20,6 +20,13 @@ metadata:
 
 This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 `ars/`; keep it as source material and route through this file first.
+
+## Versioning
+
+This Codex package is version `0.1.1`. The repo-root `VERSION`, this
+`SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
+Vendored ARS suite versions are tracked separately by source repository commit
+in `manifest.json`.
 
 ## First Rule
 
@@ -55,7 +62,8 @@ using them in Codex:
 | WebSearch | Use Codex web browsing for current facts, source verification, citation checks, and external evidence. Provide source links. |
 | Bash, Write, Edit | Treat as capability descriptions, not required tool names. Follow Codex safety rules and the user's filesystem constraints. |
 | Claude, Claude Code, model-specific wording | Interpret as "the current Codex agent" unless the text is part of a disclosure template or historical example. |
-| `ARS_CROSS_MODEL` | Disabled by default in Codex. If the user explicitly enables cross-model review, use Anthropic Claude Opus 4.7 via API (`ARS_CROSS_MODEL=claude-opus-4.7`, `ANTHROPIC_API_KEY`). Do not route this reviewer through Codex/OpenAI APIs. |
+| `ARS_CROSS_MODEL`, `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | Treat upstream secondary-model dispatch instructions as no-op unless the user explicitly asks for cross-model review. When explicitly enabled in this Codex package, use Anthropic Claude Opus 4.7 via API (`ARS_CROSS_MODEL=claude-opus-4.7`, `ANTHROPIC_API_KEY`); do not route this reviewer through Codex/OpenAI APIs. Skip unconfigured cross-model report sections instead of inventing results. |
+| `fresh Claude Code session`, `Claude Code session` | Read as "a new Codex conversation". Material Passport reset semantics still apply; only the runtime changes. This rule covers `ars/academic-pipeline/SKILL.md`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md`, `ars/academic-pipeline/references/passport_as_reset_boundary.md`, `ars/experiment-agent/README.md`, `ars/experiment-agent/README.zh-TW.md`, and `ars/docs/PERFORMANCE.md`. |
 
 ## Agent Prompt Use
 
@@ -123,6 +131,13 @@ When an ARS file points to `shared/...`, resolve it as `ars/shared/...`.
 When it points to another workflow, resolve it under `ars/<workflow>/...`.
 When it points to root-level `scripts/...`, `examples/...`, or `docs/...`, resolve
 it under `ars/scripts/...`, `ars/examples/...`, or `ars/docs/...`.
+
+## Inactive Upstream Scripts
+
+`manifest.json` lists `inactive_upstream_scripts` that are vendored for
+traceability but are not Codex package validation gates. Do not wire them into
+Codex CI or treat them as required runtime checks unless the missing upstream
+Claude Code inputs, especially `.claude/CLAUDE.md`, are deliberately supplied.
 
 ## Verification Discipline
 

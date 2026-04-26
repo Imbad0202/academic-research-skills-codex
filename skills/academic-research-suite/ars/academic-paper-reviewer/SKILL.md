@@ -182,7 +182,7 @@ User: "Review this paper"
 | `quick` | "quick review" | field_analyst + eic | EIC quick assessment + key issues list (15-minute version) |
 | `methodology-focus` | "check methodology" | field_analyst + eic + methodology_reviewer | In-depth methodology review report (panel 2 under v3.6.2 sprint contract: EIC + methodology) |
 | `guided` | "guide me" | All + Socratic dialogue | Socratic issue-by-issue guided review |
-| **`calibration`** (v3.2) | **"calibrate reviewer" / "measure reviewer accuracy"** | **All 7 agents, 5x per gold paper, Claude Opus 4.7 API cross-model default-on when configured** | **Calibration Report: FNR/FPR/balanced accuracy/AUC + per-dimension calibration error + session-scoped confidence disclosure** |
+| **`calibration`** (v3.2) | **"calibrate reviewer" / "measure reviewer accuracy"** | **All 7 agents, 5x per gold paper, cross-model default-on** | **Calibration Report: FNR/FPR/balanced accuracy/AUC + per-dimension calibration error + session-scoped confidence disclosure** |
 
 ### Mode Selection Logic
 
@@ -221,7 +221,7 @@ Helps authors understand problems themselves through progressive revelation. EIC
 
 ## Calibration Mode (v3.2)
 
-Opt-in mode that measures this reviewer's FNR / FPR / balanced accuracy against a user-supplied gold set (5-20 papers with known outcomes). Runs `full` 5x per paper with fresh context, with Claude Opus 4.7 API cross-model verification enabled when `ARS_CROSS_MODEL=claude-opus-4.7` and `ANTHROPIC_API_KEY` are available. Do not use Codex/OpenAI API for this reviewer. Produces a Calibration Report attached as a confidence disclosure to subsequent reviews in the session.
+Opt-in mode that measures this reviewer's FNR / FPR / balanced accuracy against a user-supplied gold set (5-20 papers with known outcomes). Runs `full` 5x per paper with fresh context, cross-model default-on. Produces a Calibration Report attached as a confidence disclosure to subsequent reviews in the session.
 
 > See `references/calibration_mode_protocol.md` for full spec: intake rules, ensembling methodology, output format, and failure cases this mode does not fix.
 

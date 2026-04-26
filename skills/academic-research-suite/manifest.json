@@ -1,6 +1,7 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.0",
+  "adapter_version": "0.1.1",
+  "version_file": "VERSION",
   "generated_for": "codex",
   "generated_date": "2026-04-25",
   "source_repositories": [
@@ -18,6 +19,7 @@
         "examples (excluding showcase PDFs)",
         "docs/design",
         "docs/PERFORMANCE.md",
+        "CHANGELOG.md",
         "LICENSE"
       ]
     },
@@ -35,6 +37,26 @@
     ".github",
     ".claude",
     "examples/showcase/*.pdf"
+  ],
+  "inactive_upstream_scripts": [
+    {
+      "path": "skills/academic-research-suite/ars/scripts/check_version_consistency.py",
+      "reason": "Requires upstream .claude/CLAUDE.md suite-version table, which is intentionally not vendored in the Codex package."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/scripts/check_spec_consistency.py",
+      "reason": "Requires upstream .claude/CLAUDE.md contract text, which is intentionally not vendored in the Codex package."
+    }
+  ],
+  "historical_artifacts": [
+    {
+      "path": "skills/academic-research-suite/ars/docs/design/2026-04-23-ars-v3.6.2-sprint-contract-design.md",
+      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, /Users/imbad/... paths, or Claude Code session describe the upstream development environment."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/docs/design/2026-04-23-ars-v3.6.4-literature-corpus-adapters-plan.md",
+      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, /Users/imbad/... paths, or Claude Code session describe the upstream development environment."
+    }
   ],
   "packaging": {
     "type": "single_codex_suite_skill",

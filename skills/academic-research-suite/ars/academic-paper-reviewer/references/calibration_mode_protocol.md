@@ -46,7 +46,7 @@ For each paper, run the standard `full` review pipeline **5 times** (ensembling,
 - Variance across the 5 runs (reported as a stability indicator)
 - Editorial decision (majority vote across 5)
 
-**Cross-model verification**: In the Codex package, calibration mode uses Anthropic Claude Opus 4.7 as the external reviewer when `ARS_CROSS_MODEL=claude-opus-4.7` and `ANTHROPIC_API_KEY` are available. At least one of the 5 runs should use Claude Opus 4.7 to avoid single-runtime blind spots. Do not use Codex/OpenAI API for this reviewer. If Claude Opus 4.7 is not configured, emit a warning and run all 5 on the primary Codex runtime.
+**Cross-model verification**: In calibration mode, `ARS_CROSS_MODEL` is **default-on** rather than opt-in. At least one of the 5 runs should use a different model family if available, to avoid single-model blind spots. If no cross-model is configured, emit a warning and run all 5 on the primary model.
 
 ### Phase 2: Build the confusion matrix
 
