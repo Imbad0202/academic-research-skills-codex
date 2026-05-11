@@ -53,7 +53,7 @@ Codex platform pipeline traversal smoke test:
 
 ## Continuity with Stage 2.5
 
-Stage 2.5 flagged mode 5 (methodology fabrication) and mode 6 (frame-lock). Stage 3 reviewer concern #1 ("taxonomic rather than argumentative") is the substantive expression of the same frame-lock risk; concern #3 ("use cases may sprawl") is the substantive expression of mode 5 overclaim. The gates and the review are picking up the same conceptual weakness from different angles — a positive regression signal for cross-stage consistency.
+Stage 2.5 flagged prompt-numbered mode 5 (= canonical Lu 2026 mode 6 = methodology fabrication) and prompt-numbered mode 6 (= canonical mode 7 = frame-lock). Stage 3 reviewer concern #1 ("taxonomic rather than argumentative") is the substantive expression of the same frame-lock risk; concern #3 ("use cases may sprawl") is the substantive expression of the same methodology overclaim. The gates and the review are picking up the same conceptual weakness from different angles — a positive regression signal for cross-stage consistency. See `stage2.5_integrity_gate.md` § Numbering disclosure for the prompt-numbered ↔ canonical mapping.
 
 ## Regression signals to watch
 

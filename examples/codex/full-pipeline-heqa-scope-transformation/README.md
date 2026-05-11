@@ -27,7 +27,7 @@ run. Trade-offs the reader should know:
 
 What this traversal **does** demonstrate per ARS pipeline architecture:
 
-1. Router classification at every stage transition (1 → 2 → 3 → 4 → 5 / 6).
+1. Router classification at every stage transition routed in this run (Stages 1, 2, 3, 4 — verifiable in each stage file). Stage 5 routing is not exercised here because the Stage 5 artifact was imported from a prior session.
 2. Both MANDATORY integrity gates (Stage 2.5 + 4.5) engaged with PASS/HOLD
    verdicts per failure mode.
 3. Cross-stage handoff: Stage 3 review concerns → Stage 4 roadmap →
@@ -56,7 +56,7 @@ the per-stage prompts in `stages/`.
 |---|---|---|
 | 1 — research/socratic | `stages/stage1_research_socratic.md` | Router routed correctly; 3 FINER-aligned narrowing questions |
 | 2 — write/outline-only | `stages/stage2_write_outline.md` | 5-section outline; theoretical paper-structure template applied |
-| 2.5 — integrity gate | `stages/stage2.5_integrity_gate.md` | 2 HOLD (mode 5 + mode 6) |
+| 2.5 — integrity gate | `stages/stage2.5_integrity_gate.md` | 2 HOLD (prompt-numbered modes 5 + 6 = canonical Lu 2026 modes 6 + 7; see file for numbering disclosure) |
 | 3 — review/quick | `stages/stage3_review_quick.md` | Major Revision; 3 substantive concerns |
 | 4 — revision-coach | `stages/stage4_revision_roadmap.md` | P1/P1/P2 roadmap aligned with the 3 review concerns |
 | 4.5 — final integrity | `stages/stage4.5_final_integrity.md` | PASS with 2 drafting watchpoints |
