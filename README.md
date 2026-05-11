@@ -1,6 +1,12 @@
 # Academic Research Skills for Codex
 
-Codex-native packaging of the Academic Research Skills suite.
+[![Version](https://img.shields.io/badge/version-v0.1.6-blue)](VERSION)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
+
+Codex-native packaging of the Academic Research Skills suite. This is the
+sibling Codex distribution of
+[Academic Research Skills for Claude Code](https://github.com/Imbad0202/academic-research-skills).
 
 This repository vendors the ARS workflow content as a single Codex skill:
 
@@ -49,8 +55,8 @@ The vendored ARS source currently tracks
 
 ## Install Or Update
 
-Install the skill from this repo path. Use `--method git` so private or
-credentialed GitHub access works consistently:
+Install the skill from this repo path. Use `--method git` so public and
+credentialed GitHub access both work consistently:
 
 ```bash
 python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
@@ -285,6 +291,18 @@ Then ask for cross-model verification explicitly in the prompt. Without both
 environment variables, ARS Codex falls back to single-runtime review and should
 report that the Claude Opus 4.7 verifier was unavailable.
 
+## Support And Sponsorship
+
+If ARS Codex helps your research workflow, you can support maintenance through
+[Buy Me a Coffee](https://buymeacoffee.com/crucify020v).
+
+## Security
+
+Do not open public issues for vulnerabilities. Follow
+[`SECURITY.md`](SECURITY.md) for private reporting, and see the
+[release readiness and security report](security_best_practices_report.md) for
+the latest local validation summary.
+
 ### File Layout For Advanced Use
 
 The entry point is:
@@ -323,3 +341,14 @@ this Codex package because they require non-vendored Claude Code inputs such as
 `.claude/CLAUDE.md`. See `inactive_upstream_scripts` in
 `skills/academic-research-suite/manifest.json` before wiring any upstream script
 into Codex CI.
+
+## Contributors And Acknowledgements
+
+**Cheng-I Wu** - Maintainer of the ARS suite and this Codex sibling
+distribution.
+
+**Codex** - Assisted with the Codex adapter packaging, router-policy hardening,
+test fixes, and release-readiness review under maintainer direction.
+
+Vendored upstream ARS contributors are acknowledged in
+[`skills/academic-research-suite/ars/README.md`](skills/academic-research-suite/ars/README.md#contributors).
