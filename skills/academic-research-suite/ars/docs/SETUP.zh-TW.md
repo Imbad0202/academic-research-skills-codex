@@ -6,11 +6,11 @@ Claude Code plugin 安裝指南。Claude Code 原生版本請使用
 
 ## 最小可行設定
 
-安裝單一 Codex skill。建議使用 `--method git`，讓 GitHub 認證與 private repo
-存取行為比較穩定：
+安裝單一 Codex skill。建議使用 `--method git`，讓 public 與 credentialed GitHub
+存取行為都比較穩定：
 
 ```bash
-python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
@@ -20,8 +20,8 @@ python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-
 更新既有安裝：
 
 ```bash
-rm -rf /Users/imbad/.codex/skills/academic-research-suite
-python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+rm -rf "$HOME/.codex/skills/academic-research-suite"
+python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
@@ -137,7 +137,7 @@ Codex CLI：
 
 ```bash
 codex exec --ephemeral --sandbox read-only \
-  -C /Users/imbad/Projects/academic-research-skills-codex \
+  -C /path/to/academic-research-skills-codex \
   'Use $academic-research-suite. Router smoke test only. User request to classify: 我想做一篇論文，題目方向是 AI adoption in higher education quality assurance，但我還沒有明確 research question。 According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
