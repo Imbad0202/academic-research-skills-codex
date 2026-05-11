@@ -41,3 +41,9 @@ def test_router_blocks_outline_before_rq_convergence() -> None:
     text = _router_text()
     assert "Do not produce an outline" in text
     assert "until the user has converged" in text
+
+
+def test_alias_router_defers_to_socratic_override() -> None:
+    text = _router_text()
+    assert "before the Claude-Style Alias Router" in text
+    assert "defer to the Paper Topic Scoping Override" in text

@@ -46,6 +46,7 @@
     ".gitignore",
     "agents symlink aliases",
     "skills symlink aliases",
+    "docs/superpowers/",
     "examples/showcase/*.pdf"
   ],
   "inactive_upstream_scripts": [
@@ -83,6 +84,7 @@
     "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router; Codex does not register native slash commands.",
     "Vendored upstream workflow entry files are renamed from SKILL.md to WORKFLOW.md in this Codex package so Codex registers only the root academic-research-suite router skill.",
     "Vague paper-topic requests without a clear research question are routed to deep-research socratic mode before outline, drafting, or full pipeline execution.",
+    "docs/superpowers/ is intentionally excluded; it contains upstream Claude Code development plans referencing superpowers:* sub-skills which do not exist in the Codex runtime.",
     "User-facing setup docs include reinstall, /skills verification, and Codex CLI smoke-test guidance for existing-session cache behavior.",
         "docs/SETUP.md, docs/SETUP.zh-TW.md, and docs/ARCHITECTURE.md are Codex-adapted documentation overlays, not verbatim upstream Claude Code docs.",
         "The v3.7.1 pattern-protection validator is patched to resolve git object paths from the nested Codex vendored root.",

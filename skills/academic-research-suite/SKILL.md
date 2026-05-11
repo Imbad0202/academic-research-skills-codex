@@ -58,7 +58,9 @@ unless the user clearly asked for a single phase.
 
 ### Paper Topic Scoping Override
 
-Apply this override before the general paper/pipeline routing rule.
+Apply this override before the general paper/pipeline routing rule and before the Claude-Style Alias Router below.
+The override applies regardless of whether the user invokes ARS via natural
+language or via an `ars-*` alias.
 
 If the user says they want to write a paper, thesis, proposal, article, journal
 article, or manuscript, but they only provide a broad topic, tentative title,
@@ -115,6 +117,11 @@ uses the current model unless the user explicitly requests another model.
 | `/ars-revision-coach`, `ars-revision-coach` | `ars/commands/ars-revision-coach.md` | `ars/academic-paper/WORKFLOW.md` in `revision-coach` mode |
 | `/ars-revision`, `ars-revision` | `ars/commands/ars-revision.md` | `ars/academic-paper/WORKFLOW.md` in `revision` mode |
 | `/ars-full`, `ars-full` | `ars/commands/ars-full.md` | `ars/academic-pipeline/WORKFLOW.md` |
+
+If the request body after the alias is a vague topic, tentative title, research
+direction, or "題目/主題/方向" without a clear research question, defer to the Paper Topic Scoping Override above before routing to the alias's target mode.
+This applies to `ars-plan`, `ars-outline`, `ars-abstract`, `ars-lit-review`,
+and `ars-full`.
 
 If the Codex client reserves slash-prefixed input before it reaches the model,
 tell the user to use the plain alias form, for example `ars-plan my topic`.
