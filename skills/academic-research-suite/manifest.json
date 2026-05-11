@@ -66,11 +66,11 @@
   "historical_artifacts": [
     {
       "path": "skills/academic-research-suite/ars/docs/design/2026-04-23-ars-v3.6.2-sprint-contract-design.md",
-      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, /Users/imbad/... paths, or Claude Code session describe the upstream development environment."
+      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, maintainer-local paths, or Claude Code session describe the upstream development environment."
     },
     {
       "path": "skills/academic-research-suite/ars/docs/design/2026-04-23-ars-v3.6.4-literature-corpus-adapters-plan.md",
-      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, /Users/imbad/... paths, or Claude Code session describe the upstream development environment."
+      "disclaimer": "Upstream design/plan document, vendored for traceability. NOT a Codex runtime instruction. References to superpowers:* skills, maintainer-local paths, or Claude Code session describe the upstream development environment."
     }
   ],
   "packaging": {
@@ -80,7 +80,7 @@
   },
   "runtime_notes": [
     "Claude Code agent-team wording is adapted by SKILL.md into Codex inline role-prompt usage.",
-    "The original local ARS checkout under /Users/imbad/Projects/academic-research-skills was not used as a write target.",
+    "The maintainer's local ARS checkout was not used as a write target.",
     "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router; Codex does not register native slash commands.",
     "Vendored upstream workflow entry files are renamed from SKILL.md to WORKFLOW.md in this Codex package so Codex registers only the root academic-research-suite router skill.",
     "Vague paper-topic requests without a clear research question are routed to deep-research socratic mode before outline, drafting, or full pipeline execution.",

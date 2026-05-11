@@ -59,7 +59,7 @@ Install the skill from this repo path. Use `--method git` so public and
 credentialed GitHub access both work consistently:
 
 ```bash
-python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
@@ -69,8 +69,8 @@ python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-
 To update an existing install:
 
 ```bash
-rm -rf /Users/imbad/.codex/skills/academic-research-suite
-python /Users/imbad/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+rm -rf "$HOME/.codex/skills/academic-research-suite"
+python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
@@ -224,7 +224,7 @@ CLI smoke test:
 
 ```bash
 codex exec --ephemeral --sandbox read-only \
-  -C /Users/imbad/Projects/academic-research-skills-codex \
+  -C /path/to/academic-research-skills-codex \
   'Use $academic-research-suite. Router smoke test only. User request to classify: I want to write a paper on AI adoption in higher education quality assurance, but I do not yet have a clear research question. According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
