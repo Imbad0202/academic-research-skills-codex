@@ -163,7 +163,7 @@ Use $academic-research-suite.
 Goal: write a journal article.
 Current materials: I have a literature matrix and rough findings, but no outline.
 Output needed now: paper architecture and missing-evidence checklist.
-Constraints: Traditional Chinese, APA 7, higher education policy audience.
+Constraints: English, APA 7, higher education policy audience.
 ```
 
 If you only have a paper topic or broad research direction and do not yet have a
@@ -173,9 +173,9 @@ scoping:
 ```text
 Use $academic-research-suite.
 
-我想做一篇論文，題目方向是 AI adoption in higher education quality assurance。
-我還沒有明確 research question。
-請先用 SCR / Socratic 問答幫我收斂問題，不要先寫大綱。
+I want to write a paper on AI adoption in higher education quality assurance.
+I do not yet have a clear research question.
+Please use SCR / Socratic dialogue to help me narrow the question first; do not write an outline yet.
 ```
 
 Expected route: `deep-research` `socratic` mode first. ARS should ask narrowing
@@ -214,8 +214,8 @@ Then test Socratic routing:
 
 ```text
 Use $academic-research-suite.
-我想做一篇論文，題目方向是 AI adoption in higher education quality assurance。
-我還沒有明確 research question。
+I want to write a paper on AI adoption in higher education quality assurance.
+I do not yet have a clear research question.
 ```
 
 Expected: route to `deep-research` `socratic` mode and ask narrowing questions.
@@ -225,7 +225,7 @@ CLI smoke test:
 ```bash
 codex exec --ephemeral --sandbox read-only \
   -C /Users/imbad/Projects/academic-research-skills-codex \
-  'Use $academic-research-suite. Router smoke test only. User request to classify: 我想做一篇論文，題目方向是 AI adoption in higher education quality assurance，但我還沒有明確 research question。 According to the academic-research-suite router, classify the workflow and mode.'
+  'Use $academic-research-suite. Router smoke test only. User request to classify: I want to write a paper on AI adoption in higher education quality assurance, but I do not yet have a clear research question. According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
 ### Non-Blocking Codex Warnings

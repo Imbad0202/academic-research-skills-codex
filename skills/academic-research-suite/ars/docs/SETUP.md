@@ -134,8 +134,8 @@ Router smoke:
 
 ```text
 Use $academic-research-suite.
-我想做一篇論文，題目方向是 AI adoption in higher education quality assurance。
-我還沒有明確 research question。
+I want to write a paper on AI adoption in higher education quality assurance.
+I do not yet have a clear research question.
 ```
 
 Expected: `deep-research` `socratic` mode.
@@ -145,7 +145,7 @@ Codex CLI:
 ```bash
 codex exec --ephemeral --sandbox read-only \
   -C /Users/imbad/Projects/academic-research-skills-codex \
-  'Use $academic-research-suite. Router smoke test only. User request to classify: 我想做一篇論文，題目方向是 AI adoption in higher education quality assurance，但我還沒有明確 research question。 According to the academic-research-suite router, classify the workflow and mode.'
+  'Use $academic-research-suite. Router smoke test only. User request to classify: I want to write a paper on AI adoption in higher education quality assurance, but I do not yet have a clear research question. According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
 ## Non-Blocking Codex Warnings
