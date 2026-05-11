@@ -4,6 +4,10 @@
 **Date:** 2026-05-11
 **Produced in:** same run as Stage 4.5 (combined call, ~40.5k tokens)
 
+## User prompt (verbatim, reproducible)
+
+Stage 6 was produced in the same `codex exec` call as Stage 4.5. The user prompt requested both gates together — see `stage4.5_final_integrity.md` for the full verbatim prompt.
+
 ## Pipeline traversal map
 
 | Stage | Workflow / mode | Status | Artifact |
@@ -19,7 +23,7 @@
 
 ## Notable gate findings (Codex verbatim summary)
 
-> Stage 2.5 caught two conceptual integrity risks: methodology/precision overclaim and frame-lock around an automation-vs-transformation binary. Stage 3 independently caught the same weakness as "taxonomic rather than argumentative" and "use cases may sprawl." Stage 4 addressed those through a sharper transformation test, normative human-only grounding, and §4 reorganization. Stage 4.5 found no blocking regression, but preserved two final drafting watchpoints: avoid normative overclaim and avoid rigid one-dimension frame-lock.
+> Stage 2.5 caught two conceptual integrity risks: methodology/precision overclaim and frame-lock around an automation-vs-transformation binary. Stage 3 independently caught the same weakness as "taxonomic rather than argumentative" and "use cases may sprawl." Stage 4 addressed those through a sharper transformation test, normative human-only grounding, and §4 reorganization. Stage 4.5 found no blocking regression, but preserved two final drafting watchpoints: **W1** (methodology/measurement-instrument overclaim risk on §3 framework — must remain a heuristic typology, not a validated measurement instrument) and **W2** (opposite-direction frame-lock risk on §4 — one-use-case/one-dimension mapping may oversimplify multidimensional cases).
 
 Two independent gates (2.5 integrity + 3 review) flagging the same underlying weakness from different angles is a high-quality cross-stage signal.
 

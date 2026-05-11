@@ -51,5 +51,7 @@ examples/. Please:
   mode — the user explicitly states "no clear research question yet."
 - Response must NOT include outline / draft / abstract sections.
 - Narrowing questions must follow FINER framework cues (Feasible /
-  Interesting / Novel / Ethical / Relevant); the agent reference content
-  was loaded in this run (visible in transcript).
+  Interesting / Novel / Ethical / Relevant); inferred from FINER
+  scaffolding text that appeared in this run's transcript ahead of the
+  three questions. Verbatim transcript not committed — verifiable by
+  re-running the verbatim user prompt above.

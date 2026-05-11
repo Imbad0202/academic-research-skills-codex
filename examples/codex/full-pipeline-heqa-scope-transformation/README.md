@@ -1,9 +1,42 @@
-# Codex platform end-to-end pipeline run — HEQA Scope Transformation
+# Codex-platform pipeline smoke traversal — HEQA Scope Transformation
 
-This directory satisfies [`CONTRIBUTING.md § Platform ports` L55](https://github.com/Imbad0202/academic-research-skills/blob/main/CONTRIBUTING.md#platform-ports-community-maintained-only)
+This directory provides Codex-platform regression evidence under [`CONTRIBUTING.md § Platform ports` L55](https://github.com/Imbad0202/academic-research-skills/blob/main/CONTRIBUTING.md#platform-ports-community-maintained-only)
 in the upstream ARS repo: **"at least one full `academic-pipeline` run on
 the target platform, committed under an `examples/` path in the sibling
 repo, so regressions are detectable."**
+
+## Honest scope
+
+This is a **smoke-level pipeline traversal**, not a production-quality full
+run. Trade-offs the reader should know:
+
+- **Each routed stage used the lightest-weight mode** of its workflow:
+  Stage 2 = `outline-only` (not `full`), Stage 3 = `quick` (single editor,
+  not 5 reviewers + DA), Stage 4 = `revision-coach` (roadmap, not body
+  redraft).
+- **Stage 3' (re-review) and Stage 4' (second revision loop) are absent.**
+  ARS architecture allows up to 2 revision loops; this traversal stops
+  after one.
+- **Stage 5 (finalize) is imported, not produced in this run.** The
+  `abstract.md` + `index.html` come from an earlier `ars-codex` research
+  session on 2026-05-10. The Stage 1–4.5 + 6 transcripts in `stages/`
+  were generated on 2026-05-11 specifically to provide regression
+  evidence for the L55 requirement.
+- **Cross-model verification (`ARS_CROSS_MODEL`) was not exercised.**
+- **`systematic-review` and `experiment-agent` workflows not exercised.**
+
+What this traversal **does** demonstrate per ARS pipeline architecture:
+
+1. Router classification at every stage transition (1 → 2 → 3 → 4 → 5 / 6).
+2. Both MANDATORY integrity gates (Stage 2.5 + 4.5) engaged with PASS/HOLD
+   verdicts per failure mode.
+3. Cross-stage handoff: Stage 3 review concerns → Stage 4 roadmap →
+   Stage 4.5 regression watchpoints.
+4. Stage 6 process summary with the 6-dimension Collaboration Quality
+   rubric and the architectural irony caveat.
+
+Regressions in any of these four properties are detectable by re-running
+the per-stage prompts in `stages/`.
 
 ## Run summary
 
@@ -11,30 +44,11 @@ repo, so regressions are detectable."**
 |---|---|
 | Target platform | Codex CLI |
 | Runner | `codex` 0.130.0 via `codex exec --ephemeral --sandbox read-only` |
-| ars-codex commit at run time | `examples/codex-pipeline-traversal` branch from main |
 | Suite skill | `$academic-research-suite` (single Codex skill, ars-* aliases) |
-| Pipeline shape | 10-stage `academic-pipeline`, smoke-level deliverables |
 | Topic | "From Compliance Assurance to Quality Intelligence: A Scope Transformation Matrix for HEQA in the Agentic AI Era" |
-| Date | 2026-05-11 |
+| Stage 1–4.5 + 6 transcripts captured | 2026-05-11 |
+| Stage 5 artifact (imported) date | 2026-05-10 |
 | Approx cost | ~$1–2 OpenAI API (6 `codex exec` calls, low reasoning, ~190k tokens cumulative) |
-
-## Why this counts as a "full pipeline run" rather than a single-mode run
-
-ARS pipeline architecture defines **10 stages with 2 MANDATORY integrity
-gates** (Stage 2.5 + 4.5). A "single-mode run" exercises one workflow in
-isolation; a "full pipeline run" must:
-
-1. Show router classification at every stage transition.
-2. Engage both MANDATORY integrity gates (cannot be skipped).
-3. Demonstrate cross-stage handoff (Stage 3 review concerns → Stage 4
-   roadmap → Stage 4.5 regression check).
-4. Produce Stage 6 process summary with the 6-dimension Collaboration
-   Quality rubric and the architectural irony caveat.
-
-All four are present in this traversal. See `stages/` for per-stage
-transcript artifacts and `../abstract.md` + `../index.html` for the
-Stage 5 finalize deliverable (originally produced by the same `ars-codex`
-install in a separate research session on 2026-05-10).
 
 ## Stage map
 
@@ -46,7 +60,7 @@ install in a separate research session on 2026-05-10).
 | 3 — review/quick | `stages/stage3_review_quick.md` | Major Revision; 3 substantive concerns |
 | 4 — revision-coach | `stages/stage4_revision_roadmap.md` | P1/P1/P2 roadmap aligned with the 3 review concerns |
 | 4.5 — final integrity | `stages/stage4.5_final_integrity.md` | PASS with 2 drafting watchpoints |
-| 5 — finalize | `../abstract.md`, `../index.html` | Real Stage 5 artifact from the source 2026-05-10 run |
+| 5 — finalize | `abstract.md`, `index.html` (imported, 2026-05-10) | Stage 5 artifact from a prior `ars-codex` session, not produced by this 2026-05-11 traversal |
 | 6 — process summary | `stages/stage6_process_summary.md` | 6-dim rubric + irony caveat |
 
 ## Cross-stage regression signals

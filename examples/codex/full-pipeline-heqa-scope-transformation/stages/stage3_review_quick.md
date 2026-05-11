@@ -2,10 +2,42 @@
 
 **Workflow routed:** `academic-paper-reviewer`
 **Mode routed:** `quick`
-**Agents visible in transcript:** `field_analyst_agent` + EIC-style editor
+**Agents inferred from transcript:** `field_analyst_agent` + EIC-style editor (named in the routing scaffold text that preceded the verdict in this run; verbatim transcript not committed — verifiable by re-running the verbatim user prompt below)
 **Runner:** Codex CLI 0.130.0, `codex exec --ephemeral --sandbox read-only`, default model
 **Date:** 2026-05-11
 **Cost band:** low reasoning effort, ~46.5k tokens (highest of the run — review mode loads more reference content)
+
+## User prompt (verbatim, reproducible)
+
+```text
+Use $academic-research-suite.
+
+Stage 3 REVIEW for the conceptual paper outline + intended abstract.
+
+OUTLINE:
+§1 Introduction (boundary problem); §2 Conceptual background (HEQA + agentic AI);
+§3 Analytical framework (Scope Transformation Matrix: automation vs scope transformation,
+diagnostic dimensions, framework matrix); §4 Use cases (automation: doc checking /
+evidence collation / rubric alignment / accreditation drafting; scope-transformation:
+continuous curriculum sensing / agent-mediated student experience monitoring / adaptive
+program review / synthetic evidence / AI-enabled institutional self-study); §5
+Implications + research directions.
+
+ABSTRACT (intended thrust): HEQA traditionally organized around compliance and external
+review. Current AI discussions frame AI as automation tool. We argue agentic AI requires
+reconsidering HEQA scope. We develop a Scope Transformation Matrix distinguishing
+AI-as-automation from quality-intelligence / risk-informed governance / continuous
+monitoring / human-centred advisory pathways. We clarify the AI-delegable vs human-only
+boundary (values, accountability, peer review, final quality decisions = human-led).
+
+Use academic-paper-reviewer QUICK mode. Single editor verdict + 2-3 top concerns.
+
+Codex platform pipeline traversal smoke test:
+1. Confirm router routed to academic-paper-reviewer / quick mode.
+2. Single editor verdict.
+3. 2-3 top concerns with brief reasoning.
+4. STOP.
+```
 
 ## Editor verdict
 

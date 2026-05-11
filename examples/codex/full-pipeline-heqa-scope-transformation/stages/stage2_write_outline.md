@@ -2,7 +2,7 @@
 
 **Workflow routed:** `academic-paper`
 **Mode routed:** `outline-only`
-**Router agent visible in transcript:** `structure_architect_agent`
+**Router agent inferred from transcript:** `structure_architect_agent` (named in the routing scaffold text that preceded the outline in this run; verbatim transcript not committed — verifiable by re-running the verbatim user prompt below)
 **Runner:** Codex CLI 0.130.0, `codex exec --ephemeral --sandbox read-only`, default model
 **Date:** 2026-05-11
 **Cost band:** low reasoning effort, ~27.5k tokens
