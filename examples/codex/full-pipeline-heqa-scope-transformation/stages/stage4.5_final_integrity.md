@@ -22,8 +22,7 @@ limits;
 P2-#3 reorganized §4 to tie each use case to one diagnostic dimension.
 
 The eventual abstract is in
-/Users/imbad/Projects/academic-research-skills-codex/examples/codex/
-full-pipeline-heqa-scope-transformation/abstract.md
+`examples/codex/full-pipeline-heqa-scope-transformation/abstract.md`
 — but for this gate, treat the roadmap-addressed outline as the post-revision artifact.
 
 Run the 7-mode AI Research Failure Mode Checklist one more time. Specifically check
