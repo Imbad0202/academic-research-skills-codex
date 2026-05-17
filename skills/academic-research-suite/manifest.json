@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.6",
+  "adapter_version": "0.1.7",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-05-10",
+  "generated_date": "2026-05-17",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "1d0c8625207c9cd8fc46132b1ef930f2cc012236",
+      "commit": "74413a42571867abece7b8b76f7a24ac472ab2a0",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -22,6 +22,7 @@
         "examples (excluding showcase PDFs)",
         "docs",
         "docs/design",
+        "docs/migration",
         "docs/PERFORMANCE.md",
         "top-level README, README.zh-TW, QUICKSTART, SECURITY, NOTICE, CONTRIBUTING, MODE_REGISTRY, POSITIONING",
         "requirements-dev.txt",
@@ -86,10 +87,11 @@
     "Vague paper-topic requests without a clear research question are routed to deep-research socratic mode before outline, drafting, or full pipeline execution.",
     "docs/superpowers/ is intentionally excluded; it contains upstream Claude Code development plans referencing superpowers:* sub-skills which do not exist in the Codex runtime.",
     "User-facing setup docs include reinstall, /skills verification, and Codex CLI smoke-test guidance for existing-session cache behavior.",
-        "docs/SETUP.md, docs/SETUP.zh-TW.md, and docs/ARCHITECTURE.md are Codex-adapted documentation overlays, not verbatim upstream Claude Code docs.",
-        "The v3.7.1 pattern-protection validator is patched to resolve git object paths from the nested Codex vendored root.",
-        "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
-        "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
-        "Cross-model API behavior is disabled by default and requires explicit user request."
+    "docs/SETUP.md, docs/SETUP.zh-TW.md, and docs/ARCHITECTURE.md are Codex-adapted documentation overlays, not verbatim upstream Claude Code docs.",
+    "The v3.7.1 pattern-protection validator is patched to resolve git object paths from the nested Codex vendored root.",
+    "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
+    "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
+    "ARS v3.9.0 cross-index triangulation clients and migration tools are vendored; network lookups remain opt-in and degrade gracefully.",
+    "Cross-model API behavior is disabled by default and requires explicit user request."
     ]
 }

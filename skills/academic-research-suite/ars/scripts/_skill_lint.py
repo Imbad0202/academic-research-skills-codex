@@ -1,8 +1,8 @@
-"""Shared helpers for SKILL.md frontmatter linting.
+"""Shared helpers for skill/workflow frontmatter linting.
 
 Used by check_data_access_level.py and check_task_type.py to validate
-that every top-level SKILL.md declares a required metadata field with
-a value drawn from a closed vocabulary.
+that every top-level SKILL.md or WORKFLOW.md declares a required metadata field
+with a value drawn from a closed vocabulary.
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ SKIP_DIRS = frozenset(
 
 
 class FrontmatterError(Exception):
-    """Raised when SKILL.md frontmatter cannot be parsed.
+    """Raised when skill/workflow frontmatter cannot be parsed.
 
     Distinct from a missing fence (returns None) and an empty fence
     (returns {}). Callers should catch this and surface the path +
@@ -29,19 +29,21 @@ class FrontmatterError(Exception):
 
 
 def iter_skill_files(root: Path) -> list[Path]:
-    """Top-level SKILL.md files only. Skips SKIP_DIRS."""
+    """Top-level SKILL.md / WORKFLOW.md files only. Skips SKIP_DIRS."""
     results: list[Path] = []
     for child in sorted(root.iterdir()):
         if not child.is_dir() or child.name in SKIP_DIRS:
             continue
-        skill_md = child / "SKILL.md"
-        if skill_md.is_file():
-            results.append(skill_md)
+        for filename in ("SKILL.md", "WORKFLOW.md"):
+            skill_md = child / filename
+            if skill_md.is_file():
+                results.append(skill_md)
+                break
     return results
 
 
 def parse_frontmatter(path: Path) -> dict | None:
-    """Parse the YAML frontmatter of a SKILL.md.
+    """Parse the YAML frontmatter of a skill/workflow markdown file.
 
     Three outcomes:
       - dict (possibly empty) — fence present and parseable
@@ -97,7 +99,7 @@ def check_metadata_field(
     violations: list[str] = []
     skills = iter_skill_files(root)
     if not skills:
-        violations.append(f"no SKILL.md files found under {root}")
+        violations.append(f"no SKILL.md or WORKFLOW.md files found under {root}")
         return violations
     for path in skills:
         try:

@@ -8,7 +8,7 @@
 > `/ars-*` slash command 註冊、plugin hooks、自動 Agent Team dispatch 等
 > Claude-only 功能，在 Codex 版只會被模擬或明確列為不支援。
 
-[![Version](https://img.shields.io/badge/version-v3.7.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.7.0)
+[![Version](https://img.shields.io/badge/version-v3.9.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.9.0)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -34,6 +34,10 @@
 Lu 等人（2026，*Nature* 651:914-919）發表的 **The AI Scientist** 是第一個端到端全自動的 AI 研究系統，其生成的論文通過 ICLR 2025 workshop 的盲審（評分 6.33/10，workshop 平均 4.87）。他們自己的 Limitations 段落也列出了這類系統會遇到的結構性失敗模式：實作錯誤、幻覺實驗結果、取巧特徵依賴、實作錯誤被包裝成「意外發現」、方法論偽造、框架鎖定、引用幻覺。
 
 ARS 建立在這個前提上：**人類研究者 + AI 的組合，比純自動或純人工都更能避開這些失敗模式**。Stage 2.5 與 Stage 4.5 誠信閘門執行 7 類阻斷式檢查清單（見 [`academic-pipeline/references/ai_research_failure_modes.md`](academic-pipeline/references/ai_research_failure_modes.md)），reviewer 也提供 opt-in 的 calibration mode 用使用者自備的 gold set 測量 FNR/FPR。
+
+[**Zhao 等人**](https://arxiv.org/abs/2605.07723)（2026-05）盤點了 arXiv、bioRxiv、SSRN、PMC 上 250 萬篇論文裡的 1.11 億筆引用，保守估計 2025 年單年就有 146,932 筆幻覺引用，並觀察到 2024 年中是上升的拐點；bioRxiv-to-PMC 這條配對的「預印本進到正式發表」幻覺存活率達 85.3%。他們把「真實引用被用來支撐被引文獻其實沒有提出的主張」描述為當前未解的問題。ARS v3.7.1 為來源 provenance 加上 trust-chain frontmatter，v3.7.3 為未來的 claim-level 稽核鋪上 locator 基礎建設（三層引用 anchor），並在引用時段帶出 advisory 風險訊號（ARS 內部把這條 claim-faithfulness 缺口標記為「L3」，此為 ARS 的用詞，不是論文的用詞）。v3.7.x 的設計動機來自 Zhao 等人的 corpus-scale 發現；ARS 本身的 corpus-scale 評估仍是未來工作。
+
+v3.8 補上 L3 缺口的另一半。v3.7.3 讓每一筆引用都帶 locator anchor，v3.8 在這個基礎上加一道 opt-in 稽核（`ARS_CLAIM_AUDIT=1`）：抓回每一個 anchor 指向的原始文本，判斷論文裡的 claim 是否真有被該引用支撐。五類新的 HIGH-WARN annotation（claim-not-supported、negative-constraint-violation、fabricated-reference、anchorless、constraint-violation-uncited）會在 formatter terminal hard gate 直接攔下輸出。Calibration 隨 release 出 20 筆 gold set，採 FNR<0.15、FPR<0.10 雙閾值；正式放大投入前要先有 calibration 證據（v3.8 spec §5）。
 
 v3.3 的靈感來自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（Song, Song, Pfister & Yoon, 2026, Google）：Semantic Scholar API 驗證、反洩漏協議、VLM 圖表驗證、分數軌跡追蹤。
 
@@ -63,6 +67,8 @@ v3.3 的靈感來自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（So
 **驗證可用：** 跑 `/ars-plan` 並描述你正在寫的論文，ARS 會用蘇格拉底對話幫你規劃章節結構。想要單次測試的話改跑 `/ars-lit-review "你的主題"`。
 
 **👉 [docs/SETUP.zh-TW.md](docs/SETUP.zh-TW.md)** — 完整指南：安裝 Claude Code、設定 API key、選用的 Pandoc/tectonic（DOCX/PDF）、跨模型驗證（`ARS_CROSS_MODEL`），以及五種安裝方式（Plugin、專案 skills、全域 skills、claude.ai Project、repo clone）。
+
+**用 Codex CLI？** 請改裝姊妹版：[`Imbad0202/academic-research-skills-codex`](https://github.com/Imbad0202/academic-research-skills-codex)。同一套 workflow 內容，Codex 原生包裝為單一 `$academic-research-suite` skill，提供 `ars-*` 別名。
 
 ## 效能與費用
 
@@ -302,6 +308,35 @@ https://github.com/Imbad0202/academic-research-skills
 
 ## 更新紀錄
 
+### v3.9.0（2026-05-17）— #102 跨索引三角測量
+
+> #102 收尾。v3.7.3 已完成單索引（Semantic Scholar）污染偵測；v3.9.0 延伸至三索引三角測量（S2 + OpenAlex + Crossref），定位為**純 advisory**。`contamination_signals` 新增兩個 optional boolean（`openalex_unmatched`、`crossref_unmatched`）；manual-entry not-rule 對稱延伸。Finalizer 加入 4-tier advisory matrix（k=0/1/2/3，計算範圍為現有 `*_unmatched` 欄位），v3.7.3 的 legacy `CONTAMINATED-UNMATCHED`（k=1/k_max=1、S2-only case）保留。Formatter pass-through allowlist 從 3 條延伸至 9 條；refusal rules 1-10 依 R-L3-2-E 不變。Policy layer（strict modes、hard-block tier、`venue_type` / `triangulation_policy`）依 spec §2.3 延至 v3.10。k=3 marker 為 `CONTAMINATED-TRIANGULATION-UNMATCHED`（描述可觀測現象，不推斷成因）。新增 3 條 firm rules：R-L3-2-C（k 計算範圍為現有欄位）、R-L3-2-D（不得 API 推斷分類）、R-L3-2-E（refusal list 不擴充；pass-through allowlist 須與 finalizer 同步延伸）。
+
+**遷移：** v3.7.3 corpus — 跑 `python scripts/migrate_literature_corpus_to_v3_9_0.py PATH` 補齊兩個新欄位。pre-v3.7.3 corpus — **先**跑 `migrate_literature_corpus_to_v3_7_3.py`，再跑 v3.9.0 遷移工具（spec §3.7 daisy-chain；v3.9.0 工具只動已有 `contamination_signals.semantic_scholar_unmatched` 的 entries）。
+
+### v3.8.2（2026-05-17）— #118 uncited audit_tool_failure 補面
+
+> #118 收尾。`ARS_CLAIM_AUDIT=1` 的 uncited 約束判斷路徑原本碰到 `JudgeInvocationError` 會靜默替換成 `{"judgment": "NOT_VIOLATED"}`，把 HIGH-WARN 的 constraint check 在 transient judge 中斷時直接吞掉。v3.8.2 改走新的 `uncited_audit_failures[]` aggregate，MED-WARN advisory tier 對應 cited 路徑 INV-14 row，但用獨立 schema 因為 `claim_audit_result.ref_slug` 必填、uncited 路徑沒 ref 可綁。#118 issue body 四個 option 最後選了 option 2（新 aggregate）；option 4（re-raise 並 abort 整段 audit）因會嚴重折損 audit coverage（特別是 judge endpoint 不穩時）被否決。
+
+- **新 `uncited_audit_failure.schema.json` aggregate**（spec §3.6）：每筆 uncited sentence × manifest pair 一個 entry，記錄 constraint judge raise `JudgeInvocationError` 的情況。Fault-class enum 與 cited 路徑 INV-14 相同（`judge_timeout` / `judge_api_error` / `judge_parse_error` / `cache_corruption` / `retrieval_api_error` / `retrieval_timeout` / `retrieval_network_error`）。`rule_version: D4-c-v1-uaf-v1`。
+- **UAF-INV-1..UAF-INV-6 lint**（spec §6 rule 4d）：`finding_id` 唯一性、scoped_manifest_id 跨 aggregate integrity、(M, C) pair integrity（manifest_claim_id non-null 時）、per-(sentence, manifest) dedup、rationale fault_class 前綴、與 `constraint_violations[]` cross-aggregate exclusivity。
+- **Finalizer §5 MED-WARN advisory row**：annotation `[CLAIM-AUDIT-TOOL-FAILURE-UNCITED — <fault-class>]`，gate 通過（retry-next-pass 為補救手段）。Formatter REFUSE list 不變 — UAF 是 advisory。
+- **Pipeline 整合**（`scripts/claim_audit_pipeline.py`）：line 1211-1224 的 swallow site 移除；`JudgeInvocationError` 改 emit UAF row + `continue` 到下個 (sentence, manifest) pair。`constraint_violations[]` 不會再被假 NOT_VIOLATED 污染。
+- **Tests**：新增 18 筆（15 筆 schema/lint TSUAFUncitedAuditFailureInvariants + 3 筆 pipeline integration TP23UncitedJudgeOutageEmitsUAF）。Baseline 694 → 712 tests、0 regression。
+- **Agent doc**（`academic-pipeline/agents/claim_ref_alignment_audit_agent.md`）：Output emission 表格新增第七列；Error handling 表格從 3 種 surface 擴成 4 種，新增 uncited 路徑 UAF 列。
+
+### v3.8.0（2026-05-16）— L3 Claim-Faithfulness Locator + Audit（配對 milestone）
+
+> v3.7.3 + v3.8 端到端關閉 L3（claim-faithfulness）缺口。v3.7.3 鋪 locator 基礎建設（每筆引用都帶三層 anchor，給未來的稽核抓得到原文位置）；v3.8 在這之上加一道稽核 pass，判斷引用來源是否真的支撐論文的 claim，違反者在 formatter terminal hard gate 直接攔下。本次 release 也合併了從 v3.7.0 後累積的 5 個 audit-trail-shipped feature PR（#104 / #105 / #108 / #111 / #115）。
+
+- **#103 — `claim_ref_alignment_audit_agent`**（v3.8 PR #121）：opt-in（`ARS_CLAIM_AUDIT=1`，預設 OFF）的 Stage 4→5 audit agent。對每筆抽樣引用判斷與原文段落是否一致，emit `claim_audit_results[]` + `claim_intent_manifests[]` + `claim_drifts[]` + `uncited_assertions[]` + `constraint_violations[]` 五個 aggregate。Finalizer 8 列 matrix 把 HIGH-WARN 類別（CLAIM-NOT-SUPPORTED / NEGATIVE-CONSTRAINT-VIOLATION / FABRICATED-REFERENCE / ANCHORLESS / CONSTRAINT-VIOLATION-UNCITED）導去 formatter REFUSE rules 6-10。Calibration runner 隨 release 出 20 筆 gold set（T-C1 FNR<0.15 + FPR<0.10、T-C2 per-class、T-C3 shape integrity）。共 8 輪 dual-track review（R1 codex + Gemini 3.1-pro-preview、R2-R8 在 Gemini quota 用完後改 codex-only）；trajectory R1 4P1+2P2 → R8 0P1+4P2 ship gate。
+- **v3.7.3 — Three-Layer Citation Emission + contamination signals**（PR #98）：`synthesis_agent` / `draft_writer_agent` / `report_compiler_agent` 加上 `## Three-Layer Citation Emission (v3.7.3)` H2。每個 `<!--ref:slug-->` 都帶 `<!--anchor:<kind>:<value>-->`，`<kind> ∈ {quote, page, section, paragraph, none}`（quote anchor 限 25 字以內、值需 URL-encode）。`pipeline_orchestrator_agent` finalizer 升 5 cell 並加 precedence-zero NO-LOCATOR 檢查。`formatter_agent` 在 hard gate 加上對 `[UNVERIFIED CITATION — NO QUOTE OR PAGE LOCATOR]` 的明確 refusal。`literature_corpus_entry.schema.json` 新增 optional 的 `contamination_signals: { preprint_post_llm_inflection, semantic_scholar_unmatched }` 物件，`bibliography_agent` 在 ingest 時計算兩個訊號。11 輪 review trajectory（Codex×10 + Gemini cross-model×1）收斂 22 個 finding。Spec：`docs/design/2026-05-12-ars-v3.7.3-claim-faithfulness-and-contaminated-source-spec.md`。外部動機：Zhao 等人 arXiv:2605.07723（2026-05）。
+- **#108 — AI disclosure policy-anchor renderer**（2026-05-14）：在原本的 venue-track renderer 之外，新增 PRISMA-trAIce / ICMJE / Nature / IEEE 四條 policy-anchor disclosure 路徑。
+- **#111 — `slr_lineage` emission on systematic-review → academic-paper handoff**（2026-05-15）：Schema 9 新增 optional 的 boolean `slr_lineage` 欄位。Producer 是 `pipeline_orchestrator_agent`（每次 handoff transition 寫入），consumer 是 `disclosure` mode（讀到後按 §4.3 G2 invariant 路由到 `--policy-anchor=prisma-trAIce`）。
+- **#104 — README motivation：Zhao 等人 corpus-scale 證據錨點**（2026-05-15）：README + `README.zh-TW.md` 動機段以 Zhao 等人 146,932 筆幻覺引用的發現作為 v3.7.x 線設計動機的證據錨點。
+- **#105 — v3.7.3 contamination_signals 回填遷移工具**（2026-05-15）：`scripts/migrate_literature_corpus_to_v3_7_3.py` 對 v3.7.3 前的 passport 反向計算兩個 contamination signals 並補上。
+- **#115 — Semantic Scholar client 成熟度**（2026-05-15）：`scripts/semantic_scholar_client.py` 加 1 req/s throttle（偵測到 `S2_API_KEY` 時降到 0.1s）、URLError 觸發的 outage latch、以及 `reset_outage_latch()` 給跨 passport 的長執行批次清算用。
+
 ### v3.7.0（2026-05-05）— Claude Code Plugin 打包
 
 > Plugin 打包升級：ARS 現可在 Claude Code CLI / VS Code / JetBrains 一行裝（`/plugin marketplace add Imbad0202/academic-research-skills` + `/plugin install academic-research-skills`）。原本的 `git clone + symlink 到 ~/.claude/skills/` 安裝流程不變、繼續支援；雙軌都是一級公民。
@@ -345,7 +380,7 @@ https://github.com/Imbad0202/academic-research-skills
 - **Consumer 協定參考文件** 在 `academic-pipeline/references/literature_corpus_consumers.md`，包含 PRE-SCREENED 模板、BAD/GOOD 範例、四條 Iron Rule 與 per-consumer 讀取指示。
 - **CI lint** `scripts/check_corpus_consumer_protocol.py` 透過 manifest 驅動的 consumer 清單（`scripts/corpus_consumer_manifest.json`）強制九條協定不變式。
 - **Schema 9 caveat 退役**：`shared/handoff_schemas.md` 移除 v3.6.4「Consumer-side integration deferred to v3.6.5+」一行，改成指向 consumer 協定的 backpointer。
-- 採 presence-based 啟動，不變更 schema、不引入新 env flag。Parse 失敗 fallback 到 external-DB-only flow，並 surface `[CORPUS PARSE FAILURE]`。`citation_compliance_agent` 的 corpus 整合延到 v3.6.6+。
+- 採 presence-based 啟動，不變更 schema、不引入新 env flag。Parse 失敗 fallback 到 external-DB-only flow，並 surface `[CORPUS PARSE FAILURE]`。`citation_compliance_agent` 的 corpus 整合延後（目標版本將於 v3.8 後再訂）。
 - 無破壞性變更，既有使用者 adapter 不需修改。
 
 ### v3.6.4（2026-04-25）— Material Passport `literature_corpus[]` 輸入埠

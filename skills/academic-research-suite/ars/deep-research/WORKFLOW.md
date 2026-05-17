@@ -342,7 +342,7 @@ See `examples/handoff_to_paper.md` for a detailed handoff example.
 
 ## Full Academic Pipeline
 
-See `academic-pipeline/WORKFLOW.md` for the complete workflow.
+See `academic-pipeline/SKILL.md` for the complete workflow.
 
 ---
 

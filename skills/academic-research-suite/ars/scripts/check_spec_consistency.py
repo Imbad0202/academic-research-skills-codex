@@ -61,7 +61,7 @@ def check_relative_markdown_links(rel_path: str) -> None:
 def check_mode_registry() -> None:
     rel_path = "MODE_REGISTRY.md"
     text = read(rel_path)
-    expect_contains(rel_path, "Last updated: v3.7.0 (2026-05-05)")
+    expect_contains(rel_path, "Last updated: v3.9.0 (2026-05-17)")
     for heading in (
         "## deep-research (7 modes)",
         "## academic-paper (10 modes)",
@@ -75,7 +75,7 @@ def check_claude_md() -> None:
     rel_path = ".claude/CLAUDE.md"
     expect_contains(rel_path, "integrity check (Stage 2.5)")
     expect_contains(rel_path, "final integrity check (Stage 4.5)")
-    expect_contains(rel_path, "**Suite version**: 3.7.0")
+    expect_contains(rel_path, "**Suite version**: 3.9.0")
     for forbidden in (
         "6th independent reviewer",
         "Peer review gains 6th independent reviewer",
@@ -84,7 +84,7 @@ def check_claude_md() -> None:
 
 
 def check_reviewer_version_block() -> None:
-    rel_path = "academic-paper-reviewer/WORKFLOW.md"
+    rel_path = "academic-paper-reviewer/SKILL.md"
     text = read(rel_path)
     frontmatter_match = re.search(
         r'metadata:\s*[\s\S]*?\n\s+version:\s"([^"]+)"\n\s+last_updated:\s"([^"]+)"',
@@ -116,7 +116,7 @@ def check_reviewer_version_block() -> None:
 
 def check_pipeline_docs() -> None:
     for rel_path in (
-        "academic-pipeline/WORKFLOW.md",
+        "academic-pipeline/SKILL.md",
         "academic-pipeline/agents/pipeline_orchestrator_agent.md",
     ):
         expect_absent(rel_path, "auto-continue in 5 seconds")
@@ -136,8 +136,10 @@ def check_readme_sections() -> None:
     rel_path = "README.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.7.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.7.0")
+    expect_contains(rel_path, "version-v3.9.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.9.0")
+    expect_contains(rel_path, "### v3.9.0 (2026-05-17)")
+    expect_contains(rel_path, "### v3.8.0 (2026-05-16)")
     expect_contains(rel_path, "### v3.7.0 (2026-05-05)")
     expect_contains(rel_path, "### v3.6.8 (2026-05-03)")
     expect_contains(rel_path, "### v3.6.7 (2026-04-30)")
@@ -203,8 +205,10 @@ def check_readme_zh_sections() -> None:
     rel_path = "README.zh-TW.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.7.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.7.0")
+    expect_contains(rel_path, "version-v3.9.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.9.0")
+    expect_contains(rel_path, "### v3.9.0（2026-05-17）")
+    expect_contains(rel_path, "### v3.8.0（2026-05-16）")
     expect_contains(rel_path, "### v3.7.0（2026-05-05）")
     expect_contains(rel_path, "### v3.6.8（2026-05-03）")
     expect_contains(rel_path, "### v3.6.7（2026-04-30）")
@@ -289,7 +293,7 @@ def check_setup_docs() -> None:
 
 def check_docx_contract() -> None:
     expect_contains(
-        "academic-paper/WORKFLOW.md",
+        "academic-paper/SKILL.md",
         "LaTeX/DOCX-via-Pandoc/PDF output",
     )
     expect_contains(
@@ -301,7 +305,7 @@ def check_docx_contract() -> None:
         "If Pandoc is unavailable, provide complete markdown + DOCX conversion instructions",
     )
     expect_contains(
-        "academic-pipeline/WORKFLOW.md",
+        "academic-pipeline/SKILL.md",
         "DOCX via Pandoc when available, otherwise conversion instructions",
     )
     expect_contains(
@@ -309,7 +313,7 @@ def check_docx_contract() -> None:
         "DOCX via Pandoc when available (otherwise instructions)",
     )
     for rel_path in (
-        "academic-pipeline/WORKFLOW.md",
+        "academic-pipeline/SKILL.md",
         "academic-pipeline/agents/pipeline_orchestrator_agent.md",
     ):
         expect_absent(rel_path, "Auto-produce MD + DOCX")

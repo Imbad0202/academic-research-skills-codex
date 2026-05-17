@@ -14,7 +14,7 @@ description: >
   /ars-revision-coach, /ars-revision, and /ars-full. This skill vendors ARS
   role prompts, references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.6"
+  version: "0.1.7"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 ---
@@ -26,7 +26,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.6`. The repo-root `VERSION`, this
+This Codex package is version `0.1.7`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.
@@ -140,6 +140,7 @@ using them in Codex:
 | Bash, Write, Edit | Treat as capability descriptions, not required tool names. Follow Codex safety rules and the user's filesystem constraints. |
 | Claude, Claude Code, model-specific wording | Interpret as "the current Codex agent" unless the text is part of a disclosure template or historical example. |
 | `ARS_CROSS_MODEL`, `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | Treat upstream secondary-model dispatch instructions as no-op unless the user explicitly asks for cross-model review. When explicitly enabled in this Codex package, use Anthropic Claude Opus 4.7 via API (`ARS_CROSS_MODEL=claude-opus-4.7`, `ANTHROPIC_API_KEY`); do not route this reviewer through Codex/OpenAI APIs. Skip unconfigured cross-model report sections instead of inventing results. |
+| `S2_API_KEY`, `OPENALEX_POLITE_EMAIL`, `CROSSREF_POLITE_EMAIL` | These are optional upstream bibliographic lookup settings. Use them only when the user explicitly runs contamination-signal migration or programmatic reference verification; normal Codex routing does not require them. |
 | `fresh Claude Code session`, `Claude Code session` | Read as "a new Codex conversation". Material Passport reset semantics still apply; only the runtime changes. This rule covers `ars/academic-pipeline/WORKFLOW.md`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md`, `ars/academic-pipeline/references/passport_as_reset_boundary.md`, `ars/experiment-agent/README.md`, `ars/experiment-agent/README.zh-TW.md`, and `ars/docs/PERFORMANCE.md`. |
 | `/ars-*` slash command, Claude plugin command | Treat `ars/commands/ars-*.md` as optional prompt recipes. Codex does not register slash commands from this package. |
 | SessionStart hook, SubagentStop hook, `hooks/hooks.json` | Treat as upstream Claude Code hook metadata only. Do not install or execute Claude hooks in Codex unless the user explicitly asks to inspect or port a hook. |
@@ -187,7 +188,8 @@ from memory.
 `perspective_reviewer_agent.md`.
 
 `ars/academic-pipeline/agents/`:
-`collaboration_depth_agent.md`, `integrity_verification_agent.md`,
+`claim_ref_alignment_audit_agent.md`, `collaboration_depth_agent.md`,
+`integrity_verification_agent.md`,
 `pipeline_orchestrator_agent.md`, `state_tracker_agent.md`.
 
 `ars/experiment-agent/agents/`:
@@ -232,9 +234,9 @@ current facts, verify against primary or authoritative sources. If verification 
 not possible, mark the item as unverified instead of inventing support.
 
 Never fabricate references. For citation existence checks, prefer DOI or official
-metadata lookup, then authoritative web search. Semantic Scholar API instructions
-are in `ars/deep-research/references/semantic_scholar_api_protocol.md`; use them
-only when the task needs programmatic reference verification.
+metadata lookup, then authoritative web search. Semantic Scholar, OpenAlex, and
+Crossref API instructions are in `ars/deep-research/references/`; use them only
+when the task needs programmatic reference verification.
 
 ## Output Defaults
 

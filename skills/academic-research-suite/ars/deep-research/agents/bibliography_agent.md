@@ -244,6 +244,76 @@ description_last_audit:           <round_id> | "none" | null  # null only when s
 
 When you have NOT retrieved the original source — or have retrieved it but have NOT performed an affirmative verification step (codex_audit / manual_grep / vision_check) — you MUST set `source_verified_against_original: false`. Do not infer verification from the fact that a derivative bibliography agrees with the entry; that is description-source consistency (covered by `description_source` and `description_last_audit`), not source verification. When in doubt, emit `false` and let downstream consumers see the honest signal.
 
+## Contamination Signal Computation (v3.7.3)
+
+External motivation: Zhao, Wang, Stuart, De Vaan, Ginsparg, Yin "LLM hallucinations in the wild: Large-scale evidence from non-existent citations" (arXiv:2605.07723, 2026-05). The paper documents a corpus-scale audit of 111M references finding 146,932 hallucinated citations in 2025 alone across arXiv / bioRxiv / SSRN / PMC, with the inflection point at mid-2024 and Google Scholar increasingly indexing citation-only entries with no underlying publication. Spec: `docs/design/2026-05-12-ars-v3.7.3-claim-faithfulness-and-contaminated-source-spec.md` §3.2.
+
+For every literature_corpus entry you produce, compute the optional `contamination_signals` object at ingest time:
+
+```yaml
+contamination_signals:
+  preprint_post_llm_inflection: true | false
+  semantic_scholar_unmatched: true | false
+```
+
+### Signal 1 — `preprint_post_llm_inflection`
+
+Set to `true` when BOTH conditions hold:
+
+1. The entry's `year` is `>= 2024`.
+2. The entry's `venue` field (or, when `venue` is absent, inference from `source_pointer`) is one of the following closed preprint-server list:
+   - arXiv
+   - bioRxiv
+   - medRxiv
+   - SSRN (Social Science Research Network)
+   - Research Square
+   - Preprints.org
+   - ChemRxiv (v3.7.3 gemini review F6 addition)
+   - EarthArXiv (v3.7.3 gemini review F6 addition)
+   - OSF Preprints (v3.7.3 gemini review F6 addition; covers SocArXiv, PsyArXiv, and other OSF-hosted services that share the OSF Preprints infrastructure)
+   - TechRxiv (v3.7.3 gemini review F6 addition; engineering preprints)
+
+Otherwise set to `false`.
+
+The threshold year `2024` is derived from Zhao et al. inflection-point analysis (post-LLM-inflection in their language; their Fig. 1a-d shows the rise starting mid-2024). The list is closed at v3.7.3; new preprint servers entering the ecosystem require a spec amendment.
+
+### Signal 2 — `semantic_scholar_unmatched`
+
+Compute via the existing Semantic Scholar API lookup protocol (`references/semantic_scholar_api_protocol.md`). The check runs as part of Step 4.5 Semantic Scholar Deduplication (same API call, additional signal).
+
+Set to `true` when the lookup returns NO match — i.e., neither DOI-based lookup nor title-based lookup with the protocol's similarity threshold yields a hit. Set to `false` when at least one match is returned.
+
+**Exemption:** when the entry's `obtained_via` is `manual` (user-curated entry), SKIP this check and OMIT the `semantic_scholar_unmatched` field from the contamination_signals object. The user has already vouched for the entry; running an automated unmatched check on a user-curated reference would surface false positives for legitimate references the user knows about but Semantic Scholar has not indexed (e.g., grey literature, working papers, books).
+
+**Degradation:** when the Semantic Scholar API is unreachable (network failure, rate limit exhausted, 5xx response), OMIT the field rather than setting it to `false`. Absence ≠ negative confirmation. Setting `semantic_scholar_unmatched: false` would imply "checked and found", which is not what happened.
+
+### Emission rules
+
+- If neither signal fires (`preprint_post_llm_inflection: false` AND `semantic_scholar_unmatched: false`), still emit the `contamination_signals` object with both fields explicitly `false`. This distinguishes "computed and found no contamination" from "did not compute" (object absent).
+- If only one signal can be computed (e.g., Semantic Scholar API down, but preprint check trivially derivable from year + venue), emit the object with only the computable field present.
+- When `obtained_via` is `manual`, the `semantic_scholar_unmatched` field is omitted (per exemption above). The `preprint_post_llm_inflection` field is still computed if applicable.
+
+The contamination_signals object is **advisory only**. It surfaces at cite-time via the finalizer's CONTAMINATED-... annotation suffix (per `pipeline_orchestrator_agent.md` § Cite-Time Provenance Finalizer — v3.7.3 extension). It does NOT block emission and does NOT promote the entry's trust-state markers from LOW-WARN to MED-WARN. The user retains discretion.
+
+### Triangulation Extension (v3.9.0)
+
+Spec: `docs/design/2026-05-17-ars-v3.9.0-cross-index-triangulation-measurement-spec.md` §3.6.
+
+v3.9.0 extends contamination_signals from single-index (Semantic Scholar) to three-index triangulation. The v3.7.3 Vector 1 (preprint_post_llm_inflection) and Vector 2 (semantic_scholar_unmatched) computations are preserved. Two new lookup-time signals join them:
+
+- `openalex_unmatched` — per `deep-research/references/openalex_api_protocol.md`
+- `crossref_unmatched` — per `deep-research/references/crossref_api_protocol.md`
+
+**Execution model:** the three lookups (S2 / OpenAlex / Crossref) run in parallel when possible (one outbound HTTP request per index, results joined locally). If parallelism is not available in the runtime, run sequentially in S2 → OpenAlex → Crossref order. Order does not affect the final field values; each lookup's `*_unmatched` is set independently.
+
+**Per-API degradation:** each lookup follows the omit-on-failure pattern from its protocol doc. If S2 returns 429-after-retries or 5xx, omit `semantic_scholar_unmatched` (per v3.7.3 §3.2). Same for OpenAlex (omit `openalex_unmatched`) and Crossref (omit `crossref_unmatched`). Absence ≠ false per R-L3-2-C. Other indexes proceed independently.
+
+**Manual entry exemption:** `obtained_via='manual'` skips all three lookup checks; the entry exits ingest with the three `*_unmatched` fields absent. `preprint_post_llm_inflection` IS still computed (pure heuristic, no lookup) — v3.7.3 asymmetry preserved per v3.9.0 spec §3.1.
+
+**Per-entry ingest log:** emit one line summarizing which indexes were queried, which matched, and which were degraded. Log format: `[CORPUS INGEST] <citation_key>: s2=<state>, openalex=<state>, crossref=<state>` where each state is `matched` / `unmatched` / `degraded` / `skipped(manual)`.
+
+**v3.9.0 R-L3-2-D constraint:** OpenAlex `primary_location.source.type` and Crossref `type` fields, even when returned by matched entries, MUST NOT be used to derive any classification (venue_type, scope category, hard-block eligibility) within v3.9.0. v3.10 will introduce adapter-declared `venue_type` with explicit provenance.
+
 ## APA 7.0 Quick Reference
 
 Reference: `references/apa7_style_guide.md`

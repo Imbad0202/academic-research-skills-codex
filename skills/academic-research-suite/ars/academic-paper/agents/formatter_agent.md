@@ -261,6 +261,39 @@ Before delivering the output, verify:
 - [ ] CRediT author contribution statement included (if multi-author)
 - [ ] Funding statement included (with or without funding)
 
+## Cite-Time Provenance Hard Gate (v3.7.1 + v3.7.3)
+
+Before emitting any final converted artifact (LaTeX / DOCX / PDF), scan the input markdown for unresolved citation-provenance markers per `pipeline_orchestrator_agent.md` § Cite-Time Provenance Finalizer. The formatter is the terminal hard-gate for `academic-pipeline` and standalone `academic-paper` modes.
+
+**REFUSE to emit final output** when the draft contains any of:
+
+1. A literal `[UNVERIFIED CITATION — NO ORIGINAL]` marker (HIGH-WARN; v3.7.1).
+2. A literal `[UNVERIFIED CITATION — AI HAS NOT CROSS-CHECKED]` marker (MED-WARN; v3.7.1).
+3. A literal `[UNVERIFIED CITATION — NO QUOTE OR PAGE LOCATOR]` marker (MED-WARN-NO-LOCATOR; v3.7.3).
+4. Any `<!--ref:slug-->` HTML comment with status neither `ok` nor LOW-WARN-acknowledged (the finalizer pass either failed or was skipped).
+5. **Any `<!--anchor:none:` marker anywhere in the draft, regardless of the preceding ref status** (v3.7.3 codex round-8 F20 closure). A stale or skipped finalizer pass can leave `<!--ref:slug ok--><!--anchor:none:-->` in the draft — the ref status reads `ok` (so rule 4 passes) but the anchor is `none` (NO-LOCATOR). Since v3.7.3 makes `none` unacknowledgeable per Q5 (resolved), the formatter's terminal scan MUST refuse on the raw anchor pattern, not only on the finalized literal warning text. This is the belt-and-suspenders check against finalizer skip/stale paths.
+6. A literal `[HIGH-WARN-CLAIM-NOT-SUPPORTED]` annotation (v3.8 §3.6 8-row matrix; UNSUPPORTED + source-level defect_stage). The prose misrepresents the cited source — the L3 faithfulness failure v3.8 exists to catch. Mirrors v3.7.3 R-L3-1-A asymmetry — `/ars-mark-read` does NOT clear this; remediation is fixing the prose (re-cite, drop claim, or revise).
+7. A literal `[HIGH-WARN-NEGATIVE-CONSTRAINT-VIOLATION` annotation (v3.8 §3.6; UNSUPPORTED + negative_constraint_violation). The author explicitly declared "MUST NOT" against this scope; gate-refuses regardless of citation strength.
+8. A literal `[HIGH-WARN-FABRICATED-REFERENCE]` annotation (v3.8 §3.6; RETRIEVAL_FAILED + retrieval_existence + not_found). The retrieval API reports the cited reference does not exist — the detection surface is retrieval-side (not bibliography-metadata-side), so fabrication is a retrieval finding rather than a bibliographic-metadata finding.
+9. A literal `[HIGH-WARN-CLAIM-AUDIT-ANCHORLESS` annotation (v3.8 §3.6; RETRIEVAL_FAILED + not_applicable + not_attempted). Defense-in-depth surface against finalizer skip/stale paths — anchor=`none` should have been blocked upstream by v3.7.3 R-L3-1-A; this row catches the cases where it slipped through.
+10. A literal `[HIGH-WARN-CONSTRAINT-VIOLATION-UNCITED` annotation (v3.8 §3.6; uncited sentence triggered VIOLATED against an MNC/NC). The entry-type split between `claim_audit_results[]` (with ref_slug) and `constraint_violations[]` (no ref_slug) is purely a schema-integrity artifact, NOT a severity downgrade — both gate-refuse with HIGH-WARN tier per spec §3.5 + §5. The formatter MUST check this annotation alongside rules 6-9; missing it would silently downgrade the explicit MUST-NOT declaration to LOW-WARN advisory.
+
+External motivation for rule 3: Zhao et al. arXiv:2605.07723 (2026-05) — the L3 claim-faithfulness gap is the load-bearing hallucination risk in current scientific writing. Spec: `docs/design/2026-05-12-ars-v3.7.3-claim-faithfulness-and-contaminated-source-spec.md` §3.1.
+
+When refusing, surface the unresolved markers to the user with their per-section locations and the remediation paths:
+
+- HIGH-WARN (v3.7.1 NO ORIGINAL — rule 1): acquire the original source (set `source_acquired: true` on the entry).
+- MED-WARN (cross-check — rule 2): run cross-check audit (set `source_verified_against_original: true` with `source_verification_method` ∈ {codex_audit, manual_grep, vision_check}).
+- MED-WARN-NO-LOCATOR (rule 3): re-emit the citation with a `<!--anchor:<kind>:<value>-->` where `<kind>` ≠ `none`. This is the ONLY remediation path. `/ars-mark-read` does NOT clear NO-LOCATOR — the finalizer precedence-zero rule resolves anchor=`none` BEFORE applying the trust-state matrix, so `human_read_source: true` cannot promote a NO-LOCATOR marker. The locator is a structural property of the citation, not an acknowledgment-eligible trust state. If the user genuinely cannot produce any locator, they must either acquire that capability (read the source, then emit `quote`/`page`/`section`/`paragraph`) or remove the citation. v3.7.3 codex review P2-2 closure.
+- LOW-WARN (rule 4): run `/ars-mark-read <slug>` to acknowledge.
+- v3.8 HIGH-WARN-CLAIM-NOT-SUPPORTED (rule 6): rewrite the claim so it matches the cited source, or replace the citation with a source that does support the claim, or drop the claim. `/ars-mark-read` does NOT clear this — the verdict is a structural assertion about prose faithfulness, not an acknowledgment-eligible trust state (mirrors v3.7.3 R-L3-1-A asymmetry). v3.8 codex round-5 P2 closure: this row's remediation is the L3 fix the audit exists to surface, not source-acquisition.
+- v3.8 HIGH-WARN-NEGATIVE-CONSTRAINT-VIOLATION (rule 7): revise the claim to comply with the author-declared MUST NOT rule the violated_constraint_id names, or drop the claim, or — if the constraint itself is wrong — re-issue the writing-stage manifest with the constraint removed/edited. `/ars-mark-read` does NOT clear this — the author explicitly declared MUST NOT, so acknowledgment cannot override the declaration.
+- v3.8 HIGH-WARN-FABRICATED-REFERENCE (rule 8): the cited reference does not exist in the retrieval API. Either re-look up the reference (the citation may have a typo / wrong DOI / wrong year), replace it with a verified source, or drop the citation+claim pair. `/ars-mark-read` does NOT clear this — fabrication is the L3-1 failure mode v3.8 exists to surface.
+- v3.8 HIGH-WARN-CLAIM-AUDIT-ANCHORLESS (rule 9): defense-in-depth surface — the v3.7.3 finalizer should have caught this upstream. Remediation: same as MED-WARN-NO-LOCATOR (rule 3) — emit a `<!--anchor:<kind>:<value>-->` with `<kind>` ≠ `none`. `/ars-mark-read` does NOT clear this.
+- v3.8 HIGH-WARN-CONSTRAINT-VIOLATION-UNCITED (rule 10): same remediation as rule 7 (revise / drop / re-issue manifest). The entry-type split between cited (rule 7, claim_audit_result) and uncited (rule 10, constraint_violation) is a schema-integrity artifact only; the user-facing fix is identical.
+
+**Contamination annotations (`CONTAMINATED-PREPRINT`, `CONTAMINATED-UNMATCHED`, `CONTAMINATED-PREPRINT+UNMATCHED`, `CONTAMINATED-COVERAGE-NOISE`, `CONTAMINATED-PARTIAL-UNMATCH`, `CONTAMINATED-TRIANGULATION-UNMATCHED`, `CONTAMINATED-PREPRINT+COVERAGE-NOISE`, `CONTAMINATED-PREPRINT+PARTIAL-UNMATCH`, `CONTAMINATED-PREPRINT+TRIANGULATION-UNMATCHED`) on `ok` or `LOW-WARN` markers DO NOT trigger refusal.** They are advisory per v3.5 Collaboration Depth Observer precedent + v3.7.3 R-L3-2-A + v3.9.0 R-L3-2-E — surface them in the output package's `provenance_summary.md`, but do not block the conversion. v3.9.0 adds 6 triangulation-tier suffixes (everything after the third entry); v3.7.3 added the first three. Refusal rules 1-10 (above) remain unchanged — no v3.9.0 marker triggers gate refusal.
+
 ## Output Format
 
 ```markdown

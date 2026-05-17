@@ -2,7 +2,7 @@
 
 ## What this is
 
-Academic Research Skills (ARS) is a **source-available academic research copilot framework** for noncommercial scholarly use. It is a suite of Claude Code skills that assists human researchers through the full research-to-publication pipeline.
+Academic Research Skills (ARS) is a **source-available academic research copilot framework** for noncommercial scholarly use. The reference distribution is a suite of Claude Code skills that assists human researchers through the full research-to-publication pipeline. Sibling distributions for other agent platforms ([e.g. Codex](https://github.com/Imbad0202/academic-research-skills-codex)) follow the same workflow content, the same human-in-the-loop design philosophy, and the same license terms; see [CONTRIBUTING.md § Platform ports](CONTRIBUTING.md#platform-ports-community-maintained-only).
 
 It is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). This is not an open source license — it restricts commercial use by design, to keep the tool free for academic communities.
 
@@ -38,7 +38,7 @@ These reflect our policy intent. See the [CC BY-NC 4.0 license](https://creative
 
 - Style Calibration learns your voice from past papers — so the output sounds like you, not like a machine
 - Writing Quality Check catches AI-typical patterns — to improve prose quality, not evade detection
-- Disclosure Mode generates venue-specific AI usage statements — because transparency is the standard
+- Disclosure Mode generates venue-specific or policy-anchor AI usage statements — because transparency is the standard
 
 **Human-in-the-loop, always.** The pipeline's checkpoint system is mandatory by design:
 
@@ -47,12 +47,12 @@ These reflect our policy intent. See the [CC BY-NC 4.0 license](https://creative
 - "Full mode" means full-pipeline execution, not full autonomy — the human decides at every gate
 - Max 2 revision loops, after which remaining issues become "Acknowledged Limitations" rather than being silently resolved
 
-**Failure modes are made visible, not hidden.** The 7-mode AI Research Failure Mode Checklist (v3.2) and Reviewer Calibration Mode exist so that users can see where the AI might be wrong — not so that the AI can claim it's always right.
+**Failure modes are made visible, not hidden.** The 7-mode AI Research Failure Mode Checklist (v3.2) and Reviewer Calibration Mode exist so that users can see where the AI might be wrong — not so that the AI can claim it's always right. The v3.7.3 + v3.8 L3 claim-faithfulness gate adds per-citation locator anchors and an opt-in audit pass that verifies whether each cited source actually supports the claim made of it.
 
 ## Citing this tool
 
 If you use ARS in your research, please cite it:
 
 ```
-Wu, C.-I. (2026). Academic Research Skills for Claude Code (Version 3.3) [Computer software]. https://github.com/Imbad0202/academic-research-skills
+Wu, C.-I. (2026). Academic Research Skills for Claude Code (Version 3.8) [Computer software]. https://github.com/Imbad0202/academic-research-skills
 ```

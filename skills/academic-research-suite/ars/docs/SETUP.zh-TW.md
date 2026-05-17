@@ -50,7 +50,7 @@ Codex conversation。
 
 ## Claude-style aliases
 
-Claude Code v3.7 會安裝 `/ars-*` slash commands。Codex 沒有同一套 command
+Claude Code ARS 會安裝 `/ars-*` slash commands。Codex 沒有同一套 command
 registry，所以本 package 在 `$academic-research-suite` router 裡模擬同樣意圖。
 
 如果 Codex client 會攔截 slash input，請用不含 slash 的 alias：
@@ -233,16 +233,19 @@ corpus-first / search-fills-gap 行為。詳見
 |---|---|
 | `ARS_SOCRATIC_READING_PROBE=1` | workflow 進入 `socratic_mentor_agent` prompt 時，啟用 Socratic reading-check probe。 |
 | `ARS_PASSPORT_RESET=1` | 將 FULL checkpoint 提升為 Material Passport reset boundary。Upstream 的「fresh Claude Code session」在這裡代表新的 Codex conversation。 |
+| `ARS_CLAIM_AUDIT=1` | workflow 進入 upstream 對應路徑時，啟用選用的 v3.8 claim-reference alignment audit gate。 |
 | `ARS_CROSS_MODEL=claude-opus-4.7` + `ANTHROPIC_API_KEY` | 使用者明確要求時，啟用選用的外部 Claude Opus reviewer。 |
 | `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | 明確啟用 cross-model review 時的 advisory sampling interval。 |
+| `S2_API_KEY` | 選用 Semantic Scholar key，用於加速 reference lookup 與 contamination-signal migration。 |
+| `OPENALEX_POLITE_EMAIL`, `CROSSREF_POLITE_EMAIL` | ARS v3.9.0 OpenAlex / Crossref triangulation clients 的選用 polite-pool 識別資訊。 |
 
 Upstream GPT/Gemini cross-model 範例在 Codex package 裡不啟用。不要為
 ARS Codex cross-model review 設定 `OPENAI_API_KEY` 或 `GOOGLE_AI_API_KEY`；
 Codex 本身已提供主要 OpenAI model。
 
-## 無法直接複製的 Claude v3.7 功能
+## 無法直接複製的 Claude Code 功能
 
-| Claude Code v3.7 功能 | Codex 狀態 |
+| Claude Code 功能 | Codex 狀態 |
 |---|---|
 | `/plugin marketplace add` / `/plugin install` | 不支援。請把本 repo 安裝為 Codex skill。 |
 | 原生 `/ars-*` slash command 註冊 | 不支援。改用 `$academic-research-suite` 內的 `ars-*` alias。 |

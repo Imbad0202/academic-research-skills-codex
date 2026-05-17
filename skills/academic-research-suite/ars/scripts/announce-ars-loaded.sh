@@ -25,7 +25,7 @@ set -euo pipefail
 # no indirect expansion via `${!var}`, no `<<<` here-strings on the hot
 # path). It runs cleanly on macOS stock /bin/bash 3.2 so plugin users
 # don't have to `brew install bash` just to see the SessionStart announce.
-# The Codex adapter also keeps `run_codex_audit.sh` compatible with Bash 3.2+.
+# `run_codex_audit.sh` does need Bash 4+ — that wrapper guards itself.
 # ---------------------------------------------------------------------------
 # Read SessionStart event JSON from stdin and pull `source` (one of
 # startup / resume / clear / compact) without taking a hard dependency on

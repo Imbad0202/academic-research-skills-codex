@@ -53,7 +53,7 @@ extra cross-model reviewer described below.
 
 ## Claude-Style Aliases
 
-Claude Code v3.7 installs `/ars-*` slash commands. Codex does not expose the
+Claude Code ARS installs `/ars-*` slash commands. Codex does not expose the
 same command registry, so this package emulates their intent through the
 `$academic-research-suite` router.
 
@@ -243,16 +243,19 @@ All flags are opt-in.
 |---|---|
 | `ARS_SOCRATIC_READING_PROBE=1` | Enables the Socratic reading-check probe in `socratic_mentor_agent` when the workflow reaches that prompt. |
 | `ARS_PASSPORT_RESET=1` | Promotes FULL checkpoints to Material Passport reset boundaries. A "fresh Claude Code session" in upstream wording means a new Codex conversation here. |
+| `ARS_CLAIM_AUDIT=1` | Enables the optional v3.8 claim-reference alignment audit gate when the workflow reaches that upstream path. |
 | `ARS_CROSS_MODEL=claude-opus-4.7` + `ANTHROPIC_API_KEY` | Enables the optional external Claude Opus reviewer when explicitly requested by the user. |
 | `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | Advisory sampling interval for cross-model checks when cross-model review is explicitly enabled. |
+| `S2_API_KEY` | Optional Semantic Scholar key for faster reference lookups and contamination-signal migration. |
+| `OPENALEX_POLITE_EMAIL`, `CROSSREF_POLITE_EMAIL` | Optional polite-pool identifiers for ARS v3.9.0 OpenAlex / Crossref triangulation clients. |
 
 Upstream GPT/Gemini cross-model examples are not active in this Codex package.
 Do not set `OPENAI_API_KEY` or `GOOGLE_AI_API_KEY` for ARS Codex cross-model
 review; Codex itself already supplies the primary OpenAI model.
 
-## Claude v3.7 Features That Do Not Copy Directly
+## Claude Code Features That Do Not Copy Directly
 
-| Claude Code v3.7 feature | Codex status |
+| Claude Code feature | Codex status |
 |---|---|
 | `/plugin marketplace add` / `/plugin install` | Not available. Install this repo as a Codex skill. |
 | Native `/ars-*` slash-command registration | Not available. Use `ars-*` aliases through `$academic-research-suite`. |

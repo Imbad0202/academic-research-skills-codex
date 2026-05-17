@@ -51,8 +51,8 @@ Add to your shell profile (`~/.zshrc` or `~/.bashrc`):
 
 ```bash
 # Optional: Cross-model verification for ARS
-export OPENAI_API_KEY="<your-openai-api-key>"
-export GOOGLE_AI_API_KEY="<your-google-ai-api-key>"
+export OPENAI_API_KEY="sk-your-key-here"
+export GOOGLE_AI_API_KEY="AIza-your-key-here"
 
 # Choose your preferred cross-verification model
 # Options: gpt-5.4-pro, gpt-5.4, gemini-3.1-pro-preview

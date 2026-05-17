@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """check_audit_artifact_consistency.py — ARS v3.6.7 Step 6 Phase 6.3 lint.
 
 Implements every row of spec §3.7 invariant families A-F (cross-artifact
@@ -216,8 +216,7 @@ def _load_yaml_or_json(path: Path) -> Any:
     text = path.read_text(encoding="utf-8")
     if path.suffix.lower() == ".json":
         return json.loads(text)
-    # _StrTimestampSafeLoader is a SafeLoader subclass that only overrides timestamps.
-    return yaml.load(text, Loader=_StrTimestampSafeLoader)  # nosec B506
+    return yaml.load(text, Loader=_StrTimestampSafeLoader)
 
 
 class _StrTimestampSafeLoader(yaml.SafeLoader):
@@ -725,22 +724,24 @@ def check_b4(sidecar: dict[str, Any] | None, repo_root: Path,
     git_sha = _safe_get(sidecar, "runner", "git_sha")
     if not isinstance(git_sha, str):
         return []
+    # Skip live-git check when not in a real git repo (allows synthetic fixtures
+    # with valid-looking but fictitious SHAs to pass B4 without false positive).
+    # Codex vendors ARS below the repository root, so repo_root/.git may be
+    # absent even though `git -C repo_root` resolves through a parent worktree.
+    looks_like_ars_root = (
+        (repo_root / "scripts/check_audit_artifact_consistency.py").is_file()
+        and (repo_root / "shared/contracts/audit").is_dir()
+    )
+    if not (repo_root / ".git").exists() and not looks_like_ars_root:
+        return []
+
+    probe = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", "--is-inside-work-tree"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if probe.returncode != 0 or probe.stdout.strip() != "true":
+        return []
     try:
-        # `repo_root` may be the vendored ARS directory inside the Codex repo, not
-        # the actual Git top-level. Ask Git instead of requiring repo_root/.git.
-        probe = subprocess.run(
-            ["git", "-C", str(repo_root), "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=10,
-        )
-        # Skip live-git check when not in a real git repo (allows synthetic fixtures
-        # with valid-looking but fictitious SHAs to pass B4 without false positive).
-        if probe.returncode != 0:
-            return []
-        git_top = Path(probe.stdout.strip()).resolve()
-        repo_resolved = repo_root.resolve()
-        is_ars_root = (repo_resolved / "scripts" / "check_audit_artifact_consistency.py").exists()
-        if repo_resolved != git_top and not is_ars_root:
-            return []
         result = subprocess.run(
             ["git", "-C", str(repo_root), "cat-file", "-e", f"{git_sha}^{{commit}}"],
             capture_output=True, text=True, timeout=10,
@@ -1864,8 +1865,7 @@ def _classify_and_validate_block(
         # parse as YAML — use timestamp-as-string loader so we don't double-flag
         # `2026-04-30T15:22:04.123Z` as a YAML datetime object (schema needs str).
         try:
-            # _StrTimestampSafeLoader is a SafeLoader subclass that only overrides timestamps.
-            doc = yaml.load(stripped, Loader=_StrTimestampSafeLoader)  # nosec B506
+            doc = yaml.load(stripped, Loader=_StrTimestampSafeLoader)
         except yaml.YAMLError as e:
             out.append(LintError("F4", f"yaml parse error: {e}", location))
             return out
