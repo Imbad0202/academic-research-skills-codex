@@ -15,7 +15,7 @@ from _skill_lint import split_frontmatter
 
 RUBRIC_PATH = Path("shared/collaboration_depth_rubric.md")
 ORCHESTRATOR_PATH = Path("academic-pipeline/agents/pipeline_orchestrator_agent.md")
-PIPELINE_SKILL_PATH = Path("academic-pipeline/SKILL.md")
+PIPELINE_SKILL_PATH = Path("academic-pipeline/WORKFLOW.md")
 AGENTS_DIR = Path("academic-pipeline/agents")
 
 DOI_TOKEN = "10.1186/s41239-026-00585-x"

@@ -7,7 +7,7 @@
 - **Output**: 5 review reports + Editorial Decision + Revision Roadmap + Socratic Revision Coaching
 - **Decision branches**: Accept -> Stage 4.5 / Minor|Major -> Revision Coaching -> Stage 4 / Reject -> Stage 2 or end
 
-See `academic-paper-reviewer/SKILL.md` for review process details.
+See `academic-paper-reviewer/WORKFLOW.md` for review process details.
 
 ## Stage 3 -> 4 Transition: Revision Coaching
 
@@ -20,7 +20,7 @@ EIC uses Socratic dialogue to guide the user in understanding review comments an
 - **Output**: Revision response comparison table + new issues list + new Editorial Decision + R&R Traceability Matrix (Schema 11)
 - **Decision branches**: Accept|Minor -> Stage 4.5 / Major -> Residual Coaching -> Stage 4'
 
-See `academic-paper-reviewer/SKILL.md` Re-Review Mode for verification review process.
+See `academic-paper-reviewer/WORKFLOW.md` Re-Review Mode for verification review process.
 
 ## Stage 3' -> 4' Transition: Residual Coaching
 

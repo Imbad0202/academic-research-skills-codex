@@ -7,7 +7,7 @@ applies_to: "shared/agents/compliance_agent.md"
 
 Defines how `compliance_agent` participates in Stage 2.5 and Stage 4.5 Integrity Gates, how its decision interacts with the existing FAIL loop, and how user overrides are processed.
 
-**Used by**: `compliance_agent` (Task 8), `academic-pipeline/SKILL.md` Stage 2.5 / 4.5.
+**Used by**: `compliance_agent` (Task 8), `academic-pipeline/WORKFLOW.md` Stage 2.5 / 4.5.
 
 ## Dual-gate summary
 

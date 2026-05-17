@@ -86,7 +86,7 @@ def _make_repo(root: Path) -> None:
     agents.mkdir(parents=True)
     (agents / "collaboration_depth_agent.md").write_text(_valid_agent_text())
     (agents / "pipeline_orchestrator_agent.md").write_text(_valid_orchestrator_text())
-    (root / "academic-pipeline" / "SKILL.md").write_text(_valid_skill_md_text())
+    (root / "academic-pipeline" / "WORKFLOW.md").write_text(_valid_skill_md_text())
 
 
 class TestCollaborationDepthRubric(unittest.TestCase):
@@ -228,7 +228,7 @@ class TestCollaborationDepthRubric(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
             _make_repo(root)
-            skill = root / "academic-pipeline" / "SKILL.md"
+            skill = root / "academic-pipeline" / "WORKFLOW.md"
             skill.write_text("# academic-pipeline\n\nWe use collaboration_depth_agent.\n")
             r = _run(root)
             self.assertEqual(r.returncode, 1)

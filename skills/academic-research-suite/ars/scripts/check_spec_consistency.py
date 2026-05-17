@@ -84,7 +84,7 @@ def check_claude_md() -> None:
 
 
 def check_reviewer_version_block() -> None:
-    rel_path = "academic-paper-reviewer/SKILL.md"
+    rel_path = "academic-paper-reviewer/WORKFLOW.md"
     text = read(rel_path)
     frontmatter_match = re.search(
         r'metadata:\s*[\s\S]*?\n\s+version:\s"([^"]+)"\n\s+last_updated:\s"([^"]+)"',
@@ -116,7 +116,7 @@ def check_reviewer_version_block() -> None:
 
 def check_pipeline_docs() -> None:
     for rel_path in (
-        "academic-pipeline/SKILL.md",
+        "academic-pipeline/WORKFLOW.md",
         "academic-pipeline/agents/pipeline_orchestrator_agent.md",
     ):
         expect_absent(rel_path, "auto-continue in 5 seconds")
@@ -293,7 +293,7 @@ def check_setup_docs() -> None:
 
 def check_docx_contract() -> None:
     expect_contains(
-        "academic-paper/SKILL.md",
+        "academic-paper/WORKFLOW.md",
         "LaTeX/DOCX-via-Pandoc/PDF output",
     )
     expect_contains(
@@ -305,7 +305,7 @@ def check_docx_contract() -> None:
         "If Pandoc is unavailable, provide complete markdown + DOCX conversion instructions",
     )
     expect_contains(
-        "academic-pipeline/SKILL.md",
+        "academic-pipeline/WORKFLOW.md",
         "DOCX via Pandoc when available, otherwise conversion instructions",
     )
     expect_contains(
@@ -313,7 +313,7 @@ def check_docx_contract() -> None:
         "DOCX via Pandoc when available (otherwise instructions)",
     )
     for rel_path in (
-        "academic-pipeline/SKILL.md",
+        "academic-pipeline/WORKFLOW.md",
         "academic-pipeline/agents/pipeline_orchestrator_agent.md",
     ):
         expect_absent(rel_path, "Auto-produce MD + DOCX")

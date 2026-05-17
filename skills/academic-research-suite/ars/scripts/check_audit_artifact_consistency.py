@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """check_audit_artifact_consistency.py — ARS v3.6.7 Step 6 Phase 6.3 lint.
 
 Implements every row of spec §3.7 invariant families A-F (cross-artifact
