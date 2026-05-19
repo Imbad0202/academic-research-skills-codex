@@ -1,4 +1,4 @@
-# ARS Codex Pipeline Architecture (tracks ARS v3.9.0)
+# ARS Codex Pipeline Architecture (tracks ARS v3.9.4.2)
 
 Full pipeline view across stages × workflows × artifacts × gates for the
 Codex package. The research logic is inherited from upstream ARS, but runtime
@@ -359,13 +359,31 @@ timeline
            : openalex_unmatched + crossref_unmatched optional booleans
            : 4-tier advisory matrix; refusal list unchanged
            : migrate_literature_corpus_to_v3_9_0.py + check_v3_9_0_triangulation.py
+    v3.9.1 : Client hardening (#129 + #130)
+           : OpenAlex/Crossref response-read failures degrade as *Unavailable
+           : claim-audit lint guards malformed non-string manifest_id
+    v3.9.2 : Phase scope inflation hot-fix (#133)
+           : phase-boundary blocks across single-phase agents
+           : intent clarification for ambiguous cross-phase materials
+    v3.9.3 : Shared client utilities + migration YAML helper extraction
+           : _text_similarity.py + _passport_yaml.py
+           : time.monotonic throttle standardization
+    v3.9.4 : Temporal verification advisory layer (#135)
+           : timeline_extraction_agent + 5-pass verifier at Phase 4→5
+           : Temporal Integrity Iron Rule in writer/compiler prompts
+           : first-party Crossref/pdftotext verification sidecars
+    v3.9.4.1 : Temporal verification post-ship hotfix
+             : citation_provenance wiring, date parser coverage, direct-date P4 binding
+             : citation_provenance confidence:high required-field schema fix
+    v3.9.4.2 : CI/release-gate-only upstream tag
+             : .github changes intentionally excluded from the Codex package
 ```
 
 ## 9. Skill Modes
 
 | Skill | Modes |
 |---|---|
-| `deep-research` v2.9.2 | full, quick, socratic, review, lit-review, fact-check, systematic-review (7) |
-| `academic-paper` v3.1.1 | full, plan, outline-only, revision, revision-coach, abstract-only, lit-review, format-convert, citation-check, disclosure (10) |
-| `academic-paper-reviewer` v1.9.0 | full, re-review, quick, methodology-focus, guided, calibration (6) |
-| `academic-pipeline` v3.9.0 | orchestrator (delegates to workflow modes) + `resume_from_passport=<hash>` (v3.6.3 — resume a prior pipeline run from a Material Passport reset boundary; no flag required to invoke. The producing session must have set `ARS_PASSPORT_RESET=1` to emit boundary entries.) + `ARS_CLAIM_AUDIT=1` (v3.8 — opt-in Stage 4→5 L3 claim-faithfulness audit gate; default OFF) + v3.9.0 cross-index contamination-signal triangulation (advisory only) |
+| `deep-research` v2.9.4 | full, quick, socratic, review, lit-review, fact-check, systematic-review (7) |
+| `academic-paper` v3.1.2 | full, plan, outline-only, revision, revision-coach, abstract-only, lit-review, format-convert, citation-check, disclosure (10) |
+| `academic-paper-reviewer` v1.9.1 | full, re-review, quick, methodology-focus, guided, calibration (6) |
+| `academic-pipeline` v3.9.4.1 | orchestrator (delegates to workflow modes) + `resume_from_passport=<hash>` (v3.6.3 — resume a prior pipeline run from a Material Passport reset boundary; no flag required to invoke. The producing session must have set `ARS_PASSPORT_RESET=1` to emit boundary entries.) + `ARS_CLAIM_AUDIT=1` (v3.8 — opt-in Stage 4→5 L3 claim-faithfulness audit gate; default OFF) + v3.9.4 temporal verification advisory layer (timeline extraction + 5-pass verifier at Phase 4→5) |

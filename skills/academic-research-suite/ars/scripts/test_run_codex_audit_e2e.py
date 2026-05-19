@@ -1,14 +1,14 @@
 """End-to-end dispatch test for scripts/run_codex_audit.sh (Phase 6.1 deferred gate).
 
 Spec: docs/design/2026-04-30-ars-v3.6.7-step-6-orchestrator-hooks-spec.md
-      §4.1 (Bash guard) + §4.4 (wrapper internal behavior) +
+      §4.1 (Bash 4+ guard) + §4.4 (wrapper internal behavior) +
       Phase 6.1 verification gate (lines 2308) — "synthetic smoke test (codex CLI mocked
       or invoked against a tiny fixture deliverable) produces a well-formed proposal
       entry that validates against the Phase 6.2 schemas in --mode proposal".
 
-The Codex adapter keeps the wrapper compatible with macOS stock Bash 3.2+.
-The upstream design doc still records the original Bash 4+ target, but the
-current wrapper implementation does not require Bash 4-only features.
+This test is gated to Linux runners (and any host with Bash 4+) because the
+wrapper's §4.1 Bash 4+ check exits 64 on macOS stock Bash 3.2. CI runs this
+on ubuntu-latest; locally on macOS the test self-skips.
 
 The test mocks the `codex` CLI via a PATH-prefix shim that emits a canonical
 Phase 2 audit JSONL stream (per §3.3) and a `codex --version` semver line
@@ -47,8 +47,8 @@ WRAPPER = REPO_ROOT / "scripts" / "run_codex_audit.sh"
 SCHEMA_DIR_PASSPORT = REPO_ROOT / "shared" / "contracts" / "passport"
 SCHEMA_DIR_AUDIT = REPO_ROOT / "shared" / "contracts" / "audit"
 
-# Skip only on hosts without Bash 3.2+.
-def _bash_version_tuple() -> tuple[int, int]:
+# Skip on hosts without Bash 4+. macOS stock /bin/bash is 3.2; CI ubuntu has 5.x.
+def _bash_major_version() -> int:
     try:
         out = subprocess.run(
             ["bash", "-c", "echo $BASH_VERSION"],
@@ -56,15 +56,14 @@ def _bash_version_tuple() -> tuple[int, int]:
             capture_output=True,
             text=True,
         ).stdout.strip()
-        major, minor = out.split(".", 2)[:2]
-        return int(major), int(minor)
+        return int(out.split(".", 1)[0])
     except Exception:  # pragma: no cover - defensive
-        return 0, 0
+        return 0
 
 
 pytestmark = pytest.mark.skipif(
-    _bash_version_tuple() < (3, 2),
-    reason="wrapper requires Bash 3.2+",
+    _bash_major_version() < 4,
+    reason="wrapper requires Bash 4+; skip on stock macOS / Bash 3.2",
 )
 
 

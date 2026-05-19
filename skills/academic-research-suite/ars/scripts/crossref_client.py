@@ -14,42 +14,41 @@ nested under `message`; title is a list (multi-language variants).
 """
 from __future__ import annotations
 
+import http.client
 import json
 import os
-import string
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from difflib import SequenceMatcher
 from typing import Any, Mapping
 
+# Dual-path import: see openalex_client.py comment.
+try:
+    from _text_similarity import (
+        _BACKOFF_SECONDS,
+        _MAX_RETRIES,
+        _TITLE_SIMILARITY_THRESHOLD,
+        _normalize_title,
+        _similarity,
+    )
+except ImportError:
+    from scripts._text_similarity import (
+        _BACKOFF_SECONDS,
+        _MAX_RETRIES,
+        _TITLE_SIMILARITY_THRESHOLD,
+        _normalize_title,
+        _similarity,
+    )
 
-_PUNCT_TRANSLATION = str.maketrans({c: " " for c in string.punctuation})
 
 _API_BASE = "https://api.crossref.org"
 _POLITE_EMAIL_ENV = "CROSSREF_POLITE_EMAIL"
-
-_BACKOFF_SECONDS = 2.0
-_MAX_RETRIES = 3
 
 # Crossref polite pool: 10 req/s with mailto, ~5 req/s anonymous (per
 # Crossref live response headers: x-rate-limit-limit=10, interval=1s).
 _POLITE_MIN_INTERVAL = 0.1
 _ANONYMOUS_MIN_INTERVAL = 0.2
-
-_TITLE_SIMILARITY_THRESHOLD = 0.70
-
-
-def _normalize_title(s: str) -> str:
-    """Case-insensitive, punctuation-to-whitespace normalization. Matches
-    S2 / OpenAlex client to keep the threshold semantically aligned."""
-    cleaned = s.lower().translate(_PUNCT_TRANSLATION)
-    return " ".join(cleaned.split())
-
-
-def _similarity(a: str, b: str) -> float:
-    return SequenceMatcher(None, _normalize_title(a), _normalize_title(b)).ratio()
 
 
 def _extract_title(message_or_item: Mapping[str, Any]) -> str:
@@ -96,7 +95,11 @@ class CrossrefClient:
     def _throttle(self) -> None:
         if self._last_request_at is None:
             return
-        elapsed = time.time() - self._last_request_at
+        # time.monotonic for elapsed measurement: NTP / manual clock
+        # adjustments can make time.time go backward, producing negative
+        # elapsed and either huge sleep or zero sleep (#128 §6). Aligns
+        # with semantic_scholar_client.py.
+        elapsed = time.monotonic() - self._last_request_at
         if elapsed < self._min_interval:
             time.sleep(self._min_interval - elapsed)
 
@@ -107,12 +110,34 @@ class CrossrefClient:
         req = urllib.request.Request(url, headers={"User-Agent": self._user_agent})
 
         self._throttle()
-        self._last_request_at = time.time()
+        self._last_request_at = time.monotonic()
 
         for attempt in range(_MAX_RETRIES + 1):
             try:
                 with urllib.request.urlopen(req, timeout=30) as resp:
-                    return json.loads(resp.read().decode("utf-8"))
+                    # Wrap response body read + decode + parse in a narrow
+                    # except so transient socket drops mid-stream, garbled
+                    # bodies, or HTML error pages slipped through with 200
+                    # status surface as CrossrefUnavailable — honoring the
+                    # v3.9.0 spec §3.7 per-API degradation contract (one
+                    # transient failure must drop only crossref_unmatched,
+                    # not abort the whole backfill). Mirrors openalex_client.
+                    try:
+                        body = resp.read()
+                        return json.loads(body.decode("utf-8"))
+                    except (
+                        OSError,
+                        http.client.HTTPException,
+                        UnicodeDecodeError,
+                        json.JSONDecodeError,
+                    ) as e:
+                        # http.client.HTTPException covers IncompleteRead
+                        # (truncated body — canonical mid-stream socket drop)
+                        # which inherits HTTPException, not OSError. Codex
+                        # review v3.9.1 R1 P2.
+                        raise CrossrefUnavailable(
+                            f"Crossref response read/parse failed: {e}"
+                        ) from e
             except urllib.error.HTTPError as e:
                 if e.code == 404:
                     return {}
@@ -121,7 +146,7 @@ class CrossrefClient:
                     # Refresh throttle anchor after backoff so the next outer
                     # _get call's _throttle() paces against actual wake time,
                     # not the original entry time (mirrors openalex_client.py).
-                    self._last_request_at = time.time()
+                    self._last_request_at = time.monotonic()
                     continue
                 raise CrossrefUnavailable(f"Crossref HTTP {e.code}: {e.reason}") from e
             except (urllib.error.URLError, TimeoutError) as e:

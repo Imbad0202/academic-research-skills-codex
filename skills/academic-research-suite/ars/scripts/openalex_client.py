@@ -9,39 +9,43 @@ title cross-check (DOI_MISMATCH pattern), title-similarity fallback,
 """
 from __future__ import annotations
 
+import http.client
 import json
 import os
-import string
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from difflib import SequenceMatcher
 from typing import Any, Mapping
 
+# Dual-path import: sibling-first (so module identity matches when callers
+# import via the sibling path, e.g. tests), namespace-package fallback (for
+# repo-root `import scripts.openalex_client`). See semantic_scholar_client.py
+# for the identity-matching rationale.
+try:
+    from _text_similarity import (
+        _BACKOFF_SECONDS,
+        _MAX_RETRIES,
+        _TITLE_SIMILARITY_THRESHOLD,
+        _normalize_title,
+        _similarity,
+    )
+except ImportError:
+    from scripts._text_similarity import (
+        _BACKOFF_SECONDS,
+        _MAX_RETRIES,
+        _TITLE_SIMILARITY_THRESHOLD,
+        _normalize_title,
+        _similarity,
+    )
 
-_PUNCT_TRANSLATION = str.maketrans({c: " " for c in string.punctuation})
 
 _API_BASE = "https://api.openalex.org"
 _POLITE_EMAIL_ENV = "OPENALEX_POLITE_EMAIL"
 _FIELDS = "id,title,authorships,publication_year,doi,primary_location"
 
-_BACKOFF_SECONDS = 2.0
-_MAX_RETRIES = 3
-
 _POLITE_MIN_INTERVAL = 0.1
 _ANONYMOUS_MIN_INTERVAL = 1.0
-
-_TITLE_SIMILARITY_THRESHOLD = 0.70
-
-
-def _normalize_title(s: str) -> str:
-    cleaned = s.lower().translate(_PUNCT_TRANSLATION)
-    return " ".join(cleaned.split())
-
-
-def _similarity(a: str, b: str) -> float:
-    return SequenceMatcher(None, _normalize_title(a), _normalize_title(b)).ratio()
 
 
 class OpenAlexUnavailable(Exception):
@@ -65,7 +69,11 @@ class OpenAlexClient:
     def _throttle(self) -> None:
         if self._last_request_at is None:
             return
-        elapsed = time.time() - self._last_request_at
+        # time.monotonic for elapsed measurement: NTP / manual clock
+        # adjustments can make time.time go backward, producing negative
+        # elapsed and either huge sleep or zero sleep (#128 §6). Aligns
+        # with semantic_scholar_client.py.
+        elapsed = time.monotonic() - self._last_request_at
         if elapsed < self._min_interval:
             time.sleep(self._min_interval - elapsed)
 
@@ -77,12 +85,34 @@ class OpenAlexClient:
         req = urllib.request.Request(url, headers={"User-Agent": "ARS-v3.9.0"})
 
         self._throttle()
-        self._last_request_at = time.time()
+        self._last_request_at = time.monotonic()
 
         for attempt in range(_MAX_RETRIES + 1):
             try:
                 with urllib.request.urlopen(req, timeout=30) as resp:
-                    return json.loads(resp.read().decode("utf-8"))
+                    # Wrap response body read + decode + parse in a narrow
+                    # except so transient socket drops mid-stream, garbled
+                    # bodies, or HTML error pages slipped through with 200
+                    # status surface as OpenAlexUnavailable — honoring the
+                    # v3.9.0 spec §3.7 per-API degradation contract (one
+                    # transient failure must drop only openalex_unmatched,
+                    # not abort the whole backfill).
+                    try:
+                        body = resp.read()
+                        return json.loads(body.decode("utf-8"))
+                    except (
+                        OSError,
+                        http.client.HTTPException,
+                        UnicodeDecodeError,
+                        json.JSONDecodeError,
+                    ) as e:
+                        # http.client.HTTPException covers IncompleteRead
+                        # (truncated body — canonical mid-stream socket drop)
+                        # which inherits HTTPException, not OSError. Codex
+                        # review v3.9.1 R1 P2.
+                        raise OpenAlexUnavailable(
+                            f"OpenAlex response read/parse failed: {e}"
+                        ) from e
             except urllib.error.HTTPError as e:
                 if e.code == 404:
                     return {}
@@ -92,7 +122,7 @@ class OpenAlexClient:
                     # paces against actual wake time, not entry time.
                     # Without this the next call may under-sleep (elapsed
                     # already counts the 2s × N backoff) and re-trigger 429.
-                    self._last_request_at = time.time()
+                    self._last_request_at = time.monotonic()
                     continue
                 raise OpenAlexUnavailable(f"OpenAlex HTTP {e.code}: {e.reason}") from e
             except (urllib.error.URLError, TimeoutError) as e:

@@ -56,7 +56,7 @@ Read these passport fields:
 
   **Sentence scope (Step 13 R6 codex P1):** the documented sentence shape is `sentence_text` + `section_path` + optional `adjacent_text` — sentences do NOT need to carry `scoped_manifest_id`. The pipeline derives constraint scope per sentence: if the caller pins `scoped_manifest_id` on the sentence dict (legacy / explicit-scope shape), only that manifest's MNCs apply. Otherwise the pipeline applies **every manifest's MNCs** (uncited sentences have no claim-level binding, so manifest-scoped MNCs reach them universally per spec §3.5 D4-c stream (d) semantics). The emitted `constraint_violation` row derives its `scoped_manifest_id` from the `violated_constraint_id` ↔ source-manifest mapping; no MANIFEST-MISSING sentinel is admitted per the schema's pattern constraint.
 
-Configuration (`claim_audit_config` block in `academic-pipeline/WORKFLOW.md` mode flags):
+Configuration (`claim_audit_config` block in `academic-pipeline/SKILL.md` mode flags):
 
 | Key | Type | Default | Purpose |
 |---|---|---|---|

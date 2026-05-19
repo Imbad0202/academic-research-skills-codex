@@ -223,3 +223,109 @@ def test_polite_pool_email_in_user_agent(monkeypatch):
         client.title_search("any title")
 
     assert any("mailto:test@example.com" in ua for ua in captured_headers)
+
+
+# ---------- v3.9.1: #129 response-read failure wrapping (Crossref) ----------
+
+
+def test_oserror_during_read_raises_unavailable(monkeypatch):
+    """urlopen succeeds, but resp.read() raises OSError (socket drop / timeout
+    mid-stream). Per v3.9.0 spec §3.7 degradation contract, this MUST be
+    translated to CrossrefUnavailable so migrate_literature_corpus_to_v3_9_0
+    omits crossref_unmatched instead of aborting the whole backfill."""
+    from crossref_client import CrossrefClient, CrossrefUnavailable
+
+    mock_response = MagicMock()
+    mock_response.read.side_effect = OSError("socket dropped mid-read")
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=None)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        client = CrossrefClient()
+        with pytest.raises(CrossrefUnavailable):
+            client.title_search("any title")
+
+
+def test_invalid_utf8_body_raises_unavailable(monkeypatch):
+    """resp.read() returns bytes that aren't valid UTF-8. Per v3.9.0 spec §3.7,
+    translate to CrossrefUnavailable not bubble UnicodeDecodeError."""
+    from crossref_client import CrossrefClient, CrossrefUnavailable
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = b"\xff\xfe\xff garbage"
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=None)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        client = CrossrefClient()
+        with pytest.raises(CrossrefUnavailable):
+            client.title_search("any title")
+
+
+def test_invalid_json_body_raises_unavailable(monkeypatch):
+    """resp.read() returns valid utf-8 but not valid JSON (truncated body /
+    HTML error page). Per v3.9.0 spec §3.7, translate to CrossrefUnavailable
+    not bubble JSONDecodeError."""
+    from crossref_client import CrossrefClient, CrossrefUnavailable
+
+    mock_response = MagicMock()
+    mock_response.read.return_value = b"<html>503 backend unavailable</html>"
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=None)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        client = CrossrefClient()
+        with pytest.raises(CrossrefUnavailable):
+            client.title_search("any title")
+
+
+def test_truncated_read_raises_unavailable(monkeypatch):
+    """http.client.IncompleteRead = mid-stream socket drop (200 + truncated
+    body). Inherits HTTPException not OSError. v3.9.1 codex R1 P2 — symmetric
+    to OpenAlex client."""
+    import http.client
+
+    from crossref_client import CrossrefClient, CrossrefUnavailable
+
+    mock_response = MagicMock()
+    mock_response.read.side_effect = http.client.IncompleteRead(
+        partial=b'{"message":', expected=200
+    )
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=None)
+
+    with patch("urllib.request.urlopen", return_value=mock_response):
+        client = CrossrefClient()
+        with pytest.raises(CrossrefUnavailable):
+            client.title_search("any title")
+
+
+def test_throttle_uses_monotonic_clock(monkeypatch):
+    """time.monotonic for elapsed measurement (NTP-safe). time.time can
+    go backward on NTP adjustments, breaking elapsed calculation.
+    Aligns OA/CR with semantic_scholar_client.py (#128 §6)."""
+    from crossref_client import CrossrefClient
+
+    monotonic_calls = []
+    time_calls = []
+
+    def fake_monotonic():
+        monotonic_calls.append(1)
+        return 100.0
+
+    def fake_time():
+        time_calls.append(1)
+        return 100.0
+
+    monkeypatch.setattr("crossref_client.time.monotonic", fake_monotonic)
+    monkeypatch.setattr("crossref_client.time.time", fake_time)
+
+    client = CrossrefClient()
+    # Initial state: no prior request — _throttle short-circuits.
+    client._throttle()
+    # Set anchor, then check throttle uses monotonic, not time.time.
+    client._last_request_at = 90.0
+    client._throttle()
+
+    assert len(monotonic_calls) >= 1, "throttle must read time.monotonic"
+    assert len(time_calls) == 0, "throttle must NOT read time.time (NTP-unsafe)"

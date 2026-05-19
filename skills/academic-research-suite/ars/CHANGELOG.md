@@ -8,6 +8,151 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [3.9.4.1] - 2026-05-19 — Post-ship hotfix for v3.9.4 temporal verification
+
+**Trigger:** Codex post-ship review of v3.9.4 squash commit `af09cf5` surfaced 4 real bugs that per-task subagent reviewers missed during v3.9.4 implementation. v3.9.4 tag remains immutable; v3.9.4.1 patches the verifier and schema layer + brings docs in alignment.
+
+**Bug fixes:**
+- **#135 P1 (audit wiring):** `audit()` now passes `citation_provenance` through to `_pass_2_anachronism` and `_pass_4_causal`. When a ref slug has `confidence: low` or `conflict` in citation_provenance.yaml, the verifier emits `TEMPORAL-METADATA-MISSING` instead of using timeline dates as arithmetic ground truth. v3.9.4 dropped citation_provenance on the floor — spec §3.4 first-party safety check was structurally broken.
+- **#135 P1 (date parser):** `_date_to_interval()` now parses all schema-valid date shapes including `YYYY-MM` (Crossref month-precision output) and `YYYY-MM-DD..YYYY-MM-DD` (interval precision used by effective_date_range). v3.9.4 only handled day/year/prose-month forms — schema-valid month/interval shapes raised ValueError and P2/P4 silently skipped the check via the existing `except ValueError: continue` guard.
+- **#135 P2 (P4 direct-date binding):** P4 now binds each side of a causal trigger to either a `<!--ref:slug-->` marker OR a direct date capture in the sentence. v3.9.4 required refs on both sides, silently dropping sentences like "The 2026 policy enabled the 2020 rollout." `bound_dates.source` distinguishes `timeline_ref` from `draft_capture`; `bound_refs` is empty when both sides came from direct date capture.
+- **#135 P2 (schema absent-property bypass):** `citation_provenance.schema.json` `confidence:high` allOf branch now requires both `crossref_issued` and `pdftotext_cover_first_line` to be present in addition to non-null (`then.required` added). v3.9.4 used `then.properties` only, which doesn't fire when a property is absent — so entries with `confidence:high` and both source fields omitted silently passed validation.
+
+**Documentation:**
+- `docs/ARCHITECTURE.md` updated from stale v3.8.0 baseline to v3.9.4.1; Section 8 Evolution Timeline filled in v3.8.1 / v3.8.2 / v3.9.0 / v3.9.1 / v3.9.2 / v3.9.3 / v3.9.4 / v3.9.4.1 entries; Section 9 Skill Modes table aligned to current versions.
+- Suite-version needles aligned across MODE_REGISTRY.md, README.md badge + tag URL + section heading, README.zh-TW.md badge + tag URL + section heading, academic-pipeline/SKILL.md frontmatter, `.claude-plugin/plugin.json`, `scripts/check_spec_consistency.py` expected-text constants, `.claude/CLAUDE.md` skill suite table.
+
+**Test count:** 1549 → **1561** (+12 net new tests covering all 4 fixes, 0 regression).
+
+---
+
+## [3.9.4] - 2026-05-18 — Temporal Verification Layer (advisory)
+
+**External motivation:** Issue #135 — LLM next-token objectives are systematically blind to deterministic factual classes including temporal ordering. v3.9.4 adds a deterministic advisory verifier at the Phase 4 → 5 boundary covering 5 failure modes.
+
+**Mechanisms:**
+- M1: new Phase 2 sibling `timeline_extraction_agent` owning `phase2_investigation/timeline.yaml` + `phase2_investigation/citation_provenance.yaml`
+- M2: Phase 4 → 5 deterministic verifier `scripts/temporal_integrity_audit.py` (5 passes)
+- M3: Temporal Integrity Iron Rule in `report_compiler_agent` + `draft_writer_agent`
+- M6-minimal: First-party Crossref `issued` + pdftotext cover verification
+- M7-minimal: Date provenance + comparator materialization
+- M5-stub: User-declared `version_family_id` only
+
+**Zero modification** to `literature_corpus_entry`, `claim_audit_result`, `claim_intent_manifest`. `bibliography_agent` unmodified (F2 invariant). 3 new sidecar schemas (aggregate-level with `$defs`).
+
+**Coverage estimate:** 55-70% baseline / 65-75% with M7 minimal (LLM extractor blindness on tuple extraction is structural; advisory architecture acknowledges this).
+
+**Out of v3.9.4 scope** (deferred to v3.10): M4 reviewer integration, M5 full version discovery, M6 full PDF audit, M8 relation manifest, CC5 catalog-completeness semantics, hard-block policy, OpenAlex lookup.
+
+Spec: `docs/design/2026-05-18-ars-v3.9.4-temporal-verification-spec.md`.
+
+---
+
+## [3.9.3] - 2026-05-18 — Housekeeping (#128 §1-3, §5-6)
+
+Pure refactor + one latent-bug fix carrying over from the v3.9.0 `/simplify` review backlog. The v3.9.0 cross-index triangulation client family (Semantic Scholar + OpenAlex + Crossref) shipped intentionally byte-equivalent across 3 client modules for code locality; now that the family is stable, the dedup prevents sibling drift when threshold tuning, normalization rules, or throttle measurement need adjustment.
+
+### Refactor — extracted helpers (no behavior change)
+
+- **`scripts/_text_similarity.py`** — extracts 4 helpers + 4 constants previously triple-implemented byte-equivalent in `semantic_scholar_client.py` / `openalex_client.py` / `crossref_client.py`: `_PUNCT_TRANSLATION`, `_normalize_title`, `_similarity`, `_TITLE_SIMILARITY_THRESHOLD = 0.70`, `_BACKOFF_SECONDS = 2.0`, `_MAX_RETRIES = 3`. 14 new tests on the shared module.
+- **`scripts/_passport_yaml.py`** — extracts ruamel.yaml round-trip config (`preserve_quotes = True`, `indent(mapping=2, sequence=4, offset=2)`) + `load_passport` / `dump_passport` functions previously duplicated byte-equivalent in `migrate_literature_corpus_to_v3_7_3.py` + `migrate_literature_corpus_to_v3_9_0.py`. 7 new tests on the shared module.
+- **`contamination_signals._resolve_by_doi_then_title`** — private helper for the identical DOI-then-title control flow shared by `resolve_openalex_unmatched` (§3.4) + `resolve_crossref_unmatched` (§3.5). Both public wrappers preserve the v3.9.0 spec API surface; exception-type differentiation stays at the wrapper. 10 existing resolver tests verify byte-equivalent behavior.
+
+### Latent-bug fix — throttle measurement standardized on `time.monotonic`
+
+- OpenAlex + Crossref clients now use `time.monotonic()` for `_throttle()` elapsed measurement + `_last_request_at` anchor refresh, matching Semantic Scholar (which had standardized on monotonic per #115 R5-2). NTP / manual clock adjustments could push `time.time()` backward, producing negative elapsed and either inflated sleep (negative compared less than min_interval) or zero sleep — latent throttle-bypass / API-spam bug. Documented as a "maintenance smell" in #128 §6.
+- New tests (`test_openalex_client::test_throttle_uses_monotonic_clock` + `test_crossref_client::test_throttle_uses_monotonic_clock`) lock NTP-safe semantics: throttle reads `time.monotonic` and never reads `time.time`.
+
+### Dual-path import infrastructure
+
+- All 5 module-level cross-imports in `openalex_client.py` / `crossref_client.py` / `semantic_scholar_client.py` / `migrate_literature_corpus_to_v3_7_3.py` / `migrate_literature_corpus_to_v3_9_0.py` use the dual-path try/except pattern (sibling-first, namespace-package fallback). Follows `scripts/slr_lineage.py` precedent but inverted for class-identity preservation (pytest uses sibling-path imports; `SemanticScholarUnavailable` from `scripts.contamination_signals` is a different class instance than `contamination_signals.SemanticScholarUnavailable`).
+- Latent fix: `scripts.semantic_scholar_client` + `scripts.migrate_literature_corpus_to_v3_7_3` are now `import scripts.X`-clean from repo root (were silently broken on main due to pre-existing absolute cross-imports). Caught by codex round-1 reasoning trace.
+
+### Deferred from #128
+
+- **§4 — parallelize OA + CR per-entry calls in v3.9.0 migration tool** carried to #138 (target v3.9.4 or v3.10). Introduces new behavior + ThreadPoolExecutor + test-rebuild scope; incompatible with v3.9.3 patch boundary.
+
+### Regression status
+
+- 1482 → **1505 passed** + 3 skipped + 111 subtests (+23 new tests, 0 regression).
+- `scripts/check_spec_consistency.py` + `scripts/check_version_consistency.py` green.
+- 6/6 `import scripts.X` paths verified clean from repo root (3 from-OK-to-OK, 2 latent-broken-now-OK, 1 OK throughout).
+- Cross-model review: codex round 1 + 2 both 0 explicit findings (one P1 self-caught from R1 trace, closed pre-R2). Gemini 3.1-pro-preview round 1: 0 findings.
+
+---
+
+## [3.9.2] - 2026-05-18 — Phase boundary hot-fix (#133)
+
+Hot-fix for issue #133 (phase scope inflation). A user incident showed that ARS auto-dispatched a single-phase agent (`bibliography_agent`) when given ambiguous cross-phase input (pre-written abstract + pre-collected literature), and the dispatched agent then autonomously executed Phases 3-6, skipping mandatory independent crosschecks (DA / EIC / Ethics).
+
+This release ships the prompt-discipline + advisory-verifier hot-fix. The deterministic gate (PreToolUse hook + multi-phase task envelope schema + author provenance) is tracked separately as **v3.10 active conductor (#134)** — long-term architectural fix.
+
+Design history: 4 design rounds (v1-v4) + mid-impl review. Triple-track reviewer use cases (codex `review --base main` + inline opus subagent + self-review). Codex 0.130 broke on this repo context 5x consecutive per memory `feedback_codex_0_130_docs_review_broken.md` (49 files / 1529 lines on full branch is firmly in the broken corner); inline opus was the substantive reviewer throughout. Net effect: design has been challenged thoroughly; honest framing applied where prompt-only mitigation is known insufficient.
+
+### Added
+
+- **Routing Discipline (Phase L1)** — `.claude/CLAUDE.md` gains a new "Routing Discipline (v3.9.2)" section before existing Routing Rules 1-5. 3 routing classes: explicit intent → proceed directly; cross-phase materials → clarify with a-d options; no-materials ambiguous → clarify. `[direct-mode]` byte-0 escape hatch (case-insensitive; bracket-form strict). Anti-pattern explicitly named.
+- **Intent clarification protocol** — new `shared/references/intent_clarification_protocol.md` (~200 lines): trigger condition table, pipeline phase reference (Phase 0-7 marker conventions), clarification message template (a-d options, no AskUserQuestion tool), `[direct-mode]` mechanism spec with 5 worked examples, v3.10 carry-over notes.
+- **Phase Boundary block on 22 Bucket A agents (Phase 1)** — single-phase agents (deep-research × 9, academic-paper × 7, academic-paper-reviewer × 6) gain a `## Phase Boundary (v3.9.2)` block customized per agent: phase number, deliverable type, MUST-NOT cross-phase writes, MAY-READ upstream context (Phase 5 reviewers granted explicit cross-phase READ for review), explicit coexistence with skill-specific protocols (v3.6.2 / v3.6.5 / v3.6.6 / v3.6.7 / v3.7.1). 16 Bucket B/C/D agents (multi-phase / phase-orthogonal / cross-phase-meta) intentionally NOT fenced — honest framing per opus HIGH-2 (placebo prose creates false-enforcement illusion).
+- **Phase-by-phase invocation contract (Phase 3)** — 4 SKILL.md files gain a "Phase-by-phase Invocation Contract (v3.9.2)" section: Mode A (orchestrator-driven, default) vs Mode B (phase-by-phase cross-session resume), Bucket A enforcement scope, coexistence with skill-specific protocols.
+- **Advisory verifier (Phase 4)** — new `scripts/check_pipeline_integrity.py`: scans working directory for `phaseN_*/` (N=1-6), flags STRUCTURAL finding when phase5 dir lacks DA/EIC/Ethics filenames (the #133 pattern). HEURISTIC adjacent-phase-mtime rule (`--strict`, default OFF). Cross-platform, user-invokable, advisory output (exit 0 on findings), JSON + text output modes. Normative filename convention documented; v3.10 envelope provenance replaces filename matching.
+- **Phase Boundary coverage lint (Phase 5)** — new `scripts/check_v3_9_2_phase_boundary.py`: enforces 22 Bucket A agents have block, 16 Bucket B/C/D agents don't, and each Bucket A block contains 4 load-bearing phrases (Phase Boundary v3.9.2, MUST NOT, MAY READ, Enforcement v3.9.2). Wired to `.github/workflows/spec-consistency.yml`.
+- **Classification spec** — new `docs/design/2026-05-18-ars-v3.9.2-agent-phase-classification.md`: canonical 38-agent table with 4-bucket model (A=22, B=4, C=8, D=4) + per-agent out-of-scope inflation risk column.
+- **8 behavioral smoke test fixtures** — `tests/fixtures/issue_133_routing/`: cross-phase abstract+lit (the #133 root case), single-phase explicit, no-materials ambiguous, /ars-slash command, `[direct-mode]` byte-0 honored, mid-message NOT honored, case-insensitive accepted, full draft+abstract+lit+reviews. Honestly framed as LLM-behavior assertions with cross-model spot-check criterion (100% Opus 4.7, ≥75% Sonnet 4.6 + GPT-5.5).
+- **Plugin metadata bump** — `.claude-plugin/plugin.json` version 3.8.2 → 3.9.2 (was stale; also catches v3.9.0 + v3.9.1 deferrals); description updated for 38-agent ensemble and v3.9.2 phase boundary feature.
+
+### Fixed
+
+- **`.claude/CLAUDE.md` Suite version was stale at 3.9.0** — v3.9.1 ship missed bumping it (latent lint bug surfaced during v3.9.2 work). v3.9.2 atomic bump fixes this.
+
+### Tests
+
+- 12 new tests in `scripts/test_check_pipeline_integrity.py` (verifier).
+- 3 new tests in `scripts/test_check_v3_9_2_phase_boundary.py` (boundary coverage lint).
+- 4 additional tests after Phase 6 mid-impl review absorption (dotfiles ignored, multiple phase5 dirs independent, Unicode stem matching, nested subdir recursion).
+- Regression baseline: 1463 → 1482 passed (+19); 3 skipped + 111 subtests unchanged; 0 failures.
+
+### Out of scope (carry to v3.10 conductor, issue #134)
+
+- PreToolUse hook (Phase 0.1 verified Claude Code payload includes `agent_type` field; hook implementation requires multi-phase schema first — both deferred to v3.10).
+- Multi-phase `ars_phase_writes` + `ars_phase_reads` envelope schema (scalar `ars_phase` cannot represent agents like `devils_advocate_agent` at Phases 1/3/5 or `report_compiler_agent` at Phases 4/6 — design correctly with envelope, not retrofit scalar).
+- Deterministic verifier with author provenance (advisory v3.9.2 filename-heuristic version flagged FP-prone in docstring).
+- Orchestrator cross-phase intake capability (`pipeline_orchestrator_agent` currently keyword-matches user phrasing; cannot reconcile cross-phase artifacts without explicit user signal — this is the conductor's core feature).
+
+### Migration notes
+
+Existing in-flight projects: no break expected. v3.9.2 only adds prompt sections and an opt-in advisory verifier. Existing slash commands (`/ars-*`) continue to work without change.
+
+User-facing behavior change: if you previously dropped pre-existing materials (abstract + literature) into a fresh session without invoking a specific slash command, ARS may now clarify with a-d options instead of silent dispatch. To bypass clarification for direct agent dispatch, prefix your first message with `[direct-mode]`. To run the full pipeline on pre-existing materials, invoke `/ars-full`.
+
+If you see a Bucket B multi-phase agent (devils_advocate, report_compiler, argument_builder, visualization) producing out-of-scope content, this is a known v3.9.2 limitation — recurrence is expected for these 4 agents until v3.10 envelope ships. Remediation: switch to orchestrator-driven Mode A via `/ars-full` or report the case to issue #134 with transcript excerpt.
+
+---
+
+## [3.9.1] - 2026-05-18 — v3.9.0 client hardening (#129 + #130)
+
+Two-bug hotfix surfaced by codex review of `ars-codex` PR #13 (vendor sync to v3.9.0 `74413a4`). Both bugs exist in v3.9.0 main: #129 violates the v3.9.0 §3.7 per-API degradation contract; #130 crashes a defensive lint on malformed input. Neither changes the spec or schema.
+
+### Fixed
+
+- **#129 — OpenAlex / Crossref response-read failures now translate to `*Unavailable`.** In `scripts/openalex_client.py:_get` and `scripts/crossref_client.py:_get`, `urlopen` succeeded but `resp.read()` / `body.decode("utf-8")` / `json.loads()` failures (socket drop mid-stream, truncated body, garbled UTF-8 body, HTML 503 page returned with 200 status) escaped the client as raw `OSError` / `http.client.IncompleteRead` / `UnicodeDecodeError` / `JSONDecodeError`. `scripts/migrate_literature_corpus_to_v3_9_0.py` only catches `OpenAlexUnavailable` / `CrossrefUnavailable`, so one transient response failure during a 500-entry backfill aborted the whole migration instead of dropping just the affected field. Narrow except block around read+decode+parse now catches `(OSError, http.client.HTTPException, UnicodeDecodeError, json.JSONDecodeError)` — `HTTPException` covers `IncompleteRead` (canonical mid-stream socket drop, inherits HTTPException not OSError, R1 codex P2 closure). Mirrors the existing 5xx-skip pattern: per-API tolerant per the v3.9.0 spec §3.7 documented degradation contract and `bibliography_agent.md` "Triangulation Extension".
+
+- **#130 — `check_claim_audit_consistency` non-string `manifest_id` guard.** `_build_manifest_index` (line 644) and `_build_manifest_constraint_index` (line 675) used `manifest_id` as a dict key via `setdefault(mid, set())` / `out[mid] = bucket` before checking type. For malformed passports where the schema validator already noted `manifest_id` as `array` / `object`, the index builder raised `TypeError: unhashable type: 'list'` and terminated lint with a traceback before `validate_passport()` could return the schema finding cleanly. Added `isinstance(mid, str) and mid` guard at both sites, matching the surrounding `_check_inv_17_for_manifest` / `claim_id` invariant-walker pattern. Schema validator still records the type mismatch — the guard just lets the lint surface findings cleanly instead of crashing.
+
+### Tests
+
+- `scripts/test_openalex_client.py`: +4 tests covering OSError on `resp.read()`, invalid UTF-8 body, invalid JSON body, and `http.client.IncompleteRead` (R1 codex P2 closure).
+- `scripts/test_crossref_client.py`: +4 symmetric tests.
+- `scripts/test_claim_audit_schema.py`: new `TSManifestIdNonStringGuard` class with 2 tests (`manifest_id` as list / dict).
+- Regression baseline: 1453 → 1463 passed (+10), 3 skipped + 111 subtests unchanged, 0 failures.
+
+### Out of scope
+
+- Spec / schema / CHANGELOG narrative not touched — the degradation contract is already documented in spec §3.7; this just makes code honor it.
+- `ars-codex` adapter sibling: the same two fixes will surface on next vendor sync (v3.9.1 → ars-codex v0.1.8). No action needed in this release.
+
+---
+
 ## [3.9.0] - 2026-05-17
 
 ### Added

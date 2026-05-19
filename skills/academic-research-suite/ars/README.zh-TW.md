@@ -8,7 +8,7 @@
 > `/ars-*` slash command 註冊、plugin hooks、自動 Agent Team dispatch 等
 > Claude-only 功能，在 Codex 版只會被模擬或明確列為不支援。
 
-[![Version](https://img.shields.io/badge/version-v3.9.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.9.0)
+[![Version](https://img.shields.io/badge/version-v3.9.4.1-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.9.4.1)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -307,6 +307,26 @@ https://github.com/Imbad0202/academic-research-skills
 ---
 
 ## 更新紀錄
+
+### v3.9.4.1（2026-05-19）— v3.9.4 時序驗證 post-ship hotfix（#135 codex post-ship）
+
+> Codex post-ship review 抓到 4 個 per-task subagent reviewer 漏掉的真 bug。Hotfix 一次修齊：(1) `audit()` 把 `citation_provenance` 接到 P2 + P4，遇到 ref slug 在 provenance.yaml 是 `confidence: low` 或 `conflict` 時，驗證器改發 `TEMPORAL-METADATA-MISSING` 而不是直接用 timeline 日期當算術 ground truth（spec §3.4 第一手 safety check 原本沒接線）。(2) `_date_to_interval` 補齊全部 schema-valid 日期形狀，包括 `YYYY-MM`（Crossref 月精度）和 `YYYY-MM-DD..YYYY-MM-DD`（interval），v3.9.4 對這兩種 silently `ValueError` 跳過。(3) P4 在 ref marker 缺席時可 bind 直接 prose 日期 — 「The 2026 policy enabled the 2020 rollout」這種句現在會 trigger。(4) `citation_provenance.schema.json` `confidence:high` allOf 加 `then.required`，補 absent-property bypass 漏洞。1561 passed（+12 新測試、0 regression）。ARCHITECTURE.md 同步補齊（先前停在 v3.8.0）。
+
+### v3.9.4（2026-05-18）— #135 時序驗證層（advisory）
+
+> Phase 4 → 5 邊界新增決定性 advisory verifier，涵蓋 5 種時序失效模式（P1 回顧算術、P2 時代錯置引用、P3 比較基準未實體化、P4 因果倒置、P5 現在式指示語）。新 Phase 2 sibling `timeline_extraction_agent` 擁有 `phase2_investigation/timeline.yaml` + `phase2_investigation/citation_provenance.yaml`。驗證腳本 `scripts/temporal_integrity_audit.py` 執行 5 道確定性 pass。M3 時序完整性鐵律加入 `report_compiler_agent` + `draft_writer_agent`。M6-minimal：Crossref `issued` + pdftotext cover 第一手驗證。M7-minimal：日期出處 + 比較基準實體化。M5-stub：僅使用者宣告的 `version_family_id`。`literature_corpus_entry`、`claim_audit_result`、`claim_intent_manifest` 零修改。`bibliography_agent` 未改動（F2 不變量）。3 個新 sidecar schema。覆蓋率估計：55-70% 基準 / 含 M7 minimal 65-75%。1549 passed（+44 新測試、0 regression）。
+
+### v3.9.3（2026-05-18）— #128 housekeeping（client utility 抽出 + resolver dedup）
+
+> 純 refactor + 一個 latent bug fix，從 v3.9.0 `/simplify` review backlog 結清。抽出 `scripts/_text_similarity.py`（3-way client dedup：normalize / similarity / threshold / retry 常數）+ `scripts/_passport_yaml.py`（2-way migration tool dedup：ruamel.yaml round-trip config）+ 私有 `_resolve_by_doi_then_title` helper（2-way resolver body dedup、§3.4 / §3.5 API surface 不變）。OpenAlex + Crossref 的 throttle 量測從 `time.time`（NTP 不安全）統一改用 `time.monotonic`，與 Semantic Scholar 對齊。5 個 module-level cross-import 都加 dual-path try/except（sibling-first、namespace-package fallback）保持 class identity；額外順手修了 2 個 latent-broken 的 `import scripts.X` 路徑。1505 passed（+23 新測試、0 regression）。#128 §4（OA + CR 平行化）carry-over 到 #138。
+
+### v3.9.2（2026-05-18）— #133 phase boundary 熱修
+
+> #133 收尾（hot-fix 層）。長期架構修正以 v3.10 active conductor 在 #134 追蹤。新增：CLAUDE.md routing 釐清閘（跨 phase 素材 → 以 a-d 選項釐清，不靜默 dispatch）、22 個 single-phase agent 加 prompt 硬 fence（`## Phase Boundary (v3.9.2)`）、16 個 multi-phase / phase-orthogonal / cross-phase-meta agent 刻意不加 fence（誠實 framing：純 prose placebo 會造成假性 enforce 錯覺）、advisory verifier `scripts/check_pipeline_integrity.py` 事後偵測 #133 pattern。Behavioral smoke test 含 cross-model spot-check（Opus 4.7 100% / Sonnet + GPT-5.5 ≥75%）。
+
+### v3.9.1（2026-05-18）— #129 + #130 client hardening
+
+> v3.9.0 hot-fix。包 OpenAlex / Crossref response-read 失敗為 `*Unavailable`（#129）；`check_claim_audit_consistency` 對非字串 `manifest_id` 加 guard（#130）。無 spec 變動。
 
 ### v3.9.0（2026-05-17）— #102 跨索引三角測量
 

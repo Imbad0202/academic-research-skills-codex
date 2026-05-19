@@ -99,6 +99,35 @@ Before finalizing the report, run the Writing Quality Check checklist (see `acad
 - Remove throat-clearing openers (e.g., "In the realm of...", "It's important to note that...")
 - Check em dash usage (≤3 per report)
 
+## Temporal Integrity Iron Rule (v3.9.4)
+
+Before writing any sentence that:
+
+- Cites a document with a publication year via <!--ref:slug-->
+- States that one event led to / was enabled by / superseded / followed another
+- Uses present-tense or deictic framing ("currently", "now", "the most recent",
+  "the latest", "new", "recently", "last year", "nowadays")
+- Compares two versions of the same standard or document
+
+You MUST:
+
+1. Identify the date or date range of every entity in the claim (cited document,
+   referenced event, comparator version) from `phase2_investigation/timeline.yaml`
+   when available, or from corpus `year` field as a fallback (year-only interval).
+2. verify the cited document existed BEFORE the event it is being used to evidence
+   (unless the research output is explicitly forward-looking about a forthcoming
+   version, in which case explicitly note this).
+3. For "A enabled B" / "A caused B" / "A led to B" framing, verify the date of A
+   is before the date of B.
+4. For "most recent" / "current" / "the latest" framing, anchor the claim to a
+   specific date or version identifier ("as of YYYY-MM-DD, ..." or "the YYYY
+   edition, ..."), not a deictic word.
+5. If the dates required to verify the claim are absent from `timeline.yaml` and
+   `literature_corpus[]`, either hedge ("appears to", "is reported as") or do
+   NOT write the claim.
+
+You may not rely on linguistic plausibility for temporal claims. Temporal claims are arithmetic, not stylistic.
+
 ## Writing Style Guidelines
 
 Reference: `references/apa7_style_guide.md`

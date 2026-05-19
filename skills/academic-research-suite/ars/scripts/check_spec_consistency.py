@@ -45,7 +45,11 @@ def codex_excluded_patterns() -> tuple[str, ...]:
 
 
 def is_intentionally_excluded(rel_path: str) -> bool:
-    return any(fnmatch(rel_path, pattern) for pattern in codex_excluded_patterns())
+    for pattern in codex_excluded_patterns():
+        prefix = pattern.rstrip("/")
+        if rel_path == prefix or rel_path.startswith(prefix + "/") or fnmatch(rel_path, pattern):
+            return True
+    return False
 
 
 def read(rel_path: str) -> str:
@@ -103,7 +107,7 @@ def check_relative_markdown_links(rel_path: str) -> None:
 def check_mode_registry() -> None:
     rel_path = "MODE_REGISTRY.md"
     text = read(rel_path)
-    expect_contains(rel_path, "Last updated: v3.9.0 (2026-05-17)")
+    expect_contains(rel_path, "Last updated: v3.9.4.1 (2026-05-19)")
     for heading in (
         "## deep-research (7 modes)",
         "## academic-paper (10 modes)",
@@ -121,7 +125,7 @@ def check_claude_md() -> None:
 
     expect_contains(rel_path, "integrity check (Stage 2.5)")
     expect_contains(rel_path, "final integrity check (Stage 4.5)")
-    expect_contains(rel_path, "**Suite version**: 3.9.0")
+    expect_contains(rel_path, "**Suite version**: 3.9.4.1")
     for forbidden in (
         "6th independent reviewer",
         "Peer review gains 6th independent reviewer",
@@ -182,8 +186,11 @@ def check_readme_sections() -> None:
     rel_path = "README.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.9.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.9.0")
+    expect_contains(rel_path, "version-v3.9.4.1-blue")
+    expect_contains(rel_path, "releases/tag/v3.9.4.1")
+    expect_contains(rel_path, "### v3.9.4.1 (2026-05-19)")
+    expect_contains(rel_path, "### v3.9.4 (2026-05-18)")
+    expect_contains(rel_path, "### v3.9.1 (2026-05-18)")
     expect_contains(rel_path, "### v3.9.0 (2026-05-17)")
     expect_contains(rel_path, "### v3.8.0 (2026-05-16)")
     expect_contains(rel_path, "### v3.7.0 (2026-05-05)")
@@ -251,8 +258,11 @@ def check_readme_zh_sections() -> None:
     rel_path = "README.zh-TW.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.9.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.9.0")
+    expect_contains(rel_path, "version-v3.9.4.1-blue")
+    expect_contains(rel_path, "releases/tag/v3.9.4.1")
+    expect_contains(rel_path, "### v3.9.4.1（2026-05-19）")
+    expect_contains(rel_path, "### v3.9.4（2026-05-18）")
+    expect_contains(rel_path, "### v3.9.1（2026-05-18）")
     expect_contains(rel_path, "### v3.9.0（2026-05-17）")
     expect_contains(rel_path, "### v3.8.0（2026-05-16）")
     expect_contains(rel_path, "### v3.7.0（2026-05-05）")

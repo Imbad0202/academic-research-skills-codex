@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.7",
+  "adapter_version": "0.1.8",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-05-17",
+  "generated_date": "2026-05-19",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "74413a42571867abece7b8b76f7a24ac472ab2a0",
+      "commit": "96b82e82142dc95f117595c207d3e150b078e411",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -91,7 +91,7 @@
     "The v3.7.1 pattern-protection validator is patched to resolve git object paths from the nested Codex vendored root.",
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
-    "ARS v3.9.0 cross-index triangulation clients and migration tools are vendored; network lookups remain opt-in and degrade gracefully.",
+    "ARS v3.9.4.2 is the tracked upstream commit. The v3.9.4.2 delta is CI/release-gate-only under excluded .github paths; vendored runtime content includes v3.9.4.1 temporal-verification hotfixes and earlier v3.9.x workflow updates.",
     "Cross-model API behavior is disabled by default and requires explicit user request."
     ]
 }

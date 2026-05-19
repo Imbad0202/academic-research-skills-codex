@@ -14,7 +14,7 @@ description: >
   /ars-revision-coach, /ars-revision, and /ars-full. This skill vendors ARS
   role prompts, references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.7"
+  version: "0.1.8"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 ---
@@ -26,7 +26,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.7`. The repo-root `VERSION`, this
+This Codex package is version `0.1.8`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.

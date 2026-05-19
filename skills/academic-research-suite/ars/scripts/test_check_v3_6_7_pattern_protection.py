@@ -15,8 +15,6 @@ that copy. The repo's actual files are never modified.
 from __future__ import annotations
 
 import subprocess
-import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -26,25 +24,26 @@ LINT_SCRIPT_REL = "scripts/check_v3_6_7_pattern_protection.py"
 
 
 def _archive_repo(dest: Path) -> None:
-    """Materialise the current working tree into `dest`.
-
-    Upstream ARS used `git archive HEAD`, but the Codex package often runs
-    these tests before the vendored upstream files have been committed in this
-    repository. Copying the working tree keeps mutation tests meaningful in the
-    first-import state instead of testing stale `HEAD` contents.
-    """
-    shutil.copytree(
-        REPO_ROOT,
-        dest,
-        dirs_exist_ok=True,
-        ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache", "*.pyc"),
+    """Materialise current `HEAD` into `dest` via git archive | tar."""
+    archive = subprocess.Popen(
+        ["git", "archive", "HEAD"], cwd=REPO_ROOT, stdout=subprocess.PIPE
     )
+    try:
+        subprocess.run(
+            ["tar", "-x", "-C", str(dest)], stdin=archive.stdout, check=True
+        )
+    finally:
+        if archive.stdout is not None:
+            archive.stdout.close()
+        archive.wait()
+    if archive.returncode != 0:
+        raise RuntimeError(f"git archive failed: rc={archive.returncode}")
 
 
 def _run_lint(repo_dir: Path) -> tuple[int, str, str]:
     """Run the v3.6.7 lint inside `repo_dir`. Returns (rc, stdout, stderr)."""
     proc = subprocess.run(
-        [sys.executable, LINT_SCRIPT_REL],
+        ["python3", LINT_SCRIPT_REL],
         cwd=repo_dir,
         text=True,
         stdout=subprocess.PIPE,

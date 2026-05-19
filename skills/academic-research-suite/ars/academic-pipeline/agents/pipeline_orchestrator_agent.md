@@ -430,7 +430,7 @@ The cost is multiplicative: a 10-stage pipeline with cross-model enabled produce
 
 **Why not Stage 5→6:** `formatter_agent`'s terminal hard gate runs **during** Stage 5. Dispatching at Stage 5→6 would produce `claim_audit_results[]` after the gate has already passed; HIGH-WARN-CLAIM-NOT-SUPPORTED could not block output. Stage 4→5 is the only slot where (a) the draft prose carries resolved v3.7.3 anchors, (b) the cite finalizer has settled anchor presence, and (c) the formatter hard gate has NOT yet run.
 
-**Mode flag.** Audit dispatch is **opt-in** per pipeline run; configurable in `academic-pipeline/WORKFLOW.md` mode flags. Default OFF for v3.8.0; ramp-on plan deferred to post-calibration evidence. When OFF, the gate is skipped entirely and Stage 5 proceeds as in v3.7.x.
+**Mode flag.** Audit dispatch is **opt-in** per pipeline run; configurable in `academic-pipeline/SKILL.md` mode flags. Default OFF for v3.8.0; ramp-on plan deferred to post-calibration evidence. When OFF, the gate is skipped entirely and Stage 5 proceeds as in v3.7.x.
 
 **The audit agent receives.**
 

@@ -1,6 +1,6 @@
 # Academic Research Skills for Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.7-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.8-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -44,15 +44,20 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This Codex package is version `0.1.7`. The repo-root `VERSION` file,
+This Codex package is version `0.1.8`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version independently of the vendored ARS suite. Vendored upstream
 versions are recorded by commit in `manifest.source_repositories[]`.
 
+Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
+
 The vendored ARS source currently tracks
-`Imbad0202/academic-research-skills@74413a42571867abece7b8b76f7a24ac472ab2a0`
-(`v3.9.0`).
+`Imbad0202/academic-research-skills@96b82e82142dc95f117595c207d3e150b078e411`
+(`v3.9.4.2`). The v3.9.4.2 upstream delta is CI/release-gate-only under
+`.github/`, which this Codex package intentionally excludes; vendored runtime
+content includes ARS v3.9.4.1 temporal-verification hotfixes and the v3.9.1
+through v3.9.4 workflow updates.
 
 ## Install Or Update
 
@@ -262,10 +267,10 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS v3.9.0 Parity
+### ARS v3.9.4.2 Parity
 
 This package aims for the same user-facing workflow content as upstream ARS
-v3.9.0 where Codex has an equivalent concept.
+v3.9.4.2 where Codex has an equivalent concept.
 
 | Upstream ARS feature | Codex package behavior |
 |---|---|

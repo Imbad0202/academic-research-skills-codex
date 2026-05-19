@@ -125,7 +125,7 @@ Calibration reports the judge's error profile on a **specific** gold set in a **
 
 - Predict performance on tuples outside the gold-set distribution (the canonical fixture is mid-domain synthetic; ML / clinical / qualitative judges should run domain-specific gold sets).
 - Detect rubric-discrimination-power problems on the LLM-as-judge side — that's the `#89 / gold fixtures` work tracked separately (per spec §2 out-of-scope).
-- Replace the post-calibration ramp-on plan recorded in `academic-pipeline/WORKFLOW.md` mode flags. v3.8.0 ships the audit agent dispatch as opt-in default-OFF; T-C1 passing on the canonical gold set is necessary but not sufficient evidence for default-ON.
+- Replace the post-calibration ramp-on plan recorded in `academic-pipeline/SKILL.md` mode flags. v3.8.0 ships the audit agent dispatch as opt-in default-OFF; T-C1 passing on the canonical gold set is necessary but not sufficient evidence for default-ON.
 
 If a deploying operator brings a gold set that is itself biased (all tuples from one venue, all post-2024, all heavily-redacted), calibration reports a biased profile. Emit a warning during intake if the gold set looks clustered — this protocol does not currently auto-detect clustering, but the operator's pre-deployment review should.
 

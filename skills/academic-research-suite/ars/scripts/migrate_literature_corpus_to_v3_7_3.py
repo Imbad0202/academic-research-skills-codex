@@ -21,17 +21,15 @@ import sys
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from ruamel.yaml import YAML
-
-import contamination_signals as cs
-from adapters._common import now_iso
-
-
-# Single shared YAML round-tripper. ruamel.yaml preserves comments,
-# key order, and quoting style across read → mutate → write.
-_yaml = YAML()
-_yaml.preserve_quotes = True
-_yaml.indent(mapping=2, sequence=4, offset=2)
+# Dual-path import: see openalex_client.py comment.
+try:
+    import contamination_signals as cs
+    from _passport_yaml import dump_passport, load_passport
+    from adapters._common import now_iso
+except ImportError:
+    from scripts import contamination_signals as cs
+    from scripts._passport_yaml import dump_passport, load_passport
+    from scripts.adapters._common import now_iso
 
 
 # Skip-reason categories surface in the migration report so users can
@@ -42,18 +40,6 @@ _SKIP_INSUFFICIENT_DATA = "skipped_insufficient_data"
 # patched, but `semantic_scholar_unmatched` was omitted per spec §3.2).
 # Distinct from skip categories above — these entries DO get patched.
 _MANUAL_UNMATCHED_OMITTED = "manual_unmatched_omitted"
-
-
-def load_passport(path: Path) -> Any:
-    """Round-trip load a passport YAML file. Returns the ruamel-yaml
-    representation (a CommentedMap), not a plain dict."""
-    with path.open("r", encoding="utf-8") as f:
-        return _yaml.load(f)
-
-
-def _dump_passport(path: Path, doc: Any) -> None:
-    with path.open("w", encoding="utf-8") as f:
-        _yaml.dump(doc, f)
 
 
 def discover_passports(directory: Path) -> Iterable[Path]:
@@ -179,7 +165,7 @@ def migrate_passport(
         mutated = True
 
     if mutated and not dry_run:
-        _dump_passport(path, doc)
+        dump_passport(path, doc)
     return report
 
 
