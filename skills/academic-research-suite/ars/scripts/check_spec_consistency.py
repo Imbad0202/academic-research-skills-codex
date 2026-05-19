@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from fnmatch import fnmatch
+import json
 import re
 import sys
 from pathlib import Path
@@ -10,6 +12,40 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
 MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+
+
+def codex_manifest() -> dict[str, object]:
+    manifest_path = ROOT.parent / "manifest.json"
+    if not manifest_path.is_file():
+        return {}
+    try:
+        doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"{manifest_path.relative_to(ROOT.parent)}: invalid JSON: {exc}")
+        return {}
+    if not isinstance(doc, dict):
+        fail(f"{manifest_path.relative_to(ROOT.parent)}: expected JSON object")
+        return {}
+    return doc
+
+
+def is_codex_distribution() -> bool:
+    return codex_manifest().get("generated_for") == "codex"
+
+
+def codex_excluded_patterns() -> tuple[str, ...]:
+    manifest = codex_manifest()
+    if manifest.get("generated_for") != "codex":
+        return ()
+    patterns = manifest.get("excluded_patterns", [])
+    if not isinstance(patterns, list):
+        fail("manifest.json: excluded_patterns must be a list")
+        return ()
+    return tuple(pattern for pattern in patterns if isinstance(pattern, str))
+
+
+def is_intentionally_excluded(rel_path: str) -> bool:
+    return any(fnmatch(rel_path, pattern) for pattern in codex_excluded_patterns())
 
 
 def read(rel_path: str) -> str:
@@ -55,6 +91,12 @@ def check_relative_markdown_links(rel_path: str) -> None:
             continue
         resolved = (doc_path.parent / target).resolve()
         if not resolved.exists():
+            try:
+                target_rel = resolved.relative_to(ROOT).as_posix()
+            except ValueError:
+                target_rel = ""
+            if target_rel and is_intentionally_excluded(target_rel):
+                continue
             fail(f"{rel_path}: broken relative markdown link {raw_target!r}")
 
 
@@ -281,16 +323,28 @@ def check_readme_zh_sections() -> None:
 
 
 def check_setup_docs() -> None:
-    expect_contains("docs/SETUP.md", "Direct `.docx` generation uses [Pandoc]")
-    expect_contains(
-        "docs/SETUP.md",
-        "Direct `.docx` generation requires Pandoc, and PDF generation requires `tectonic`",
-    )
-    expect_contains("docs/SETUP.zh-TW.md", "若要直接產出 `.docx`，需要安裝 [Pandoc]")
-    expect_contains(
-        "docs/SETUP.zh-TW.md",
-        "直接產出 `.docx` 需要 Pandoc，PDF 需要 `tectonic`",
-    )
+    if is_codex_distribution():
+        expect_contains("docs/SETUP.md", "Direct `.docx` generation uses Pandoc.")
+        expect_contains(
+            "docs/SETUP.md",
+            "PDF output requires `tectonic` and the relevant fonts.",
+        )
+        expect_contains("docs/SETUP.zh-TW.md", "直接產生 `.docx` 需要 Pandoc。")
+        expect_contains(
+            "docs/SETUP.zh-TW.md",
+            "PDF 輸出需要 `tectonic` 與相關字型。",
+        )
+    else:
+        expect_contains("docs/SETUP.md", "Direct `.docx` generation uses [Pandoc]")
+        expect_contains(
+            "docs/SETUP.md",
+            "Direct `.docx` generation requires Pandoc, and PDF generation requires `tectonic`",
+        )
+        expect_contains("docs/SETUP.zh-TW.md", "若要直接產出 `.docx`，需要安裝 [Pandoc]")
+        expect_contains(
+            "docs/SETUP.zh-TW.md",
+            "直接產出 `.docx` 需要 Pandoc，PDF 需要 `tectonic`",
+        )
     check_relative_markdown_links("docs/SETUP.md")
     check_relative_markdown_links("docs/SETUP.zh-TW.md")
 
