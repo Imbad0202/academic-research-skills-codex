@@ -107,13 +107,73 @@ def _parse_changelog_latest(
     return None, None
 
 
+def _find_codex_adapter_root(root: Path) -> Path | None:
+    candidates = [root, root.parent]
+    for candidate in candidates:
+        if (candidate / "SKILL.md").is_file() and (candidate / "manifest.json").is_file():
+            return candidate
+    return None
+
+
+def _read_version_file(adapter_root: Path, manifest: dict) -> str | None:
+    version_file = manifest.get("version_file") or "VERSION"
+    candidates = [adapter_root, *adapter_root.parents]
+    for base in candidates:
+        candidate = base / version_file
+        if candidate.is_file():
+            return candidate.read_text(encoding="utf-8").strip()
+    return None
+
+
+def _check_codex_adapter(root: Path) -> list[str]:
+    adapter_root = _find_codex_adapter_root(root)
+    if adapter_root is None:
+        return [f"{root / '.claude' / 'CLAUDE.md'}: not found"]
+
+    errors: list[str] = []
+    manifest_path = adapter_root / "manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{manifest_path}: malformed JSON: {exc}"]
+
+    if manifest.get("generated_for") != "codex":
+        return [f"{root / '.claude' / 'CLAUDE.md'}: not found"]
+
+    skill_path = adapter_root / "SKILL.md"
+    try:
+        fm = parse_frontmatter(skill_path)
+    except FrontmatterError as exc:
+        return [str(exc)]
+    metadata = (fm or {}).get("metadata") or {}
+    skill_version = metadata.get("version")
+    manifest_version = manifest.get("adapter_version")
+    version_file_value = _read_version_file(adapter_root, manifest)
+
+    if skill_version != manifest_version:
+        errors.append(
+            f"{skill_path}: metadata.version {skill_version!r} does not match "
+            f"{manifest_path}: adapter_version {manifest_version!r}"
+        )
+    if version_file_value is None:
+        errors.append(
+            f"{manifest_path}: version_file {manifest.get('version_file', 'VERSION')!r} not found"
+        )
+    elif skill_version != version_file_value:
+        errors.append(
+            f"{skill_path}: metadata.version {skill_version!r} does not match "
+            f"VERSION {version_file_value!r}"
+        )
+    return errors
+
+
 def check(root: Path) -> list[str]:
+    root = root.resolve()
     errors: list[str] = []
 
     claude_md = root / ".claude" / "CLAUDE.md"
     if not claude_md.is_file():
-        errors.append(f"{claude_md}: not found")
-        return errors
+        return _check_codex_adapter(root)
     claude_text = claude_md.read_text(encoding="utf-8")
 
     table_versions, invalid_table_rows = _parse_table_versions(claude_text)

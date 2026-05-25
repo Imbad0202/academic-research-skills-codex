@@ -11,6 +11,11 @@ All notable changes to the Codex package are documented here.
   adapter quality gates. Default ARS Codex behavior remains inline role-prompt
   execution.
 
+### Security
+- Added Codex security boundaries for untrusted research inputs, cross-model
+  consent, local adapter filesystem handling, and fixed-host bibliographic API
+  lookups.
+
 ## [0.1.9] - 2026-06-01
 
 ### Changed

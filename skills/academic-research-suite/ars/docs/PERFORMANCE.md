@@ -24,6 +24,9 @@
 
 ## Recommended Claude Code settings
 
+These settings are upstream Claude Code guidance. They are not Codex runtime
+recommendations unless a Codex user explicitly asks to port the behavior.
+
 | Setting | What it does | How to enable | Docs |
 |---|---|---|---|
 | **Agent Team** (optional) | Enables `TeamCreate` / `SendMessage` tools for manual multi-agent coordination. **ARS's internal parallelization does not require this flag** — skills spawn subagents via the built-in `Agent` tool directly. Only useful if you want to manually orchestrate persistent team workflows across sessions. | Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` (research preview) | Experimental feature — no stable docs yet |

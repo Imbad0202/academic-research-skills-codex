@@ -44,13 +44,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 try:
     import yaml
@@ -216,7 +215,7 @@ def _load_yaml_or_json(path: Path) -> Any:
     text = path.read_text(encoding="utf-8")
     if path.suffix.lower() == ".json":
         return json.loads(text)
-    return yaml.load(text, Loader=_StrTimestampSafeLoader)
+    return yaml.load(text, Loader=_StrTimestampSafeLoader)  # nosec B506
 
 
 class _StrTimestampSafeLoader(yaml.SafeLoader):
@@ -1833,7 +1832,7 @@ def _classify_and_validate_block(
                 if "..." in line:
                     # Mark as "schematic, not validated" if it contains literal '...'
                     out.append(LintError("F4",
-                        f"schematic JSONL line contains '...' placeholder (skipped from validation)",
+                        "schematic JSONL line contains '...' placeholder (skipped from validation)",
                         f"{md_path}:{ln_idx}",
                         severity="info"))
                     continue
@@ -1865,7 +1864,9 @@ def _classify_and_validate_block(
         # parse as YAML — use timestamp-as-string loader so we don't double-flag
         # `2026-04-30T15:22:04.123Z` as a YAML datetime object (schema needs str).
         try:
-            doc = yaml.load(stripped, Loader=_StrTimestampSafeLoader)
+            doc = yaml.load(  # nosec B506
+                stripped, Loader=_StrTimestampSafeLoader
+            )
         except yaml.YAMLError as e:
             out.append(LintError("F4", f"yaml parse error: {e}", location))
             return out

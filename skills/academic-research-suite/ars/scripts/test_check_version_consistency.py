@@ -4,6 +4,7 @@ from __future__ import annotations
 import subprocess
 import textwrap
 import unittest
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -92,6 +93,39 @@ def _write_plugin_manifests(root: Path, version: str) -> None:
         json.dumps({"name": "fixture", "plugins": [{"name": "fixture", "version": version}]}),
         encoding="utf-8",
     )
+
+
+def _write_codex_fixture(root: Path, version: str = "0.1.8", manifest_version: str | None = None) -> Path:
+    package_root = root / "skills" / "academic-research-suite"
+    ars_root = package_root / "ars"
+    ars_root.mkdir(parents=True)
+    (root / "VERSION").write_text(f"{version}\n", encoding="utf-8")
+    (package_root / "manifest.json").write_text(
+        json.dumps({
+            "name": "academic-research-suite",
+            "adapter_version": manifest_version or version,
+            "version_file": "VERSION",
+            "generated_for": "codex",
+        }),
+        encoding="utf-8",
+    )
+    (package_root / "SKILL.md").write_text(
+        textwrap.dedent(
+            f"""\
+            ---
+            name: academic-research-suite
+            description: "fixture"
+            metadata:
+              version: "{version}"
+              codex_adapter: true
+            ---
+
+            # Academic Research Suite
+            """
+        ),
+        encoding="utf-8",
+    )
+    return ars_root
 
 
 def _write_aligned_fixture(root: Path) -> None:
@@ -483,6 +517,24 @@ class TestVersionConsistency(unittest.TestCase):
             )
             self.assertIn("3.9.4.2.1", result.stdout)
             self.assertIn("canonical", result.stdout)
+
+    def test_codex_adapter_without_claude_md_passes(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ars_root = _write_codex_fixture(root)
+            result = _run(ars_root)
+            self.assertEqual(
+                result.returncode, 0,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+
+    def test_codex_adapter_manifest_version_drift_fails(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ars_root = _write_codex_fixture(root, manifest_version="0.1.7")
+            result = _run(ars_root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("adapter_version", result.stdout)
 
 
 if __name__ == "__main__":
