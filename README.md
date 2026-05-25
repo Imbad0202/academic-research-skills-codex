@@ -1,6 +1,6 @@
 # Academic Research Skills for Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.8-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.2.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -15,6 +15,12 @@ skills/academic-research-suite/
   SKILL.md
   manifest.json
   agents/openai.yaml
+  codex/
+    full-runtime-manifest.json
+    agents/
+    hooks/
+    scripts/
+    tests/
   ars/
     deep-research/
     academic-paper/
@@ -44,7 +50,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This Codex package is version `0.1.8`. The repo-root `VERSION` file,
+This Codex package is version `0.2.0`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version independently of the vendored ARS suite. Vendored upstream
@@ -53,11 +59,11 @@ versions are recorded by commit in `manifest.source_repositories[]`.
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
 The vendored ARS source currently tracks
-`Imbad0202/academic-research-skills@96b82e82142dc95f117595c207d3e150b078e411`
-(`v3.9.4.2`). The v3.9.4.2 upstream delta is CI/release-gate-only under
-`.github/`, which this Codex package intentionally excludes; vendored runtime
-content includes ARS v3.9.4.1 temporal-verification hotfixes and the v3.9.1
-through v3.9.4 workflow updates.
+`Imbad0202/academic-research-skills@cb2f4e07019e1cd72881547e91d880ec7cc0d7fc`.
+At audit time upstream still reports suite version `v3.9.4.2` in Claude plugin
+metadata, while `origin/main` contains post-tag docs, command, and validator
+updates. Claude loader directories, symlink-only alias directories, `.github/`,
+`.git`, and showcase PDFs remain excluded from the Codex package.
 
 ## Install Or Update
 
@@ -100,6 +106,10 @@ Codex conversation.
   and unsupported Claude plugin features.
 - [Codex architecture](skills/academic-research-suite/ars/docs/ARCHITECTURE.md)
   explains the logical ARS pipeline with the Codex runtime overlay.
+- [Codex full-runtime adapter](skills/academic-research-suite/codex/README.md)
+  documents opt-in agent-team mode, hook safety, quality gates, and parity gaps.
+- [Compatibility matrix](skills/academic-research-suite/codex/compatibility-matrix.md)
+  records Claude Code parity status and remaining degraded behavior.
 
 ## Usage
 
@@ -156,6 +166,9 @@ ars-plan my paper on AI governance in universities.
 | `/ars-format-convert` | `ars-format-convert` | `academic-paper` `format-convert` mode |
 | `/ars-revision-coach` | `ars-revision-coach` | `academic-paper` `revision-coach` mode |
 | `/ars-revision` | `ars-revision` | `academic-paper` `revision` mode |
+| `/ars-reviewer` | `ars-reviewer` | `academic-paper-reviewer` `full` mode by default |
+| `/ars-mark-read` | `ars-mark-read` | Material Passport human-read log append |
+| `/ars-unmark-read` | `ars-unmark-read` | Material Passport human-read log rescind |
 | `/ars-full` | `ars-full` | `academic-pipeline` full workflow |
 
 ### Working Pattern
@@ -253,8 +266,10 @@ ARS was originally written for Claude Code. In this Codex package:
   register them as slash commands.
 - The vendored `hooks/hooks.json` file is preserved for upstream traceability
   only. Codex does not install Claude Code hooks from this package.
-- Codex does not automatically spawn background agents unless you explicitly ask
-  for delegated or parallel agent work.
+- Codex does not spawn background agents in default inline mode.
+- Opt-in full-runtime mode uses `ARS_CODEX_FULL_RUNTIME=1`; opt-in agent-team
+  mode additionally uses `ARS_CODEX_AGENT_TEAM=1` and the templates in
+  `skills/academic-research-suite/codex/agents/`.
 - Web/source verification uses Codex browsing and must cite sources when current
   or external facts matter.
 - Cross-model verification is disabled by default. When explicitly requested in
@@ -267,6 +282,34 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
+### Full-Runtime Adapter
+
+The full-runtime adapter is disabled by default. Enable it only when the user
+or local runtime explicitly opts in:
+
+```bash
+export ARS_CODEX_FULL_RUNTIME=1
+export ARS_CODEX_AGENT_TEAM=1
+export ARS_CODEX_HOOKS=1
+```
+
+Use the deterministic planner for command routing and checkpoint planning:
+
+```bash
+python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py \
+  --pretty 'ars-full Research question: ... Stop after producing the pipeline dashboard.'
+```
+
+Run adapter safety and parity gates:
+
+```bash
+python3 skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py all
+python3 -m pytest skills/academic-research-suite/codex/tests
+```
+
+When `ARS_CODEX_AGENT_TEAM=1` is unavailable at runtime, the adapter degrades to
+inline role-prompt execution and should report `agent_team_degraded: inline`.
+
 ### ARS v3.9.4.2 Parity
 
 This package aims for the same user-facing workflow content as upstream ARS
@@ -277,11 +320,11 @@ v3.9.4.2 where Codex has an equivalent concept.
 | One installable plugin | One installable Codex skill at `skills/academic-research-suite` |
 | `/ars-*` slash commands | Emulated as `ars-*` aliases through the skill router; not native slash commands |
 | Four upstream skills auto-discovered from `skills/` symlinks | Single Codex router skill selects the workflow and reads the vendored workflow `WORKFLOW.md` files |
-| Plugin-shipped agents | Agent files are role/phase prompts; Codex runs them inline unless the user explicitly asks for delegated subagents |
+| Plugin-shipped agents | Agent files are role/phase prompts by default; opt-in full-runtime mode uses Codex agent-team templates |
 | `model: opus` / `model: sonnet` command routing | Treated as Claude metadata; Codex uses the active model |
 | SessionStart and SubagentStop hooks | Vendored for traceability only; Codex does not install or execute Claude hooks |
 | Plugin marketplace update / auto-update | Not available here; update by reinstalling or pulling this Codex repo |
-| Claude Code Agent Team | Not automatic; Codex subagents require an explicit user request for delegation or parallel agents |
+| Claude Code Agent Team | Opt-in via `ARS_CODEX_FULL_RUNTIME=1` + `ARS_CODEX_AGENT_TEAM=1`; inline fallback remains default |
 | Cross-model GPT/Gemini dispatch from upstream docs | Disabled; Codex package only supports optional Anthropic Claude Opus 4.7 review when explicitly configured |
 
 ### Optional Claude Opus 4.7 Reviewer API

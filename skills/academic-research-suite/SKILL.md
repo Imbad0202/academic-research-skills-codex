@@ -11,10 +11,11 @@ description: >
   study protocol support. Also use for Claude-style ARS command aliases such as
   /ars-plan, ars-plan, /ars-outline, /ars-abstract, /ars-lit-review,
   /ars-citation-check, /ars-disclosure, /ars-format-convert,
-  /ars-revision-coach, /ars-revision, and /ars-full. This skill vendors ARS
+  /ars-revision-coach, /ars-revision, /ars-reviewer, /ars-mark-read,
+  /ars-unmark-read, and /ars-full. This skill vendors ARS
   role prompts, references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.8"
+  version: "0.2.0"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 ---
@@ -26,7 +27,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.8`. The repo-root `VERSION`, this
+This Codex package is version `0.2.0`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.
@@ -116,6 +117,9 @@ uses the current model unless the user explicitly requests another model.
 | `/ars-format-convert`, `ars-format-convert` | `ars/commands/ars-format-convert.md` | `ars/academic-paper/WORKFLOW.md` in `format-convert` mode |
 | `/ars-revision-coach`, `ars-revision-coach` | `ars/commands/ars-revision-coach.md` | `ars/academic-paper/WORKFLOW.md` in `revision-coach` mode |
 | `/ars-revision`, `ars-revision` | `ars/commands/ars-revision.md` | `ars/academic-paper/WORKFLOW.md` in `revision` mode |
+| `/ars-reviewer`, `ars-reviewer` | `ars/commands/ars-reviewer.md` | `ars/academic-paper-reviewer/WORKFLOW.md` in `full` mode unless the user explicitly asks for quick, methodology-focus, re-review, guided, or calibration |
+| `/ars-mark-read`, `ars-mark-read` | `ars/commands/ars-mark-read.md` | Run the session-scoped Material Passport read-log command after resolving the active passport path |
+| `/ars-unmark-read`, `ars-unmark-read` | `ars/commands/ars-unmark-read.md` | Run the session-scoped Material Passport read-log rescind command after resolving the active passport path |
 | `/ars-full`, `ars-full` | `ars/commands/ars-full.md` | `ars/academic-pipeline/WORKFLOW.md` |
 
 If the request body after the alias is a vague topic, tentative title, research
@@ -133,8 +137,8 @@ using them in Codex:
 
 | Upstream wording | Codex behavior |
 |---|---|
-| Agent Team, agent, dispatch, handoff | Read the referenced `agents/*.md` file as a role or phase prompt and perform that phase inline. |
-| Agent tool, Task tool, subagent | Do not spawn agents automatically. Only use Codex subagents when the user explicitly asks for delegation or parallel agents. |
+| Agent Team, agent, dispatch, handoff | Default: read the referenced `agents/*.md` file as a role or phase prompt and perform that phase inline. Full-runtime profile: follow `codex/full-runtime-manifest.json` and `codex/agents/*.md`. |
+| Agent tool, Task tool, subagent | Do not spawn agents in default inline mode. When `ARS_CODEX_FULL_RUNTIME=1` and `ARS_CODEX_AGENT_TEAM=1` are explicitly set/requested, use the Codex agent-team plan if subagent tools are available; otherwise report `agent_team_degraded: inline`. |
 | AskUserQuestion | Ask concise clarification questions, or use Codex's structured user-input tool when available in the active mode. |
 | WebSearch | Use Codex web browsing for current facts, source verification, citation checks, and external evidence. Provide source links. |
 | Bash, Write, Edit | Treat as capability descriptions, not required tool names. Follow Codex safety rules and the user's filesystem constraints. |
@@ -143,7 +147,41 @@ using them in Codex:
 | `S2_API_KEY`, `OPENALEX_POLITE_EMAIL`, `CROSSREF_POLITE_EMAIL` | These are optional upstream bibliographic lookup settings. Use them only when the user explicitly runs contamination-signal migration or programmatic reference verification; normal Codex routing does not require them. |
 | `fresh Claude Code session`, `Claude Code session` | Read as "a new Codex conversation". Material Passport reset semantics still apply; only the runtime changes. This rule covers `ars/academic-pipeline/WORKFLOW.md`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md`, `ars/academic-pipeline/references/passport_as_reset_boundary.md`, `ars/experiment-agent/README.md`, `ars/experiment-agent/README.zh-TW.md`, and `ars/docs/PERFORMANCE.md`. |
 | `/ars-*` slash command, Claude plugin command | Treat `ars/commands/ars-*.md` as optional prompt recipes. Codex does not register slash commands from this package. |
-| SessionStart hook, SubagentStop hook, `hooks/hooks.json` | Treat as upstream Claude Code hook metadata only. Do not install or execute Claude hooks in Codex unless the user explicitly asks to inspect or port a hook. |
+| SessionStart hook, SubagentStop hook, `hooks/hooks.json` | Treat upstream `ars/hooks/hooks.json` as Claude Code metadata only. Codex hook support is opt-in through `codex/hooks/hooks.json` and must pass `codex/scripts/ars_codex_quality_gates.py hook-safety`. |
+
+## Codex Full-Runtime Profile
+
+Inline mode remains the default. To opt into the Codex full-runtime adapter,
+the user or local runtime must explicitly set:
+
+```bash
+export ARS_CODEX_FULL_RUNTIME=1
+export ARS_CODEX_AGENT_TEAM=1
+export ARS_CODEX_HOOKS=1
+```
+
+Use `codex/scripts/ars_codex_full_runtime.py` as the deterministic planner for
+`ars-*` aliases, workflow routing, checkpoint stops, agent-team dispatch plans,
+and degraded-behavior reporting. Use `codex/full-runtime-manifest.json` as the
+contract for commands, workflows, quality gates, hooks, and known parity gaps.
+
+When full-runtime is enabled:
+
+1. Plan the route with `codex/scripts/ars_codex_full_runtime.py` or follow the
+   same manifest rules manually.
+2. If `ARS_CODEX_AGENT_TEAM=1` and Codex subagents are available, dispatch roles
+   using the relevant `codex/agents/*.md` template and the vendored source agent
+   prompt path listed there.
+3. If subagents are unavailable, declare `agent_team_degraded: inline` and run
+   the same phase prompts inline.
+4. For paper-reviewer `full` and `methodology-focus` modes, produce independent
+   reviewer sections before editorial synthesis and preserve minority or
+   dissenting findings unless explicitly resolved by evidence and severity.
+5. For `ars-full`, stop at any requested checkpoint; do not silently continue
+   through a user-specified stop boundary.
+6. Run or cite relevant quality gates from
+   `codex/scripts/ars_codex_quality_gates.py` and upstream `ars/scripts/`
+   validators when a gate is material to the task.
 
 ## Agent Prompt Use
 

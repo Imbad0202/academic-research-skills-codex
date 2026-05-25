@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.8",
+  "adapter_version": "0.2.0",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-05-19",
+  "generated_date": "2026-05-25",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "96b82e82142dc95f117595c207d3e150b078e411",
+      "commit": "cb2f4e07019e1cd72881547e91d880ec7cc0d7fc",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -24,7 +24,7 @@
         "docs/design",
         "docs/migration",
         "docs/PERFORMANCE.md",
-        "top-level README, README.zh-TW, QUICKSTART, SECURITY, NOTICE, CONTRIBUTING, MODE_REGISTRY, POSITIONING",
+        "top-level README, README.zh-TW, README.zh-CN, README.ja-JP, QUICKSTART, SECURITY, NOTICE, CONTRIBUTING, MODE_REGISTRY, POSITIONING, conftest.py",
         "requirements-dev.txt",
         "CHANGELOG.md",
         "LICENSE"
@@ -62,6 +62,10 @@
     {
       "path": "skills/academic-research-suite/ars/hooks/hooks.json",
       "reason": "Claude Code plugin hook metadata. Preserved for upstream traceability but not installed or executed by Codex."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/scripts/check_ci_pytest_manifest.py",
+      "reason": "Requires upstream .github/workflows/spec-consistency.yml, which is intentionally not vendored in the Codex package."
     }
   ],
   "historical_artifacts": [
@@ -77,12 +81,14 @@
   "packaging": {
     "type": "single_codex_suite_skill",
     "entrypoint": "skills/academic-research-suite/SKILL.md",
-    "vendored_root": "skills/academic-research-suite/ars"
+    "vendored_root": "skills/academic-research-suite/ars",
+    "codex_full_runtime_adapter": "skills/academic-research-suite/codex"
   },
   "runtime_notes": [
-    "Claude Code agent-team wording is adapted by SKILL.md into Codex inline role-prompt usage.",
+    "Claude Code agent-team wording is adapted by SKILL.md into Codex inline role-prompt usage by default.",
+    "Opt-in Codex full-runtime and agent-team planning lives under skills/academic-research-suite/codex and is enabled with ARS_CODEX_FULL_RUNTIME=1 plus ARS_CODEX_AGENT_TEAM=1.",
     "The maintainer's local ARS checkout was not used as a write target.",
-    "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router; Codex does not register native slash commands.",
+    "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router and full-runtime planner; Codex does not register native slash commands.",
     "Vendored upstream workflow entry files are renamed from SKILL.md to WORKFLOW.md in this Codex package so Codex registers only the root academic-research-suite router skill.",
     "Vague paper-topic requests without a clear research question are routed to deep-research socratic mode before outline, drafting, or full pipeline execution.",
     "docs/superpowers/ is intentionally excluded; it contains upstream Claude Code development plans referencing superpowers:* sub-skills which do not exist in the Codex runtime.",
@@ -91,7 +97,7 @@
     "The v3.7.1 pattern-protection validator is patched to resolve git object paths from the nested Codex vendored root.",
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
-    "ARS v3.9.4.2 is the tracked upstream commit. The v3.9.4.2 delta is CI/release-gate-only under excluded .github paths; vendored runtime content includes v3.9.4.1 temporal-verification hotfixes and earlier v3.9.x workflow updates.",
+    "The vendored academic-research-skills source is locked to upstream origin/main at cb2f4e07019e1cd72881547e91d880ec7cc0d7fc. Upstream still reports suite version v3.9.4.2 in Claude plugin metadata at audit time.",
     "Cross-model API behavior is disabled by default and requires explicit user request."
     ]
 }
