@@ -6,6 +6,13 @@ This protocol enables optional cross-model verification for high-stakes AI judgm
 
 **This is entirely optional.** All ARS skills work with Claude Opus 4.7 alone. Cross-model verification is an additional layer for users who want higher confidence in integrity checks, devil's advocate challenges, and review judgments.
 
+**Codex adapter safety note:** In the Codex package, upstream secondary-model
+dispatch is a no-op unless the user explicitly asks for cross-model review.
+Before any unpublished manuscript, private note, corpus text, or review material
+is sent to an external provider, the agent must confirm the provider, model, and
+content class with the user. An environment variable alone is not consent to
+upload user content.
+
 ## Why Cross-Model Verification
 
 A stress test of 68 AI-generated citations found 31% had problems — and all passed three rounds of same-model integrity checks. The root cause: the verifying AI and the generating AI share the same training data distribution, so they share the same blind spots. A different model (trained on overlapping but not identical data, with different RLHF tuning) can catch errors that the primary model systematically misses.
@@ -51,8 +58,8 @@ Add to your shell profile (`~/.zshrc` or `~/.bashrc`):
 
 ```bash
 # Optional: Cross-model verification for ARS
-export OPENAI_API_KEY="sk-your-key-here"
-export GOOGLE_AI_API_KEY="AIza-your-key-here"
+export OPENAI_API_KEY="<your-openai-api-key>"
+export GOOGLE_AI_API_KEY="<your-google-ai-api-key>"
 
 # Choose your preferred cross-verification model
 # Options: gpt-5.4-pro, gpt-5.4, gemini-3.1-pro-preview
