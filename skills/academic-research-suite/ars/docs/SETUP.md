@@ -242,7 +242,7 @@ All flags are opt-in.
 | Flag | Codex behavior |
 |---|---|
 | `ARS_SOCRATIC_READING_PROBE=1` | Enables the Socratic reading-check probe in `socratic_mentor_agent` when the workflow reaches that prompt. |
-| `ARS_PASSPORT_RESET=1` | Promotes FULL checkpoints to Material Passport reset boundaries. A "fresh Claude Code session" in upstream wording means a new Codex conversation here. |
+| `ARS_PASSPORT_RESET=1` | Promotes FULL checkpoints to Material Passport reset boundaries. A "fresh Claude Code session" in upstream wording means a new Codex conversation here. Protocol: `academic-pipeline/references/passport_as_reset_boundary.md`. |
 | `ARS_CLAIM_AUDIT=1` | Enables the optional v3.8 claim-reference alignment audit gate when the workflow reaches that upstream path. |
 | `ARS_CROSS_MODEL=claude-opus-4.7` + `ANTHROPIC_API_KEY` | Enables the optional external Claude Opus reviewer when explicitly requested by the user. |
 | `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | Advisory sampling interval for cross-model checks when cross-model review is explicitly enabled. |

@@ -5,7 +5,7 @@ Target spec: docs/design/2026-04-22-ars-v3.7.3-reading-check-probe-design.md §5
 These are file-content lints (grep / regex / structure assertions) against:
 - deep-research/agents/socratic_mentor_agent.md §"Optional Reading Probe Layer"
 - deep-research/references/socratic_mode_protocol.md §"Reading Probe"
-- deep-research/WORKFLOW.md §"Opt-in Reading Probe (v3.5.1)"
+- deep-research/SKILL.md §"Opt-in Reading Probe (v3.5.1)"
 - academic-pipeline/references/process_summary_protocol.md §"Reading Probe Outcomes"
 
 Pattern matches test_check_compliance_report.py — no LLM runtime, no subprocess fork,
@@ -27,7 +27,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 MENTOR_AGENT = REPO_ROOT / "deep-research" / "agents" / "socratic_mentor_agent.md"
 SOCRATIC_PROTOCOL = REPO_ROOT / "deep-research" / "references" / "socratic_mode_protocol.md"
-DEEP_RESEARCH_SKILL = REPO_ROOT / "deep-research" / "WORKFLOW.md"
+DEEP_RESEARCH_SKILL = REPO_ROOT / "deep-research" / "SKILL.md"
 README_EN = REPO_ROOT / "README.md"
 README_ZH = REPO_ROOT / "README.zh-TW.md"
 PIPELINE_PROCESS_SUMMARY = REPO_ROOT / "academic-pipeline" / "references" / "process_summary_protocol.md"

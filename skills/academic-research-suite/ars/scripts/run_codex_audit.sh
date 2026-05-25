@@ -31,12 +31,10 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Bash version guard — Codex adapter supports macOS stock Bash 3.2+.
-# The upstream §4.1 design note said Bash 4+, but this wrapper only uses
-# Bash 3.2-compatible indexed arrays, read -ra, here-strings, and PIPESTATUS.
+# Bash version guard — §4.1 requires Bash 4+ for indexed arrays, read -ra, <<<
 # ---------------------------------------------------------------------------
-if [[ "${BASH_VERSINFO[0]}" -lt 3 ]]; then
-  printf '[run_codex_audit] error: Bash 3.2+ required (found %s).\n' \
+if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
+  printf '[run_codex_audit] error: Bash 4+ required (found %s). On macOS: brew install bash\n' \
     "${BASH_VERSION}" >&2
   exit 64
 fi

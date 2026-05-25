@@ -1,18 +1,10 @@
 # Academic Research Skills for Claude Code
 
-> **Codex package note.** 這份檔案是 vendored upstream ARS README，內容仍在說明
-> Claude Code 原生 plugin。在 `academic-research-skills-codex` 裡，請安裝並使用外層
-> Codex skill；見 [`../../../README.md`](../../../README.md)、
-> [`docs/SETUP.zh-TW.md`](docs/SETUP.zh-TW.md) 與
-> [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。`/plugin install`、原生
-> `/ars-*` slash command 註冊、plugin hooks、自動 Agent Team dispatch 等
-> Claude-only 功能，在 Codex 版只會被模擬或明確列為不支援。
-
-[![Version](https://img.shields.io/badge/version-v3.9.4.1-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.9.4.1)
+[![Version](https://img.shields.io/badge/version-v3.9.4.2-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.9.4.2)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
-[English](README.md)
+[English](README.md) | [简体中文版](README.zh-CN.md) | [日本語版](README.ja-JP.md)
 
 一套完整的學術研究 Claude Code 技能包，涵蓋從研究到論文出版的全流程。
 
@@ -302,11 +294,19 @@ https://github.com/Imbad0202/academic-research-skills
 
 **[mchesbro1](https://github.com/mchesbro1)** — 貢獻者。最初提出並撰寫了 IS Basket of 8 期刊清單（[Issue #5](https://github.com/Imbad0202/academic-research-skills/issues/5)）。
 
-**[cloudenochcsis](https://github.com/cloudenochcsis)** — 貢獻者。將 IS 章節從 *Basket of 8* 擴充為完整的 *Senior Scholars' Basket of 11*，補上 *Decision Support Systems*、*Information & Management*、*Information and Organization*（[Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7)、[PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8)）。資料來源：[AIS Senior Scholars' List of Premier Journals](https://aisnet.org/page/SeniorScholarListofPremierJournals)。
+**[cloudenochcsis](https://github.com/cloudenochcsis)** — 貢獻者。將 IS 章節從 *Basket of 8* 擴充為完整的 *Senior Scholars' Basket of 11*，補上 *Decision Support Systems*、*Information & Management*、*Information and Organization*（[Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7)、[PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8)）。資料來源：[AIS Senior Scholars' List of Premier Journals](https://aisnet.org/research/seniorscholarsbasket/)。
+
+**[eltociear](https://github.com/eltociear)**（Ikko Eltociear Ashimine）— 貢獻者。翻譯了日文版 README（[`README.ja-JP.md`](README.ja-JP.md)）（[PR #161](https://github.com/Imbad0202/academic-research-skills/pull/161)）。
+
+**[xpfo-go](https://github.com/xpfo-go)**（xpfo）— 貢獻者。翻譯了簡體中文版 README（[`README.zh-CN.md`](README.zh-CN.md)）（[PR #181](https://github.com/Imbad0202/academic-research-skills/pull/181)）。
 
 ---
 
 ## 更新紀錄
+
+### v3.9.4.2（2026-05-19）— PR #149 CI 紀律 gate post-ship hotfix（codex post-ship）
+
+> Codex post-ship review 對 PR #149（7 道 CI 紀律 gate）抓到 4 個 P2 finding；v3.9.4.2 修齊其中 3 個。F1：`harness-retirement-monthly.yml` 補 `GH_REPO`，讓排程跑能取到 repo context 給 `gh issue create`。F2：`release-cooldown.yml` 把 `PREV_TAG` 查詢 filter 到 `v*` tag，避免非 release tag（如舊 plugin tag）繞過 cooldown gate。F3：`release-cooldown.yml` 加讀 annotated tag subject + 接受 `hot-fix` 拼寫變體（v3.9.2 在舊偵測器下是 false-negative hotfix）。PR #157 follow-up：`[skip-cooldown]` override 改從 commit message 跟 annotated tag message 雙處讀取（self-bootstrapping fix — 本 tag 的 cooldown 繞過正好證明 F2+F3 端到端可用）。F4（test-count-monotonic 強化）被 revert，因為它 surface 了 `scripts/` package 預存問題，追蹤為 #154（已由 PR #158 修復）+ 再次嘗試 #155。Closes #152。Follow-ups：#155、#156。
 
 ### v3.9.4.1（2026-05-19）— v3.9.4 時序驗證 post-ship hotfix（#135 codex post-ship）
 
@@ -520,7 +520,7 @@ v3.5.1 新增 Socratic Mentor 的選用式誠實探測（設定 `ARS_SOCRATIC_RE
 
 ### v3.1.1 (2026-04-09) — 資訊系統 Senior Scholars' Basket of 11
 
-外部貢獻：[@mchesbro1](https://github.com/mchesbro1) 最初提出並撰寫了 IS Basket of 8 期刊清單（[Issue #5](https://github.com/Imbad0202/academic-research-skills/issues/5)）；[@cloudenochcsis](https://github.com/cloudenochcsis) 將其擴充為完整的 Senior Scholars' Basket of 11（[Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7)、[PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8)）。更新 `academic-paper-reviewer/references/top_journals_by_field.md` 第 7 節，補上 *Decision Support Systems*、*Information & Management*、*Information and Organization*。資料來源：[AIS Senior Scholars' List of Premier Journals](https://aisnet.org/page/SeniorScholarListofPremierJournals)。
+外部貢獻：[@mchesbro1](https://github.com/mchesbro1) 最初提出並撰寫了 IS Basket of 8 期刊清單（[Issue #5](https://github.com/Imbad0202/academic-research-skills/issues/5)）；[@cloudenochcsis](https://github.com/cloudenochcsis) 將其擴充為完整的 Senior Scholars' Basket of 11（[Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7)、[PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8)）。更新 `academic-paper-reviewer/references/top_journals_by_field.md` 第 7 節，補上 *Decision Support Systems*、*Information & Management*、*Information and Organization*。資料來源：[AIS Senior Scholars' List of Premier Journals](https://aisnet.org/research/seniorscholarsbasket/)。
 
 ### v3.1 (2026-04-06) — 抗 Context Rot + 認知框架 + 精簡尺寸
 

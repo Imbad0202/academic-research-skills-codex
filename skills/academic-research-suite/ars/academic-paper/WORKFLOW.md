@@ -311,7 +311,7 @@ Socratic mode that guides users through paper planning one chapter at a time. Bu
 
 ## Handoff Protocol: deep-research -> academic-paper
 
-`intake_agent` automatically detects deep-research materials (RQ Brief / Bibliography / Synthesis / INSIGHT Collection) and skips redundant steps. See `deep-research/WORKFLOW.md` Handoff Protocol for the complete handoff material format.
+`intake_agent` automatically detects deep-research materials (RQ Brief / Bibliography / Synthesis / INSIGHT Collection) and skips redundant steps. See `deep-research/SKILL.md` Handoff Protocol for the complete handoff material format.
 
 ---
 
@@ -334,7 +334,7 @@ See `references/failure_paths.md` for details. Quick reference:
 
 ## Full Academic Pipeline
 
-See `academic-pipeline/WORKFLOW.md` for the complete workflow.
+See `academic-pipeline/SKILL.md` for the complete workflow.
 
 ---
 
@@ -360,7 +360,7 @@ See `agents/intake_agent.md` for the complete field definitions of the Phase 0 c
 
 **Templates** (11 files in `templates/`): `imrad`, `literature_review`, `case_study`, `theoretical_paper`, `policy_brief`, `conference_paper`, `latex_article_template.tex`, `bilingual_abstract`, `credit_statement`, `funding_statement`, `revision_tracking` (4 status types).
 
-**Examples** (5 files in `examples/`): `imrad_hei_example`, `literature_review_example`, `plan_mode_guided_writing`, `chinese_paper_example`, `revision_mode_example`.
+**Examples** (8 files in `examples/`): `imrad_hei_example`, `literature_review_example`, `plan_mode_guided_writing`, `chinese_paper_example`, `revision_mode_example`, `revision_recovery_example`, `clinical_citation_verification_checklist`, `clinical_epistemic_status_example`.
 
 ---
 

@@ -160,7 +160,7 @@ The wrapper invokes `codex exec --json -m gpt-5.5 -c 'model_reasoning_effort="xh
 | Install codex CLI | `brew install codex` (or vendor installer) | vendor installer |
 | Verify install | `codex --version` should print a `codex-cli X.Y.Z` line; the wrapper requires bare-semver match `^[0-9]+\.[0-9]+\.[0-9]+$` | same |
 | Authenticate | `codex login` (browser SSO) OR set `OPENAI_API_KEY=...` in shell rc | same |
-| Bash 3.2+ | stock macOS `/bin/bash` is supported by the Codex adapter | distro default usually 5.x |
+| Bash 4+ | `brew install bash` (stock macOS ships 3.2 — not supported) | distro default usually 5.x |
 | `jq` | `brew install jq` | distro package |
 | `sha256sum` (optional — wrapper falls back to `shasum -a 256`) | `brew install coreutils` | preinstalled |
 

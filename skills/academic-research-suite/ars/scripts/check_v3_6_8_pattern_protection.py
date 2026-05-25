@@ -93,8 +93,7 @@ def _git_repo_path(repo_root_relpath: str) -> str:
     `scripts/foo.py` is both an ARS-root path and a git-object path. The Codex
     package vendors ARS under `skills/academic-research-suite/ars/`, so git
     object lookups such as `git show <commit>:scripts/foo.py` need the current
-    `git rev-parse --show-prefix` prepended. Pathspecs passed to `git log` are
-    also kept explicit for the same nested checkout case.
+    `git rev-parse --show-prefix` prepended.
     """
     global _GIT_PREFIX
     if _GIT_PREFIX is None:

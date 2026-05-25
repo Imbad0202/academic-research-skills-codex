@@ -4,7 +4,40 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-(empty — next development cycle)
+**Bug fixes (no version bump — corrects a broken-on-arrival behavior from #190):**
+
+- **#195 — `/ars-mark-read` crashed on real YAML passports.** `scripts/ars_mark_read.py:_load_corpus_keys` used `json.load()` to read the Material Passport, but every adapter (folder_scan / zotero / obsidian) and every other ARS tool produces / consumes `passport.yaml`. The existing 11-test fixture in `scripts/test_ars_mark_read.py` wrote JSON-formatted passports, so the suite was green while real-world `/ars-mark-read smith2024 --passport-path ./passport.yaml` exited with `json.JSONDecodeError` before reaching citation-key validation. Two new TDD tests pin the adapter-format expectation (YAML happy path + YAML invalid-key hard error); `_write_passport` helper switched to `yaml.safe_dump`. Companion P2 also closed: existing-but-unwritable read-log file now surfaces the canonical `[ARS-MARK-READ ERROR: ...]` fail-fast rather than a bare `PermissionError` traceback, via an extra `os.access(log_path, os.W_OK)` check after the parent-W_OK gate. 14 ars_mark_read tests pass (was 11), full suite 1623 / 3 skipped. Surfaced by post-squash codex review of PR #191 (issue #192).
+
+**Plugin commands (prep for v3.10 — no behavior change to existing skills):**
+
+- **#190 — `/ars-mark-read` + `/ars-unmark-read` plugin commands.** v3.6.8 spec §3.6 + Step 7 (round-2 R2-002, round-5 R5-003 amends) designed these commands as the user-facing affordance for the human-read signal, but the command surface itself was never shipped — `commands/` carried only the 10 `/ars-<mode>` skill triggers. New `scripts/ars_mark_read.py` deterministic CLI implements the four §3.6 R5-003 fail-fast modes (no active passport / passport not found / parent unreadable / read-log unwritable), the §3.6 firm-rule-2 hard error on invalid `citation_key`, batch-level all-or-nothing semantics (any invalid key rejects the whole batch), and the §3.6 firm-rule-3 append-only write to `<passport-stem>_human_read_log.yaml` next to the active Material Passport. `/ars-unmark-read` writes `rescinded_at: <ISO 8601>` to the matching entry, never deletes. Two new thin markdown command files (`commands/ars-mark-read.md`, `commands/ars-unmark-read.md`) invoke the CLI via Bash; both declare `model: sonnet` routing per `feedback_no_haiku.md`. New `scripts/check_v3_6_8_mark_read_commands.py` CI lint per spec Step 7 acceptance: 2 commands exist, carry the `literature_corpus[]` validation reference, reference the `human_read_log.yaml` peer-file write target (NOT entry frontmatter, per §3.1 firm rule 3), and declare `model: sonnet`. 11 unit tests for the CLI + 6 unit tests for the lint. `/ars-list-read` and `commands/ars-mark-read.zh-TW.md` were spec-marked optional and remain deferred. Closes #190.
+
+**Localization (no version bump — no behavior change to skills):**
+
+- **#185 — Simplified Chinese README.** New `README.zh-CN.md` (630 lines, mirroring `README.zh-TW.md` structure) translated by external contributor [@xpfo-go](https://github.com/xpfo-go) ([PR #181](https://github.com/Imbad0202/academic-research-skills/pull/181)). Language switcher updated across the four READMEs (en / zh-CN / zh-TW / ja-JP); `CONTRIBUTING.md` README sync guidance extended to four locales. `scripts/check_spec_consistency.py` refactored to share zh-TW / zh-CN logic via `ZH_README_CONFIGS` tuple; both locales covered by `test_aligned_zh_cn_readme_passes` + `test_stale_zh_cn_badge_fails` regression tests (symmetric with the ja-JP tests added in #170).
+
+**CI / infrastructure (no version bump — no behavior change to skills):**
+
+- **#156 — Unified pytest invocation manifest.** Twelve `pytest scripts/test_*.py` invocations in `.github/workflows/spec-consistency.yml` are now declared in `scripts/_ci_pytest_manifest.toml` and run via `scripts/run_ci_pytest_manifest.py`. Drift guard `scripts/check_ci_pytest_manifest.py` rejects (a) missing `path`, (b) duplicate `id`, (c) duplicate `(path, args)`, (d) malformed `args`, (e) any `pytest scripts/test_*.py` re-introduced in the workflow outside the runner. `pip install pytest` consolidates from 12 redundant installs to one. 17 unit tests for runner + lint. `python3 -m unittest scripts.test_*` invocations stay inline (out of scope for #156). 41 disk `test_*.py` files that the manifest does not list remain unclassified — separate follow-up.
+
+- **#155 — Re-attempt F4: harden `test-count-monotonic.yml` to fail on pytest collection errors.** Both head and base count steps now capture pytest's exit code separately from the pipe, treat exit 5 (no tests collected) as a tolerable degenerate case, and fail the gate on any other non-zero exit. Previously, a `2>/dev/null | grep -c '::' || true` swallow on the base step would silently set BASE_COUNT to 0 on a broken-import or fixture-missing error in the base commit, making the head-vs-base monotonic check vacuously pass. The original F4 fix landed in PR #153 commit 8121dfa during the v3.9.4.2 cycle but was reverted in 4abf9de when it surfaced #154 (now closed by PR #158). With #154 fixed and #156 keeping CI test discovery clean, F4 v2 ships symmetrically across head and base.
+
+---
+
+## [3.9.4.2] - 2026-05-19 — Post-ship hotfix for PR #149 CI discipline gates
+
+**Trigger:** Codex post-ship review of PR #149 (7 CI discipline gates mechanizing the release-cycle review chain) surfaced 4 P2 findings. v3.9.4.2 hardens 3 of 4; the 4th (test-count-monotonic harden) was reverted because it surfaced a pre-existing `scripts/` package issue, tracked as #154 (since fixed by PR #158) and re-attempt #155.
+
+**CI gate hardening (PR #149 + #153):**
+- **F1 — harness-retirement scheduler context:** `harness-retirement-monthly.yml` adds `GH_REPO` so scheduled runs have repo context for `gh issue create` (workflow was silently failing on cron without it).
+- **F2 — release-cooldown tag filter:** `release-cooldown.yml` filters `PREV_TAG` lookup to `v*` tags so non-release tags (e.g., legacy plugin tags) cannot bypass the cooldown gate.
+- **F3 — release-cooldown hot-fix detection:** `release-cooldown.yml` also reads annotated tag subject + accepts the `hot-fix` spelling variant; v3.9.2 was previously a false-negative hotfix under the old detector.
+- **F4 (reverted):** `test-count-monotonic.yml` harden landed in 8121dfa and reverted in 4abf9de when it surfaced `scripts/` package import errors (`ModuleNotFoundError: No module named 'scripts'`) — pre-existing latent defect masked by the prior `2>/dev/null | || true` pattern. Tracked as #154 (now closed by PR #158) and re-attempt #155.
+
+**Release-cooldown symmetry follow-up (PR #157):**
+- Override token `[skip-cooldown]` now read from both the commit message AND the annotated tag message. This v3.9.4.2 tag itself is the self-bootstrapping fix — the gate correctly identified v3.9.4.1 (3h prior) as the previous hotfix and fired the 24h cooldown, proving F2+F3 work end-to-end. The override symmetry patch makes the tag shippable.
+
+**Closes:** #152. **Follow-ups:** #154 (closed by PR #158), #155, #156.
 
 ---
 
@@ -1337,7 +1370,7 @@ Integrates insights from Lu et al. (2026, *Nature* 651:914-919) — the first en
 ### Added
 - **Information Systems — Senior Scholars' Basket of 11** (extending the *Basket of 8* added in v2.9): *Decision Support Systems*, *Information & Management*, *Information and Organization* — completing the AIS College of Senior Scholars' official list of premier IS journals
 - Section heading updated from "Information Systems (Basket of 8)" to "Information Systems (Senior Scholars' Basket of 11)" in `academic-paper-reviewer/references/top_journals_by_field.md`
-- Original IS Basket of 8 proposed and drafted by [@mchesbro1](https://github.com/mchesbro1) — [Issue #5](https://github.com/Imbad0202/academic-research-skills/issues/5). Extended to Basket of 11 by [@cloudenochcsis](https://github.com/cloudenochcsis) — [Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7), [PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8). Source: [AIS Senior Scholars' List of Premier Journals](https://aisnet.org/page/SeniorScholarListofPremierJournals)
+- Original IS Basket of 8 proposed and drafted by [@mchesbro1](https://github.com/mchesbro1) — [Issue #5](https://github.com/Imbad0202/academic-research-skills/issues/5). Extended to Basket of 11 by [@cloudenochcsis](https://github.com/cloudenochcsis) — [Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7), [PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8). Source: [AIS Senior Scholars' List of Premier Journals](https://aisnet.org/research/seniorscholarsbasket/)
 
 ## [2.9.1] - 2026-04-03
 

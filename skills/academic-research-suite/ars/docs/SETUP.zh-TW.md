@@ -232,7 +232,7 @@ corpus-first / search-fills-gap 行為。詳見
 | Flag | Codex 行為 |
 |---|---|
 | `ARS_SOCRATIC_READING_PROBE=1` | workflow 進入 `socratic_mentor_agent` prompt 時，啟用 Socratic reading-check probe。 |
-| `ARS_PASSPORT_RESET=1` | 將 FULL checkpoint 提升為 Material Passport reset boundary。Upstream 的「fresh Claude Code session」在這裡代表新的 Codex conversation。 |
+| `ARS_PASSPORT_RESET=1` | 將 FULL checkpoint 提升為 Material Passport reset boundary。Upstream 的「fresh Claude Code session」在這裡代表新的 Codex conversation。Protocol: `academic-pipeline/references/passport_as_reset_boundary.md`。 |
 | `ARS_CLAIM_AUDIT=1` | workflow 進入 upstream 對應路徑時，啟用選用的 v3.8 claim-reference alignment audit gate。 |
 | `ARS_CROSS_MODEL=claude-opus-4.7` + `ANTHROPIC_API_KEY` | 使用者明確要求時，啟用選用的外部 Claude Opus reviewer。 |
 | `ARS_CROSS_MODEL_SAMPLE_INTERVAL` | 明確啟用 cross-model review 時的 advisory sampling interval。 |

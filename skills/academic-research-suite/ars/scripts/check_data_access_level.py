@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lint: every top-level SKILL.md / WORKFLOW.md must declare metadata.data_access_level.
+"""Lint: every top-level SKILL.md must declare metadata.data_access_level.
 
 Legal values: raw | redacted | verified_only.
 """
@@ -17,6 +17,6 @@ if __name__ == "__main__":
         run_lint(
             field="data_access_level",
             legal_values=LEGAL_VALUES,
-            ok_message="OK: all SKILL.md / WORKFLOW.md files declare a valid data_access_level.",
+            ok_message="OK: all SKILL.md files declare a valid data_access_level.",
         )
     )

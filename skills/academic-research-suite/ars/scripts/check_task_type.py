@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lint: every top-level SKILL.md / WORKFLOW.md must declare metadata.task_type.
+"""Lint: every top-level SKILL.md must declare metadata.task_type.
 
 Legal values: open-ended | outcome-gradable.
 """
@@ -17,6 +17,6 @@ if __name__ == "__main__":
         run_lint(
             field="task_type",
             legal_values=LEGAL_VALUES,
-            ok_message="OK: all SKILL.md / WORKFLOW.md files declare a valid task_type.",
+            ok_message="OK: all SKILL.md files declare a valid task_type.",
         )
     )
