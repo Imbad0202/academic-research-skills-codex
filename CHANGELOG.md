@@ -4,6 +4,13 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+### Added
+- Added an optional Codex full-runtime adapter profile under
+  `skills/academic-research-suite/codex/`, including deterministic route
+  planning, Codex agent-team templates, a disabled-by-default hook pack, and
+  adapter quality gates. Default ARS Codex behavior remains inline role-prompt
+  execution.
+
 ## [0.1.9] - 2026-06-01
 
 ### Changed

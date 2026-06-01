@@ -138,7 +138,7 @@ using them in Codex:
 | Upstream wording | Codex behavior |
 |---|---|
 | Agent Team, agent, dispatch, handoff | Read the referenced `agents/*.md` file as a role or phase prompt and perform that phase inline. |
-| Agent tool, Task tool, subagent | Do not spawn agents automatically. Only use Codex subagents when the user explicitly asks for delegation or parallel agents. |
+| Agent tool, Task tool, subagent | Do not spawn agents automatically. Only use Codex subagents when the user explicitly asks for delegation or parallel agents. If the optional full-runtime profile is enabled, use `codex/full-runtime-manifest.json` and `codex/agents/*.md` as the adapter contract. |
 | AskUserQuestion | Ask concise clarification questions, or use Codex's structured user-input tool when available in the active mode. |
 | WebSearch | Use Codex web browsing for current facts, source verification, citation checks, and external evidence. Provide source links. |
 | Bash, Write, Edit | Treat as capability descriptions, not required tool names. Follow Codex safety rules and the user's filesystem constraints. |
@@ -148,6 +148,25 @@ using them in Codex:
 | `fresh Claude Code session`, `Claude Code session` | Read as "a new Codex conversation". Material Passport reset semantics still apply; only the runtime changes. This rule covers `ars/academic-pipeline/WORKFLOW.md`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md`, `ars/academic-pipeline/references/passport_as_reset_boundary.md`, `ars/experiment-agent/README.md`, `ars/experiment-agent/README.zh-TW.md`, and `ars/docs/PERFORMANCE.md`. |
 | `/ars-*` slash command, Claude plugin command | Treat `ars/commands/ars-*.md` as optional prompt recipes. Codex does not register slash commands from this package. |
 | SessionStart hook, SubagentStop hook, `hooks/hooks.json` | Treat as upstream Claude Code hook metadata only. Do not install or execute Claude hooks in Codex unless the user explicitly asks to inspect or port a hook. |
+
+## Optional Full-Runtime Profile
+
+Normal ARS Codex behavior remains inline role-prompt execution in this
+conversation. The Codex-only `codex/` directory provides an optional
+full-runtime profile for users who explicitly want planner-driven agent-team or
+hook behavior:
+
+- `codex/full-runtime-manifest.json` defines aliases, workflow routes, agent-team
+  rules, hook-pack metadata, quality gates, and known degradations.
+- `codex/agents/*.md` defines Codex agent-team templates that point back to the
+  vendored ARS source prompts.
+- `codex/scripts/ars_codex_full_runtime.py` produces deterministic route plans.
+- `codex/hooks/` is disabled by default and must not be installed or executed
+  unless the user explicitly opts in.
+
+Only use this profile when the user explicitly asks for full-runtime,
+delegated, parallel, subagent, or hook behavior. Otherwise use the inline
+mapping above.
 
 ## Agent Prompt Use
 

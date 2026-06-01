@@ -75,10 +75,13 @@
   "packaging": {
     "type": "single_codex_suite_skill",
     "entrypoint": "skills/academic-research-suite/SKILL.md",
-    "vendored_root": "skills/academic-research-suite/ars"
+    "vendored_root": "skills/academic-research-suite/ars",
+    "codex_adapter_root": "skills/academic-research-suite/codex",
+    "optional_full_runtime_manifest": "skills/academic-research-suite/codex/full-runtime-manifest.json"
   },
   "runtime_notes": [
     "Claude Code agent-team wording is adapted by SKILL.md into Codex inline role-prompt usage.",
+    "The Codex-only codex/ adapter profile is optional and disabled by default; it provides planner metadata, agent-team templates, hook metadata, and quality gates for explicit full-runtime use.",
     "The maintainer's local ARS checkout was not used as a write target.",
     "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router; Codex does not register native slash commands.",
     "Vendored upstream workflow entry files are renamed from SKILL.md to WORKFLOW.md in this Codex package so Codex registers only the root academic-research-suite router skill.",

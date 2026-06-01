@@ -15,6 +15,11 @@ skills/academic-research-suite/
   SKILL.md
   manifest.json
   agents/openai.yaml
+  codex/
+    full-runtime-manifest.json
+    agents/
+    hooks/
+    scripts/
   ars/
     deep-research/
     academic-paper/
@@ -105,6 +110,8 @@ Codex conversation.
   and unsupported Claude plugin features.
 - [Codex architecture](skills/academic-research-suite/ars/docs/ARCHITECTURE.md)
   explains the logical ARS pipeline with the Codex runtime overlay.
+- [Optional full-runtime adapter](CODEX_FULL_RUNTIME_ADAPTER.md) documents the
+  disabled-by-default planner, Codex agent-team templates, and hook pack.
 
 ## Usage
 
@@ -257,6 +264,8 @@ These Codex messages do not mean ARS failed to install:
 ARS was originally written for Claude Code. In this Codex package:
 
 - The vendored `agents/*.md` files are used as role and phase prompts.
+- The Codex-only `codex/` directory contains an optional full-runtime adapter
+  profile. It is disabled by default and does not change normal inline routing.
 - The vendored `commands/ars-*.md` files are prompt recipes only. Codex does not
   register them as slash commands.
 - The vendored `hooks/hooks.json` file is preserved for upstream traceability
@@ -286,6 +295,7 @@ v3.10.0 where Codex has an equivalent concept.
 | `/ars-*` slash commands | Emulated as `ars-*` aliases through the skill router; not native slash commands |
 | Four upstream skills auto-discovered from `skills/` symlinks | Single Codex router skill selects the workflow and reads the vendored workflow `WORKFLOW.md` files |
 | Plugin-shipped agents | Agent files are role/phase prompts; Codex runs them inline unless the user explicitly asks for delegated subagents |
+| Optional Codex full-runtime profile | Planner, agent-team templates, and hook pack live under `skills/academic-research-suite/codex/`; disabled by default |
 | `model: opus` / `model: sonnet` command routing | Treated as Claude metadata; Codex uses the active model |
 | SessionStart and SubagentStop hooks | Vendored for traceability only; Codex does not install or execute Claude hooks |
 | Plugin marketplace update / auto-update | Not available here; update by reinstalling or pulling this Codex repo |
