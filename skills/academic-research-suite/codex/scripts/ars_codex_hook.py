@@ -19,7 +19,12 @@ MANIFEST = CODEX_ROOT / "full-runtime-manifest.json"
 
 def announce() -> dict[str, object]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    aliases = [command["aliases"][1] for command in manifest["commands"] if len(command["aliases"]) > 1]
+    aliases: list[str] = []
+    for command in manifest["commands"]:
+        for alias in command["aliases"]:
+            normalized = alias.lstrip("/")
+            if normalized not in aliases:
+                aliases.append(normalized)
     return {
         "name": manifest["adapter"]["name"],
         "full_runtime": "opt-in with ARS_CODEX_FULL_RUNTIME=1",
