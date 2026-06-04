@@ -32,6 +32,17 @@ def test_vague_paper_topic_routes_to_deep_research_socratic() -> None:
     assert plan["route_reason"] == "paper_topic_scoping_override"
 
 
+def test_vague_topic_with_unclear_research_question_still_routes_to_socratic() -> None:
+    planner = _load_planner()
+    plan = planner.plan_request(
+        "Use $academic-research-suite. I want to write a paper on AI governance in universities, but my research question is still unclear.",
+        env={},
+    )
+    assert plan["workflow"] == "deep-research"
+    assert plan["mode"] == "socratic"
+    assert plan["route_reason"] == "paper_topic_scoping_override"
+
+
 def test_ars_plan_routes_to_academic_paper_plan_when_rq_exists() -> None:
     planner = _load_planner()
     plan = planner.plan_request(

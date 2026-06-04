@@ -25,6 +25,8 @@ ALIAS_RE = re.compile(r"(?<![\w/-])(/?ars-[a-z-]+)(?![\w-])", re.IGNORECASE)
 QUESTION_RE = re.compile(r"\b(research question|rq|hypothesis|hypotheses)\b|研究問題|研究问题|假設|假设", re.IGNORECASE)
 UNCLEAR_QUESTION_RE = re.compile(
     r"(do not|don't|does not|doesn't|not yet|without|no)\s+.{0,40}\b(research question|rq|hypothesis|hypotheses)\b|"
+    r"\bunclear\s+(research question|rq|hypothesis|hypotheses)\b|"
+    r"\b(research question|rq|hypothesis|hypotheses)\b\s+.{0,30}\b(still\s+)?unclear\b|"
     r"尚未.{0,20}(研究問題|研究问题)|沒有.{0,20}(研究問題|研究问题)|没有.{0,20}(研究問題|研究问题)",
     re.IGNORECASE,
 )
