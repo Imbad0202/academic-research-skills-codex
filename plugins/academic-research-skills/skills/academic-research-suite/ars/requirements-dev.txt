@@ -1,0 +1,4 @@
+pyyaml
+ruamel.yaml>=0.17
+jsonschema[format]>=4.17
+tomli>=2.0; python_version < "3.11"
