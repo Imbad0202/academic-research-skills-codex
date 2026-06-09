@@ -8,7 +8,7 @@
       "name": "academic-research-skills",
       "source": {
         "source": "local",
-        "path": "../.."
+        "path": "./"
       },
       "policy": {
         "installation": "AVAILABLE",
