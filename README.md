@@ -1,10 +1,20 @@
-# Academic Research Skills for Codex
+# Codex 的学术研究技能
 
-[![Version](https://img.shields.io/badge/version-v0.1.11-blue)](VERSION)
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
-[![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
+[！[版本]（https://img.shields.io/badge/version-v0.1.11-blue）]（版本）
+[！[许可证：CC BY-NC 4.0]（https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey）]（https://creativecommons.org/licenses/by-nc/4.0/）
+[！[赞助商]（https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee）]（https://buymeacoffee.com/crucify020v）
 
-Codex-native packaging of the Academic Research Skills suite. This is the
+## Codex Desktop Install as Plugin
+通过添加marketplace.json和plugin.json，以便作为Codex的plugin进行安装。
+Codex Desktop users can add the same repository as a custom plugin marketplace:
+For example
+    - Marketplace source: [https://github.com/Yuan1z0825/nature-skills.git](https://github.com/GrLime909/academic-research-skills-codex.git)
+    - Branch/ref: main
+    - Plugin: Academic Research Skills
+<img width="457" height="134" alt="图片" src="https://github.com/user-attachments/assets/ba205622-189d-44b6-bbd3-bf150b73117a" />
+
+
+学术研究技能套件的Codex本地包装。这是
 sibling Codex distribution of
 [Academic Research Skills for Claude Code](https://github.com/Imbad0202/academic-research-skills).
 
@@ -17,16 +27,16 @@ skills/academic-research-suite/
   agents/openai.yaml
   codex/
     full-runtime-manifest.json
-    agents/
-    hooks/
-    scripts/
+特工/
+引子/
+剧本/
   ars/
-    deep-research/
-    academic-paper/
-    academic-paper-reviewer/
-    academic-pipeline/
+深度研究/
+学术论文/
+学术论文评审/
+学术管道/
     experiment-agent/
-    commands/
+命令/
     hooks/
     docs/
     tests/
