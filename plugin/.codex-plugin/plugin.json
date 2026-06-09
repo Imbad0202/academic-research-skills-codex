@@ -1,0 +1,46 @@
+{
+  "name": "academic-research-skills",
+  "version": "0.1.11+codex.20260609160446",
+  "description": "Codex-native Academic Research Skills suite for deep research, academic paper writing, manuscript review, full research-to-paper pipelines, and experiment planning or validation.",
+  "author": {
+    "name": "Imbad0202",
+    "url": "https://github.com/Imbad0202"
+  },
+  "homepage": "https://github.com/Imbad0202/academic-research-skills-codex",
+  "repository": "https://github.com/Imbad0202/academic-research-skills-codex",
+  "license": "CC-BY-NC-4.0",
+  "keywords": [
+    "academic",
+    "research",
+    "paper",
+    "writing",
+    "peer-review",
+    "literature-review",
+    "manuscript",
+    "science",
+    "citation",
+    "deep-research"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Academic Research Skills",
+    "shortDescription": "Deep research, paper writing, manuscript review, and experiment planning for academic work.",
+    "longDescription": "A comprehensive academic research suite for Codex. Covers deep research with Socratic questioning, literature review and systematic review, full IMRaD paper drafting with bilingual abstract support, manuscript revision coaching, peer reviewer simulation, experiment planning and validation, citation compliance checks, and research-to-paper pipeline orchestration. Vendors ARS agent roles, reference guides, templates, and shared handoff schemas for rigorous academic workflows.",
+    "developerName": "Imbad0202",
+    "category": "Research",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/Imbad0202/academic-research-skills-codex",
+    "privacyPolicyURL": "https://github.com/Imbad0202/academic-research-skills-codex/blob/main/SECURITY.md",
+    "termsOfServiceURL": "https://github.com/Imbad0202/academic-research-skills-codex/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Help me write an academic paper on my research findings.",
+      "Review my manuscript as a peer reviewer for a top journal.",
+      "Conduct a deep literature review and identify research gaps."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

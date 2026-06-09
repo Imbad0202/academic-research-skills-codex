@@ -7,10 +7,8 @@
     {
       "name": "academic-research-skills",
       "source": {
-        "source": "git-url",
-        "url": "https://github.com/GrLime909/academic-research-skills-codex.git",
-        "path": "./plugins/academic-research-skills",
-        "ref": "main"
+        "source": "local",
+        "path": "./plugin"
       },
       "policy": {
         "installation": "AVAILABLE",

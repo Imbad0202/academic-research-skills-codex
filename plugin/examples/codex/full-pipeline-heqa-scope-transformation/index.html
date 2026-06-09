@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>From Compliance Assurance to Quality Intelligence</title>
+    <meta
+      name="description"
+      content="A conceptual framework paper on a Scope Transformation Matrix for Higher Education Quality Assurance in the Agentic AI era."
+    >
+    <style>
+      :root {
+        --ink: #17211d;
+        --muted: #58645f;
+        --paper: #fbfbf8;
+        --panel: #ffffff;
+        --line: #d6ddd7;
+        --sage: #4f715d;
+        --blue: #234b63;
+        --clay: #9a553d;
+        --gold: #c7a24a;
+        --shadow: 0 18px 50px rgba(24, 38, 32, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, rgba(214, 221, 215, 0.35) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(214, 221, 215, 0.35) 1px, transparent 1px),
+          var(--paper);
+        background-size: 28px 28px;
+        font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+        line-height: 1.55;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            rgba(23, 33, 29, 0.025),
+            rgba(23, 33, 29, 0.025) 1px,
+            transparent 1px,
+            transparent 4px
+          );
+        mix-blend-mode: multiply;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 40px 0 56px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: center;
+        margin-bottom: 30px;
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .mark {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 700;
+      }
+
+      .mark::before {
+        content: "";
+        width: 30px;
+        height: 10px;
+        border-left: 10px solid var(--sage);
+        border-right: 10px solid var(--blue);
+        background: var(--clay);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.62fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 24px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .side-panel,
+      .paper-card,
+      .matrix,
+      .ladder {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .side-panel {
+        padding: 24px;
+      }
+
+      .label {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--sage);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .side-panel p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .thesis {
+        border-top: 6px solid var(--blue);
+      }
+
+      .thesis strong {
+        color: var(--ink);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 5px 10px;
+        border: 1px solid var(--line);
+        background: #f5f7f3;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      main {
+        display: grid;
+        gap: 24px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 46px 48px;
+        background: var(--ink);
+        color: #f8faf5;
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "HEQA";
+        position: absolute;
+        right: -10px;
+        bottom: -46px;
+        color: rgba(255, 255, 255, 0.06);
+        font-family: "Iowan Old Style", "Palatino", "Georgia", serif;
+        font-size: clamp(6rem, 18vw, 13rem);
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        position: relative;
+        max-width: 850px;
+        font-family: "Iowan Old Style", "Palatino", "Georgia", serif;
+        font-size: clamp(2.35rem, 7vw, 5.9rem);
+        font-weight: 900;
+        line-height: 0.94;
+      }
+
+      .subtitle {
+        position: relative;
+        max-width: 740px;
+        margin: 24px 0 0;
+        color: #dce7dd;
+        font-size: clamp(1.02rem, 2vw, 1.28rem);
+        line-height: 1.48;
+      }
+
+      .hero-meta {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .hero-meta span {
+        padding: 7px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #edf3ee;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .paper-card {
+        padding: 34px;
+      }
+
+      .paper-card h2,
+      .matrix h2,
+      .ladder h2 {
+        margin-bottom: 16px;
+        font-family: "Iowan Old Style", "Palatino", "Georgia", serif;
+        font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+        line-height: 1.1;
+      }
+
+      .abstract-text {
+        display: grid;
+        gap: 18px;
+        color: #27332e;
+        font-family: "Iowan Old Style", "Palatino", "Georgia", serif;
+        font-size: clamp(1.03rem, 1.7vw, 1.2rem);
+      }
+
+      .abstract-text p {
+        margin: 0;
+      }
+
+      .callout {
+        margin-top: 26px;
+        padding: 18px 20px;
+        border-left: 5px solid var(--clay);
+        background: #f7f2ed;
+        color: #3b302b;
+        font-weight: 700;
+      }
+
+      .matrix,
+      .ladder {
+        padding: 30px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+      }
+
+      table {
+        width: 100%;
+        min-width: 680px;
+        border-collapse: collapse;
+        background: var(--panel);
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3ee;
+        color: var(--blue);
+        font-size: 0.76rem;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      td:first-child {
+        color: var(--sage);
+        font-weight: 800;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .keyword-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 18px;
+      }
+
+      .keyword-list span {
+        padding: 8px 11px;
+        background: #edf2f4;
+        border-left: 4px solid var(--gold);
+        color: #23343a;
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      footer {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      @media (max-width: 920px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .page {
+          width: min(100% - 24px, 1180px);
+          padding-top: 22px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .sidebar {
+          grid-template-columns: 1fr;
+        }
+
+        .hero,
+        .paper-card,
+        .matrix,
+        .ladder,
+        .side-panel {
+          padding: 22px;
+        }
+
+        .hero {
+          padding-top: 34px;
+        }
+
+        table {
+          min-width: 620px;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        body::before,
+        .hero::after {
+          display: none;
+        }
+
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+
+        .layout {
+          display: block;
+        }
+
+        .sidebar {
+          position: static;
+          display: block;
+          margin-bottom: 18px;
+        }
+
+        .side-panel,
+        .paper-card,
+        .matrix,
+        .ladder,
+        .hero {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar" aria-label="Document metadata">
+        <div class="mark">Symposium Research Brief</div>
+        <div>Conceptual Framework Draft</div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar" aria-label="Paper summary">
+          <section class="side-panel thesis">
+            <span class="label">Core Move</span>
+            <p>
+              Reframe agentic AI in HEQA from workflow automation to
+              <strong>scope transformation toward quality intelligence</strong>.
+            </p>
+          </section>
+
+          <section class="side-panel">
+            <span class="label">Audience</span>
+            <p>HEQA researchers examining AI adoption, quality culture, and governance boundaries.</p>
+            <div class="chips" aria-label="Paper type tags">
+              <span class="chip">HEQA</span>
+              <span class="chip">Agentic AI</span>
+              <span class="chip">Quality Intelligence</span>
+            </div>
+          </section>
+
+          <section class="side-panel">
+            <span class="label">Boundary</span>
+            <p>
+              This is not an empirical claim that agentic HEQA is mature. It is
+              a conceptual tool for evaluating emerging use cases.
+            </p>
+          </section>
+        </aside>
+
+        <main>
+          <section class="hero">
+            <h1>From Compliance Assurance to Quality Intelligence</h1>
+            <p class="subtitle">
+              A Scope Transformation Matrix for Higher Education Quality Assurance
+              in the Agentic AI Era
+            </p>
+            <div class="hero-meta" aria-label="Key themes">
+              <span>Beyond Automation</span>
+              <span>Human Judgment</span>
+              <span>Quality Culture</span>
+            </div>
+          </section>
+
+          <article class="paper-card">
+            <span class="label">Abstract</span>
+            <h2>Argument in Brief</h2>
+            <div class="abstract-text">
+              <p>
+                Higher education quality assurance (HEQA) has traditionally been
+                organized around compliance, periodic evaluation, indicator-based
+                accountability, and external review. While these mechanisms remain
+                necessary, they are increasingly insufficient for supporting
+                continuous quality enhancement and quality culture in complex higher
+                education systems. Current discussions of artificial intelligence in
+                HEQA often frame AI as a tool for automating documentation,
+                accelerating review procedures, or simplifying administrative work.
+                This paper argues that the emergence of agentic AI requires a more
+                fundamental reconsideration of the scope of HEQA. Rather than asking
+                whether AI can make existing quality assurance processes more
+                efficient, the paper asks how AI agents may expand what HEQA can
+                observe, connect, monitor, advise, and support.
+              </p>
+              <p>
+                The paper develops a Scope Transformation Matrix for analyzing
+                agentic AI use cases in HEQA. The matrix distinguishes between AI
+                applications that merely automate compliance work and those that
+                contribute to quality intelligence, risk-informed governance,
+                continuous monitoring, and human-centred advisory support. It
+                further clarifies the boundary between AI-delegable tasks and
+                human-only judgments, emphasizing that values, accountability, peer
+                review, and final quality decisions must remain human-led. By
+                organizing practical use cases across actors such as teachers,
+                departments, institutions, and QA agencies, the paper offers a
+                conceptual tool for HEQA researchers to examine how agentic AI may
+                support quality culture without reducing quality to datafication or
+                algorithmic control.
+              </p>
+            </div>
+
+            <div class="callout">
+              The central question is not whether AI can do QA, but which QA tasks
+              can be delegated, which judgments must remain human, and how this
+              boundary reshapes quality culture.
+            </div>
+          </article>
+
+          <section class="matrix" aria-labelledby="matrix-title">
+            <span class="label">Framework</span>
+            <h2 id="matrix-title">Scope Transformation Matrix</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Dimension</th>
+                    <th>Guiding Question</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Actor</td>
+                    <td>Who uses or is affected by the AI agent?</td>
+                  </tr>
+                  <tr>
+                    <td>QA Function</td>
+                    <td>What quality assurance work is supported?</td>
+                  </tr>
+                  <tr>
+                    <td>AI Role</td>
+                    <td>Does AI summarize, detect, connect, recommend, or monitor?</td>
+                  </tr>
+                  <tr>
+                    <td>Human Judgment Boundary</td>
+                    <td>What must remain human-led?</td>
+                  </tr>
+                  <tr>
+                    <td>Scope Transformation</td>
+                    <td>
+                      Does the use case expand evidence, time, participation,
+                      intervention, or advisory capacity?
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Quality Intelligence Level</td>
+                    <td>Is the output descriptive, diagnostic, predictive, or advisory?</td>
+                  </tr>
+                  <tr>
+                    <td>Governance Risk</td>
+                    <td>What risks must be governed?</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="ladder" aria-labelledby="ladder-title">
+            <span class="label">Practical Path</span>
+            <h2 id="ladder-title">Use-Case Ladder</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Level</th>
+                    <th>Use Case</th>
+                    <th>Main Contribution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Course alignment agent</td>
+                    <td>Supports teachers in aligning outcomes, assessment, and feedback.</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Program review agent</td>
+                    <td>Helps departments sustain evidence-based program improvement.</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Institutional research agent</td>
+                    <td>Integrates fragmented data into institutional quality intelligence.</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Risk-informed QA agent</td>
+                    <td>Supports early detection of quality risks and improvement priorities.</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Always-on advisory QA infrastructure</td>
+                    <td>Provides continuous human-centred quality support across the institution.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="paper-card">
+            <span class="label">Keywords</span>
+            <h2>Search Terms and Positioning</h2>
+            <div class="keyword-list">
+              <span>Higher education quality assurance</span>
+              <span>Agentic AI</span>
+              <span>Quality intelligence</span>
+              <span>Quality culture</span>
+              <span>AI governance</span>
+              <span>Compliance assurance</span>
+              <span>Quality enhancement</span>
+            </div>
+            <footer>
+              Source text: <a href="./abstract.md">abstract.md</a>
+            </footer>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
