@@ -8,7 +8,7 @@
       "name": "academic-research-skills",
       "source": {
         "source": "local",
-        "path": "./plugins/academic-research-skills"
+        "path": "../.."
       },
       "policy": {
         "installation": "AVAILABLE",
