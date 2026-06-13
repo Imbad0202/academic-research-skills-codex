@@ -1,9 +1,0 @@
-.DS_Store
-*.log
-tmp/
-.cache/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-
-.context/
