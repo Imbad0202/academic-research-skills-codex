@@ -1,0 +1,20 @@
+{
+  "name": "academic-research-skills-codex",
+  "interface": {
+    "displayName": "Academic Research Skills for Codex"
+  },
+  "plugins": [
+    {
+      "name": "academic-research-skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/academic-research-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Research"
+    }
+  ]
+}

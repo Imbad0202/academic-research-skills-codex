@@ -103,6 +103,23 @@ or `Academic Research ...`. You should **not** see separate `academic-paper`,
 this package. If you do, reinstall with the update command above and open a new
 Codex conversation.
 
+## Codex Desktop Plugin Install
+
+Codex Desktop can also install this repository as a custom plugin marketplace.
+Add this repository as the marketplace source and install the `Academic Research
+Skills` plugin:
+
+```text
+Marketplace source: https://github.com/Imbad0202/academic-research-skills-codex.git
+Branch/ref: main
+Plugin: academic-research-skills
+```
+
+The plugin root lives at `plugins/academic-research-skills/`. Its `skills/`
+entry links back to the repository's existing `skills/` tree, so the plugin
+install and the direct skill install share the same ARS source files instead of
+maintaining a duplicated `plugin/` copy.
+
 ## Codex Docs
 
 - [Codex setup](skills/academic-research-suite/ars/docs/SETUP.md) covers
