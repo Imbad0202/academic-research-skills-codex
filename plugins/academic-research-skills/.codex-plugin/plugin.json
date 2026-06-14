@@ -1,0 +1,45 @@
+{
+  "name": "academic-research-skills",
+  "version": "0.1.12",
+  "description": "Codex-native Academic Research Skills suite for deep research, academic paper writing, manuscript review, research-to-paper pipelines, and experiment planning.",
+  "author": {
+    "name": "Imbad0202",
+    "url": "https://github.com/Imbad0202"
+  },
+  "homepage": "https://github.com/Imbad0202/academic-research-skills-codex",
+  "repository": "https://github.com/Imbad0202/academic-research-skills-codex",
+  "license": "CC-BY-NC-4.0",
+  "keywords": [
+    "academic",
+    "research",
+    "paper",
+    "writing",
+    "peer-review",
+    "literature-review",
+    "manuscript",
+    "citation",
+    "deep-research"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Academic Research Skills",
+    "shortDescription": "Deep research, paper writing, review, and experiment planning.",
+    "longDescription": "Academic Research Skills for Codex supports Socratic research scoping, literature reviews, systematic reviews, IMRaD paper planning and drafting, manuscript revision coaching, peer-review simulation, citation and integrity checks, experiment planning, and staged research-to-paper workflows.",
+    "developerName": "Imbad0202",
+    "category": "Research",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Imbad0202/academic-research-skills-codex",
+    "privacyPolicyURL": "https://github.com/Imbad0202/academic-research-skills-codex/blob/main/SECURITY.md",
+    "termsOfServiceURL": "https://github.com/Imbad0202/academic-research-skills-codex/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Plan my academic paper from rough research notes.",
+      "Review my manuscript like a journal reviewer.",
+      "Build a literature review and identify research gaps."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
