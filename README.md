@@ -271,6 +271,14 @@ codex exec --ephemeral --sandbox read-only \
   'Use $academic-research-suite. Router smoke test only. User request to classify: I want to write a paper on AI adoption in higher education quality assurance, but I do not yet have a clear research question. According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
+Maintainer quality gates:
+
+```bash
+python3 skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py all --json
+```
+
+Expected: every reported gate has `"ok": true`.
+
 ### Non-Blocking Codex Warnings
 
 These Codex messages do not mean ARS failed to install:
