@@ -28,6 +28,17 @@ skills/academic-research-suite/
 
 元の Claude Code ARS チェックアウトは変更されません。アップストリームの内容は GitHub の新規クローンからコピーされ、`skills/academic-research-suite/SKILL.md` の Codex ルータを通じて適合されます。
 
+
+## 🚀 クイックトライ
+
+Academic Research Suite をローカルにセットアップする前に試してみませんか？
+Telegram または WhatsApp で無料でお試しいただけます：
+
+[ClawMama で Academic Research Suite を試す](https://app.clawmama.run/skills/ymlo6f/hermes?utm_source=github&utm_medium=issue&utm_campaign=skill_outreach_academic_research_skills_codex)
+
+試用後、以下のインストール手順に進んでください。
+
+
 ## Claude Code 版
 
 このリポジトリは Codex パッケージです。Academic Research Skills の元の Claude Code 版を利用する場合は、[Imbad0202/academic-research-skills](https://github.com/Imbad0202/academic-research-skills) をご使用ください。
