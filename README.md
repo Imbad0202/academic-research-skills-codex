@@ -37,6 +37,17 @@ The original Claude Code ARS checkout is not modified. Upstream content is copie
 from fresh GitHub clones and adapted through the Codex router in
 `skills/academic-research-suite/SKILL.md`.
 
+
+## ?? Quick Try
+
+Want to test the Academic Research Suite without setting it up locally? Try it
+in Telegram or WhatsApp for a low-friction first run:
+
+[Try Academic Research Suite on ClawMama](https://app.clawmama.run/skills/ymlo6f/hermes?utm_source=github&utm_medium=issue&utm_campaign=skill_outreach_academic_research_skills_codex)
+
+Once you are comfortable, follow the install steps below to set it up in Codex.
+
+
 ## Claude Code Version
 
 This repository is the Codex package. For the original Claude Code version of
