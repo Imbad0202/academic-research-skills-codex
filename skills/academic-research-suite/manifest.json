@@ -1,6 +1,6 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.20",
+  "adapter_version": "0.1.21",
   "version_file": "VERSION",
   "generated_for": "codex",
   "generated_date": "2026-07-18",
@@ -111,8 +111,8 @@
     "The degradation registry, executable panel checker, pipeline-boundary lock, tools-allowlist lock, and hermetic transport fixtures are vendored with their upstream tests; the pipeline-orchestrator content-lock hash is updated only for the Codex WORKFLOW.md path overlay.",
     "The v3.18 fixed-seat cross-model Reviewer 2 track and re-review judge pass remain gated by explicit provider configuration and content consent; dispatch failure or single-family execution is disclosed rather than simulated.",
     "The v3.18 citation-cache staleness advisory, opt-in live re-validation, risk-stratified claim gate, scope and novelty advisories, and held-out pipeline-behavior set are preserved with their upstream tests and schemas.",
-    "The upstream SessionStart update reminder is vendored for traceability and testing but is not installed or executed by Codex; Codex package updates remain manual.",
-    "Codex Desktop plugin packaging uses a materialized skills directory under plugins/academic-research-skills/skills instead of a symlink so Windows plugin caches can register the bundled academic-research-suite skill.",
+    "The upstream SessionStart update reminder is vendored for traceability and testing but is not installed or executed by Codex; plugin users update by refreshing the ars-codex marketplace and re-adding the plugin, while direct skill users reinstall manually.",
+    "ARS-Codex Desktop plugin packaging uses a materialized skills directory under plugins/ars-codex/skills instead of a symlink so Windows plugin caches can register the bundled academic-research-suite skill.",
     "Cross-model API behavior is disabled by default and requires explicit user request, provider configuration, and user consent before any external upload."
     ]
 }

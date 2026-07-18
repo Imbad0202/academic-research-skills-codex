@@ -1,4 +1,4 @@
-# ARS Codex Full-Runtime Adapter
+# ARS-Codex Full-Runtime Adapter
 
 This directory is the Codex-only runtime adapter for
 `academic-research-suite`. Vendored upstream content remains under `ars/`; do

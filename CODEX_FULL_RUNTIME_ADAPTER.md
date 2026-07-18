@@ -1,7 +1,7 @@
 # Codex Full-Runtime Adapter Guide
 
 This guide documents the optional full-runtime profile for
-`academic-research-suite`. The default ARS Codex behavior remains inline
+`academic-research-suite`. The default ARS-Codex behavior remains inline
 role-prompt execution through `skills/academic-research-suite/SKILL.md`.
 
 ## What This Adds
@@ -25,7 +25,7 @@ exact upstream commit.
 
 ## Enablement
 
-No environment variables are required for normal ARS Codex use.
+No environment variables are required for normal ARS-Codex use.
 
 Enable full-runtime planning:
 
@@ -91,7 +91,8 @@ python3 -m pytest skills/academic-research-suite/codex/tests -q
   the root skill and optional planner.
 - Codex agent-team behavior is opt-in and runtime-dependent. Inline execution
   remains the default.
-- Claude Code plugin marketplace install/update is not reproduced.
+- ARS-Codex uses the native Codex plugin marketplace lifecycle; Claude-only
+  slash-command registration and hook behavior are not reproduced.
 - Hook installation is manual and disabled by default.
 - Claude `opus` / `sonnet` model hints are preserved as metadata; Codex uses the
   active model unless a user or runtime explicitly overrides it.

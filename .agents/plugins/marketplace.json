@@ -1,14 +1,14 @@
 {
-  "name": "academic-research-skills-codex",
+  "name": "ars-codex",
   "interface": {
-    "displayName": "Academic Research Skills for Codex"
+    "displayName": "ARS-Codex"
   },
   "plugins": [
     {
-      "name": "academic-research-skills",
+      "name": "ars-codex",
       "source": {
         "source": "local",
-        "path": "./plugins/academic-research-skills"
+        "path": "./plugins/ars-codex"
       },
       "policy": {
         "installation": "AVAILABLE",

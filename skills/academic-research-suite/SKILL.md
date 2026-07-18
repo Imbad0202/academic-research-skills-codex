@@ -1,35 +1,34 @@
 ---
 name: academic-research-suite
 description: >
-  Codex-native Academic Research Skills suite for deep research, academic paper
-  writing, manuscript review, full research-to-paper pipelines, and experiment
-  planning or validation. Use when the user asks for deep research, literature
+  ARS-Codex workflows for research, academic writing, manuscript review,
+  research-to-paper pipelines, and experiment planning. Use when the user asks for deep research, literature
   review, systematic review, meta-analysis, research question refinement,
   academic paper drafting, paper revision, citation or integrity checks,
   reviewer simulation, peer review, editorial decision letters, research-to-paper
   workflows, experiment execution planning, statistical interpretation, or human
-  study protocol support. Korean triggers include 논문 심사, 논문 수정, 초록 작성,
-  체계적 문헌고찰, and 연구부터 논문까지. Also use for Claude-style ARS command aliases such as
+  study protocol support. Korean triggers: 논문 심사, 논문 수정, 초록 작성,
+  체계적 문헌고찰, 연구부터 논문까지. Also use for Claude-style ARS command aliases such as
   /ars-plan, ars-plan, /ars-outline, /ars-abstract, /ars-lit-review,
   /ars-citation-check, /ars-disclosure, /ars-format-convert, /ars-3w,
   /ars-revision-coach, /ars-revision, /ars-reviewer, /ars-mark-read,
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, and /ars-full. This skill vendors ARS role prompts,
   references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.20"
+  version: "0.1.21"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
 ---
 
-# Academic Research Suite for Codex
+# ARS-Codex
 
 This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 `ars/`; keep it as source material and route through this file first.
 
 ## Versioning
 
-This Codex package is version `0.1.20`. The repo-root `VERSION`, this
+This Codex package is version `0.1.21`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.
@@ -184,7 +183,7 @@ provider, content, credential, and consent checks.
 
 ## Optional Full-Runtime Profile
 
-Normal ARS Codex behavior remains inline role-prompt execution in this
+Normal ARS-Codex behavior remains inline role-prompt execution in this
 conversation. The Codex-only `codex/` directory provides an optional
 full-runtime profile for users who explicitly want planner-driven agent-team or
 hook behavior:

@@ -1,12 +1,13 @@
-# Academic Research Skills for Codex
+# ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.20-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.21-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
-Codex-native packaging of the Academic Research Skills suite. This is the
-sibling Codex distribution of
-[Academic Research Skills for Claude Code](https://github.com/Imbad0202/academic-research-skills).
+ARS-Codex is the Codex-native sibling of
+[Academic Research Skills (ARS) for Claude Code](https://github.com/Imbad0202/academic-research-skills).
+It is a separate Codex distribution with its own plugin identity, packaging,
+versioning, and runtime adapter.
 
 This repository vendors the ARS workflow content as a single Codex skill:
 
@@ -37,10 +38,9 @@ The original Claude Code ARS checkout is not modified. Upstream content is copie
 from fresh GitHub clones and adapted through the Codex router in
 `skills/academic-research-suite/SKILL.md`.
 
-## Claude Code Version
+## Relationship to Claude Code ARS
 
-This repository is the Codex package. For the original Claude Code version of
-Academic Research Skills, use
+This repository is ARS-Codex. For the original Claude Code ARS distribution, use
 [Imbad0202/academic-research-skills](https://github.com/Imbad0202/academic-research-skills).
 
 Use the Claude Code repo when you want the native Claude Code skill layout,
@@ -49,7 +49,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This Codex package is version `0.1.20`. The repo-root `VERSION` file,
+This ARS-Codex package is version `0.1.21`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version independently of the vendored ARS suite. Vendored upstream
@@ -71,9 +71,44 @@ for traceability and self-tests, but are not repo-level CI or Codex entrypoints;
 Claude/plugin loader files under `.claude/` and `.claude-plugin/` remain
 intentionally excluded.
 
-## Install Or Update
+## Install ARS-Codex Plugin
 
-Install the skill from this repo path. Use `--method git` so public and
+Add the GitHub marketplace and install ARS-Codex with Codex CLI:
+
+```bash
+codex plugin marketplace add Imbad0202/academic-research-skills-codex --ref main
+codex plugin add ars-codex@ars-codex
+```
+
+To update a plugin install later:
+
+```bash
+codex plugin marketplace upgrade ars-codex
+codex plugin add ars-codex@ars-codex
+```
+
+In Codex Desktop, you can alternatively add the repository from **Plugins** and
+then install **ARS-Codex**:
+
+```text
+Marketplace source: https://github.com/Imbad0202/academic-research-skills-codex.git
+Branch/ref: main
+Plugin: ars-codex
+```
+
+The plugin root is `plugins/ars-codex/`. Its `skills/` directory contains a
+materialized copy of `academic-research-suite`, not a symlink. This keeps
+Codex Desktop installs portable on Windows, where plugin caches may materialize
+symlinks as plain text files and skip bundled skill registration.
+
+Open a new Codex conversation after installation, then invoke
+`$academic-research-suite` or describe an academic research task that matches
+the bundled workflow.
+
+## Direct Skill Install Or Update
+
+As an alternative to the plugin, install the skill directly from this repo
+path. Use `--method git` so public and
 credentialed GitHub access both work consistently:
 
 ```bash
@@ -103,29 +138,11 @@ Open a new Codex conversation after installation. Existing Codex sessions may
 keep their old skill cache; you do not need to close unrelated Claude or Codex
 sessions.
 
-Verify with `/skills`: you should see one ARS entry, `academic-research-suite`
-or `Academic Research ...`. You should **not** see separate `academic-paper`,
+Verify with `/skills`: you should see one ARS-Codex entry,
+`academic-research-suite` or `ARS-Codex`. You should **not** see separate `academic-paper`,
 `academic-pipeline`, `deep-research`, or `academic-paper-reviewer` skills from
 this package. If you do, reinstall with the update command above and open a new
 Codex conversation.
-
-## Codex Desktop Plugin Install
-
-Codex Desktop can also install this repository as a custom plugin marketplace.
-Add this repository as the marketplace source and install the `Academic Research
-Skills` plugin:
-
-```text
-Marketplace source: https://github.com/Imbad0202/academic-research-skills-codex.git
-Branch/ref: main
-Plugin: academic-research-skills
-```
-
-The plugin root lives at `plugins/academic-research-skills/`. Its `skills/`
-directory contains a materialized copy of `academic-research-suite`, not a
-symlink. This keeps Codex Desktop installs portable on Windows, where plugin
-caches may materialize symlinks as plain text files and skip bundled skill
-registration.
 
 ## Codex Docs
 
@@ -287,9 +304,9 @@ Expected: every reported gate has `"ok": true`.
 These Codex messages do not mean ARS failed to install:
 
 - `[features].codex_hooks is deprecated` — update your Codex config when
-  convenient; ARS Codex does not require hooks for normal use.
+  convenient; ARS-Codex does not require hooks for normal use.
 - `hooks need review before they can run` — review those hooks separately if
-  you use them. ARS Codex treats vendored Claude hooks as traceability metadata
+  you use them. ARS-Codex treats vendored Claude hooks as traceability metadata
   and does not require them.
 
 ### Codex Adapter Behavior
@@ -333,8 +350,10 @@ ARS was originally written for Claude Code. In this Codex package:
   These settings apply when the programmatic citation gate is run; stale rows
   alone never fail an integrity gate.
 - The upstream v3.18 SessionStart update checker is vendored but not installed
-  or executed as a Codex hook. Update this package by reinstalling or pulling
-  this repository.
+  or executed as a Codex hook. Plugin users update with
+  `codex plugin marketplace upgrade ars-codex` followed by
+  `codex plugin add ars-codex@ars-codex`; direct skill installs still update by
+  reinstalling or pulling this repository.
 - Upstream references to a "fresh Claude Code session" mean a new Codex
   conversation in this package; Material Passport reset semantics still apply.
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
@@ -347,7 +366,7 @@ This package aims for the same user-facing workflow content as upstream ARS
 
 | Upstream ARS feature | Codex package behavior |
 |---|---|
-| One installable plugin | One installable Codex skill at `skills/academic-research-suite` |
+| One installable plugin | Native Codex plugin `ars-codex`, bundling the single `academic-research-suite` skill |
 | `/ars-*` slash commands | Emulated as `ars-*` aliases through the skill router; not native slash commands |
 | Four upstream skills auto-discovered from `skills/` symlinks | Single Codex router skill selects the workflow and reads the vendored workflow `WORKFLOW.md` files |
 | Plugin-shipped agents | Agent files are role/phase prompts; Codex runs them inline unless the user explicitly asks for delegated subagents |
@@ -361,7 +380,7 @@ This package aims for the same user-facing workflow content as upstream ARS
 | Risk-stratified claim, scope, and novelty checks | Vendored workflow prompts and schemas preserve high-impact-first sampling plus advisory-only scope and search-bounded novelty rows |
 | Executable panel/degradation/pipeline-boundary checks | Vendored with their hermetic tests and exposed by the optional full-runtime manifest |
 | SessionStart and SubagentStop hooks, including the update reminder | Vendored for traceability only; Codex does not install or execute Claude hooks |
-| Plugin marketplace update / auto-update | Not available here; update by reinstalling or pulling this Codex repo |
+| Plugin marketplace update | Refresh with `codex plugin marketplace upgrade ars-codex`, then re-add `ars-codex@ars-codex`; direct skill installs still reinstall or pull |
 | Claude Code Agent Team | Not automatic; Codex subagents require an explicit user request for delegation or parallel agents |
 | Cross-model provider dispatch from upstream docs | Disabled by default; available only with explicit provider configuration and explicit user consent |
 
@@ -378,12 +397,12 @@ export ARS_CROSS_MODEL="gpt-5.5"
 ```
 
 Without both a configured provider and explicit user consent for the content
-class being sent, ARS Codex falls back to single-runtime review and reports that
+class being sent, ARS-Codex falls back to single-runtime review and reports that
 cross-model verification was unavailable.
 
 ## Support And Sponsorship
 
-If ARS Codex helps your research workflow, you can support maintenance through
+If ARS-Codex helps your research workflow, you can support maintenance through
 [Buy Me a Coffee](https://buymeacoffee.com/crucify020v).
 
 ## Security

@@ -1,4 +1,4 @@
-# ARS Codex Hook Pack
+# ARS-Codex Hook Pack
 
 The hook pack is disabled by default. It is only eligible for installation when
 the user explicitly opts in with:

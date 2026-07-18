@@ -12,7 +12,7 @@
       "mutates_files": false,
       "reads_environment": false,
       "network": false,
-      "description": "Prints ARS Codex full-runtime alias/profile metadata without reading secrets or user files."
+      "description": "Prints ARS-Codex full-runtime alias/profile metadata without reading secrets or user files."
     }
   ]
 }

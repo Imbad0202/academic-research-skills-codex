@@ -4,6 +4,17 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.21] - 2026-07-18
+
+### Changed
+- Renamed the Codex plugin identity, marketplace, and plugin directory to
+  `ars-codex` so the Codex-native sibling is clearly distinguished from the
+  upstream Claude Code ARS distribution.
+- Updated the plugin display name to `ARS-Codex` and added CLI-first
+  marketplace installation instructions for external users.
+- Kept the bundled skill identifier `$academic-research-suite` stable to avoid
+  breaking existing Codex workflow prompts and direct skill installations.
+
 ## [0.1.20] - 2026-07-18
 
 ### What's Changed
