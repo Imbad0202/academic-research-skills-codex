@@ -1,6 +1,6 @@
 # ARS-Codex Compatibility Matrix
 
-Audit date: 2026-07-18
+Audit date: 2026-07-22
 
 ## Provenance
 
@@ -8,10 +8,10 @@ Audit date: 2026-07-18
 |---|---|
 | Codex package repo | `academic-research-skills-codex` current working tree before release commit |
 | Upstream Claude Code repo | Tracked in `skills/academic-research-suite/manifest.json` |
-| Upstream suite version | `v3.18.0` |
-| Codex package version | `0.1.21` |
+| Upstream suite version | `v3.19.0` |
+| Codex package version | `0.1.22` |
 | License | CC BY-NC 4.0 in upstream and Codex package |
-| Upstream sync status | Vendored `ars/` content synced to ARS release `v3.18.0` (`bbc0659`); Codex adapter profile retained |
+| Upstream sync status | Vendored `ars/` content synced to ARS release `v3.19.0` (`828ef3b`); Codex adapter profile retained |
 | Codex-only adapter location | `skills/academic-research-suite/codex/` |
 
 ## Matrix
@@ -30,6 +30,9 @@ Audit date: 2026-07-18
 | ARS model tiering | Unset preserves the active Codex model | Planner surfaces `economy` / `quality-boost` as advisory metadata; classification is applied only when per-dispatch model selection exists | partial | `ars/shared/model_tiering.md`, `ars/scripts/model_tiering_manifest.json`, `codex/scripts/ars_codex_full_runtime.py` | upstream tiering lint; adapter pytest | Codex runtimes may not expose relative-tier or per-dispatch model control |
 | Material Passport | Prompt/procedure plus vendored validators | Full-runtime manifest exposes passport reset as a quality gate | near | `ars/scripts/check_passport_reset_contract.py`, `codex/full-runtime-manifest.json` | upstream validator; adapter gate | Runtime context isolation is procedural, not a hard sandbox |
 | Citation cache staleness and re-validation | Cached verification remains the default; stale rows are advisory-only | Planner surfaces the threshold and whether live re-validation was requested | near | `ars/scripts/verification_cache.py`, `ars/scripts/verification_gate/`, `codex/scripts/ars_codex_full_runtime.py` | upstream cache/gate tests; adapter pytest | Live re-validation depends on external bibliographic services |
+| Local-PDF read integrity | Locally read PDFs receive the pypdf-backed preflight before page anchors are trusted | Planner contract requires Stage 1 sidecars, freshness checks, and distinct FAIL/UNAVAILABLE handling | near | `ars/scripts/pdf_read_preflight.py`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md` | upstream preflight tests; boundary validator | Missing pypdf produces an explicit advisory and cannot establish PASS |
+| Human-read scope | Optional `read_scope` is written only from user declarations; partial coverage remains visible | Orchestrator contract carries ledger scope into finalizer decisions | near | `ars/scripts/ars_mark_read.py`, `ars/shared/contracts/passport/human_read_log.schema.json` | upstream mark-read and finalizer tests | Legacy marks without scope intentionally resolve as unknown |
+| Revision claim-drift guards | Claim-strength changes and conserved tokens are checked advisory-first for every revision round | Planner contract carries the Revision-Evidence Bundle across rounds | near | `ars/shared/references/claim_strength_ladder.md`, `ars/scripts/check_revision_token_conservation.py` | upstream mutation tests; held-out measurement set | Semantic authorization still requires reviewer judgment |
 | Citation / claim / temporal integrity | Vendored validators preserve high-impact-first claim sampling plus advisory scope and novelty rows | Planner surfaces relevant gates in the route plan | near | `ars/academic-pipeline/references/claim_verification_protocol.md`, `ars/scripts/*claim*`, `ars/scripts/temporal_integrity_audit.py`, `codex/full-runtime-manifest.json` | upstream validators; adapter tests | External metadata/API checks require configuration |
 | Cross-model verification | Disabled by default; explicit provider configuration and user consent required | Canonical handoffs, the fixed Reviewer 2 seat, and the re-review judge pass use dispatcher-owned transport with provenance/fallback disclosure | near | `README.md`, `SKILL.md`, `ars/shared/cross_model_verification.md`, `ars/scripts/cross_model_handoff.py`, `codex/agents/paper-reviewer-panel.md` | hermetic handoff/contract tests; adapter pytest | External-provider availability depends on user-supplied API credentials |
 | Degradation provenance | Machine-readable registry records each graceful-degradation mechanism and its downstream effect | Planner exposes the registry checker as an integrity gate | near | `ars/shared/contracts/degradation_registry.json`, `ars/scripts/check_degradation_registry.py` | upstream registry tests | Runtime outages still require honest reporting to the user |

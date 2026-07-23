@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.21-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -43,7 +43,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `0.1.21`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `0.1.22`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 獨立追蹤 Codex 套件版本，與內嵌的 ARS 套件版本分開管理。
@@ -52,11 +52,11 @@ skills/academic-research-suite/
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
 目前內嵌的 ARS 原始碼追蹤至
-`Imbad0202/academic-research-skills@bbc0659272a511b422f6856cd6f44b6ccb2ac213`
-（`v3.18.0`）。內嵌內容新增固定席次的 cross-model Reviewer 2 與 re-review
-Judge Record、引用快取過期提醒及選用的即時重驗、高影響主張優先抽樣、
-scope-conformance 與 search-bounded novelty advisory，以及 held-out pipeline
-robustness 測試集；v3.17 的 dispatcher、最小權限與完整性檢核契約仍完整保留。
+`Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`
+（`v3.19.0`）。內嵌內容新增本機 PDF 讀取完整性 preflight sidecar、可選的
+人工閱讀範圍聲明與部分覆蓋處理，以及以主張強度階梯和 deterministic token
+conservation 為基礎的修訂輪次 claim-drift 防護；v3.18 的 cross-model
+reviewer／judge、快取重驗、風險分層檢核與既有最小權限契約仍完整保留。
 
 ## 安裝 ARS-Codex Plugin
 
@@ -285,9 +285,9 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.18 Release 功能對等
+### ARS v3.19 Release 功能對等
 
-本套件旨在與上游 ARS `v3.18.0` 在 Codex 具有對等概念之處，
+本套件旨在與上游 ARS `v3.19.0` 在 Codex 具有對等概念之處，
 提供相同的使用者面向 workflow 內容。
 
 | 上游 ARS 功能 | Codex 套件行為 |
@@ -303,6 +303,9 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 | Cross-model Reviewer 2 與 re-review judge | 僅在 provider 已設定且取得內容傳輸同意時啟用；保留固定席次、Judge Record、單一模型家族與 fallback 揭露 |
 | 快取過期 advisory 與即時重驗 | 預設使用本地快取；過期列僅為 advisory，`ARS_CACHE_REVALIDATE=1` 才啟用即時書目重驗 |
 | 風險分層主張、範圍與新穎性檢查 | 保留高影響主張優先抽樣，以及不阻擋 gate 的 scope 與 search-bounded novelty advisory |
+| 本機 PDF 讀取完整性 preflight | 內嵌 pypdf preflight 與 sidecar contract；parser 無法使用或修復警告會明確保留為 `UNAVAILABLE` advisory |
+| 人工閱讀範圍聲明 | 保留使用者擁有的可選 `read_scope` 與章節 locator；部分覆蓋不會被視為全文閱讀 |
+| 修訂主張漂移防護 | 內嵌主張強度階梯、revision-evidence bundle、deterministic token-conservation checker 與 held-out 測量集及測試 |
 | Panel／degradation／pipeline-boundary 可執行檢查 | 與 hermetic 測試一併內嵌，並由選用的 full-runtime manifest 公開 |
 | SessionStart 和 SubagentStop hooks（含更新提醒） | 僅為可追溯性而保留；Codex 不安裝或執行 Claude hooks |
 | Plugin marketplace 更新 | 執行 `codex plugin marketplace upgrade ars-codex` 後重新加入 `ars-codex@ars-codex`；直接安裝的 skill 仍以重新安裝或 pull 更新 |

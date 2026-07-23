@@ -4,6 +4,27 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.22] - 2026-07-22
+
+### What's Changed
+- Updated the vendored ARS runtime from
+  `bbc0659272a511b422f6856cd6f44b6ccb2ac213` (`v3.18.0`) to
+  `828ef3b613b0e8b91830da3328a1e33d4eb5ab4c` (`v3.19.0`).
+- Added the local-PDF read-integrity preflight and sidecar contract, optional
+  human-read `read_scope` attestations with partial-coverage handling, and
+  revision-round claim-drift guards built from the claim-strength ladder and
+  deterministic token-conservation checker.
+- Vendored the new human-read ledger schema, revision evidence and held-out
+  measurement set, plus the PDF/read-scope design records and associated test
+  coverage.
+- Preserved the single-root-skill layout, `WORKFLOW.md` entrypoint mapping,
+  Codex provider/content/consent boundaries, nested-distribution validator
+  adaptations, macOS/Python compatibility patches, and materialized Desktop
+  plugin bundle. Re-pinned the pipeline content lock after the v3.19 overlay.
+
+### Notes
+- This sync pins the exact ARS release tag `v3.19.0`.
+
 ## [0.1.21] - 2026-07-18
 
 ### Changed

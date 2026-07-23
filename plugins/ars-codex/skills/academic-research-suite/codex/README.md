@@ -59,7 +59,7 @@ Instead it provides an explicit Codex orchestration contract:
 - pipeline orchestration stops at requested checkpoints;
 - Codex model routing uses the active model while preserving upstream
   `opus`/`sonnet` hints as metadata;
-- ARS v3.18 retains model tiering as advisory metadata; it is applied only
+- ARS v3.19 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - canonical cross-model handoffs are validated and transported by the
   dispatching context, not by least-privilege owner roles;
@@ -67,6 +67,13 @@ Instead it provides an explicit Codex orchestration contract:
   only after explicit provider configuration and content consent;
 - citation-cache staleness remains advisory-only, while live re-validation is
   opt-in and surfaced in the route plan;
+- local PDFs use the v3.19 read-integrity preflight before page anchors are
+  trusted; `UNAVAILABLE` remains explicit when pypdf or a trustworthy parse is
+  unavailable;
+- optional human-read scope attestations remain user-owned and preserve
+  partial-coverage status;
+- revision rounds retain the claim-strength ladder and deterministic
+  token-conservation advisory checks;
 - the v3.17 panel, degradation-registry, tools-allowlist, and pipeline-boundary
   validators remain available as vendored quality gates;
 - the upstream v3.18 SessionStart update reminder is vendored but not executed
@@ -95,4 +102,6 @@ python3 scripts/check_pipeline_boundary_semantics.py
 python3 scripts/check_tools_allowlist.py
 python3 -m pytest scripts/test_verification_cache.py scripts/test_verification_gate.py
 python3 -m pytest scripts/test_ars_update_check.py
+python3 -m pytest scripts/test_pdf_read_preflight.py scripts/test_ars_mark_read.py
+python3 -m pytest scripts/test_check_revision_token_conservation.py
 ```

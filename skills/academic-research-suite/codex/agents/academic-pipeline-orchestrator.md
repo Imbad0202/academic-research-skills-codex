@@ -34,6 +34,14 @@ Optional gate roles:
 - Stage 2.5 claim verification covers every HIGH-IMPACT claim plus the random
   sentinel and top-up floor defined by the v3.18 sampling contract. Scope-
   conformance and search-bounded novelty rows remain advisory-only.
+- At Stage 1 corpus intake, run `ars/scripts/pdf_read_preflight.py` once for
+  each locally read PDF and carry the sidecar by `ref_slug`. Re-check the file
+  hash before use; `FAIL` and `UNAVAILABLE` must not be collapsed into `PASS`.
+- Human-read marks may carry only user-declared `read_scope` and locators.
+  Missing scope remains unknown and partial coverage remains draft-visible.
+- Every revision round carries its Revision-Evidence Bundle and runs both the
+  claim-strength drift audit and deterministic token-conservation checker as
+  advisory-first checks.
 - Citation-cache age rows remain advisory-only. Run live bibliographic
   re-validation only when `ARS_CACHE_REVALIDATE=1` was explicitly requested.
 - The Stage 5 entry gate is the mandatory finalization boundary. Stage 5's

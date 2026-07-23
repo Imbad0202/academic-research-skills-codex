@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.21-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -41,16 +41,16 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `0.1.21`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `0.1.22`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
 当前内嵌的 ARS 源码追踪至
-`Imbad0202/academic-research-skills@bbc0659272a511b422f6856cd6f44b6ccb2ac213`
-（`v3.18.0`）。内嵌内容新增固定席位的 cross-model Reviewer 2 与 re-review
-Judge Record、引用缓存陈旧提醒及可选实时重验、高影响主张优先抽样、
-scope-conformance 与 search-bounded novelty advisory，以及 held-out pipeline
-robustness 测试集；v3.17 的 dispatcher、最小权限与完整性检查契约仍完整保留。
+`Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`
+（`v3.19.0`）。内嵌内容新增本地 PDF 读取完整性 preflight sidecar、可选的
+人工阅读范围声明与部分覆盖处理，以及基于主张强度阶梯和 deterministic token
+conservation 的修订轮次 claim-drift 防护；v3.18 的 cross-model
+reviewer／judge、缓存重验、风险分层检查与既有最小权限契约仍完整保留。
 
 ## 安装 ARS-Codex Plugin
 
@@ -258,9 +258,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.18 Release 功能对等
+### ARS v3.19 Release 功能对等
 
-本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `v3.18.0` 相同的用户侧 workflow 内容。
+本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `v3.19.0` 相同的用户侧 workflow 内容。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|
@@ -275,6 +275,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 | Cross-model Reviewer 2 与 re-review judge | 仅在 provider 已配置且取得内容传输同意时启用；保留固定席位、Judge Record、单一模型族与 fallback 披露 |
 | 缓存陈旧 advisory 与实时重验 | 默认使用本地缓存；陈旧行仅为 advisory，`ARS_CACHE_REVALIDATE=1` 才启用实时书目重验 |
 | 风险分层主张、范围与新颖性检查 | 保留高影响主张优先抽样，以及不阻断 gate 的 scope 与 search-bounded novelty advisory |
+| 本地 PDF 读取完整性 preflight | 内嵌 pypdf preflight 与 sidecar contract；parser 不可用或修复警告会明确保留为 `UNAVAILABLE` advisory |
+| 人工阅读范围声明 | 保留用户拥有的可选 `read_scope` 与章节 locator；部分覆盖不会被视为全文阅读 |
+| 修订主张漂移防护 | 内嵌主张强度阶梯、revision-evidence bundle、deterministic token-conservation checker 与 held-out 测量集及测试 |
 | Panel／degradation／pipeline-boundary 可执行检查 | 连同 hermetic 测试一起内嵌，并由可选 full-runtime manifest 暴露 |
 | SessionStart 和 SubagentStop hook（含更新提醒） | 仅为可追溯性而内嵌保留；Codex 不安装或执行 Claude hook |
 | Plugin marketplace 更新 | 执行 `codex plugin marketplace upgrade ars-codex` 后重新添加 `ars-codex@ars-codex`；直接安装的 skill 仍通过重新安装或 pull 更新 |

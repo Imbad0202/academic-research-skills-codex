@@ -126,7 +126,10 @@
     "model_tiering": "ARS_MODEL_TIERING is surfaced as advisory metadata. Apply the upstream judgment/execution classification only when the runtime provides an explicit per-dispatch model override; otherwise announce a no-op and keep the active model.",
     "cross_model_handoff": "When explicitly enabled and consented, recognize [CROSS-MODEL-HANDOFF v1] as a transport request. Validate with ars/scripts/cross_model_handoff.py, send only the payload, apply mechanical agreement/divergence routing, and return judgment work to the original owner.",
     "cross_model_reviewer_track": "In reviewer full mode only, explicit provider configuration plus content consent swaps the existing Reviewer 2 domain seat to the cross-model family. Preserve the fixed five-seat panel, two-call sprint contract, provenance block, no-cross-family-aggregate rule, and disclosed fallback.",
-    "re_review_judge_track": "After primary Priority-1 re-review verdicts are committed, an explicitly configured and consented cross-model pass records agree/diverges/unavailable per item and emits the Judge Record. Divergence triggers synthesis review; it is never a vote or overwrite."
+    "re_review_judge_track": "After primary Priority-1 re-review verdicts are committed, an explicitly configured and consented cross-model pass records agree/diverges/unavailable per item and emits the Judge Record. Divergence triggers synthesis review; it is never a vote or overwrite.",
+    "local_pdf_read_integrity": "Run ars/scripts/pdf_read_preflight.py once per locally read corpus PDF during Stage 1 intake, carry the sidecar by ref_slug, and preserve FAIL versus UNAVAILABLE semantics. Missing pypdf, repair warnings, encryption, or absent sidecars never become PASS.",
+    "human_read_scope": "Treat read_scope as an optional user-owned declaration in the human-read ledger. Missing scope remains unknown; abstract-only, TOC-only, and out-of-range section coverage remain visibly partial.",
+    "revision_claim_drift": "Carry the Revision-Evidence Bundle for every revision round and apply both the claim-strength ladder audit and deterministic token-conservation checker as advisory-first guards."
   },
   "quality_gates": [
     {"id": "single_root_skill", "kind": "packaging", "runner": "manifest", "parity": "full"},
@@ -141,6 +144,9 @@
     {"id": "degradation_registry", "kind": "integrity", "runner": "upstream:ars/scripts/check_degradation_registry.py", "parity": "near"},
     {"id": "citation_transport_fixtures", "kind": "integrity", "runner": "upstream:ars/scripts/test_transport_fixture_citation_gate.py", "parity": "near"},
     {"id": "citation_cache_revalidation", "kind": "integrity", "runner": "upstream:ars/scripts/test_verification_cache.py", "parity": "near"},
+    {"id": "pdf_read_integrity", "kind": "integrity", "runner": "upstream:ars/scripts/test_pdf_read_preflight.py", "parity": "near"},
+    {"id": "human_read_scope", "kind": "material-passport", "runner": "upstream:ars/scripts/test_ars_mark_read.py", "parity": "near"},
+    {"id": "revision_token_conservation", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_revision_token_conservation.py", "parity": "near"},
     {"id": "passport_reset_contract", "kind": "material-passport", "runner": "upstream:ars/scripts/check_passport_reset_contract.py", "parity": "near"},
     {"id": "citation_claim_audit", "kind": "integrity", "runner": "upstream:ars/scripts/claim_audit_pipeline.py", "parity": "partial"},
     {"id": "temporal_integrity", "kind": "integrity", "runner": "upstream:ars/scripts/temporal_integrity_audit.py", "parity": "near"},
@@ -155,6 +161,7 @@
     "Claude model hints opus/sonnet are recorded as metadata; Codex cannot guarantee identical model routing.",
     "ARS model tiering is classification-compatible but remains advisory unless the Codex runtime exposes explicit per-dispatch model selection.",
     "External cross-model reviewers and re-review judges require explicit API configuration plus content consent and are not silently simulated.",
+    "The PDF read-integrity preflight depends on pypdf. When it is unavailable, Codex preserves the upstream UNAVAILABLE advisory instead of asserting PASS.",
     "Claude agent tools allowlists are preserved as least-privilege role boundaries, but actual Codex tool availability remains controlled by the active runtime and task permissions."
   ]
 }

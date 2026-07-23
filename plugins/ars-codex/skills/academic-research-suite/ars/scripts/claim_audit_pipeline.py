@@ -75,6 +75,31 @@ _RATIONALE_TRUNC_MARK = "…[truncated]"
 # Widest fault-class prefix across both exception families ("retrieval_network_error: ").
 _WIDEST_FAULT_PREFIX = "retrieval_network_error: "
 
+# #512 PDF read-integrity rationale tag. Appended (never prepended — INV-6/INV-14
+# startswith contracts stay intact) to a completed manual_pdf page-anchor row whose
+# preflight sidecar is missing or non-PASS. The finalizer keys its advisory
+# annotation on this exact substring; keep in lockstep with
+# claim_audit_finalizer.PDF_READ_INTEGRITY_TAG.
+PDF_READ_INTEGRITY_TAG = "[pdf_read_integrity_unverified]"
+
+
+def _tag_pdf_read_integrity(entry: dict[str, Any]) -> None:
+    """#512: mark a manual_pdf page-anchor row whose preflight did not vouch.
+
+    Applied at the single Step-6 emission point AFTER cache resolution, so a cache
+    hit cannot bypass it (the tag is run-context, never written into the judge
+    cache body). Idempotent; respects the rationale maxLength budget."""
+    rationale = entry.get("rationale") or ""
+    if PDF_READ_INTEGRITY_TAG in rationale:
+        return
+    if rationale:
+        clamped = _clamp_to_rationale_budget(
+            rationale, reserved=len(PDF_READ_INTEGRITY_TAG) + 1
+        )
+        entry["rationale"] = f"{clamped} {PDF_READ_INTEGRITY_TAG}"
+    else:
+        entry["rationale"] = PDF_READ_INTEGRITY_TAG
+
 
 def _clamp_to_rationale_budget(text: str, *, reserved: int) -> str:
     """Clamp `text` so that `reserved + len(result)` fits the rationale maxLength.
@@ -979,6 +1004,7 @@ def run_audit_pipeline(
     cache: dict[str, Any] | None = None,
     uncited_sentences: list[dict[str, Any]] | None = None,
     all_uncited_sentences: list[dict[str, Any]] | None = None,
+    pdf_preflight_sidecars: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Run §4 Step 1-6 + manifest set-diff over caller-supplied inputs.
 
@@ -1015,6 +1041,23 @@ def run_audit_pipeline(
         these fields.
       - `all_uncited_sentences[]`: `sentence_text` + `section_path` only.
         Constraint judging does not consult `trigger_tokens`.
+
+    `pdf_preflight_sidecars` (#512): optional map of `ref_slug` →
+    `pdf_read_preflight/1` sidecar dict (see `scripts/pdf_read_preflight.py`).
+    `None` (default) = the caller has not wired the preflight layer — legacy
+    byte-equivalent behavior, no tagging. When provided (even empty), every
+    completed `manual_pdf` row with `anchor_kind == "page"` whose sidecar is
+    missing or non-`PASS` gets `PDF_READ_INTEGRITY_TAG` appended to its
+    rationale at the Step-6 emission point, cache hit or not. Additionally,
+    page-anchor citations handed to `retrieve_fn` carry a
+    `pdf_preflight_verdict` key (`PASS`/`FAIL`/`UNAVAILABLE`/`MISSING`):
+    retrieve_fn implementations SHOULD locate the passage by content rather
+    than by the page scope when the verdict is not `PASS` — the judge must
+    never be fed a passage selected by an untrusted page number. Sidecar
+    freshness is the CALLER's contract: this function does no file I/O, so
+    the orchestrator re-hashes each PDF against its sidecar `sha256` before
+    dispatch and re-runs the preflight on mismatch (a stale `PASS` from a
+    replaced file must not license the new bytes).
 
     Returns:
         dict with six aggregate arrays keyed by passport-aggregate name:
@@ -1154,8 +1197,20 @@ def run_audit_pipeline(
         # surface as INV-14 retrieval_* audit_tool_failure rows instead of
         # aborting the pass (Step 13 R2 codex P2 finding, symmetric to the
         # R1 _invoke_judge wrapper).
+        # #512 r2: when the preflight layer is wired, page-anchor citations carry
+        # the sidecar verdict INTO retrieval so implementations can locate the
+        # passage by content instead of the untrusted page scope BEFORE the judge
+        # sees it — tagging after the fact cannot fix a judge that already read
+        # the wrong passage. Copy-on-write; API-path retrieve_fns ignore the key.
+        retrieval_citation = citation
+        if pdf_preflight_sidecars is not None and anchor_kind == "page":
+            _sc = pdf_preflight_sidecars.get(citation["ref_slug"])
+            retrieval_citation = dict(citation)
+            retrieval_citation["pdf_preflight_verdict"] = (
+                _sc.get("verdict") if _sc else "MISSING"
+            )
         try:
-            retrieval = _invoke_retrieve(retrieve_fn, citation)
+            retrieval = _invoke_retrieve(retrieve_fn, retrieval_citation)
         except RetrievalInvocationError as ret_err:
             entry = _retrieval_failure_entry(
                 citation,
@@ -1270,6 +1325,20 @@ def run_audit_pipeline(
             judge_model=judge_model,
         )
         entry["scoped_manifest_id"] = written_scope
+        # #512 PDF read-integrity precondition, executable path. Sits AFTER cache
+        # resolution so hits and fresh invocations are tagged identically (codex
+        # #512 P1: a cache hit must not bypass the check). `None` = caller has not
+        # wired the preflight layer → byte-equivalent legacy behavior; a provided
+        # dict (even empty) means the orchestrator ran the layer, so a missing or
+        # non-PASS sidecar for a manual_pdf page-anchor row is tagged.
+        if (
+            pdf_preflight_sidecars is not None
+            and method == "manual_pdf"
+            and anchor_kind == "page"
+        ):
+            sidecar = pdf_preflight_sidecars.get(citation["ref_slug"])
+            if not (sidecar and sidecar.get("verdict") == "PASS"):
+                _tag_pdf_read_integrity(entry)
         claim_audit_results.append(entry)
 
         # Precedence rule 1: cited constraint violation absorbs the drift signal.
