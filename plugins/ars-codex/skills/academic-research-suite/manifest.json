@@ -1,6 +1,6 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.23",
+  "adapter_version": "0.1.24",
   "version_file": "VERSION",
   "generated_for": "codex",
   "generated_date": "2026-08-06",
@@ -45,7 +45,7 @@
     {
       "name": "experiment-agent",
       "url": "https://github.com/Imbad0202/experiment-agent.git",
-      "commit": "9b063fa895eaf1f63ac99ac03f924f8d31aa8d26",
+      "commit": "e291e7dc7ca268b2de7e1a9cf23bc2eef5dc0651",
       "included_paths": [
         "experiment-agent"
       ]
@@ -126,6 +126,7 @@
     "Cross-model API behavior is disabled by default and requires explicit user request, provider configuration, and user consent before any external upload.",
     "The community-maintained Pi wrapper (pi/ plus the root package.json pi-package manifest) is vendored for traceability only; it targets the Pi harness and upstream SKILL.md paths, so it is not a Codex entrypoint and is not loadable from this renamed WORKFLOW.md tree.",
     "The #574/#611/#615 reviewer-contract lint family (check_decision_contract, check_reviewer_finding_contract, check_reviewer_role_label, venue_disclosure_contract_harness, and their tests) is path-adapted to the Codex WORKFLOW.md overlay, matching the existing pipeline-boundary content-lock adaptation.",
-    "The v3.19+ reviewer hardening track (role-scoped scoring contract, typed evidence anchors, three-gate Stage 3' re-review contract, dispatch harness, arithmetic-receipt grammar, empty-dissent rule) and its held-out eval sets are preserved with their upstream tests; eval cohorts are measurement records, not Codex runtime instructions."
+    "The v3.19+ reviewer hardening track (role-scoped scoring contract, typed evidence anchors, three-gate Stage 3' re-review contract, dispatch harness, arithmetic-receipt grammar, empty-dissent rule) and its held-out eval sets are preserved with their upstream tests; eval cohorts are measurement records, not Codex runtime instructions.",
+    "The separately vendored experiment-agent tree tracks its upstream v1.1.0 (session resume for study_manager_agent, study-state protocol and templates); its .claude/ and .github/ upstream dev files remain excluded and its entry file keeps the WORKFLOW.md rename with the Codex data_access_level/task_type frontmatter overlay."
   ]
 }

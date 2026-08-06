@@ -80,8 +80,15 @@ Help me design an experiment to test whether AI tools improve QA officer product
 1. Detect intent from user's first message using trigger keywords
 2. Code execution keywords → dispatch `code_runner_agent` (run mode)
 3. Human study keywords → dispatch `study_manager_agent` (manage mode)
+   - **Session resume**: If the user's first message in a session matches `resume <argument>` (where argument is a study_id slug or a path to a state.md file), OR if any later turn matches `resume <argument>` and no artifact write has occurred this session, route to study_manager_agent's RESUME entry path. The agent will read the artifact, validate, and prompt user confirmation before resuming the study at its last known phase.
 4. Validation keywords → enter validate mode (handled inline, see below)
 5. Design keywords → enter plan mode (handled inline, see below)
+
+### Runtime Requirements
+
+Most modes work with any LLM runtime that supports prompt + reasoning.
+
+**Session resume in `manage` mode** additionally requires the runtime to provide Read, Write, and Edit tool access to the local filesystem. Claude Code provides these. Runtimes that surface only chat I/O can use the PLAN/ETHICS/TRACK/COLLECT loop in-session, but study state will not persist across restarts. The `resume <study_id>` command will be unavailable.
 
 ---
 
@@ -188,6 +195,7 @@ Plan mode outputs use separate templates and also carry Material Passport:
 | `references/statistical_interpretation_guide.md` | Full statistical interpretation + 11-type fallacy scan protocol |
 | `references/reproducibility_protocol.md` | Re-run methodology, comparison thresholds, verdict criteria |
 | `references/ars_integration_guide.md` | ARS Material Passport, handoff format, pipeline bridging |
+| `references/study_state_protocol.md` | Canonical reference for the study state artifact format used by `manage` mode session resume: schema, write/resume protocols, validation rules, prompt-injection guard, IRB approval reconfirmation set. |
 | `templates/output_formats.md` | Complete Markdown output templates for all three output types |
 
 ---
@@ -204,4 +212,4 @@ See `references/ars_integration_guide.md` for details.
 
 ---
 
-*Experiment Agent v1.0 | 2026-04-14 | CC-BY-NC 4.0 | Cheng-I Wu*
+*Experiment Agent v1.1.0 | 2026-05-02 | CC-BY-NC 4.0 | Cheng-I Wu*

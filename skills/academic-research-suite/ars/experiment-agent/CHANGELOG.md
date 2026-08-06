@@ -1,6 +1,59 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 (2026-05-02)
+
+PR 2 (hardening: external-edit detection, multi-study, slug-collision
+recovery, explicit ethics-upgrade command, schema migration) deferred
+until ≥2 weeks of v1.1.0 dogfood evidence.
+
+Spec: [docs/specs/2026-05-02-session-resume-design.md](docs/specs/2026-05-02-session-resume-design.md)
+(codex round 6 cleared). Plan:
+[docs/plans/2026-05-02-session-resume-implementation.md](docs/plans/2026-05-02-session-resume-implementation.md).
+
+### New: Session resume for human studies
+
+- `study_manager_agent` now persists study state to disk on every
+  state-changing turn. Multi-week or multi-month studies survive Claude
+  session restarts.
+- New `resume <study_id>` command rebuilds context from the artifact at
+  `./<study_id>/state.md` (or user-specified path).
+- Artifact format: Markdown + YAML frontmatter, schema_version 1.
+  Template at `templates/study_state.md`, worked example at
+  `templates/study_state.example.md`.
+- Ethics status is now **derived** from per-item state with strict
+  precedence (NOT_YET_ASSESSED → ETHICS_BLOCKED → ETHICS_PENDING →
+  READY), mirroring the rules at the top of
+  `references/irb_ethics_checklist.md`. Frontmatter no longer stores
+  ethics_status as a cached field.
+- IRB approval transitions trigger a category-based reconfirmation pass
+  (categories 1, 2.2-2.5, 3.4-3.6, 4 applicable, 5.2). See
+  `references/study_state_protocol.md` "IRB approval reconfirmation set."
+- Stale-write detection via revision counter. Two Claude sessions
+  writing the same artifact are now safe: the second writer detects the
+  revision change and refuses, asking the user how to resolve.
+- Prompt-injection guard: artifact body content is treated as data
+  describing the study, never as instruction directed at the agent.
+- Runtime requirement: `resume` requires Read/Write/Edit tool access
+  (Claude Code OK; chat-only runtimes do not get persistence).
+
+### Out of scope for v1.1.0 (deferred to v1.2.0)
+
+- External-edit detection (artifact edited externally with same revision)
+- Vanished-file or moved-file recovery
+- Multi-study concurrent in same workspace
+- Explicit `ethics-upgrade` command
+- Slug-collision resolution (v1.1.0 refuses + asks user)
+- Auto-archive or garbage collection of old artifacts
+- Schema migration tooling
+
+### No breaking changes
+
+- v1.0.1 users see no behavior change unless they invoke `resume` or
+  start a study under the new persistence path
+- Material Passport schema unchanged; ARS coupling unchanged
+- `code_runner_agent` unchanged
+
+## v1.0.1 (2026-05-02)
 
 ### Contract Fixes
 

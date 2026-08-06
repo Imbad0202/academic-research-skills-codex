@@ -4,6 +4,26 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.24] - 2026-08-06
+
+### What's Changed
+- Updated the separately vendored experiment-agent tree from
+  `9b063fa895eaf1f63ac99ac03f924f8d31aa8d26` (pre-`v1.0.1`) to
+  `e291e7dc7ca268b2de7e1a9cf23bc2eef5dc0651` (`v1.1.0`, upstream main head).
+- Added the v1.1.0 session-resume capability for `study_manager_agent`: the
+  study-state protocol (`references/study_state_protocol.md`), the
+  `study_state.md` template and worked example, the session-resume design
+  spec and implementation plan under `docs/`, and the expanded
+  `study_manager_agent` resume flow.
+- Preserved the experiment-agent `WORKFLOW.md` entrypoint rename with its
+  Codex `data_access_level`/`task_type` frontmatter overlay; upstream
+  `.claude/` and `.github/` dev files remain excluded. The ARS vendored tree
+  is unchanged from 0.1.23 (still pinned at `5769d7b`).
+
+### Notes
+- This closes the experiment-agent half of the 2026-08-06 alignment; both
+  vendored source repositories now track their upstream main heads.
+
 ## [0.1.23] - 2026-08-06
 
 ### What's Changed
