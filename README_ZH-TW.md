@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.23-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -43,7 +43,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `0.1.22`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `0.1.23`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 獨立追蹤 Codex 套件版本，與內嵌的 ARS 套件版本分開管理。
@@ -52,11 +52,15 @@ skills/academic-research-suite/
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
 目前內嵌的 ARS 原始碼追蹤至
-`Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`
-（`v3.19.0`）。內嵌內容新增本機 PDF 讀取完整性 preflight sidecar、可選的
-人工閱讀範圍聲明與部分覆蓋處理，以及以主張強度階梯和 deterministic token
-conservation 為基礎的修訂輪次 claim-drift 防護；v3.18 的 cross-model
-reviewer／judge、快取重驗、風險分層檢核與既有最小權限契約仍完整保留。
+`Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`
+（`v3.19.0` 之後的上游 `main`，2026-08-06；套件版本仍為 3.19.0）。內嵌內容新增
+reviewer 硬化系列（角色範圍評分契約與棄權機制、具型別的證據錨點與覆蓋
+receipt、Stage 3' 三閘門 re-review 預承諾契約、算術 receipt 文法與其
+deterministic 計算器、空異議規則）、新的 reviewer held-out 評測集與裁定
+cohort、醫學期刊揭露政策與 fail-closed 渲染、中文文獻 resolver client，以及
+CARE／STARD 2015／TRIPOD+AI 精要指引。v3.19 的 PDF preflight、閱讀範圍聲明、
+claim-drift 防護，v3.18 的 cross-model reviewer／judge、快取重驗、風險分層
+檢核與既有最小權限契約仍完整保留。
 
 ## 安裝 ARS-Codex Plugin
 
@@ -285,10 +289,10 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.19 Release 功能對等
+### ARS v3.19+ 功能對等
 
-本套件旨在與上游 ARS `v3.19.0` 在 Codex 具有對等概念之處，
-提供相同的使用者面向 workflow 內容。
+本套件旨在與上游 ARS `main`（`5769d7b`，`v3.19.0` 之後；套件版本 3.19.0）
+在 Codex 具有對等概念之處，提供相同的使用者面向 workflow 內容。
 
 | 上游 ARS 功能 | Codex 套件行為 |
 |---|---|

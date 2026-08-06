@@ -4,6 +4,45 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.23] - 2026-08-06
+
+### What's Changed
+- Updated the vendored ARS runtime from
+  `828ef3b613b0e8b91830da3328a1e33d4eb5ab4c` (`v3.19.0`) to
+  `5769d7b51adfba45593ad95721436fd114aaa735` (post-`v3.19.0` main,
+  2026-08-06). No worktree or branch content is included — the pin is the
+  upstream `main` head.
+- Added the reviewer hardening track: the #574 role-scoped scoring contract
+  with abstention and per-mode decision contracts, typed evidence anchors,
+  coverage receipts and severity transport, the #576 three-gate Stage 3'
+  re-review pre-commitment contract (schemas + synthesis checker +
+  patch_digest), the #608 dispatch harness, the #609 empty-dissent rule, the
+  #610 AR arithmetic-receipt grammar with the step-5 deterministic receipt
+  calculator, and #611 protocol text-consistency locks.
+- Vendored the new held-out eval sets and adjudicated cohorts (seeded
+  defects, persuasion-invariance paired controls, #610 baseline/post
+  cohorts), medical venue disclosure policies with fail-closed rendering and
+  the Frontiers submission-action fix, the Chinese-literature resolver client
+  and API protocol, CARE / STARD 2015 / TRIPOD+AI condensed guidance with a
+  study-design routing sequence, and bare `/ars-*` alias frontmatter names.
+- Vendored the community-maintained Pi wrapper (`pi/` + root `package.json`)
+  and `.gitleaksignore` for traceability; the Pi wrapper targets upstream
+  SKILL.md paths and is not a Codex entrypoint.
+- Extended the `WORKFLOW.md` path adaptation to the new reviewer-contract
+  lint family (decision contract, reviewer finding contract, reviewer role
+  label, venue disclosure harness, and their tests); re-pinned the pipeline
+  content locks after the overlay. Declared `check_calibration_tiers.py`
+  inactive (it requires the non-vendored `.claude/CLAUDE.md`) and removed its
+  entry from the vendored local pytest manifest.
+- Preserved the single-root-skill layout, `WORKFLOW.md` entrypoint mapping,
+  Codex provider/content/consent boundaries, nested-distribution validator
+  adaptations, macOS/Python compatibility patches, and materialized Desktop
+  plugin bundle.
+
+### Notes
+- This sync pins upstream `main` at `5769d7b` (44 commits past `v3.19.0`);
+  the upstream suite version remains 3.19.0 until the next ARS release tag.
+
 ## [0.1.22] - 2026-07-22
 
 ### What's Changed

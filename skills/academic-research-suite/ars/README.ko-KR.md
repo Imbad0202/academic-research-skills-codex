@@ -64,6 +64,8 @@ v3.3은 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018) (Song, Song, Pfis
 
 **Claude Science를 사용하시나요?** 네 개의 스킬을 바로 가져올 수 있습니다: **Skills → Import from GitHub**에서 `https://github.com/Imbad0202/academic-research-skills`를 붙여넣고 **Preview** → **Import 4 skills**(이 저장소 v3.14.0+ 필요 — 가져오기 도구는 marketplace manifest에 명시된 스킬 경로를 읽습니다). 가져오기는 특정 시점의 스냅샷입니다: ARS 업데이트 후에는 다시 가져오세요. 가져온 스킬은 ARS 방법론(연구/작성/리뷰 프로토콜)을 담습니다. Claude Code 전용 메커니즘 — slash commands, hooks, 서브에이전트 오케스트레이션 — 은 이전되지 않습니다. 자세한 내용은 [docs/SETUP.md](docs/SETUP.md) Method 5를 참조하세요.
 
+**Pi를 사용하시나요?** `pi install git:github.com/Imbad0202/academic-research-skills`로 저장소 내 커뮤니티 유지보수 wrapper를 설치할 수 있습니다. 원본 ARS 콘텐츠를 기준으로 유지하며 Pi 전용 오케스트레이션 및 hook 제한을 문서화합니다. 자세한 내용은 [`pi/README.md`](pi/README.md)를 참조하세요.
+
 **Codex CLI를 사용하시나요?** 대신 자매 배포판을 설치하세요: [`Imbad0202/academic-research-skills-codex`](https://github.com/Imbad0202/academic-research-skills-codex) — 동일한 워크플로 콘텐츠를, `ars-*` 별칭을 갖는 단일 `$academic-research-suite` 스킬로 Codex 네이티브 패키징한 것입니다.
 
 ## 성능 & 비용
@@ -81,7 +83,7 @@ v3.3은 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018) (Song, Song, Pfis
 
 - **Deep Research** — 소크라테스식 가이드 모드, PRISMA 체계적 문헌고찰, 의도 감지, 대화 건강도 모니터링, 선택적 교차 모델 DA, Semantic Scholar API 검증을 갖춘 13개 에이전트 연구팀.
 - **Academic Paper** — Style Calibration, Writing Quality Check, LaTeX 하드닝, 시각화, 수정 코칭, 인용 변환, anti-leakage 프로토콜, VLM 그림 검증을 갖춘 12개 에이전트 논문 작성.
-- **Academic Paper Reviewer** — 0–100 품질 루브릭(EIC + 동적 리뷰어 3명 + Devil's Advocate), 양보 임계값 프로토콜, 공격 강도 보존, 선택적 교차 모델 DA 비평 / 캘리브레이션, R&R 추적 매트릭스, 읽기 전용 제약을 갖춘 7개 에이전트 다관점 동료 심사.
+- **Academic Paper Reviewer** — 0–100 품질 루브릭(Journal-Fit Reviewer + 동적 리뷰어 3명 + Devil's Advocate), 양보 임계값 프로토콜, 공격 강도 보존, 선택적 교차 모델 DA 비평 / 캘리브레이션, R&R 추적 매트릭스, 읽기 전용 제약을 갖춘 7개 에이전트 다관점 동료 심사.
 - **Academic Pipeline** — 적응형 체크포인트, 주장 검증, Material Passport, 선택적 `repro_lock`, 선택적 교차 모델 무결성 검증, 대화 중 강화, 점수 궤적 추적을 갖춘 10단계 파이프라인 오케스트레이터.
 - **Data Access Level Metadata** (v3.3.2+) — 모든 스킬이 `data_access_level`(`raw` / `redacted` / `verified_only`)을 선언하며, `scripts/check_data_access_level.py`로 강제됩니다. Anthropic의 automated-w2s-researcher (2026)에서 패턴을 차용했습니다. 자세한 내용은 [`shared/ground_truth_isolation_pattern.md`](shared/ground_truth_isolation_pattern.md)를 참조하세요.
 - **Task Type Annotation** (v3.3.2+) — 모든 스킬이 `task_type`(`open-ended` 또는 `outcome-gradable`)을 선언합니다. 현재 모든 ARS 스킬은 `open-ended`입니다.
@@ -103,7 +105,7 @@ v3.3은 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018) (Song, Song, Pfis
 | [Final Paper (ZH)](examples/showcase/full_paper_zh_apa7.pdf) | 중국어 버전, APA 7.0 |
 | [Integrity Report — Pre-Review](examples/showcase/integrity_report_stage2.5.pdf) | Stage 2.5: 날조된 참고문헌 15건 + 통계 오류 3건 적발 |
 | [Integrity Report — Final](examples/showcase/integrity_report_stage4.5.pdf) | Stage 4.5: 회귀 없음 확인 |
-| [Peer Review Round 1](examples/showcase/stage3_review_report.pdf) | EIC + 리뷰어 3명 + Devil's Advocate |
+| [Peer Review Round 1](examples/showcase/stage3_review_report.pdf) | Journal-Fit Reviewer + 리뷰어 3명 + Devil's Advocate |
 | [Re-Review](examples/showcase/stage3prime_rereview_report.pdf) | 수정 후 검증 |
 | [Peer Review Round 2](examples/showcase/stage3_review_report_r2.pdf) | 후속 심사 |
 | [Response to Reviewers](examples/showcase/response_to_reviewers_r2.pdf) | 항목별 저자 응답 |
@@ -188,7 +190,7 @@ You: "status"
 #### Academic Paper Reviewer (6개 모드)
 
 ```
-"Review this paper"                                   → full 모드 (EIC + R1/R2/R3 + Devil's Advocate)
+"Review this paper"                                   → full 모드 (Journal-Fit Reviewer + R1/R2/R3 + Devil's Advocate)
 "Quick assessment of this paper"                      → quick 모드
 "Guide me to improve this paper"                      → guided 모드
 "Check the methodology"                               → methodology-focus 모드
@@ -249,7 +251,7 @@ You: "status"
 
 ### Academic Paper Reviewer (v1.10.0)
 
-**0-100 품질 루브릭**을 갖춘 7개 에이전트 다관점 심사. 모드: full, re-review, quick, methodology-focus, guided, calibration. **결정 매핑:** ≥80 Accept, 65-79 Minor Revision, 50-64 Major Revision, <50 Reject. 1차 심사팀 대 좁은 re-review 팀 경계: ARCHITECTURE.md §3 Stage 3 / Stage 3' 참조.
+**0-100 품질 루브릭**을 갖춘 7개 에이전트 다관점 심사. 모드: full, re-review, quick, methodology-focus, guided, calibration. **결정 매핑:** ≥80 Accept, 65-79 Minor Revision, 50-64 Major Revision, <50 Reject. 1차 심사 패널 대 계약 기반 re-review 디스패치 경계: ARCHITECTURE.md §3 Stage 3 / Stage 3' 참조.
 
 ### Academic Pipeline (v3.19.0)
 
@@ -333,6 +335,8 @@ https://github.com/Imbad0202/academic-research-skills
 **[devCharlotte](https://github.com/devCharlotte)** — 기여자. 한국어 README([`README.ko-KR.md`](README.ko-KR.md))를 번역했습니다([PR #469](https://github.com/Imbad0202/academic-research-skills/pull/469)).
 
 **[Yaobin29](https://github.com/Yaobin29)** — 기여자. [PR #433](https://github.com/Imbad0202/academic-research-skills/pull/433)에서 리뷰어 응답 도구를 제안했습니다. `deep-research three-way-scan` 모드와 `academic-paper rebuttal-audit` 모드(해당 PR의 `audit` 개념을 발전시킨 기능)가 v3.12.1에서 정식으로 통합되었습니다.
+
+**[ktao732084-arch](https://github.com/ktao732084-arch)** — 기여자. `academic-paper`의 disclosure 시스템에 9개의 의학 출판 정책 대상, 대상별 필수 사실 입력 수집, fail-closed 독립형 렌더링을 추가해 확장했습니다([Issue #596](https://github.com/Imbad0202/academic-research-skills/issues/596), [PR #599](https://github.com/Imbad0202/academic-research-skills/pull/599)). 또한 EQUATOR 임상 보고 참고자료에 CARE, STARD, TRIPOD+AI 요약 지침과 fail-closed 연구 설계 라우팅을 추가했습니다([Issue #594](https://github.com/Imbad0202/academic-research-skills/issues/594), [PR #601](https://github.com/Imbad0202/academic-research-skills/pull/601)). 아울러 독립형 중국어 문헌 리졸버, API 프로토콜, 합성 전송 fixture 테스트 스위트를 설계하고 기여했습니다([Issue #595](https://github.com/Imbad0202/academic-research-skills/issues/595), [PR #600](https://github.com/Imbad0202/academic-research-skills/pull/600)).
 
 ---
 
@@ -593,7 +597,7 @@ Lu et al. (2026, *Nature* 651:914-919) — 블라인드 동료 심사를 통과�
 
 - **7-mode AI Research Failure Mode Checklist** — 의심되는 구현 버그, 환각된 결과, 지름길 의존, 버그를 통찰로, 방법론 날조, 프레임 고착에 대해 Stage 2.5/4.5에서 파이프라인을 차단. 기존 5종 인용 환각 분류를 확장.
 - **Reviewer Calibration Mode**(academic-paper-reviewer v1.8) — 사용자 제공 골드셋에 대한 옵트인 FNR/FPR/balanced-accuracy 측정. 5× ensembling, 교차 모델 기본 ON, 세션 범위 신뢰도 공개.
-- **Disclosure Mode**(academic-paper v2.9) — venue별 AI 사용 명시문 생성기. v1은 ICLR, NeurIPS, Nature, Science, ACL, EMNLP 커버.
+- **Disclosure Mode**(academic-paper v2.9) — 기본 venue 경로는 `REQUIRED`, `ACTION_ONLY`, `NOT_REQUIRED`, `UNKNOWN` 적용성 결과와 필요한 경우 명시적 유형화 중단 상태를 반환하고, policy-anchor 경로는 별도의 anchor 전용 렌더링 계약을 사용. v1은 ICLR, NeurIPS, Nature, Science, ACL, EMNLP 커버. (이후 확장: v2 데이터베이스(#596)는 9개 의학 출판 정책 대상 — ICMJE, NEJM, The Lancet, JAMA, BMJ, PLOS, Frontiers, 그리고 데이터베이스 최초의 중국어 정책 대상 2건(출판사 전체에 적용되는 中华护理杂志社 항목과 단일 저널 国际眼科杂志) — 을 추가.)
 - **Early-Stopping Criterion**(academic-pipeline v3.1) — 파이프라인 시작 시 수렴 점검 + 예산 투명성.
 - **Fidelity-Originality Mode Spectrum** — Lu 2026 Fig 1c에 따라 3개 스킬 전반의 모든 모드를 분류.
 - 새 버전: academic-paper v2.9, academic-paper-reviewer v1.8, academic-pipeline v3.1

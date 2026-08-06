@@ -289,6 +289,22 @@ id = "510-panel-synthesis-checker"
 path = "scripts/test_check_panel_synthesis.py"
 
 [[pytest]]
+id = "574-schema-13-2-validator"
+path = "scripts/test_check_sprint_contract.py"
+
+[[pytest]]
+id = "574-phase-conformance-checker"
+path = "scripts/test_check_phase_conformance.py"
+
+[[pytest]]
+id = "574-role-scoped-contract-lint"
+path = "scripts/test_check_role_scoped_contract.py"
+
+[[pytest]]
+id = "574-decision-contract-lint"
+path = "scripts/test_check_decision_contract.py"
+
+[[pytest]]
 id = "528-pipeline-boundary-semantics"
 path = "scripts/test_check_pipeline_boundary_semantics.py"
 
@@ -307,3 +323,71 @@ path = "scripts/test_ars_update_check.py"
 [[pytest]]
 id = "570-revision-token-conservation"
 path = "scripts/test_check_revision_token_conservation.py"
+
+[[pytest]]
+id = "574-seeded-defect-fixtures"
+path = "scripts/test_check_seeded_defect_fixtures.py"
+
+[[pytest]]
+id = "574-reviewer-data-fences"
+path = "scripts/test_check_reviewer_data_fences.py"
+
+[[pytest]]
+id = "574-reviewer-finding-contract"
+path = "scripts/test_check_reviewer_finding_contract.py"
+
+[[pytest]]
+id = "576-re-review-synthesis-checker"
+path = "scripts/test_check_re_review_synthesis.py"
+
+[[pytest]]
+id = "576-persuasion-invariance-fixtures"
+path = "scripts/test_check_persuasion_invariance_fixtures.py"
+
+[[pytest]]
+id = "608-e4-dispatch-harness"
+path = "scripts/test_dispatch_e4_panel.py"
+
+[[pytest]]
+id = "616-e4-promotion-integrity"
+path = "scripts/test_check_e4_promotion.py"
+
+[[pytest]]
+id = "616-e4-resume-record"
+path = "scripts/test_resume_e4_record.py"
+
+[[pytest]]
+id = "611-reviewer-sprint-prompt-sync"
+path = "scripts/test_check_reviewer_sprint_prompt_sync.py"
+
+[[pytest]]
+id = "610-receipt-enum-sync"
+path = "scripts/test_check_receipt_enum_sync.py"
+
+[[pytest]]
+id = "610-step5-recompute-calculator"
+path = "scripts/test_recompute_receipts.py"
+
+[[pytest]]
+id = "611-reviewer-role-label"
+path = "scripts/test_check_reviewer_role_label.py"
+
+[[pytest]]
+id = "619-disclosure-closeout"
+path = "scripts/test_check_619_disclosure_closeout.py"
+
+[[pytest]]
+id = "615-venue-disclosure-contract"
+path = "scripts/test_venue_disclosure_contract.py"
+
+[[pytest]]
+id = "595-chinese-literature-client"
+path = "scripts/test_chinese_literature_client.py"
+
+[[pytest]]
+id = "617-harness-retirement-generator"
+path = "scripts/test_render_harness_retirement_issue.py"
+
+[[pytest]]
+id = "633-command-frontmatter-name"
+path = "scripts/test_check_command_frontmatter_name.py"

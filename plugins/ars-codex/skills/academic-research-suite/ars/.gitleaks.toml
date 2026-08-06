@@ -4,13 +4,20 @@
 # What it catches is documented at the level of the upstream tool's docs:
 # https://github.com/gitleaks/gitleaks#rules
 #
-# The allowlist removes the single structural false-positive class this repo
-# carries: bibliographic citation keys (e.g. "Becht2019UMAP",
+# The allowlist removes two structural false-positive classes this repo
+# carries. (1) Bibliographic citation keys (e.g. "Becht2019UMAP",
 # "vaswani2017-arxiv-v1") stored in key-shaped fields of eval gold tuples,
 # the version-family example/design doc, and their schema test. These match
 # the generic-api-key heuristic but are literature identifiers, not
 # credentials — the 2026-06-10 baseline evaluation found 43 findings across
-# 518 commits, all of this class, zero true positives.
+# 518 commits, all of this class, zero true positives. (2) Model-generated
+# review prose in the frozen E4 evidence bundles (first hit 2026-08-05: a
+# journal-tier descriptor in a promoted field_analysis.md). The bundles are
+# byte-frozen promotion evidence (check_e4_promotion.py) that cannot be
+# edited, and squash-merge makes per-commit fingerprints unpinnable on main,
+# so the prose (.md) files are a rule-targeted allowlist entry below; machine
+# logs and JSON records in the same bundles stay scanned, and every rule other
+# than the misfiring generic-api-key stays live on the prose files too.
 #
 # Maintenance note: a new citation-tuple file under the allowlisted evals
 # path needs no action here. A NEW false-positive class elsewhere should be
@@ -20,7 +27,8 @@
 [extend]
 useDefault = true
 
-[allowlist]
+# Class 1: whole-file exemption (these files are key-shaped data by design).
+[[allowlists]]
 description = "Bibliographic citation keys misread as generic-api-key (literature identifiers, not credentials)"
 paths = [
   '''evals/gold/citation_extraction/tuples/.*\.json''',
@@ -32,3 +40,11 @@ paths = [
   '''docs/design/2026-04-23-ars-v3\.6\.4-literature-corpus-adapters-plan\.md''',
   '''scripts/test_version_records_schema\.py''',
 ]
+
+# Class 2 (rule-targeted): only the misfiring rule is exempted over the frozen
+# E4 evidence prose; private-key / AWS / GitHub-PAT / Slack / JWT detection
+# stays live over the same files.
+[[allowlists]]
+description = "Frozen E4 evidence-bundle model prose misread as generic-api-key (venue descriptors, not credentials)"
+targetRules = ["generic-api-key"]
+paths = ['''evals/heldout/reviewer_seeded_defects/runs/raw/.*\.md''']

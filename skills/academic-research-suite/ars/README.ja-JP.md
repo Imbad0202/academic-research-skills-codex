@@ -63,6 +63,8 @@ v3.3 は [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（Song, Song, Pf
 
 **Claude Science をお使いですか？** 4 つのスキルは直接インポートできます: **Skills → Import from GitHub** で `https://github.com/Imbad0202/academic-research-skills` を貼り付け、**Preview** → **Import 4 skills**（本リポジトリ v3.14.0+ が必要 — インポーターは marketplace manifest に明示されたスキルパスを読み取ります）。インポートはその時点のスナップショットです: ARS の更新後は再インポートしてください。インポートされたスキルは ARS の方法論（研究・執筆・査読プロトコル）を伝えます。Claude Code 固有の仕組み — slash commands、hooks、サブエージェントオーケストレーション — は移行されません。詳細は [docs/SETUP.md](docs/SETUP.md) の Method 5 を参照。
 
+**Pi を使用していますか？** `pi install git:github.com/Imbad0202/academic-research-skills` で、リポジトリ内のコミュニティ管理 wrapper をインストールできます。元の ARS コンテンツを正本として維持し、Pi 固有のオーケストレーションと hook の制限を明記しています。詳細は [`pi/README.md`](pi/README.md) を参照してください。
+
 **Codex CLI を使用していますか?** 代わりに姉妹ディストリビューションをインストールしてください: [`Imbad0202/academic-research-skills-codex`](https://github.com/Imbad0202/academic-research-skills-codex) — 同じワークフローコンテンツ、`ars-*` エイリアスを持つ単一の `$academic-research-suite` スキルとしての Codex ネイティブパッケージング。
 
 ## パフォーマンス＆コスト
@@ -80,7 +82,7 @@ v3.3 は [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（Song, Song, Pf
 
 - **Deep Research** — 13 エージェントの研究チーム。ソクラテス式ガイドモード、PRISMA システマティックレビュー、意図検出、対話健全性モニタリング、オプションのクロスモデル DA、Semantic Scholar API 検証付き。
 - **Academic Paper** — 12 エージェントの論文執筆。Style Calibration、Writing Quality Check、LaTeX ハードニング、可視化、改訂コーチング、引用変換、アンチリーケージプロトコル、VLM 図表検証付き。
-- **Academic Paper Reviewer** — 0-100 品質ルーブリックを持つ 7 エージェントの多視点ピアレビュー（EIC + 3 動的レビュアー + Devil's Advocate）、譲歩閾値プロトコル、攻撃強度保持、オプションのクロスモデル DA 批評/キャリブレーション、R&R トレーサビリティマトリクス、read-only 制約。
+- **Academic Paper Reviewer** — 0-100 品質ルーブリックを持つ 7 エージェントの多視点ピアレビュー（Journal-Fit Reviewer + 3 動的レビュアー + Devil's Advocate）、譲歩閾値プロトコル、攻撃強度保持、オプションのクロスモデル DA 批評/キャリブレーション、R&R トレーサビリティマトリクス、read-only 制約。
 - **Academic Pipeline** — 10 ステージのパイプラインオーケストレーター。適応的チェックポイント、主張検証、Material Passport、オプションの `repro_lock`、オプションのクロスモデル整合性検証、会話中強化、スコア軌跡追跡付き。
 - **Data Access Level Metadata**（v3.3.2+）— 各スキルが `data_access_level`（`raw` / `redacted` / `verified_only`）を宣言。`scripts/check_data_access_level.py` で強制。Anthropic の automated-w2s-researcher（2026）から適応されたパターン。[`shared/ground_truth_isolation_pattern.md`](shared/ground_truth_isolation_pattern.md) を参照。
 - **Task Type Annotation**（v3.3.2+）— 各スキルが `task_type`（`open-ended` または `outcome-gradable`）を宣言。現在の ARS スキルはすべて `open-ended`。
@@ -102,7 +104,7 @@ v3.3 は [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（Song, Song, Pf
 | [Final Paper (ZH)](examples/showcase/full_paper_zh_apa7.pdf) | 中国語版、APA 7.0 |
 | [Integrity Report — Pre-Review](examples/showcase/integrity_report_stage2.5.pdf) | Stage 2.5: 捏造参照 15 件 + 統計エラー 3 件を捕捉 |
 | [Integrity Report — Final](examples/showcase/integrity_report_stage4.5.pdf) | Stage 4.5: ゼロリグレッションを確認 |
-| [Peer Review Round 1](examples/showcase/stage3_review_report.pdf) | EIC + 3 Reviewers + Devil's Advocate |
+| [Peer Review Round 1](examples/showcase/stage3_review_report.pdf) | Journal-Fit Reviewer + 3 Reviewers + Devil's Advocate |
 | [Re-Review](examples/showcase/stage3prime_rereview_report.pdf) | 改訂後の検証 |
 | [Peer Review Round 2](examples/showcase/stage3_review_report_r2.pdf) | フォローアップレビュー |
 | [Response to Reviewers](examples/showcase/response_to_reviewers_r2.pdf) | ポイントごとの著者回答 |
@@ -181,7 +183,7 @@ You: "status"
 #### Academic Paper Reviewer（6 モード）
 
 ```
-"Review this paper"                                   → full モード（EIC + R1/R2/R3 + Devil's Advocate）
+"Review this paper"                                   → full モード（Journal-Fit Reviewer + R1/R2/R3 + Devil's Advocate）
 "Quick assessment of this paper"                      → quick モード
 "Guide me to improve this paper"                      → guided モード
 "Check the methodology"                               → methodology-focus モード
@@ -242,7 +244,7 @@ You: "status"
 
 ### Academic Paper Reviewer（v1.10.0）
 
-**0-100 品質ルーブリック** を持つ 7 エージェントの多視点レビュー。モード: full、re-review、quick、methodology-focus、guided、calibration。**決定マッピング:** ≥80 Accept、65-79 Minor Revision、50-64 Major Revision、<50 Reject。初回レビューチーム vs. 限定的な再レビューチームの境界: ARCHITECTURE.md §3 Stage 3 / Stage 3' を参照。
+**0-100 品質ルーブリック** を持つ 7 エージェントの多視点レビュー。モード: full、re-review、quick、methodology-focus、guided、calibration。**決定マッピング:** ≥80 Accept、65-79 Minor Revision、50-64 Major Revision、<50 Reject。初回レビューパネル vs. 契約管理された再レビューディスパッチの境界: ARCHITECTURE.md §3 Stage 3 / Stage 3' を参照。
 
 ### Academic Pipeline（v3.19.0）
 
@@ -320,6 +322,8 @@ https://github.com/Imbad0202/academic-research-skills
 **[cloudenochcsis](https://github.com/cloudenochcsis)** — 貢献者。IS セクションを *Basket of 8* から完全な *Senior Scholars' Basket of 11* に拡張 — *Decision Support Systems*、*Information & Management*、*Information and Organization* を追加（[Issue #7](https://github.com/Imbad0202/academic-research-skills/issues/7)、[PR #8](https://github.com/Imbad0202/academic-research-skills/pull/8)）。出典: [AIS Senior Scholars' List of Premier Journals](https://aisnet.org/research/seniorscholarsbasket/)。
 
 **[eltociear](https://github.com/eltociear)**（Ikko Eltociear Ashimine）— 貢献者。日本語版 README（[`README.ja-JP.md`](README.ja-JP.md)）を翻訳（[PR #161](https://github.com/Imbad0202/academic-research-skills/pull/161)）。
+
+**[ktao732084-arch](https://github.com/ktao732084-arch)** — 貢献者。`academic-paper` の disclosure システムを、9 つの医学出版ポリシー対象、対象別の必須事実インテーク、fail-closed のスタンドアロンレンダリングで拡張しました（[Issue #596](https://github.com/Imbad0202/academic-research-skills/issues/596)、[PR #599](https://github.com/Imbad0202/academic-research-skills/pull/599)）。さらに、EQUATOR の臨床報告リファレンスを拡張し、CARE、STARD、TRIPOD+AI の要約ガイダンスと fail-closed な研究デザイン・ルーティングを追加しました（[Issue #594](https://github.com/Imbad0202/academic-research-skills/issues/594)、[PR #601](https://github.com/Imbad0202/academic-research-skills/pull/601)）。また、独立型の中国語文献リゾルバー、API プロトコル、合成トランスポート fixture テストスイートを設計・提供しました（[Issue #595](https://github.com/Imbad0202/academic-research-skills/issues/595)、[PR #600](https://github.com/Imbad0202/academic-research-skills/pull/600)）。
 
 ---
 
@@ -591,7 +595,7 @@ Lu ら（2026、*Nature* 651:914-919）からの洞察を統合 — ブライン
 
 - **7 モード AI Research Failure Mode Checklist** — 疑われる実装バグ、ハルシネーション結果、shortcut reliance、bug-as-insight、方法論の捏造、フレームロックに対して Stage 2.5/4.5 でパイプラインをブロック。既存の 5 タイプ引用ハルシネーション分類を拡張。
 - **Reviewer Calibration Mode**（academic-paper-reviewer v1.8）— ユーザー提供ゴールドセットに対するオプトイン FNR/FPR/balanced-accuracy 測定。5× アンサンブル、クロスモデル default-on、session-scoped confidence disclosure。
-- **Disclosure Mode**（academic-paper v2.9）— venue 固有 AI 使用ステートメントジェネレーター。v1 は ICLR、NeurIPS、Nature、Science、ACL、EMNLP をカバー。
+- **Disclosure Mode**（academic-paper v2.9）— 既定の venue パスは `REQUIRED`、`ACTION_ONLY`、`NOT_REQUIRED`、`UNKNOWN` の適用結果と、必要な場合は型付き停止状態を返す。policy-anchor パスは独立した anchor 固有のレンダリング契約を使う。v1 は ICLR、NeurIPS、Nature、Science、ACL、EMNLP をカバー。（その後拡張：v2 データベース（#596）は 9 つの医学出版ポリシー対象 — ICMJE、NEJM、The Lancet、JAMA、BMJ、PLOS、Frontiers、およびデータベース初の中国語ポリシー対象 2 件（出版社横断の Chinese Nursing Journals Publishing House（`中华护理杂志社`）と単一誌の International Eye Science（`国际眼科杂志`））— を追加。）
 - **Early-Stopping Criterion**（academic-pipeline v3.1）— パイプライン開始時の収束チェック + 予算透明性。
 - **Fidelity-Originality Mode Spectrum** — Lu 2026 Fig 1c に従い 3 スキルにわたるすべてのモードを分類。
 - 新バージョン: academic-paper v2.9、academic-paper-reviewer v1.8、academic-pipeline v3.1

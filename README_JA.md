@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.23-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -36,11 +36,11 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `0.1.22` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、ベンダリングされた ARS スイートとは独立して Codex パッケージのバージョンを管理します。ベンダリングされたアップストリームのバージョンは `manifest.source_repositories[]` にコミット単位で記録されています。
+この ARS-Codex パッケージのバージョンは `0.1.23` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、ベンダリングされた ARS スイートとは独立して Codex パッケージのバージョンを管理します。ベンダリングされたアップストリームのバージョンは `manifest.source_repositories[]` にコミット単位で記録されています。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-現在ベンダリングされている ARS ソースは `Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`（`v3.19.0`）を追跡しています。ローカル PDF 読取整合性 preflight sidecar、任意の人間読了範囲 attestation と部分カバレッジ処理、claim-strength ladder と deterministic token conservation による改訂ラウンドの claim-drift ガードが追加され、v3.18 の cross-model reviewer／judge、キャッシュ再検証、リスク層別チェック、および既存の最小権限 contract も維持されています。
+現在ベンダリングされている ARS ソースは `Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`（`v3.19.0` 以降のアップストリーム `main`、2026-08-06。スイートバージョンは 3.19.0 のまま）を追跡しています。reviewer 強化トラック（ロールスコープの採点 contract と棄権機構、型付き証拠アンカーとカバレッジ receipt、Stage 3' の三ゲート re-review 事前コミット contract、算術 receipt 文法と deterministic 計算機、空 dissent ルール）、新しい reviewer held-out 評価セットと裁定済み cohort、医学ジャーナル開示ポリシーと fail-closed レンダリング、中国語文献 resolver client、CARE／STARD 2015／TRIPOD+AI 要約ガイダンスが追加され、v3.19 の PDF preflight・読了範囲 attestation・claim-drift ガード、v3.18 の cross-model reviewer／judge、キャッシュ再検証、リスク層別チェック、および既存の最小権限 contract も維持されています。
 
 ## ARS-Codex Plugin のインストール
 
@@ -247,9 +247,9 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS v3.19 Release パリティ
+### ARS v3.19+ パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.19.0` と同等のユーザー向けワークフロー内容を目指しています。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `main`（`5769d7b`、`v3.19.0` 以降。スイートバージョン 3.19.0）と同等のユーザー向けワークフロー内容を目指しています。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|

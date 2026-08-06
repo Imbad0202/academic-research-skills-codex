@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.23-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -49,7 +49,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This ARS-Codex package is version `0.1.22`. The repo-root `VERSION` file,
+This ARS-Codex package is version `0.1.23`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version independently of the vendored ARS suite. Vendored upstream
@@ -58,12 +58,17 @@ versions are recorded by commit in `manifest.source_repositories[]`.
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
 The vendored ARS source currently tracks
-`Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`
-(`v3.19.0`). Vendored runtime content adds local-PDF read-integrity preflight
-sidecars, optional human-read scope attestations with partial-coverage handling,
-and revision-round claim-drift guards based on a claim-strength ladder and
-deterministic token conservation. The v3.18 cross-model reviewer/judge tracks,
-cache re-validation, risk-stratified claim checks, and earlier dispatcher,
+`Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`
+(post-`v3.19.0` upstream `main`, 2026-08-06; suite version 3.19.0). Vendored
+runtime content adds the reviewer hardening track (role-scoped scoring
+contracts with abstention, typed evidence anchors and coverage receipts, the
+three-gate Stage 3' re-review pre-commitment contract, the arithmetic-receipt
+grammar with its deterministic receipt calculator, and the empty-dissent
+rule), new held-out reviewer eval sets with adjudicated cohorts, medical
+venue disclosure policies with fail-closed rendering, the Chinese-literature
+resolver client, and CARE / STARD 2015 / TRIPOD+AI condensed guidance. The
+v3.19 PDF preflight, read-scope attestation, and claim-drift guards, the
+v3.18 cross-model reviewer/judge tracks, and earlier dispatcher,
 least-privilege, panel, degradation, boundary, and transport contracts remain
 intact.
 Nested upstream `.github/` workflows and root `agents/` mirrors are preserved
@@ -367,10 +372,11 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS v3.19 Release Parity
+### ARS v3.19+ Parity
 
 This package aims for the same user-facing workflow content as upstream ARS
-`v3.19.0` where Codex has an equivalent concept.
+`main` at `5769d7b` (post-`v3.19.0`, suite version 3.19.0) where Codex has an
+equivalent concept.
 
 | Upstream ARS feature | Codex package behavior |
 |---|---|

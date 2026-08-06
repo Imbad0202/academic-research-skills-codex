@@ -1,0 +1,73 @@
+{
+  "measurement_status": "blocked",
+  "provenance_status": "invalid_incomplete_retry_evidence",
+  "panel_completion_status": "aborted",
+  "score_eligible": false,
+  "model_id": "claude-opus-5",
+  "suite_commit": "19bc8727df8d9d61e9cb7271b337e11b083c7374",
+  "date": "2026-07-27",
+  "evidence_contract": "reviewer-e4/2026-07-27",
+  "condition": "post",
+  "fixture": "ms00_clean",
+  "replicate": 2,
+  "dispatch": "isolated per-seat two-phase calls via headless `claude -p` (claude-opus-5, --effort xhigh, MAX_THINKING_TOKENS=31999, no session persistence) with v2 sprint-contract and phase-conformance checkers enforced in-flow",
+  "failure_stage": "perspective.phase2.conformance",
+  "checker_exit_code": 3,
+  "diagnostic": "[DISSENT-GRAMMAR: dissent section must name dimension_id]",
+  "diagnostic_form": "verbatim",
+  "checker_output_location": "../raw/blocked/2026-07-27-ms00_clean-post-r2/perspective.conformance.log",
+  "failure_evidence": "The perspective Phase 2 response emitted `## Scoring Plan Dissent`, then said the placeholder was not permitted and should be removed, but left the heading in the output without a canonical `dimension_id:` line. This is malformed v1-style/empty dissent grammar and must fail loudly.",
+  "completed_stages": [
+    "field_analysis",
+    "eic.phase1",
+    "eic.phase2",
+    "methodology.phase1",
+    "methodology.phase2",
+    "domain.phase1",
+    "domain.phase2",
+    "perspective.phase1",
+    "perspective.phase2_model_call"
+  ],
+  "phase1_retries": [
+    {
+      "role": "methodology",
+      "diagnostic": "[PHASE1-GRAMMAR: expected exactly one canonical what_triggers_fatal: line for dimension D3, found 0]",
+      "diagnostic_form": "normalized",
+      "rejected_response_preserved": false,
+      "checker_output_preserved": true,
+      "checker_output_location": "../raw/blocked/2026-07-27-ms00_clean-post-r2/dispatch.log"
+    },
+    {
+      "role": "perspective",
+      "diagnostic": "[PHASE1-GRAMMAR: what_triggers_fatal is forbidden on non-mandatory dimension D4]",
+      "diagnostic_form": "normalized",
+      "rejected_response_preserved": false,
+      "checker_output_preserved": true,
+      "checker_output_location": "../raw/blocked/2026-07-27-ms00_clean-post-r2/dispatch.log"
+    }
+  ],
+  "not_run": [
+    "devils_advocate.phase1",
+    "devils_advocate.phase2",
+    "synthesis",
+    "ms01_quant.replicate1",
+    "ms01_quant.replicate2",
+    "ms02_qual.replicate1",
+    "ms02_qual.replicate2"
+  ],
+  "replacement_draws": 0,
+  "cohort": {
+    "planned_panels": 6,
+    "launched_panels": 2,
+    "completed_panels": 1,
+    "score_eligible_panels": 0,
+    "provenance_invalid_panels": 2,
+    "conformance_aborts": 1,
+    "not_launched_panels": 4,
+    "observed_provenance_invalid_rate": 1.0,
+    "observed_conformance_abort_rate": 0.5
+  },
+  "gate_verdict": "NOT_COMPUTABLE",
+  "raw_bundle": "../raw/blocked/2026-07-27-ms00_clean-post-r2/",
+  "notes": "INCOMPLETE RETRY PROVENANCE: the first malformed methodology and perspective Phase 1 responses were overwritten before this bundle was assembled. Normalized diagnostics survive in this record, and the dispatch log preserves the exact checker output, but the rejected model responses do not; this panel would remain invalid for scoring even without its later conformance abort. The methodology diagnostic was previously committed as a semantic paraphrase; this correction replaces it with the dispatch log's verbatim checker output after removing only the leading absolute artifact path and separator. Protocol permits one paper-blind Phase 1 structural retry and a Phase 2 retry only for multi-dissent. The malformed empty dissent is not multi-dissent, so the panel was aborted immediately: no Phase 2 redraw, no replacement panel, and no continuation to DA, synthesis, or defective fixtures. Both launched clean panels have incomplete retry provenance (2/2); r2 additionally makes the observed clean-cohort conformance-abort rate 1/2 (0.50) against the Spec-A diagnostic expectation of approximately zero. Because the required 2 replicates x 3 fixtures did not complete, strict-recall, clean-control, severity-agreement, DA-critical-versus-Accept, and release gate verdicts are all not computable. This record is stored under `runs/blocked/` so scored-run consumers cannot mistake it for a valid run."
+}

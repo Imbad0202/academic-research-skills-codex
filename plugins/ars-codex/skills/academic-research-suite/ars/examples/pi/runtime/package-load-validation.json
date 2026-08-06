@@ -1,0 +1,97 @@
+{
+  "pi_version": "0.83.0",
+  "post_run_wrapper_validation": true,
+  "root_invocation": "pi --mode rpc --no-extensions --no-skills --no-prompt-templates --no-context-files -e . --offline",
+  "nested_invocation": "pi --mode rpc --no-extensions --no-skills --no-prompt-templates --no-context-files -e ./pi --offline",
+  "root_package": {
+    "success": true,
+    "prompt_templates": [
+      "ars-3w",
+      "ars-abstract",
+      "ars-cache-invalidate",
+      "ars-citation-check",
+      "ars-disclosure",
+      "ars-format-convert",
+      "ars-full",
+      "ars-lit-review",
+      "ars-mark-read",
+      "ars-outline",
+      "ars-plan",
+      "ars-rebuttal-audit",
+      "ars-reviewer",
+      "ars-revision",
+      "ars-revision-coach",
+      "ars-unmark-read"
+    ],
+    "skills": [
+      "skill:academic-paper",
+      "skill:academic-paper-reviewer",
+      "skill:academic-pipeline",
+      "skill:deep-research"
+    ],
+    "wrapper_commands": [
+      "ars-pi-doctor",
+      "ars-pi-start",
+      "ars-pi-stop"
+    ],
+    "stderr_empty": true
+  },
+  "nested_package": {
+    "success": true,
+    "prompt_templates": [
+      "ars-3w",
+      "ars-abstract",
+      "ars-cache-invalidate",
+      "ars-citation-check",
+      "ars-disclosure",
+      "ars-format-convert",
+      "ars-full",
+      "ars-lit-review",
+      "ars-mark-read",
+      "ars-outline",
+      "ars-plan",
+      "ars-rebuttal-audit",
+      "ars-reviewer",
+      "ars-revision",
+      "ars-revision-coach",
+      "ars-unmark-read"
+    ],
+    "skills": [
+      "skill:academic-paper",
+      "skill:academic-paper-reviewer",
+      "skill:academic-pipeline",
+      "skill:deep-research"
+    ],
+    "wrapper_commands": [
+      "ars-pi-doctor",
+      "ars-pi-start",
+      "ars-pi-stop"
+    ],
+    "stderr_empty": true
+  },
+  "system_prompt_scope": {
+    "claim_scope": "prompts submitted while Pi is idle",
+    "ordinary_idle_prompt_ars_text_active": false,
+    "ordinary_idle_prompt_package_ars_skills_visible": false,
+    "unrelated_colliding_skill_preserved": true,
+    "symlink_spelled_xml_escaped_skill_hiding_harness": "PASS",
+    "missing_skill_location_preserved": true,
+    "adjacent_skill_block_preserved_on_alternate_formatting": true,
+    "idle_ars_command_ars_text_active": true,
+    "idle_direct_skill_ars_text_active": true,
+    "idle_manual_start_enables_automatic_selection": true,
+    "idle_stop_hides_ars_text_and_skills_on_next_run": true,
+    "resume_persistence_harness": "PASS",
+    "tree_navigation_state_recovery": true,
+    "argument_safe_script_path_rewrite": true,
+    "single_pass_argument_placeholder_substitution": true,
+    "node_regression_tests": "9/9 PASS",
+    "real_pi_rpc_idle_prompt_scope_probes": "5/5 PASS",
+    "documented_residuals": {
+      "mid_stream_prompt": "queued ARS requests retain the in-flight run's existing system prompt",
+      "mid_stream_stop": "state changes immediately, but the in-flight system prompt remains unchanged",
+      "rpc_steer_follow_up": "these methods bypass the input event and do not activate the wrapper"
+    }
+  },
+  "result": "PASS"
+}

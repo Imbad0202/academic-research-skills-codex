@@ -1,0 +1,39 @@
+{
+  "model_id": "claude-opus-4-8",
+  "suite_commit": "307ef24ff9d92ca0fabfe9645c8616ca97030d4f",
+  "date": "2026-07-24",
+  "condition": "baseline",
+  "fixture": "ms02_qual",
+  "replicate": 1,
+  "dispatch": "isolated per-seat two-phase calls (same design as the ms01 records). Protocol event: the first attempt of this round aborted [PANEL-SHRUNK] — the DA's Phase 2 multi-dissented, and the dispatcher had not implemented the protocol §5 retry-from-Phase-1 rule; the round was re-dispatched with the retry implemented and completed with all five seats usable (the retry path executed). Recorded as an operational data point for the §6 PANEL-SHRUNK monitor.",
+  "per_defect": {
+    "SD-01": "DETECTED",
+    "SD-02": "DETECTED",
+    "SD-03": "DETECTED",
+    "SD-04": "DETECTED",
+    "SD-05": "DETECTED",
+    "SD-06": "DETECTED",
+    "SD-07": "DETECTED",
+    "SD-08": "DETECTED",
+    "SD-09": "DETECTED"
+  },
+  "severity_scores": {
+    "SD-01": 0.5,
+    "SD-02": 0.5,
+    "SD-03": 0.5,
+    "SD-04": 1.0,
+    "SD-05": 1.0,
+    "SD-06": 1.0,
+    "SD-07": 0.5,
+    "SD-08": 0.0,
+    "SD-09": 0.5,
+    "mean": 0.611
+  },
+  "clean_control_false_findings": [],
+  "raw_output": "raw/2026-07-24-ms02_qual-baseline-r1.review.md",
+  "severity_source_fallback": {
+    "SD-02": "no detecting-seat per-finding tag; Editorial Decision Letter S2 priority P2 -> minor per the README severity-source ladder",
+    "SD-06": "no detecting-seat per-finding tag; Editorial Decision Letter R3 priority P1 -> major"
+  },
+  "notes": "Blinded isolated run per README protocol. Panel decision: Major Revision (F1+F2; reject_or_major_revision resolved to major). Strict recall 9/9; critical-band 2/2. SD-01 (interview instrument never described) is solidly DETECTED here — R1's reproducibility comment states outright that no interview protocol is provided and W2 attacks the anchor sentence's unearned rigor language — in contrast to the superseded in-context MS02-r1 where the panel saw only the label contradiction (PARTIAL). Severity via the ladder from this run's DA rows: C2 Delacroix critical vs expected minor -> SD-08 0; M1 (Location column names both the sector-wide claims and section 6's 'first comprehensive account') major -> SD-03 0.5 vs expected critical, SD-09 0.5 vs expected minor (round-5 correction: SD-09 carries the M1 tag, not a letter fallback); M2 balance-vs-exclusion major -> SD-05 1.0; M3 sample-count contradictions major -> SD-04 1.0; M4 structured-protocol overclaim major vs expected critical -> SD-01 0.5; m3 p<.05 escalation MINOR vs expected major -> SD-07 0.5."
+}

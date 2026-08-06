@@ -197,7 +197,9 @@ The DA agent, after completing its checkpoint report, should:
 1. Send the reviewed material + a simplified DA prompt to the cross-model:
    ```
    You are a devil's advocate reviewing this [research/paper].
-   Find the 3 most serious weaknesses. For each, state:
+   Find the most serious weaknesses — every one the evidence supports,
+   ranked most severe first; no fixed count, and do not pad to reach one
+   (#574 A1). For each, state:
    - What the weakness is
    - Why it matters
    - What the strongest counter-argument would be
@@ -214,7 +216,7 @@ The DA agent, after completing its checkpoint report, should:
 
 **When active:**
 - ONE existing peer-reviewer slot (Reviewer 2 by default) runs on the cross-model family instead of the session model. The panel stays FIVE seats — this is a substrate swap inside a fixed slot, NOT the retired "6th reviewer" (see the retirement note above: its five counterproductive conditions — score averaging, role duplication, findings-as-confirmed-defects, majority-vote false confidence, synthesizer context burn — all attach to an ADDED generic seat; none applies to swapping the substrate of an existing persona with an unchanged role and an unchanged vote).
-- Transport follows #523 ownership: the dispatching layer (the main session running the reviewer skill — not a Bucket A agent) executes the API calls, mirroring the in-session phase inputs exactly: call 1 = the Phase 1 system persona + the contract JSON + the paper METADATA that in-session Phase 1 receives (paper content withheld, per the sprint protocol's Phase 1 input spec); call 2 = the re-injected contract + the Phase 2 system prompt + call 1's output wrapped in the `<phase1_output>` data delimiter + the paper. The delimiter is the conversation linkage — no server-side session state is assumed.
+- Transport follows #523 ownership: the dispatching layer (the main session running the reviewer skill — not a Bucket A agent) executes the API calls, mirroring the in-session phase inputs exactly: call 1 = the Phase 1 system persona + the contract JSON + the paper METADATA that in-session Phase 1 receives (paper content withheld, per the sprint protocol's Phase 1 input spec); call 2 = the re-injected contract + the Phase 2 system prompt + call 1's output wrapped in the `<phase1_output>` data delimiter + the paper wrapped in the `<paper_content>` data delimiter (#574 A6, in lockstep with `sprint_contract_protocol.md` §2 step 4 — the cross-model seat receives the manuscript inside the same fence as in-session seats). The delimiters are the conversation linkage — no server-side session state is assumed.
 - The dispatching layer hands the synthesizer the slot's report PLUS a provenance stamp (which family ran the seat, or the fallback reason) — the synthesizer fills the Review Panel Provenance block from that stamp, never from inference.
 - The slot's report enters the panel matrix exactly as that slot's report always does — heterogeneity itself is the §5.2 safeguard. The synthesizer computes NO cross-family aggregate and NO "same-model majority" (any such aggregation is on its forbidden-operations list): cross-family splits are visible by inspection in the panel matrix the user already receives, and the provenance block names which seat ran on which family.
 - An ungrounded compatible provider is first-class here (same class as DA critique: persona judgment needs no web grounding); its factual claims about literature remain subject to the normal citation gates.
@@ -224,6 +226,21 @@ The DA agent, after completing its checkpoint report, should:
 - All five personas run on the normal primary-family routing (session model + any active `ARS_MODEL_TIERING` policy), and the Editorial Decision Letter carries the correlated-error disclosure (see the template's Review Panel Provenance block) instead of silently implying independence.
 
 External motivation: Ren et al. (2026, arXiv:2607.13104 §5.2) — consistency-derived feedback is fragile when errors correlate across samples of one model, and repeated sampling may amplify a confidently-wrong conclusion; heterogeneous critique models are among the safeguards it names.
+
+#### Calibration transport exception (#611 — non-sprint, attempt-atomic)
+
+This branch applies only to the opt-in `reviewer_calibration` mode. It does not opt calibration into the sprint contract or change the ordinary `reviewer_full` transport above. For each calibration panel, the Reviewer 2 substrate swap is exactly one stateless provider call that byte-for-byte mirrors the same replicate's primary-family calibration Reviewer 2 invocation: the same `domain_reviewer_agent` system persona, that paper's already-frozen Reviewer Configuration Card #3, and the complete manuscript inside the same `<paper_content>...</paper_content>` data fence. The call MUST NOT send a sprint contract, a paper-blind Phase 1 request, `<phase1_output>`, any gold label, human score, per-dimension gold, or gold rationale. Its return is the complete standard-mode Reviewer 2 report plus a substrate-provenance stamp for the existing calibration synthesizer. This is a transport-only substitution; it does not change any reviewer prompt, rubric, panel cardinality, or synthesis semantics.
+
+**Calibration data-fence collision preflight (closed).** The single-call payload carries Reviewer Configuration Card #3 byte-for-byte inside `<reviewer_configuration>...</reviewer_configuration>` and the manuscript byte-for-byte inside `<paper_content>...</paper_content>`. Before a payload is sent, test each raw source independently against its own wrapper with the case-insensitive predicates `</\s*reviewer_configuration\b[^>]*>` and `</\s*paper_content\b[^>]*>`, respectively. If either matches, refuse the entire calibration attempt before transport and send no provider call containing either payload. MUST NOT escape, strip, rewrite, truncate, switch delimiters, or fall back to primary routing: those paths break byte parity or send the same colliding content. Exact, whitespace, case, self-closing, and attributed/tolerant-parser closing forms match; a different longer tag such as `</paper_contents>` does not match. This preflight is closed at exactly these two tag names; fragments without `>`, entity encodings, and Unicode confusables are outside its delimiter grammar. Expanding this boundary requires the normative paragraph, lint witnesses, and mutation tests to change together.
+
+Calibration is repeated-panel measurement, so its fallback is
+**attempt-atomic** rather than per-seat:
+
+1. Before any scored panel completes, lock one `attempt_id` and one `substrate_plan` (`cross_model_r2` or `primary_only`) without consulting any gold material. Configuration, consent, and a non-content transport preflight happen before this lock. If any is unavailable, warn, lock `primary_only`, disclose the reason, and begin the complete schedule on that plan.
+2. Under `cross_model_r2`, every paper and replicate uses the single-call branch above. If a later Reviewer 2 dispatch fails after the attempt begins, mark the entire attempt invalid; every completed panel in that attempt becomes diagnostic-only and MUST NOT enter any aggregate. Never continue the failed paper or a later replicate on primary routing.
+3. The only result-producing recovery is a new `attempt_id`, an empty aggregate, and a restart at paper 1 / replicate 1 on one homogeneous plan. Restarting all-primary may spend the whole schedule again, so stop for explicit user authorization unless that retry cost was already authorized. Before a homogeneous attempt finishes, MUST NOT emit full-tier metrics, a directional readout, or either session disclosure.
+
+This attempt-atomic override is calibration-only; ordinary `reviewer_full` keeps the per-seat disclosed fallback above.
 
 ### Re-Review Judge Independence (#539 — Stage 3' verification round)
 

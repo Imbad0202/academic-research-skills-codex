@@ -63,6 +63,8 @@ v3.3 的灵感来自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（So
 
 **使用 Claude Science？** 四个 skill 可直接导入：**Skills → Import from GitHub**，粘贴 `https://github.com/Imbad0202/academic-research-skills`，点 **Preview**，再点 **Import 4 skills**（需本 repo v3.14.0+——导入器读取 marketplace manifest 中显式声明的 skill 路径）。导入是一次性快照：ARS 更新后需重新导入。导入的 skill 承载 ARS 方法论（研究／写作／评审协议）；Claude Code 专属机制——slash commands、hooks、subagent 编排——不会转移。详见 [docs/SETUP.md](docs/SETUP.md) Method 5。
 
+**使用 Pi？** 运行 `pi install git:github.com/Imbad0202/academic-research-skills` 安装仓库内的社区维护 wrapper。它继续以原始 ARS 内容为准，并记录 Pi 在编排和 hooks 方面的限制。详见 [`pi/README.md`](pi/README.md)。
+
 **用 Codex CLI？** 请安装姐妹版：[`Imbad0202/academic-research-skills-codex`](https://github.com/Imbad0202/academic-research-skills-codex)。同一套 workflow 内容，Codex 原生打包为单一 `$academic-research-suite` skill，提供 `ars-*` 别名。
 
 ## 性能与费用
@@ -80,7 +82,7 @@ v3.3 的灵感来自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（So
 
 - **Deep Research** — 13 个 Agent 的研究团队，支持苏格拉底引导、PRISMA 系统性回顾、意图检测、对话健康度监控、可选跨模型 DA、Semantic Scholar API 验证。
 - **Academic Paper** — 12 个 Agent 的论文撰写团队，含风格校准、写作质量检查、LaTeX 输出强化、可视化、修订教练、引用格式转换、反泄露协议、VLM 图表验证。
-- **Academic Paper Reviewer** — 7 个 Agent 的多视角同行评审，0-100 质量量表（主编 + 3 位动态审查者 + 魔鬼代言人），含让步门槛协议、攻击强度保持、可选跨模型 DA critique / calibration、R&R 追溯矩阵、只读约束。
+- **Academic Paper Reviewer** — 7 个 Agent 的多视角同行评审，0-100 质量量表（Journal-Fit Reviewer + 3 位动态审查者 + 魔鬼代言人），含让步门槛协议、攻击强度保持、可选跨模型 DA critique / calibration、R&R 追溯矩阵、只读约束。
 - **Academic Pipeline** — 10 阶段全流程调度器，含自适应 checkpoint、主张验证、材料护照、可选 `repro_lock`、可选跨模型学术诚信验证、中途强化机制、分数轨迹追踪。
 - **数据访问层级标注**（v3.3.2+）— 每个 skill 声明 `data_access_level`（`raw` / `redacted` / `verified_only`），由 `scripts/check_data_access_level.py` 强制执行。设计灵感来自 Anthropic 的 automated-w2s-researcher（2026）。详见 [`shared/ground_truth_isolation_pattern.md`](shared/ground_truth_isolation_pattern.md)。
 - **任务类型标注**（v3.3.2+）— 每个 skill 声明 `task_type`（`open-ended` 或 `outcome-gradable`）。目前 ARS 所有 skills 皆为 `open-ended`。
@@ -102,7 +104,7 @@ v3.3 的灵感来自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（So
 | [完稿论文（中文）](examples/showcase/full_paper_zh_apa7.pdf) | 中文版，APA 7.0 |
 | [学术诚信报告 — 审稿前](examples/showcase/integrity_report_stage2.5.pdf) | Stage 2.5：发现 15 个虚构引用 + 3 个统计错误 |
 | [学术诚信报告 — 最终](examples/showcase/integrity_report_stage4.5.pdf) | Stage 4.5：确认零回归 |
-| [同行评审第一轮](examples/showcase/stage3_review_report.pdf) | 主编 + 3 审查者 + 魔鬼代言人 |
+| [同行评审第一轮](examples/showcase/stage3_review_report.pdf) | Journal-Fit Reviewer + 3 审查者 + 魔鬼代言人 |
 | [再审](examples/showcase/stage3prime_rereview_report.pdf) | 修订后验证审查 |
 | [同行评审第二轮](examples/showcase/stage3_review_report_r2.pdf) | 跟踪审查 |
 | [回复审查意见](examples/showcase/response_to_reviewers_r2.pdf) | 逐点回复 |
@@ -181,7 +183,7 @@ ARS Stage 2 写作      →  用验证过的实验结果撰写论文
 #### Academic Paper Reviewer（论文审查，6 种模式）
 
 ```
-"审查这篇论文"                                → full mode（主编 + R1/R2/R3 + 魔鬼代言人）
+"审查这篇论文"                                → full mode（Journal-Fit Reviewer + R1/R2/R3 + 魔鬼代言人）
 "快速评估这篇论文"                            → quick mode（快速评估）
 "引导我改进这篇论文"                          → guided mode（引导改进）
 "检查研究方法"                                → methodology-focus mode（方法论聚焦）
@@ -242,7 +244,7 @@ ARS Stage 2 写作      →  用验证过的实验结果撰写论文
 
 ### Academic Paper Reviewer (v1.10.0)
 
-7 个 Agent 的多视角审查，搭配 **0-100 质量量表**。模式：full、re-review、quick、methodology-focus、guided、calibration。**决策对照：** ≥80 接受、65-79 小修、50-64 大修、<50 退稿。第一轮审查团队 vs. 精简再审团队的分界：见 ARCHITECTURE.md §3 Stage 3 / Stage 3'。
+7 个 Agent 的多视角审查，搭配 **0-100 质量量表**。模式：full、re-review、quick、methodology-focus、guided、calibration。**决策对照：** ≥80 接受、65-79 小修、50-64 大修、<50 退稿。第一轮审查面板 vs. 契约治理再审调度的分界：见 ARCHITECTURE.md §3 Stage 3 / Stage 3'。
 
 ### Academic Pipeline (v3.19.0)
 
@@ -303,6 +305,8 @@ https://github.com/Imbad0202/academic-research-skills
 **[eltociear](https://github.com/eltociear)**（Ikko Eltociear Ashimine）— 贡献者。翻译了日文版 README（[`README.ja-JP.md`](README.ja-JP.md)）（[PR #161](https://github.com/Imbad0202/academic-research-skills/pull/161)）。
 
 **[xpfo-go](https://github.com/xpfo-go)**（xpfo）— 贡献者。翻译了简体中文版 README（[`README.zh-CN.md`](README.zh-CN.md)）（[PR #181](https://github.com/Imbad0202/academic-research-skills/pull/181)）。
+
+**[ktao732084-arch](https://github.com/ktao732084-arch)** — 贡献者。扩展了 `academic-paper` 披露系统，新增九个医学出版政策目标、按目标收集必需事实的流程，以及 fail-closed 的独立披露渲染（[Issue #596](https://github.com/Imbad0202/academic-research-skills/issues/596)、[PR #599](https://github.com/Imbad0202/academic-research-skills/pull/599)）；扩充 EQUATOR 临床报告参考，加入 CARE、STARD 和 TRIPOD+AI 的精简指引，以及 fail-closed 的研究设计路由流程（[Issue #594](https://github.com/Imbad0202/academic-research-skills/issues/594)、[PR #601](https://github.com/Imbad0202/academic-research-skills/pull/601)）；并设计及贡献独立的中文文献解析器、API 协议和合成传输 fixture 测试套件（[Issue #595](https://github.com/Imbad0202/academic-research-skills/issues/595)、[PR #600](https://github.com/Imbad0202/academic-research-skills/pull/600)）。
 
 ---
 
@@ -569,7 +573,7 @@ v3.5.1 添加 Socratic Mentor 的选用式诚实探测（设置 `ARS_SOCRATIC_RE
 
 - **7 类 AI 研究失败模式检查清单** — 在 Stage 2.5/4.5 阻断管线：检测实现错误、幻觉实验结果、取巧特征依赖、错误包装为发现、方法伪造、框架锁定。扩充现有 5 类引用幻觉分类。
 - **Reviewer 校准模式**（academic-paper-reviewer v1.8）— opt-in 的 FNR/FPR/balanced accuracy 测量，用户提供 gold set。5 次集成、跨模型默认打开、session 内强制附加信心披露。
-- **AI 使用声明模式**（academic-paper v2.9）— 针对特定期刊/会议的 AI 使用声明生成器。v1 涵盖 ICLR、NeurIPS、Nature、Science、ACL、EMNLP。
+- **AI 使用披露模式**（academic-paper v2.9）— 默认期刊路径返回 `REQUIRED`、`ACTION_ONLY`、`NOT_REQUIRED` 或 `UNKNOWN` 适用性结果，并在无法渲染时显式返回类型化停止状态；政策锚点路径使用独立的锚点渲染契约。v1 涵盖 ICLR、NeurIPS、Nature、Science、ACL、EMNLP。（后续扩充：v2 数据库（#596）新增 9 个医学出版政策目标 — ICMJE、NEJM、The Lancet、JAMA、BMJ、PLOS、Frontiers，以及数据库首批两个中文政策目标：出版社级的中华护理杂志社条目和期刊级的国际眼科杂志条目。）
 - **提前停止机制**（academic-pipeline v3.1）— 收敛检查 + pipeline 开始时的 token 预算透明化。
 - **忠实度-原创性模式光谱** — 按 Lu 2026 Fig 1c 分类所有 3 个 skill 的模式。
 - 新版本：academic-paper v2.9、academic-paper-reviewer v1.8、academic-pipeline v3.1

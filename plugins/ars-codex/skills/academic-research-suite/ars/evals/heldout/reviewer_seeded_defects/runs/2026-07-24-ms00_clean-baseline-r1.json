@@ -1,0 +1,14 @@
+{
+  "model_id": "claude-opus-4-8",
+  "suite_commit": "307ef24ff9d92ca0fabfe9645c8616ca97030d4f",
+  "date": "2026-07-24",
+  "condition": "baseline",
+  "fixture": "ms00_clean",
+  "replicate": 1,
+  "dispatch": "isolated per-seat two-phase calls (same design as the ms01 records)",
+  "per_defect": {},
+  "severity_scores": {},
+  "clean_control_false_findings": [],
+  "raw_output": "raw/2026-07-24-ms00_clean-baseline-r1.review.md",
+  "notes": "Blinded isolated run per README protocol. False findings after concept-dedup across seats and letter: ZERO. Every asserted weakness verified against the manuscript as a true observation about a genuine absence (single-item DV with no reliability estimate; common-method variance not bounded against the estimate; scale-adaptation provenance undocumented; no named theoretical model / secondhand grounding; no magnitude anchor for the comparability claim; thin literature base) or hedged interpretive advice (contribution at the floor of publishability; gestural practical implication). No fabricated flaw, no invented inconsistency, no mis-recomputed statistic. Placeholder-DOI existence observations appear and are excluded by design. Decision observation (not a measurand): the mechanical contract floor fired NOTHING (fired_conditions []) and the interpretive layer issued **Minor Revision** — one band lower than either in-context clean-control run — with the synthesizer explicitly reasoning that the sprint gate governs blocking and cannot force acceptance of an un-sharpened manuscript. The DA emitted 0 CRITICALs."
+}

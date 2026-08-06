@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.22-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.23-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -41,16 +41,20 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `0.1.22`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `0.1.23`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
 当前内嵌的 ARS 源码追踪至
-`Imbad0202/academic-research-skills@828ef3b613b0e8b91830da3328a1e33d4eb5ab4c`
-（`v3.19.0`）。内嵌内容新增本地 PDF 读取完整性 preflight sidecar、可选的
-人工阅读范围声明与部分覆盖处理，以及基于主张强度阶梯和 deterministic token
-conservation 的修订轮次 claim-drift 防护；v3.18 的 cross-model
-reviewer／judge、缓存重验、风险分层检查与既有最小权限契约仍完整保留。
+`Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`
+（`v3.19.0` 之后的上游 `main`，2026-08-06；套件版本仍为 3.19.0）。内嵌内容新增
+reviewer 硬化系列（角色范围评分契约与弃权机制、带类型的证据锚点与覆盖
+receipt、Stage 3' 三门 re-review 预承诺契约、算术 receipt 语法与其
+deterministic 计算器、空异议规则）、新的 reviewer held-out 评测集与裁定
+cohort、医学期刊披露政策与 fail-closed 渲染、中文文献 resolver client，以及
+CARE／STARD 2015／TRIPOD+AI 精要指引。v3.19 的 PDF preflight、阅读范围声明、
+claim-drift 防护，v3.18 的 cross-model reviewer／judge、缓存重验、风险分层
+检查与既有最小权限契约仍完整保留。
 
 ## 安装 ARS-Codex Plugin
 
@@ -258,9 +262,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.19 Release 功能对等
+### ARS v3.19+ 功能对等
 
-本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `v3.19.0` 相同的用户侧 workflow 内容。
+本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `main`（`5769d7b`，`v3.19.0` 之后；套件版本 3.19.0）相同的用户侧 workflow 内容。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|

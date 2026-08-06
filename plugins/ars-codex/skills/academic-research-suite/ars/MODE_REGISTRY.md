@@ -34,7 +34,7 @@ Last updated: v3.19.0 (2026-07-22)
 | `lit-review` | Fidelity | Annotated bibliography in paper format | Medium | "literature review paper", "write a lit review" |
 | `format-convert` | Fidelity | Formatted document (LaTeX/DOCX-via-Pandoc/PDF/MD) | Low | "convert to LaTeX", "convert citations to [format]" |
 | `citation-check` | Fidelity | Citation error report | Low | "check citations", "verify references" |
-| `disclosure` | Fidelity | Venue-specific AI-usage disclosure statement | Low | "AI disclosure for [venue]", "generate AI usage statement" |
+| `disclosure` | Fidelity | Default venue path: applicability/status bundle; policy-anchor path: anchor-specific render | Low | "AI disclosure for [venue]", "generate AI usage statement" |
 | `rebuttal-audit` | Fidelity | Advisory QA of an existing rebuttal draft (per-comment coverage + gaps + risk flags); no generation; no Schema 11 emission | Low | "audit my response", "check my rebuttal", "did I miss any reviewer comment" |
 
 ## academic-paper-reviewer (6 modes)
@@ -43,10 +43,10 @@ Last updated: v3.19.0 (2026-07-22)
 |------|----------|--------|-----------|----------|
 | `full` | Balanced | 5 review reports + Editorial Decision + Revision Roadmap | High | "review paper", "peer review", "manuscript review" |
 | `re-review` | Fidelity | Revision verification checklist + residual issues | Medium | "check revisions", "verification review" |
-| `quick` | Fidelity | EIC quick assessment + key issues list | Low | "quick review", "quick look" |
+| `quick` | Fidelity | Journal-Fit Reviewer quick assessment + key issues list | Low | "quick review", "quick look" |
 | `methodology-focus` | Fidelity | In-depth methodology review | Medium | "check methodology", "focus on methods" |
 | `guided` | Originality | Socratic issue-by-issue dialogue | Very High | "guide me to improve", "walk me through issues" |
-| `calibration` | Fidelity | Calibration Report (FNR/FPR/AUC) + confidence disclosure | Medium | "calibrate reviewer", "measure reviewer accuracy" |
+| `calibration` | Fidelity | Explicit 3-paper directional readout or default full Calibration Report + tier-scoped disclosure | Medium | "calibrate reviewer", "measure reviewer accuracy" |
 
 ## academic-pipeline (1 orchestrator + 1 resume mode)
 

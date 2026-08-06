@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.22",
+  "adapter_version": "0.1.23",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-07-22",
+  "generated_date": "2026-08-06",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "828ef3b613b0e8b91830da3328a1e33d4eb5ab4c",
+      "commit": "5769d7b51adfba45593ad95721436fd114aaa735",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -36,7 +36,10 @@
         ".command-invariants.toml",
         "tools/release-discipline",
         "CHANGELOG.md",
-        "LICENSE"
+        "LICENSE",
+        "pi",
+        "package.json",
+        ".gitleaksignore"
       ]
     },
     {
@@ -66,6 +69,10 @@
     {
       "path": "skills/academic-research-suite/ars/hooks/hooks.json",
       "reason": "Claude Code plugin hook metadata. Preserved for upstream traceability but not installed or executed by Codex."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/scripts/check_calibration_tiers.py",
+      "reason": "Requires upstream .claude/CLAUDE.md calibration-tier witnesses, which are intentionally not vendored in the Codex package. Its companion test copies the same non-vendored file, so the 611-calibration-tiers entry is removed from the vendored local pytest manifest."
     }
   ],
   "historical_artifacts": [
@@ -101,7 +108,7 @@
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "ARS v3.19.0 release content is the tracked upstream content; nested upstream .github workflows, release-discipline tools, and root agents mirrors are preserved for traceability and upstream self-tests but are not repo-level CI or Codex entrypoints. Claude/plugin loader files under .claude, .claude-plugin, and upstream skills aliases remain intentionally excluded.",
+    "ARS post-v3.19.0 main content (commit 5769d7b, 2026-08-06) is the tracked upstream content; nested upstream .github workflows, release-discipline tools, and root agents mirrors are preserved for traceability and upstream self-tests but are not repo-level CI or Codex entrypoints. Claude/plugin loader files under .claude, .claude-plugin, and upstream skills aliases remain intentionally excluded.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its frozen 39-agent ARS classification sweep.",
     "Korean intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
@@ -116,6 +123,9 @@
     "The v3.19 human-read ledger read_scope attestation remains optional and user-owned; absent scope resolves to unknown, partial coverage stays visible, and locators are accepted only for sections scope.",
     "The v3.19 claim-strength ladder, revision-evidence bundle, deterministic token-conservation checker, and held-out revision-claim-drift set are preserved as advisory-first revision guards.",
     "ARS-Codex Desktop plugin packaging uses a materialized skills directory under plugins/ars-codex/skills instead of a symlink so Windows plugin caches can register the bundled academic-research-suite skill.",
-    "Cross-model API behavior is disabled by default and requires explicit user request, provider configuration, and user consent before any external upload."
-    ]
+    "Cross-model API behavior is disabled by default and requires explicit user request, provider configuration, and user consent before any external upload.",
+    "The community-maintained Pi wrapper (pi/ plus the root package.json pi-package manifest) is vendored for traceability only; it targets the Pi harness and upstream SKILL.md paths, so it is not a Codex entrypoint and is not loadable from this renamed WORKFLOW.md tree.",
+    "The #574/#611/#615 reviewer-contract lint family (check_decision_contract, check_reviewer_finding_contract, check_reviewer_role_label, venue_disclosure_contract_harness, and their tests) is path-adapted to the Codex WORKFLOW.md overlay, matching the existing pipeline-boundary content-lock adaptation.",
+    "The v3.19+ reviewer hardening track (role-scoped scoring contract, typed evidence anchors, three-gate Stage 3' re-review contract, dispatch harness, arithmetic-receipt grammar, empty-dissent rule) and its held-out eval sets are preserved with their upstream tests; eval cohorts are measurement records, not Codex runtime instructions."
+  ]
 }

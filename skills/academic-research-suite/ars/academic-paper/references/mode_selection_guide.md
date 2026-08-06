@@ -200,20 +200,20 @@ User Input →
 
 ---
 
-### disclosure mode — AI-Usage Disclosure Statement
+### disclosure mode — AI-Usage Disclosure Outcome
 
 **Applicable Scenarios**:
-- Paper is drafted and you need a venue-specific AI-usage disclosure paragraph
-- Submitting to a venue with a defined AI-disclosure policy (ICLR, NeurIPS, Nature, Science, ACL, EMNLP)
-- Need placement guidance for where the statement goes in the manuscript
+- Paper is drafted and you need venue-specific disclosure text or a policy action checklist
+- Submitting under a covered policy target (ICLR, NeurIPS, Nature, Science, ACL, EMNLP, or a covered medical-publishing target: ICMJE, NEJM, The Lancet, JAMA, BMJ, PLOS, Frontiers, publisher-wide 中华护理杂志社, journal-level 国际眼科杂志)
+- Need placement/action guidance for every required manuscript or submission channel
 
 **Not Applicable When**:
 - No paper drafted yet — disclosure is a finishing step (→ full mode first)
 - The venue is not in the policy database (confirm the venue's current policy manually)
 
-**Expected Output**: Venue-specific AI-usage disclosure paragraph(s) + placement instructions
+**Expected Output**: Default venue path — `REQUIRED` / `ACTION_ONLY` / `NOT_REQUIRED` / `UNKNOWN` applicability plus typed halt status; policy-anchor path — anchor-specific render
 **Expected Duration**: Short
-**Agents Used**: disclosure protocol used standalone (venue policy database lookup)
+**Agents Used**: formatter agent's standalone disclosure branch, which loads the disclosure protocol before the venue policy database or policy-anchor lookup; it does not run normal Phase 7 formatting
 
 ---
 
@@ -310,7 +310,7 @@ academic-paper completed
 | Completed paper | Citation check | citation-check mode |
 | Reviewer comments (no response yet) | Parse + roadmap + reply skeleton | revision-coach mode |
 | Reviewer comments + a written rebuttal draft | QA the draft before sending | rebuttal-audit mode |
-| Drafted paper + target venue | AI-usage disclosure statement | disclosure mode |
+| Drafted paper + target venue | AI-usage disclosure bundle or policy action checklist | disclosure mode |
 
 ---
 

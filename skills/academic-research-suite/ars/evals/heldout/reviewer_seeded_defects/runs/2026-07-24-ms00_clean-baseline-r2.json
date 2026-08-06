@@ -1,0 +1,14 @@
+{
+  "model_id": "claude-opus-4-8",
+  "suite_commit": "307ef24ff9d92ca0fabfe9645c8616ca97030d4f",
+  "date": "2026-07-24",
+  "condition": "baseline",
+  "fixture": "ms00_clean",
+  "replicate": 2,
+  "dispatch": "isolated per-seat two-phase calls (same design as the ms01 records)",
+  "per_defect": {},
+  "severity_scores": {},
+  "clean_control_false_findings": [],
+  "raw_output": "raw/2026-07-24-ms00_clean-baseline-r2.review.md",
+  "notes": "Blinded isolated run per README protocol. False findings after concept-dedup: ZERO — same true-absence concept space as r1 (single-item DV, adaptation/item-level reporting absent, CMV unaddressed, no results table, thin/non-current literature, no UTAUT engagement), zero fabrication, zero invented inconsistency, zero mis-recomputation. Decision observation (not a measurand): this panel's R2 scored D2 BLOCK on the reference base itself — all six DOIs sit in the reserved 10.5555 test prefix and cannot be verified to exist — which fired F1 and produced 'Major Revision (gated on citation verification)'. That block belongs to the citation-existence class the scoring exclusion covers (the reviewer is RIGHT that the synthetic references don't resolve; the fixtures cannot carry real citations), so it counts toward no measurand; it is recorded because it shows the fixture's synthetic bibliography can dominate the clean-control DECISION under panels that treat unverifiable references as blocking — a fixture-design consideration for v0.2 (pre-declare the reference base as out of review scope, or accept decision noise on the control). Cross-replicate: same manuscript, same day, Minor Revision (r1, no conditions fired) vs Major Revision (r2, F1 via the excluded class) — decision-layer variance driven entirely by non-measurand channels."
+}

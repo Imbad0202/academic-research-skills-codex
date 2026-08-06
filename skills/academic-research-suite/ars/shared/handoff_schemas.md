@@ -376,7 +376,7 @@ score_trajectory: {
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `judge_record` | object | #539 judge transparency: `{verification_judge, round1_panel_provenance, cross_model_pass: "ran"|"partial"|"not_configured"|"failed", cross_model_items_judged?: int, cross_model_items_total?: int (required when partial), cross_model_id?, failure_reason?, prompt_rubric_surfaces, evidence_seen, judging_budget_note}`. `round1_panel_provenance` is copied seat-level from the #540 Review Panel Provenance block ("unknown (provenance block absent)" when absent — a singular revision-driving judge is not well-defined for a mixed-family panel). Emitted by re-review (Stage 3'); absent = pre-#539 report. External motivation: Ren et al. arXiv:2607.13104 §8.1.2. |
+| `judge_record` | object | #539 judge transparency: `{verification_judge, round1_panel_provenance, cross_model_pass: "ran"|"partial"|"not_configured"|"failed", cross_model_items_judged?: int, cross_model_items_total?: int (required when partial), cross_model_id?, failure_reason?, prompt_rubric_surfaces, reviewer_configuration?, evidence_seen, judging_budget_note, precommitment_hash?, routing_status?, apply_chain_witness?}`. `round1_panel_provenance` is copied seat-level from the #540 Review Panel Provenance block ("unknown (provenance block absent)" when absent — a singular revision-driving judge is not well-defined for a mixed-family panel). `reviewer_configuration` (optional, #574/#576 pre-work) records yardstick continuity: `"round1_cards_reused"` or the verbatim `[YARDSTICK-REGENERATED: <original|revised> manuscript — <reason>]` marker per `re_review_mode_protocol.md` § Yardstick Continuity; absent = pre-yardstick-continuity report. Three #576 optional fields (absent = pre-#576 report): `precommitment_hash` (sha256 of the Phase-1 pre-commitment artifact the verdicts were committed against — the judge's fixed reference); `routing_status` (`oneOf`: the three CONSTANTS `"card_mapped"` / `"[ROUTING-DEGRADED: cards unparsable]"` / `"[ROUTING-DEGRADED: no round-1 cards]"` + one PATTERN for the parameterized unmapped-labels form `[ROUTING-DEGRADED: unmapped labels — <payload>]` per the §10 payload grammar — the payload is accountability content, never collapsed to a bare enum; `reviewer_configuration` is untouched and keeps its own two values); `apply_chain_witness` (the §11 closed composite `"pass"` / `"fail"` / `"first_link_not_run"` / `"not_run_no_reports"`). Emitted by re-review (Stage 3'); absent = pre-#539 report. External motivation: Ren et al. arXiv:2607.13104 §8.1.2. |
 
 ### ReviewerReport Object
 
@@ -385,17 +385,22 @@ score_trajectory: {
 | `reviewer_id` | string | Reviewer identifier (e.g., `EIC`, `R1`, `R2`, `R3`, `DA`) |
 | `role` | string | Reviewer role description |
 | `dimension_scores` | object | Per-dimension scores (skill-specific) |
-| `strengths` | list[string] | Paper strengths identified |
+| `strengths` | list[string \| Strength] | Paper strengths identified. Current-format cards emit Strength objects `{description: string, evidence_anchor: object}` — the same typed-anchor shape as Weakness, since A2's every-finding rule covers both polarities (#574 A2; a section-level locator suffices for a strength). A bare string = legacy card (consumers treat it as description-only). |
 | `weaknesses` | list[Weakness] | Paper weaknesses identified |
 | `questions` | list[string] | Questions for the authors |
+| `coverage_receipt` | object | *(conditional, #574 A1)* REQUIRED when `strengths` or `weaknesses` is EMPTY: `{covers: "strengths" \| "weaknesses" \| "both", rows: [{dimension: string, checked: string, basis: string}]}` — preserves the reviewer's Coverage Receipt so consumers can distinguish a reviewed-empty list from a thin or truncated review. Absent with empty lists = legacy/invalid current-format card |
+| `reviewer_confidence` | integer | *(optional, #574 A3)* The reviewer's report-level Confidence Score, 1-5 (template § Confidence Score) — the legacy-card fallback target when a weakness lacks per-finding `confidence` (`[CONFIDENCE-SOURCE: report-level]`). Deliberately distinct from the TOP-LEVEL `confidence_score`, which is 0-100 EDITORIAL confidence — the two scales never interchange. |
 
 ### Weakness Object
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `description` | string | What the weakness is |
-| `severity` | enum | `critical` / `major` / `minor` |
+| `severity` | enum | `critical` / `major` / `minor` — the CANONICAL single source for finding severity across the reviewer stack (#574 A3). Reviewer cards and templates carry it explicitly per finding (title-case `Critical`/`Major`/`Minor` on prose surfaces maps to this enum; the DA's `OBSERVATION` category is a non-defect channel that never enters `weaknesses[]`). Consumers transport it, never re-derive it; a legacy card without per-finding tags is marked `[SEVERITY-SOURCE: letter-fallback]` by the synthesizer. |
 | `type` | enum | `methodology` / `theory` / `evidence` / `writing` / `structure` / `ethics` |
+| `evidence_anchor` | object | *(optional, #574 A2)* Typed anchor: `{anchor_type: "text" \| "table" \| "figure" \| "equation" \| "dataset" \| "absence", locator: string, quote: string, absence_scope: string, check_performed: string}`. Conditional members: `quote` (≤ 25 words) is REQUIRED when `anchor_type = "text"`; `absence_scope` and `check_performed` are REQUIRED when `anchor_type = "absence"`; all three are omitted for other types. Critical/major weaknesses are expected to carry an adequate, applicable anchor; absent field = legacy card. |
+| `confidence` | integer | *(optional, #574 A3)* Per-finding confidence 1-5 from the reporting reviewer. Absent = legacy card; consumers fall back to the report-level Confidence Score and mark `[CONFIDENCE-SOURCE: report-level]`. |
+| `competence_basis` | string | *(optional, #574 A3)* One-phrase basis for `confidence` (e.g. `"core expertise: psychometrics"`, `"adjacent field: applying general standards"`). |
 
 ---
 
@@ -422,11 +427,19 @@ score_trajectory: {
 | `id` | string | Unique revision ID (e.g., `REV-001`) |
 | `description` | string | What needs to change |
 | `reviewer` | string | Which reviewer(s) raised this (e.g., `R1, R3`) |
-| `type` | enum | `"Major"` / `"Minor"` / `"Editorial"` |
+| `type` | enum | `"Major"` / `"Minor"` / `"Editorial"` — the revision-MAGNITUDE label (how big the change is), deliberately distinct from finding severity (#574 A3): a Critical finding's fix can be a small change and vice versa |
 | `priority` | enum | `"must_fix"` / `"should_fix"` / `"consider"` |
+| `severity` | enum | *(optional, #574 A3)* Transported Schema 6 finding severity (`critical`/`major`/`minor`) of the driving sub-claim; absent = legacy roadmap |
+| `severity_source` | string | *(optional, #574 A3)* Fallback provenance for `severity` — the verbatim tag, e.g. `[SEVERITY-SOURCE: letter-fallback]`; absent = direct per-finding seat tag (the enum value alone cannot carry the tag) |
+| `evidence_anchor` | object | *(optional, #574 A2)* The driving finding's typed anchor — same shape as the Schema 6 Weakness `evidence_anchor`; absent = legacy roadmap |
+| `confidence` | integer | *(optional, #574 A3)* The driving finding's per-finding confidence 1-5; absent = legacy roadmap |
+| `competence_basis` | string | *(optional, #574 A3)* The driving finding's one-phrase competence basis — the rationale half of the emitted `[n — basis]` cell; absent = legacy roadmap |
+| `confidence_source` | string | *(optional, #574 A3)* Fallback provenance for `confidence` — the verbatim tag, e.g. `[CONFIDENCE-SOURCE: report-level]`; absent = per-finding value |
+| `corroborating_sources` | list[object] | *(optional, #574 A2/A3)* When an item consolidates MULTIPLE corroborating findings: the singular `severity`/`evidence_anchor`/`confidence` fields carry the DRIVING finding (highest severity; ties broken by confidence), and each remaining source rides here as `{reviewer, severity, evidence_anchor, confidence, competence_basis?, severity_source?, confidence_source?}` — nothing is dropped or merged |
+| `source_kind` | enum | *(optional, #574 A3)* `"question"` / `"editorial"` — an item with NO driving finding (author-question follow-up, aggregated editorial task) sets this and legitimately omits ALL transported fields. Absent transported fields WITHOUT `source_kind` = legacy roadmap |
 | `target_section` | string | Section of the paper to modify |
 | `suggested_action` | string | How to address the item |
-| `consensus_level` | enum | `"CONSENSUS-4"` / `"CONSENSUS-3"` / `"SPLIT"` / `"DA-CRITICAL"` |
+| `consensus_level` | enum | `"CONSENSUS-4"` / `"CONSENSUS-3"` / `"SPLIT"` / `"DA-CRITICAL"` / `"SINGLE-VERIFIER"` (#576 §8 — a Stage 3' previously-missed forward-seed item (`REV-PM-<n>`), observed by a single verifier seat; no panel-consensus value truthfully applies. Additive: existing producers unaffected) |
 | `verification_criteria` | string | How to confirm the fix is adequate |
 
 ### Optional Fields
@@ -790,6 +803,8 @@ See `shared/style_calibration_protocol.md` for full consumption rules and confli
 
 > #539 optional per-row fields: `cross_model_verdict` (FULLY_ADDRESSED / PARTIALLY_ADDRESSED / NOT_ADDRESSED / MADE_WORSE; present only on `diverges`/`agree` rows) + `cross_model_status` (`agree` / `diverges` / `unavailable` / `not_configured`). Scope: the independent pass evaluates PRIORITY 1 rows only — #539-era Priority 1 rows ALWAYS carry `cross_model_status` (`not_configured` when cross-model is not active); Priority 2/3 rows omit both fields (not evaluated). A Priority 1 row with neither field = pre-#539.
 
+> **Machine-readable sidecar (#576 Spec B):** a contract-mode Stage 3' re-review emits, alongside this human-surface matrix, the machine-readable traceability sidecar defined by [`shared/contracts/re_review/traceability.schema.json`](contracts/re_review/traceability.schema.json) — per-row `phase2a_verdict`/`final_verdict`, typed adjustment chains, frozen new-issue records, dissent/resolution/escalation records, and `decision_inputs`. The sidecar is what `scripts/check_re_review_synthesis.py` recomputes from; Schema 11 prose remains the human surface. Under the contract, `verified` and `status` are DERIVED mechanically from the sidecar's `final_verdict` (`FULLY_ADDRESSED → YES`, `PARTIALLY_ADDRESSED → PARTIAL`, `NOT_ADDRESSED → NO`, `MADE_WORSE → NO`, `CANNOT_VERIFY → CANNOT_VERIFY`). A `[LEGACY-NO-CONTRACT]` run emits no sidecar.
+
 **Producer (multi-stage, Kong A1 / v3.11)**:
 - `concern_id` / `priority` / `original_comment` / `reviewer_source`: academic-paper-reviewer (first-round review)
 - `commitment_extracted`: revision_coach_agent (Step 3.5 Commitment Extraction Pass)
@@ -807,7 +822,7 @@ See `shared/style_calibration_protocol.md` for full consumption rules and confli
 - `authors_claim`: What the author states they did (from Response to Reviewers)
 - `revision_location`: Section/page/paragraph reference in revised manuscript
 - `verified`: `YES` (✅) / `PARTIAL` (⚠️) / `NO` (❌) / `CANNOT_VERIFY` (🔍)
-- `status`: `FULLY_ADDRESSED` / `PARTIALLY_ADDRESSED` / `NOT_ADDRESSED` / `MADE_WORSE`
+- `status`: `FULLY_ADDRESSED` / `PARTIALLY_ADDRESSED` / `NOT_ADDRESSED` / `MADE_WORSE` / `CANNOT_VERIFY` (#576 — mirrors the contract verdict vocabulary; the `verified` field already carried it)
 - `quality_assessment`: Free-text evaluation
 
 **Optional fields**:
@@ -821,7 +836,7 @@ See `shared/style_calibration_protocol.md` for full consumption rules and confli
 
 **Validation**:
 - Every item from the original Revision Roadmap (Schema 7) must appear in the matrix
-- `authors_claim` cannot be empty for Priority 1 items (flag as `CANNOT_VERIFY` if missing)
+- `authors_claim` cannot be empty for Priority 1 items. The flag-as-`CANNOT_VERIFY` CONSEQUENCE of a missing claim is LEGACY-MODE-SCOPED (#576): in contract mode the requirement itself still stands — satisfied by the §11 letter-absent `"—"` fill as the recorded value — but `verified` derives from the sidecar's `final_verdict`, and letter absence travels via the visible §11 markers (`[COMMITMENT-EVIDENCE-ABSENT: ...]` etc.), not via a verified-column flag
 - Matrix is carried forward in Material Passport (Schema 9) for audit trail
 - Each object in `commitment_extracted` MUST carry the three extraction fields (`commitment_text`, `commitment_type`, `required_evidence_type`). The two lifecycle fields are nested per-object: `fulfillment_status` is optional (absent before revision execution); `unfulfilled_rationale` MUST be present and non-empty iff that object's `fulfillment_status` ∈ `{partial, not-fulfilled, explicitly-rejected-with-rationale}`, and MUST be absent when `fulfillment_status == fulfilled` or absent. There is no separate top-level `fulfillment_status` / `unfulfilled_rationale` list — the equal-length invariant the parallel-list shape needed is retired because length mismatch is now structurally impossible (#268). Empty list `commitment_extracted: []` stays valid (comment carried no extractable commitment). Violations (a non-`fulfilled` commitment object missing its `unfulfilled_rationale`) surface as `COMMITMENT_GAP` advisory at re-review (advisory only — author retains final responsibility).
 - **Legacy normalization (pre-#268 artifacts).** If an artifact still carries the old top-level parallel arrays (`fulfillment_status` / `unfulfilled_rationale` as separate lists alongside `commitment_extracted`), normalize them into the nested objects before re-review. **First verify all three were the same length** — a pre-#268 artifact may already be desynchronized (the exact failure mode #268 closes), so do NOT auto-zip a length-mismatched ledger; flag it for manual reconciliation against the source comments instead. Only for an equal-length legacy row: copy the i-th `fulfillment_status` onto the i-th commitment object, and copy the i-th `unfulfilled_rationale` only when non-empty (an empty `""` or missing entry on a non-`fulfilled` status normalizes to an *absent* nested `unfulfilled_rationale` — i.e. the nested COMMITMENT_GAP case, not a literal empty string). Re-review agents then verify ONLY the nested per-object shape; they do not walk parallel top-level arrays.
