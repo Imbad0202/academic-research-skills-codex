@@ -16,6 +16,11 @@ skills/academic-research-suite/
   SKILL.md
   manifest.json
   agents/openai.yaml
+  codex/
+    full-runtime-manifest.json
+    agents/
+    hooks/
+    scripts/
   ars/
     deep-research/
     academic-paper/
@@ -51,6 +56,10 @@ skills/academic-research-suite/
 人工阅读范围声明与部分覆盖处理，以及基于主张强度阶梯和 deterministic token
 conservation 的修订轮次 claim-drift 防护；v3.18 的 cross-model
 reviewer／judge、缓存重验、风险分层检查与既有最小权限契约仍完整保留。
+
+上游嵌套的 `.github/` 工作流和根级 `agents/` 镜像保留用于可追溯性和自测，
+但不是仓库级 CI 或 Codex 入口；`.claude/` 与 `.claude-plugin/` 下的
+Claude/plugin 加载文件按设计排除。
 
 ## 安装 ARS-Codex Plugin
 
@@ -90,18 +99,22 @@ Codex Desktop plugin 缓存也能正确注册 bundled skill。
 以确保公开访问和带凭据的 GitHub 访问均可正常工作：
 
 ```bash
-python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
   --method git
 ```
 
+在 macOS 和许多 Linux 系统上，Python 3 暴露为 `python3` 而不是 `python`。
+如果你的系统只有 `python` 命令且它是 Python 3，请用 `python` 替换上述命令中的
+`python3`。
+
 更新已有安装：
 
 ```bash
 rm -rf "$HOME/.codex/skills/academic-research-suite"
-python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo Imbad0202/academic-research-skills-codex \
   --ref main \
   --path skills/academic-research-suite \
@@ -116,6 +129,7 @@ python "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-g
 
 - [Codex 配置说明](skills/academic-research-suite/ars/docs/SETUP.md) 涵盖安装、`ars-*` 别名、可选工具、Material Passport 适配器，以及不支持的 Claude plugin 功能。
 - [Codex 架构说明](skills/academic-research-suite/ars/docs/ARCHITECTURE.md) 解释了 ARS pipeline 的逻辑结构及 Codex 运行时覆盖层。
+- [可选 full-runtime adapter](CODEX_FULL_RUNTIME_ADAPTER.md) 记录了默认关闭的 planner、Codex agent-team 模板和 hook pack。
 
 ## 使用方法
 
@@ -167,6 +181,10 @@ ars-plan my paper on AI governance in universities.
 | `/ars-format-convert` | `ars-format-convert` | `academic-paper` `format-convert` 模式 |
 | `/ars-revision-coach` | `ars-revision-coach` | `academic-paper` `revision-coach` 模式 |
 | `/ars-revision` | `ars-revision` | `academic-paper` `revision` 模式 |
+| `/ars-reviewer` | `ars-reviewer` | `academic-paper-reviewer` 完整模式 |
+| `/ars-mark-read` | `ars-mark-read` | 为活动 Material Passport 中的引用键记录人工阅读信号 |
+| `/ars-unmark-read` | `ars-unmark-read` | 撤销先前的人工阅读信号 |
+| `/ars-cache-invalidate` | `ars-cache-invalidate` | 使某个引用键的缓存验证条目失效 |
 | `/ars-full` | `ars-full` | `academic-pipeline` 完整 workflow |
 
 ### 使用模式
@@ -238,6 +256,14 @@ codex exec --ephemeral --sandbox read-only \
   'Use $academic-research-suite. Router smoke test only. User request to classify: I want to write a paper on AI adoption in higher education quality assurance, but I do not yet have a clear research question. According to the academic-research-suite router, classify the workflow and mode.'
 ```
 
+维护者质量闸门：
+
+```bash
+python3 skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py all --json
+```
+
+预期：每个报告的闸门均为 `"ok": true`。
+
 ### 非阻塞的 Codex 警告
 
 以下 Codex 消息并不意味着 ARS 安装失败：
@@ -250,11 +276,21 @@ codex exec --ephemeral --sandbox read-only \
 ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 
 - 内嵌的 `agents/*.md` 文件用作角色和阶段提示词。
+- Codex 专属的 `codex/` 目录包含一个可选的 full-runtime adapter profile。它默认关闭，不会改变正常的内联路由。
 - 内嵌的 `commands/ars-*.md` 文件仅作为提示词模板。Codex 不会将它们注册为斜杠命令。
 - 内嵌的 `hooks/hooks.json` 文件仅为上游可追溯性而保留。Codex 不会从此包安装 Claude Code hook。
 - Codex 不会自动生成后台 agent，除非你明确要求委派或并行 agent 工作。
 - Web/源码验证使用 Codex 浏览功能，在涉及当前或外部事实时必须引用来源。
 - 跨模型验证默认禁用。在本 Codex 打包版本中明确请求时，请按 `ars/shared/cross_model_verification.md` 配置 provider，先说明 provider、model 和将发送的内容类别，并在任何外部上传前取得用户明确同意。外部审阅者通过已配置的 provider API 调用，不会用当前 Codex model 模拟。
+- `ARS_MODEL_TIERING` 默认未设置。Codex adapter 保留上游的 judgment/execution 分类，但仅在 runtime 支持显式按次 dispatch 模型覆盖时应用 `economy` 或 `quality-boost`；否则报告 no-op 并保持当前模型。
+- 受保护的一级 agent `tools:` allowlist 仍是最小权限角色边界。被派发的 checkpoint owner 不会获得 Bash 或网络传输能力；任何经明确同意的跨模型调用都由派发的 Codex 上下文拥有。
+- `[CROSS-MODEL-HANDOFF v1]` 块是传输请求，不是交付物。dispatcher 会验证它、只发送其 payload、按机械式结果路由处理，并把判断工作交还给原始 owner。
+- 在审阅者 `full` 模式下，显式配置且经同意的跨模型运行会替换现有 Reviewer 2 席位，绝不会增加第六位审阅者。复审应用独立的 Priority-1 judge 通道并记录 provenance（来源信息）。单一族执行和 provider fallback 会被披露。
+- `ARS_CACHE_STALE_ADVISORY_DAYS` 控制仅作建议的缓存过期阈值，`ARS_CACHE_REVALIDATE=1` 则选择启用实时书目重新验证。这些设置仅在运行程序化引用闸门时生效；单独的过期行永远不会让完整性闸门失败。
+- 本地读取的 PDF 在信任页面锚点之前会运行 v3.19 `pdf_read_preflight.py`。`FAIL` 与 `UNAVAILABLE` 保持区分，缺失解析器或 sidecar 绝不会被视为 `PASS`。
+- `ars-mark-read` 可以记录可选的、用户声明的 `read_scope`。未知或部分覆盖保持可见；Codex 不会推断全文阅读。
+- 修订轮次保留 v3.19 的主张强度阶梯，以及确定性的数字、引用、标记和受保护术语守恒检查，作为 advisory-first 防护。
+- 上游 v3.18 的 SessionStart 更新检查器已内嵌，但不会作为 Codex hook 安装或执行。插件用户通过 `codex plugin marketplace upgrade ars-codex` 后接 `codex plugin add ars-codex@ars-codex` 更新；直接安装的 skill 仍通过重装或拉取本仓库更新。
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
@@ -268,6 +304,7 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 | `/ars-*` 斜杠命令 | 通过 skill router 以 `ars-*` 别名模拟；非原生斜杠命令 |
 | 从 `skills/` 符号链接自动发现的四个上游 skill | 单个 Codex router skill 选择 workflow 并读取内嵌的 workflow `WORKFLOW.md` 文件 |
 | Plugin 附带的 agent | Agent 文件用作角色/阶段提示词；Codex 内联运行，除非用户明确要求委派子 agent |
+| 可选 Codex full-runtime profile | Planner、agent-team 模板和 hook pack 位于 `skills/academic-research-suite/codex/`；默认关闭 |
 | `model: opus` / `model: sonnet` 命令路由 | 视为 Claude 元数据；Codex 使用当前活动模型 |
 | `ARS_MODEL_TIERING=economy\|quality-boost` | 保留 judgment/execution 分类；仅在 Codex 支持逐次 dispatch 指定模型时应用，否则保持当前模型 |
 | 受保护 agent 的 `tools:` allowlist | 保留为最小权限角色边界；被委派的 owner 不获得 Bash 或网络 transport |
@@ -340,6 +377,10 @@ skills/academic-research-suite/ars/shared/
 **Cheng-I Wu** — ARS 套件及本 Codex 发行版的维护者。
 
 **Codex** — 在维护者的指导下协助完成 Codex adapter 打包、router 策略加固、测试修复和发布就绪审查。
+
+**[vinschger](https://github.com/vinschger)** — 报告了 `python` 与 `python3` 带来的新手安装摩擦，从而促成了针对 macOS 和其他环境的更清晰的安装说明。
+
+**[Joker2377](https://github.com/Joker2377)** — 在 issue 讨论中帮助回答社区安装问题，并澄清了新手安装步骤。
 
 内嵌上游 ARS 的贡献者名单详见
 [`skills/academic-research-suite/ars/README.md`](skills/academic-research-suite/ars/README.md#contributors)。
