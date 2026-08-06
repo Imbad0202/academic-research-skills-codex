@@ -4,6 +4,8 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
+**Languages:** [English](README.md) · [简体中文](README_ZH-CN.md) · [繁體中文](README_ZH-TW.md) · [日本語](README_JA.md)
+
 ARS-Codex is the Codex-native sibling of
 [Academic Research Skills (ARS) for Claude Code](https://github.com/Imbad0202/academic-research-skills).
 It is a separate Codex distribution with its own plugin identity, packaging,
