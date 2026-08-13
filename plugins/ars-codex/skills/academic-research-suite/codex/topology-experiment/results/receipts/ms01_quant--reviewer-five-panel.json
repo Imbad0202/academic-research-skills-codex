@@ -1,0 +1,436 @@
+{
+  "agent_receipts": [
+    {
+      "agent_id": "eic_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 4
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-5aa77f1a00810221996970cb2ad2eb0c",
+      "role": "blind_review",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    },
+    {
+      "agent_id": "methodology_reviewer_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 6
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 2
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-52bd39247c1fcd3ad7f07eaa60afb8d7",
+      "role": "blind_review",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    },
+    {
+      "agent_id": "domain_reviewer_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 3
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 1
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-894aabf1a072345cb27e4d3dcce458b0",
+      "role": "blind_review",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    },
+    {
+      "agent_id": "perspective_reviewer_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 4
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 4
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-87c5612bfe4a2cfc4a108f15931358cd",
+      "role": "blind_review",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    },
+    {
+      "agent_id": "devils_advocate_reviewer_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 3
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 3
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-4d77ee0e3bb964ca467cfc389e52a166",
+      "role": "blind_review",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    },
+    {
+      "agent_id": "editorial_synthesizer_agent",
+      "arm_id": "reviewer-five-panel",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "experiment_id": "issue-37-pilot-v1:ms01_quant",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-25ec1df35807e2de01b1c67bd826a741",
+      "role": "synthesis",
+      "run_id": "ms01_quant--reviewer-five-panel",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    }
+  ],
+  "arm_id": "reviewer-five-panel",
+  "experiment_id": "issue-37-pilot-v1:ms01_quant",
+  "protocol_digest": "591586c56f61900ab382f384b6ba6b746b02911449204e08fb5a7a85f26a8750",
+  "receipt_id": "rr-6af5875185ca0eb79d0b354d92c625a6",
+  "run_id": "ms01_quant--reviewer-five-panel",
+  "schema": "ars.codex.run-resource-receipt.v1",
+  "usage": {
+    "human_interventions": {
+      "state": "known",
+      "value": 0
+    },
+    "input_tokens": {
+      "state": "known",
+      "value": 395576
+    },
+    "output_tokens": {
+      "state": "known",
+      "value": 5279
+    },
+    "provider_calls": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "waivers": {
+      "state": "known",
+      "value": 0
+    },
+    "wall_clock_ms": {
+      "state": "known",
+      "value": 145557
+    }
+  }
+}

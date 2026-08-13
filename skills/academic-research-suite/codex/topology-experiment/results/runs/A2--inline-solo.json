@@ -1,0 +1,117 @@
+{
+  "envelope": {
+    "arm_id": "inline-solo",
+    "control_run_id": "A2--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:A2",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "ea5a0af60fbd5e1a6ff520ae4d87e7b5ebc630281cfa30fd9a5e269487386f40",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "57e5bc387ffe1c4fcdf1c7118209927c10215cb7e08c4dcb26f4573cef3753cf",
+    "run_id": "A2--inline-solo",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "inline-solo",
+      "edges": [],
+      "information_sharing": {
+        "memory_scope": "off",
+        "peer_outputs": "not_applicable",
+        "policy": "single_context"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "inline_owner",
+          "phase": "inline"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "inline_owner",
+        "findings": [
+          {
+            "evidence_anchor": "Section 3.1, paragraphs 1-2; Section 3.2, paragraph 1",
+            "evidence_excerpt": "“Smith and Lee (2024) demonstrate” and “the 18-month pre-review window is now empirically established”",
+            "evidence_file": "./input/deliverable.md",
+            "finding_id": "F1",
+            "recommendation": "Block publication or downstream use until the cited source is manually verified and retrieved. Then revise the claims to match verified source evidence; otherwise remove or explicitly qualify the assertions as unverified.",
+            "severity": "P1",
+            "summary": "The deliverable treats an unverified, unretrieved source as proof that an 18-month pre-review clustering effect is empirically established."
+          }
+        ],
+        "retries": 0,
+        "role": "inline_owner",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "inline-solo",
+    "protocol": {
+      "completed_agent_ids": [
+        "inline_owner"
+      ],
+      "declared_agent_ids": [
+        "inline_owner"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "C1",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "./input/deliverable.md",
+            "./input/prior_artifacts/bibliography_entry_pending.md"
+          ],
+          "severity": "P1",
+          "summary": "Core causal and temporal claims rely on a bibliography entry explicitly marked pending manual verification and not retrieved."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 0,
+      "rationale": "The only supplied bibliography artifact states that Smith2024 is pending manual verification, was not retrieved, and its annotation was inferred from a publisher landing-page abstract. The deliverable nevertheless presents the source as definitive empirical support and derives study-design guidance from it."
+    },
+    "task_id": "A2"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "72135e72ae28010aa4a4eeacd3f87d5c16b6f2854cddf57296a5ea257e5b3854",
+    "total_tokens": 45788,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 32256,
+      "input_tokens": 45094,
+      "output_tokens": 694,
+      "reasoning_output_tokens": 67
+    },
+    "wall_clock_ms": 23675
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

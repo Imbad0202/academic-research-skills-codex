@@ -1,0 +1,116 @@
+{
+  "agent_receipts": [
+    {
+      "agent_id": "inline_owner",
+      "arm_id": "inline-solo",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 1
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "experiment_id": "issue-37-pilot-v1:A1",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-13ef24bf578f2590032546873837c065",
+      "role": "inline",
+      "run_id": "A1--inline-solo",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    }
+  ],
+  "arm_id": "inline-solo",
+  "experiment_id": "issue-37-pilot-v1:A1",
+  "protocol_digest": "dbeeed403db0b849c8049c6e6510ffb195b6c1ffaaa53b07154e158ac35ba274",
+  "receipt_id": "rr-0bb391c2d02f9ae775e48f37a1cf2864",
+  "run_id": "A1--inline-solo",
+  "schema": "ars.codex.run-resource-receipt.v1",
+  "usage": {
+    "human_interventions": {
+      "state": "known",
+      "value": 0
+    },
+    "input_tokens": {
+      "state": "known",
+      "value": 71766
+    },
+    "output_tokens": {
+      "state": "known",
+      "value": 1029
+    },
+    "provider_calls": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "waivers": {
+      "state": "known",
+      "value": 0
+    },
+    "wall_clock_ms": {
+      "state": "known",
+      "value": 31404
+    }
+  }
+}

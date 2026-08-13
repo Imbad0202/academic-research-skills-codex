@@ -1,0 +1,116 @@
+{
+  "agent_receipts": [
+    {
+      "agent_id": "inline_owner",
+      "arm_id": "inline-solo",
+      "artifact_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "duplicate_contributions": {
+        "state": "known",
+        "value": 0
+      },
+      "experiment_id": "issue-37-pilot-v1:ms00_clean_control",
+      "observability": "per-agent usage and verifier events unavailable from Codex CLI JSON; values remain unknown",
+      "receipt_id": "rr-c014a093ee0ab385d1d9e40afb788e37",
+      "role": "inline",
+      "run_id": "ms00_clean_control--inline-solo",
+      "schema": "ars.codex.agent-resource-receipt.v1",
+      "usage": {
+        "human_interventions": {
+          "state": "unknown",
+          "value": null
+        },
+        "input_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "output_tokens": {
+          "state": "unknown",
+          "value": null
+        },
+        "provider_calls": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "sandbox_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_execution_ms": {
+          "state": "unknown",
+          "value": null
+        },
+        "tool_invocations": {
+          "state": "unknown",
+          "value": null
+        },
+        "waivers": {
+          "state": "unknown",
+          "value": null
+        },
+        "wall_clock_ms": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "verifier_catches": {
+        "state": "unknown",
+        "value": null
+      }
+    }
+  ],
+  "arm_id": "inline-solo",
+  "experiment_id": "issue-37-pilot-v1:ms00_clean_control",
+  "protocol_digest": "bcc1c4b505d980e34a61551da60d7d7cae2ebd5632a30fb3fa0b2b227c34e625",
+  "receipt_id": "rr-f57e07fd142a1e3ec7a367b7db797547",
+  "run_id": "ms00_clean_control--inline-solo",
+  "schema": "ars.codex.run-resource-receipt.v1",
+  "usage": {
+    "human_interventions": {
+      "state": "known",
+      "value": 0
+    },
+    "input_tokens": {
+      "state": "known",
+      "value": 47123
+    },
+    "output_tokens": {
+      "state": "known",
+      "value": 581
+    },
+    "provider_calls": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "sandbox_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_execution_ms": {
+      "state": "unknown",
+      "value": null
+    },
+    "tool_invocations": {
+      "state": "unknown",
+      "value": null
+    },
+    "waivers": {
+      "state": "known",
+      "value": 0
+    },
+    "wall_clock_ms": {
+      "state": "known",
+      "value": 21224
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "envelope": {
+    "arm_id": "workflow-current",
+    "control_run_id": "A3--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:A3",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "89e7c3e0ad05e8786dd54d75a98326a85e5c918988a8f1e1a625222047554b3a",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "808d4a12b92eb727797e31dc56f8ccce98e6bfd6178e1f7df93385403e889816",
+    "run_id": "A3--workflow-current",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "workflow-current",
+      "edges": [
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "integrity_verification_agent"
+        },
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "state_tracker_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "workflow_dependencies_only",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "pipeline_orchestrator_agent",
+          "phase": "orchestration"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "integrity_verification_agent",
+          "phase": "integrity_gate"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "state_tracker_agent",
+          "phase": "state_validation"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "pipeline_orchestrator_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "pipeline orchestration and synthesis",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "integrity_verification_agent",
+        "findings": [
+          {
+            "evidence_anchor": "lines 5-10, 14-15",
+            "evidence_excerpt": "Johnson and colleagues (2022) report a statistically significant 12% improvement ... (p < .01, n = 340 programmes).",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "A3-IV-001",
+            "recommendation": "Replace the Johnson2022 attribution with Chen2023 throughout and ensure the cited artifact is the sole support for the stated quantitative result.",
+            "severity": "P1",
+            "summary": "The deliverable attributes the quantitative employment result to Johnson2022, but the supplied Johnson artifact explicitly contains no quantitative outcome data; the matching result belongs to Chen2023."
+          },
+          {
+            "evidence_anchor": "lines 8-10",
+            "evidence_excerpt": "This finding establishes a causal link between accreditation pressure and labour market outcomes at the programme level.",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "A3-IV-002",
+            "recommendation": "Remove the causal claim or qualify it as an association unless a supplied source explicitly documents a causal identification design.",
+            "severity": "P1",
+            "summary": "The deliverable claims that the result establishes causality, but the supplied Chen2023 annotation reports an observed improvement without supplying causal-design evidence."
+          },
+          {
+            "evidence_anchor": "lines 12-15",
+            "evidence_excerpt": "primary quantitative justification for the chapter's advocacy of mandatory cyclical accreditation.",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "A3-IV-003",
+            "recommendation": "Frame the result as limited evidence relevant to policy discussion, or supply evidence directly supporting mandatory accreditation.",
+            "severity": "P2",
+            "summary": "The supplied evidence does not support the stronger policy recommendation for mandatory cyclical accreditation."
+          }
+        ],
+        "retries": 0,
+        "role": "cross-file evidence and integrity audit",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "state_tracker_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 4.2, paragraphs 1-2",
+            "evidence_excerpt": "Johnson and colleagues (2022) report ... 12% improvement ... (p < .01, n = 340 programmes).",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "A3-001",
+            "recommendation": "Replace the Johnson2022 attribution with Chen2023, or remove the quantitative claim unless a matching supplied source is added.",
+            "severity": "P1",
+            "summary": "The deliverable attributes the quantitative employment result to Johnson (2022), but the supplied Johnson artifact explicitly contains no quantitative outcome data; the supplied quantitative result belongs to Chen2023."
+          },
+          {
+            "evidence_anchor": "Section 4.2, paragraphs 1-2",
+            "evidence_excerpt": "This finding establishes a causal link ... and primary quantitative justification ... mandatory cyclical accreditation.",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "A3-002",
+            "recommendation": "Limit the prose to the supplied Chen2023 finding; remove causal and mandatory-accreditation conclusions unless explicitly supported by an upstream artifact.",
+            "severity": "P1",
+            "summary": "The deliverable turns a reported statistically significant association into an unsupported causal claim and mandatory-policy justification."
+          }
+        ],
+        "retries": 0,
+        "role": "pipeline-state assessment",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "workflow-current",
+    "protocol": {
+      "completed_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "declared_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "A3-C1",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/prior_artifacts/entry_A_general_overview.md",
+            "input/prior_artifacts/entry_C_outcome_metrics.md"
+          ],
+          "severity": "P1",
+          "summary": "The quantitative employment result is misattributed to Johnson2022; the supplied matching evidence is Chen2023."
+        },
+        {
+          "concept_id": "A3-C2",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/prior_artifacts/entry_C_outcome_metrics.md"
+          ],
+          "severity": "P1",
+          "summary": "The deliverable makes an unsupported causal claim from supplied evidence that reports an improvement without causal-design support."
+        },
+        {
+          "concept_id": "A3-C3",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/prior_artifacts/entry_C_outcome_metrics.md"
+          ],
+          "severity": "P2",
+          "summary": "The supplied evidence does not support using the result as a primary justification for mandatory cyclical accreditation."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 2,
+      "rationale": "Two independent audits found P1 citation-boundary and causal-overclaim defects. The pipeline must block pending correction."
+    },
+    "task_id": "A3"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "b7484698d5f5763653dcfecca819049a0c93100232617c8f57e632ccbd601739",
+    "total_tokens": 239321,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 218624,
+      "input_tokens": 237271,
+      "output_tokens": 2050,
+      "reasoning_output_tokens": 192
+    },
+    "wall_clock_ms": 106656
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "arm_id", "agent_reports", "synthesis", "protocol"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "arm_id": {"type": "string"},
+    "agent_reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["agent_id", "role", "findings", "verifier_catches", "retries"],
+        "properties": {
+          "agent_id": {"type": "string"},
+          "role": {"type": "string"},
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["finding_id", "severity", "summary", "evidence_file", "evidence_anchor", "evidence_excerpt", "recommendation"],
+              "properties": {
+                "finding_id": {"type": "string"},
+                "severity": {"enum": ["P1", "P2", "P3"]},
+                "summary": {"type": "string"},
+                "evidence_file": {"type": "string"},
+                "evidence_anchor": {"type": "string"},
+                "evidence_excerpt": {"type": "string"},
+                "recommendation": {"type": "string"}
+              }
+            }
+          },
+          "verifier_catches": {"type": "integer", "minimum": 0},
+          "retries": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "synthesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted_findings", "duplicate_contributions", "decision", "rationale"],
+      "properties": {
+        "accepted_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["concept_id", "severity", "summary", "contributing_agents", "evidence_files"],
+            "properties": {
+              "concept_id": {"type": "string"},
+              "severity": {"enum": ["P1", "P2", "P3"]},
+              "summary": {"type": "string"},
+              "contributing_agents": {"type": "array", "items": {"type": "string"}},
+              "evidence_files": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "duplicate_contributions": {"type": "integer", "minimum": 0},
+        "decision": {"enum": ["block", "warn", "pass"]},
+        "rationale": {"type": "string"}
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declared_agent_ids", "completed_agent_ids", "peer_outputs_hidden_until_synthesis"],
+      "properties": {
+        "declared_agent_ids": {"type": "array", "items": {"type": "string"}},
+        "completed_agent_ids": {"type": "array", "items": {"type": "string"}},
+        "peer_outputs_hidden_until_synthesis": {"type": "boolean"}
+      }
+    }
+  }
+}

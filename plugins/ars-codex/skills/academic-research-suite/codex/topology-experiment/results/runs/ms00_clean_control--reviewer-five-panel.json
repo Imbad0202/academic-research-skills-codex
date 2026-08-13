@@ -1,0 +1,321 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-five-panel",
+    "control_run_id": "ms00_clean_control--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms00_clean_control",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "1fd13a79f69c32a7d9512f832613e99ed657892d3ad8e9b1a18dfa9c5c37bcfb",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "94be0da7264fd6d90744f8f103c51c839a422adc06367ca33d6f06ee12c19ec4",
+    "run_id": "ms00_clean_control--reviewer-five-panel",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-five-panel",
+      "edges": [
+        {
+          "artifacts": [
+            "eic_agent_report"
+          ],
+          "from": "eic_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "perspective_reviewer_agent_report"
+          ],
+          "from": "perspective_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "devils_advocate_reviewer_agent_report"
+          ],
+          "from": "devils_advocate_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "eic_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "perspective_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "devils_advocate_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "eic_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 2, final paragraph; Section 3.2, Perceived usefulness",
+            "evidence_excerpt": "“It is intended as an incremental data point, comparable with prior work” and “measured using a six-item scale adapted from Costa and Wren (2019).”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-001",
+            "recommendation": "Describe the adaptation precisely: item wording changes, contextual substitutions, scoring or translation decisions, and why these preserve comparability. If this cannot be substantiated, narrow the contribution claim to a local association estimate.",
+            "severity": "P2",
+            "summary": "The manuscript claims that its single-site estimate is comparable with prior work, but does not specify how the six-item perceived-usefulness instrument was adapted, limiting the contribution's interpretability and comparability."
+          },
+          {
+            "evidence_anchor": "Section 4, Results; Section 5, Discussion, first paragraph",
+            "evidence_excerpt": "“effect sizes vary across samples and instruments” and “the two were positively and moderately correlated (r = .42), consistent with prior technology-acceptance research.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-002",
+            "recommendation": "Report an evidence-based benchmark from comparable studies and explain comparability, or limit the claim to agreement in direction while noting that magnitude comparability is uncertain.",
+            "severity": "P2",
+            "summary": "The claim that the observed association is consistent with prior technology-acceptance research is not calibrated to evidence presented in the manuscript, because no prior effect-size range or directly comparable analytic result is reported."
+          }
+        ],
+        "retries": 0,
+        "role": "journal fit, contribution, and claim calibration",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 3.2, Perceived usefulness",
+            "evidence_excerpt": "“measured using a six-item scale adapted from Costa and Wren (2019)” and “the scale showed good internal consistency (Cronbach's α = .88).”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-001",
+            "recommendation": "Specify every adaptation, report content or construct-validity checks for the adapted scale, and avoid relying on the original validation or alpha alone as evidence of validity in this sample.",
+            "severity": "P2",
+            "summary": "The adapted perceived-usefulness scale lacks sufficient adaptation and validity evidence for the present setting; internal consistency alone does not establish that its scores retain the original instrument's construct meaning."
+          },
+          {
+            "evidence_anchor": "Sections 3.1 and 6",
+            "evidence_excerpt": "“The survey was distributed through the institution's course-announcement channel” and “response was voluntary, so students who engage more with institutional channels may be overrepresented.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-002",
+            "recommendation": "Report the eligible population size and, if available, the number reached by the channel and response rate; compare respondent characteristics with the undergraduate population where possible and frame the estimate as from an unverified volunteer sample.",
+            "severity": "P2",
+            "summary": "The voluntary recruitment sample cannot be assessed for coverage or response rate because the number of students reached through the announcement channel is not reported."
+          }
+        ],
+        "retries": 0,
+        "role": "design, sampling, measurement, and inference",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 2, final paragraph; Section 3.2, Measures",
+            "evidence_excerpt": "“It is intended as an incremental data point, comparable with prior work” and “a six-item scale adapted from Costa and Wren (2019).”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DOMAIN-001",
+            "recommendation": "Specify the adaptation and identify prior studies with sufficiently similar populations, LMS constructs, and use measures; otherwise describe the study as a bounded replication-inspired association rather than a directly comparable data point.",
+            "severity": "P2",
+            "summary": "The claim that this estimate is comparable with prior work is not supported by the literature positioning provided."
+          },
+          {
+            "evidence_anchor": "Section 4, Results, paragraph 2; Section 5, Discussion, paragraph 1",
+            "evidence_excerpt": "“reported engagement reflects many influences beyond perceived usefulness, including course requirements and assessment schedules” and “consistent with prior technology-acceptance research.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DOMAIN-002",
+            "recommendation": "Explain that the correlation concerns reported access frequency rather than adoption intention, continuance intention, or a full acceptance-model outcome, and state that course design may jointly structure both variables.",
+            "severity": "P2",
+            "summary": "The manuscript positions the result as consistent with technology-acceptance research without distinguishing perceived usefulness as a belief construct from a frequency-of-access outcome strongly shaped by course-level LMS requirements."
+          }
+        ],
+        "retries": 0,
+        "role": "domain accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "perspective_reviewer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "cross-disciplinary interpretation and practical implications",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "devils_advocate_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 3.1, Design and participants; Section 6, Limitations",
+            "evidence_excerpt": "“The survey was distributed through the institution's course-announcement channel” and “students who engage more with institutional channels may be overrepresented.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-001",
+            "recommendation": "State that the analyzable population is voluntary respondents reached through the announcement channel rather than all enrolled undergraduates; clarify whether announcements were delivered outside the LMS or identify possible outcome-related coverage bias.",
+            "severity": "P2",
+            "summary": "The manuscript frames the estimate as applying to undergraduates at the university, but recruitment through the course-announcement channel may systematically exclude or underreach students who seldom access the LMS, the outcome being measured."
+          },
+          {
+            "evidence_anchor": "Section 3.2, Measures; Section 2, Literature Review",
+            "evidence_excerpt": "“measured using a six-item scale adapted from Costa and Wren (2019)” and “the scale showed good internal consistency (Cronbach's α = .88).”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-002",
+            "recommendation": "Describe what was adapted and report available adaptation or validity evidence, such as item changes and factor-structure evidence; otherwise qualify the finding as an association with scores on an adapted usefulness scale.",
+            "severity": "P2",
+            "summary": "The central construct label perceived usefulness relies on an adapted instrument, but the manuscript reports only internal consistency and no evidence that the adaptation retained the original scale's intended construct validity."
+          }
+        ],
+        "retries": 0,
+        "role": "stress-test central claims and unstated assumptions",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-five-panel",
+    "protocol": {
+      "completed_agent_ids": [
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "adapted_scale_validity_and_comparability",
+          "contributing_agents": [
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The manuscript does not describe or validate its adapted perceived-usefulness scale sufficiently to support unqualified construct interpretation or direct comparability with prior work."
+        },
+        {
+          "concept_id": "outcome_related_volunteer_coverage_bias",
+          "contributing_agents": [
+            "methodology_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Recruitment through the course-announcement channel creates possible outcome-related coverage bias, while reach and response-rate information are missing."
+        },
+        {
+          "concept_id": "technology_acceptance_literature_claim_calibration",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The claimed consistency with technology-acceptance research is insufficiently calibrated because the outcome is reported access frequency and the manuscript does not establish directly comparable prior effect sizes or outcomes."
+        }
+      ],
+      "decision": "warn",
+      "duplicate_contributions": 5,
+      "rationale": "All five blinded reviewer reports were completed. No P1 finding was reported; three corroborated P2-level concerns require revision before stronger contribution and inference claims are warranted."
+    },
+    "task_id": "ms00_clean_control"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "efea1703845f56763d2523f44ac2beb500ba78b0841e1c8fe3640fd537cb5faf",
+    "total_tokens": 329193,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 295936,
+      "input_tokens": 325797,
+      "output_tokens": 3396,
+      "reasoning_output_tokens": 402
+    },
+    "wall_clock_ms": 119118
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

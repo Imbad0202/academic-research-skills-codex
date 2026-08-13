@@ -1,0 +1,223 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-two-plus-synthesis",
+    "control_run_id": "ms00_clean_control--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms00_clean_control",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "1fd13a79f69c32a7d9512f832613e99ed657892d3ad8e9b1a18dfa9c5c37bcfb",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "95289bdb3160d69d87f5db71ad8d0fd4c633608873bb28a51965dbc8070e8a33",
+    "run_id": "ms00_clean_control--reviewer-two-plus-synthesis",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-two-plus-synthesis",
+      "edges": [
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Sections 3.1, 6, and 7",
+            "evidence_excerpt": "“All enrolled undergraduates were eligible... leaving 214 valid responses.” / “Among 214 undergraduates at one university...”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M1",
+            "recommendation": "Report the number invited or reached, response fraction, and key sample characteristics. If unavailable, consistently limit claims to voluntary survey respondents.",
+            "severity": "P2",
+            "summary": "The sampling report omits the invitation denominator, response rate, and respondent characteristics, while the conclusion is worded as applying to undergraduates at the university rather than the voluntary respondent sample."
+          },
+          {
+            "evidence_anchor": "Section 3.2",
+            "evidence_excerpt": "“measured using a six-item scale adapted from Costa and Wren (2019)” and “Cronbach's α = .88.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M2",
+            "recommendation": "Specify source items and all adaptations, and provide validation evidence or a limitation addressing the adapted measure; temper construct-level claims if this cannot be supplied.",
+            "severity": "P2",
+            "summary": "The adapted perceived-usefulness measure is insufficiently described to establish what construct was measured in this study; internal consistency alone does not address validity implications of adaptation."
+          }
+        ],
+        "retries": 0,
+        "role": "design, sampling, measurement, and inference",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 2, paragraphs 1 and 4; References",
+            "evidence_excerpt": "“Research on technology acceptance has long proposed that perceived usefulness...” and “rather than as a test of a theoretical model.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D1",
+            "recommendation": "Cite and accurately summarize the foundational formulation of perceived usefulness, then state that this study assesses only a bounded association rather than broader causal or multivariate propositions.",
+            "severity": "P2",
+            "summary": "The literature review invokes technology acceptance and defines perceived usefulness without identifying the construct's foundational theoretical source or clearly locating the bounded correlational question in that framework."
+          },
+          {
+            "evidence_anchor": "Section 2, paragraphs 1–3; Section 5, paragraph 1",
+            "evidence_excerpt": "“studies have reported positive associations ... though effect sizes vary” and “consistent with prior technology-acceptance research.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D2",
+            "recommendation": "Add a concise comparison of relevant prior populations, measures, and association magnitudes; otherwise narrow the claim to consistency in direction.",
+            "severity": "P2",
+            "summary": "The claim that the estimate is consistent with prior technology-acceptance research lacks a study-level comparison showing how r = .42 relates to prior LMS evidence."
+          }
+        ],
+        "retries": 0,
+        "role": "domain accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-two-plus-synthesis",
+    "protocol": {
+      "completed_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "sampling-generalizability",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Insufficient sampling and respondent reporting makes the population-level framing broader than the documented voluntary respondent sample."
+        },
+        {
+          "concept_id": "adapted-measure-validity",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The adapted perceived-usefulness scale lacks adequate adaptation and validity reporting."
+        },
+        {
+          "concept_id": "theoretical-positioning",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Perceived usefulness is not positioned against its foundational technology-acceptance formulation."
+        },
+        {
+          "concept_id": "prior-evidence-comparison",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The asserted consistency of r = .42 with prior research is not supported by a study-level comparison."
+        }
+      ],
+      "decision": "warn",
+      "duplicate_contributions": 0,
+      "rationale": "Both completed blind reviewer reports identified material, manuscript-anchored issues. No conceptual duplicates required merging."
+    },
+    "task_id": "ms00_clean_control"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "5c38f5d2add776eb371c53031f522ebdf30805215586b25e92aa5713b0b54f64",
+    "total_tokens": 230527,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 213760,
+      "input_tokens": 228463,
+      "output_tokens": 2064,
+      "reasoning_output_tokens": 204
+    },
+    "wall_clock_ms": 98395
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

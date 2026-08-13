@@ -82,6 +82,22 @@ PIPELINE_START_AGENTS = [
     "integrity_verification_agent.md",
 ]
 
+TOPOLOGY_ARMS = {
+    "inline-solo",
+    "reviewer-two-plus-synthesis",
+    "reviewer-five-panel",
+    "reviewer-full-seven",
+    "workflow-current",
+}
+
+REVIEWER_SEATS = [
+    "eic_agent",
+    "methodology_reviewer_agent",
+    "domain_reviewer_agent",
+    "perspective_reviewer_agent",
+    "devils_advocate_reviewer_agent",
+]
+
 
 def load_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -188,6 +204,8 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
     if cache_stale_advisory_days < 0:
         cache_stale_advisory_days = 30
     cache_revalidation_requested = env.get("ARS_CACHE_REVALIDATE") == "1"
+    topology_experiment = env.get("ARS_CODEX_TOPOLOGY_EXPERIMENT") == "1"
+    requested_topology_arm = env.get("ARS_CODEX_TOPOLOGY_ARM", "").strip() or None
     if not requested_tiering:
         tiering_status = "unset"
     elif requested_tiering not in {"economy", "quality-boost"}:
@@ -218,6 +236,17 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
             if cache_revalidation_requested
             else "cached_default"
         ),
+        "topology_experiment_enabled": topology_experiment,
+        "topology_arm_requested": requested_topology_arm,
+        "topology_arm_status": (
+            "explicit_experiment"
+            if topology_experiment and requested_topology_arm
+            else "missing_arm_blocked"
+            if topology_experiment
+            else "ignored_without_experiment_opt_in"
+            if requested_topology_arm
+            else "unset"
+        ),
     }
 
 
@@ -225,58 +254,308 @@ def prompt_path(workflow: str, agent_file: str) -> str:
     return f"ars/{workflow}/agents/{agent_file}"
 
 
-def build_agent_plan(manifest: dict[str, Any], workflow: str, mode: str, profile: dict[str, Any]) -> list[dict[str, Any]]:
-    if not profile["agent_team_enabled"]:
-        return []
-    if workflow == "academic-paper-reviewer" and mode in {"full", "methodology-focus"}:
-        plan: list[dict[str, Any]] = []
-        for index, agent_file in enumerate(REVIEWER_ORDER):
-            is_synth = agent_file == "editorial_synthesizer_agent.md"
-            item = {
-                "agent": agent_file.removesuffix(".md"),
-                "prompt_path": prompt_path(workflow, agent_file),
-                "dispatch": "after_independent_reviews" if is_synth else "parallel_independent_review",
-                "independence_group": "synthesis" if is_synth else "reviewer_blind_phase",
-                "output_contract": "synthesis_matrix" if is_synth else "independent_reviewer_section",
-                "order": index + 1,
-            }
-            if mode == "full" and agent_file == "domain_reviewer_agent.md":
-                item["cross_model_reviewer_track"] = (
-                    "configured_requires_explicit_content_consent"
-                    if profile["cross_model_configured"]
-                    else "not_configured_single_family_disclosure_required"
-                )
-            plan.append(item)
-        return plan
-    if workflow == "academic-pipeline":
-        return [
-            {
-                "agent": agent_file.removesuffix(".md"),
-                "prompt_path": prompt_path(workflow, agent_file),
-                "dispatch": "pipeline_start",
-                "independence_group": "orchestration",
-                "output_contract": "pipeline_checkpoint_record",
-                "order": index + 1,
-            }
-            for index, agent_file in enumerate(PIPELINE_START_AGENTS)
-        ]
+def _node(
+    workflow: str,
+    node_id: str,
+    agent_file: str | None,
+    phase: str,
+    depends_on: list[str],
+    reads: list[str],
+    emits: list[str],
+) -> dict[str, Any]:
+    return {
+        "id": node_id,
+        "agent": agent_file.removesuffix(".md") if agent_file else node_id,
+        "prompt_path": prompt_path(workflow, agent_file) if agent_file else None,
+        "phase": phase,
+        "depends_on": depends_on,
+        "reads": reads,
+        "emits": emits,
+    }
 
-    workflow_config = manifest["workflows"][workflow]
-    return [
-        {
-            "agent": agent_file.removesuffix(".md"),
-            "prompt_path": prompt_path(workflow, agent_file),
-            "dispatch": "phase_role_prompt",
-            "independence_group": workflow,
-            "output_contract": "phase_artifact",
-            "order": index + 1,
-        }
-        for index, agent_file in enumerate(workflow_config["agent_prompts"][:4])
+
+def _reviewer_topology(arm_id: str) -> tuple[list[dict[str, Any]], str]:
+    frozen = ["input_bundle", "frozen_reviewer_configuration"]
+    if arm_id == "reviewer-two-plus-synthesis":
+        seats = ["methodology_reviewer_agent", "domain_reviewer_agent"]
+        nodes = [
+            _node(
+                "academic-paper-reviewer",
+                seat,
+                f"{seat}.md",
+                "blind_review",
+                [],
+                frozen,
+                [f"{seat}_report"],
+            )
+            for seat in seats
+        ]
+    elif arm_id == "reviewer-five-panel":
+        seats = REVIEWER_SEATS
+        nodes = [
+            _node(
+                "academic-paper-reviewer",
+                seat,
+                f"{seat}.md",
+                "blind_review",
+                [],
+                frozen,
+                [f"{seat}_report"],
+            )
+            for seat in seats
+        ]
+    elif arm_id == "reviewer-full-seven":
+        field_id = "field_analyst_agent"
+        field = _node(
+            "academic-paper-reviewer",
+            field_id,
+            "field_analyst_agent.md",
+            "configuration",
+            [],
+            ["input_bundle"],
+            ["reviewer_configuration"],
+        )
+        seats = REVIEWER_SEATS
+        nodes = [field]
+        nodes.extend(
+            _node(
+                "academic-paper-reviewer",
+                seat,
+                f"{seat}.md",
+                "blind_review",
+                [field_id],
+                ["input_bundle", "reviewer_configuration"],
+                [f"{seat}_report"],
+            )
+            for seat in seats
+        )
+    else:
+        raise ValueError(f"unsupported reviewer topology arm: {arm_id}")
+
+    reviewer_ids = [node["id"] for node in nodes if node["phase"] == "blind_review"]
+    synth_dependencies = list(reviewer_ids)
+    if arm_id == "reviewer-full-seven":
+        synth_dependencies.insert(0, "field_analyst_agent")
+    synth_reads = ["input_bundle", "reviewer_configuration"] + [
+        f"{seat}_report" for seat in reviewer_ids
     ]
+    nodes.append(
+        _node(
+            "academic-paper-reviewer",
+            "editorial_synthesizer_agent",
+            "editorial_synthesizer_agent.md",
+            "synthesis",
+            synth_dependencies,
+            synth_reads,
+            ["editorial_synthesis"],
+        )
+    )
+    return nodes, "complete_review"
+
+
+def _workflow_topology(workflow: str) -> tuple[list[dict[str, Any]], str]:
+    if workflow != "academic-pipeline":
+        return [], "unavailable"
+    orchestrator = _node(
+        workflow,
+        "pipeline_orchestrator_agent",
+        "pipeline_orchestrator_agent.md",
+        "startup",
+        [],
+        ["input_bundle", "material_passport"],
+        ["dispatch_plan"],
+    )
+    tracker = _node(
+        workflow,
+        "state_tracker_agent",
+        "state_tracker_agent.md",
+        "meta_state",
+        ["pipeline_orchestrator_agent"],
+        ["dispatch_plan", "material_passport"],
+        ["pipeline_state"],
+    )
+    integrity = _node(
+        workflow,
+        "integrity_verification_agent",
+        "integrity_verification_agent.md",
+        "checkpoint_2_5_or_4_5",
+        ["pipeline_orchestrator_agent"],
+        ["dispatch_plan", "input_bundle", "material_passport"],
+        ["integrity_report"],
+    )
+    return [orchestrator, tracker, integrity], "declared_runtime_roles"
+
+
+def validate_topology_plan(plan: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    nodes = plan.get("nodes", [])
+    ids = [node.get("id") for node in nodes]
+    if len(ids) != len(set(ids)):
+        errors.append("topology_duplicate_node_id")
+    id_set = set(ids)
+    for node in nodes:
+        for parent in node.get("depends_on", []):
+            if parent not in id_set:
+                errors.append("topology_parent_missing")
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    by_id = {node["id"]: node for node in nodes if node.get("id")}
+
+    def visit(node_id: str) -> None:
+        if node_id in visiting:
+            errors.append("topology_cycle")
+            return
+        if node_id in visited:
+            return
+        visiting.add(node_id)
+        for parent in by_id.get(node_id, {}).get("depends_on", []):
+            if parent in by_id:
+                visit(parent)
+        visiting.remove(node_id)
+        visited.add(node_id)
+
+    for node_id in by_id:
+        visit(node_id)
+
+    if plan.get("information_sharing", {}).get("peer_outputs") == "hidden_until_synthesis":
+        review_reports = {f"{seat}_report" for seat in REVIEWER_SEATS}
+        for node in nodes:
+            if node.get("phase") == "blind_review" and review_reports.intersection(node.get("reads", [])):
+                errors.append("topology_blind_reviewer_reads_peer_output")
+    return sorted(set(errors))
+
+
+def build_topology_plan(
+    workflow: str,
+    mode: str,
+    profile: dict[str, Any],
+) -> dict[str, Any]:
+    experiment = profile["topology_experiment_enabled"]
+    requested = profile["topology_arm_requested"] if experiment else None
+    selection_source = "explicit_experiment" if experiment else "explicit_runtime" if profile["agent_team_enabled"] else "default_inline"
+    arm_id = requested or (
+        "reviewer-full-seven"
+        if profile["agent_team_enabled"] and workflow == "academic-paper-reviewer" and mode == "full"
+        else "workflow-current"
+        if profile["agent_team_enabled"] and workflow == "academic-pipeline"
+        else "inline-solo"
+    )
+    errors: list[str] = []
+    applicable = True
+    if experiment and requested is None:
+        errors.append("topology_arm_required")
+    elif arm_id not in TOPOLOGY_ARMS:
+        errors.append("topology_arm_unknown")
+    reviewer_arms = {
+        "reviewer-two-plus-synthesis",
+        "reviewer-five-panel",
+        "reviewer-full-seven",
+    }
+    if arm_id in reviewer_arms and workflow != "academic-paper-reviewer":
+        errors.append("topology_arm_not_applicable")
+        applicable = False
+    if arm_id == "workflow-current" and workflow != "academic-pipeline":
+        errors.append("topology_arm_not_applicable")
+        applicable = False
+    if arm_id != "inline-solo" and not profile["agent_team_enabled"]:
+        errors.append("topology_agent_team_runtime_required")
+
+    nodes: list[dict[str, Any]] = []
+    scope = "complete_inline"
+    information_sharing = {
+        "policy": "single_context",
+        "peer_outputs": "not_applicable",
+        "memory_scope": "off",
+        "initial_input": "caller_supplied_digest_required_for_experiment",
+    }
+    if not errors:
+        if arm_id == "inline-solo":
+            nodes = [
+                _node(
+                    workflow,
+                    "inline_owner",
+                    None,
+                    "inline",
+                    [],
+                    ["input_bundle"],
+                    ["workflow_result"],
+                )
+            ]
+        elif arm_id in reviewer_arms:
+            nodes, scope = _reviewer_topology(arm_id)
+            information_sharing = {
+                "policy": "edge_allowlist",
+                "peer_outputs": "hidden_until_synthesis",
+                "memory_scope": "role_scoped",
+                "initial_input": "same_digest",
+            }
+        elif arm_id == "workflow-current":
+            nodes, scope = _workflow_topology(workflow)
+            information_sharing = {
+                "policy": "edge_allowlist",
+                "peer_outputs": "workflow_dependencies_only",
+                "memory_scope": "role_scoped",
+                "initial_input": "same_digest",
+            }
+
+    plan = {
+        "schema": "ars.codex.topology-plan.v1",
+        "arm_id": arm_id,
+        "selection": {"source": selection_source, "automatic": False},
+        "applicable": applicable,
+        "scope": scope,
+        "nodes": nodes,
+        "edges": [
+            {
+                "from": parent,
+                "to": node["id"],
+                "artifacts": sorted(
+                    set(next(item for item in nodes if item["id"] == parent)["emits"])
+                    .intersection(node["reads"])
+                ),
+            }
+            for node in nodes
+            for parent in node["depends_on"]
+        ],
+        "information_sharing": information_sharing,
+        "execution_blocked": bool(errors),
+        "reason_codes": errors,
+    }
+    if not errors:
+        plan["reason_codes"] = validate_topology_plan(plan)
+        plan["execution_blocked"] = bool(plan["reason_codes"])
+    return plan
+
+
+def agent_plan_from_topology(topology: dict[str, Any]) -> list[dict[str, Any]]:
+    if topology["execution_blocked"] or topology["arm_id"] == "inline-solo":
+        return []
+    plan: list[dict[str, Any]] = []
+    for index, node in enumerate(topology["nodes"]):
+        item = {
+            "agent": node["agent"],
+            "prompt_path": node["prompt_path"],
+            "dispatch": node["phase"],
+            "independence_group": "reviewer_blind_phase" if node["phase"] == "blind_review" else node["phase"],
+            "output_contract": node["emits"],
+            "order": index + 1,
+            "depends_on": node["depends_on"],
+            "reads": node["reads"],
+        }
+        plan.append(item)
+    return plan
+
+
+def build_agent_plan(manifest: dict[str, Any], workflow: str, mode: str, profile: dict[str, Any]) -> list[dict[str, Any]]:
+    del manifest
+    if not profile["agent_team_enabled"] and not profile["topology_experiment_enabled"]:
+        return []
+    return agent_plan_from_topology(build_topology_plan(workflow, mode, profile))
 
 
 def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, Any]:
-    env = env or os.environ
+    env = os.environ if env is None else env
     manifest = load_manifest()
     profile = profile_from_env(env)
     alias = find_alias(request)
@@ -299,7 +578,18 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
 
     workflow_config = manifest["workflows"][workflow]
     checkpoint = detect_checkpoint(request, workflow)
-    agent_plan = build_agent_plan(manifest, workflow, mode, profile)
+    topology_plan = build_topology_plan(workflow, mode, profile)
+    if profile["agent_team_enabled"] or profile["topology_experiment_enabled"]:
+        agent_plan = agent_plan_from_topology(topology_plan)
+    else:
+        agent_plan = []
+    for item in agent_plan:
+        if item["agent"] == "domain_reviewer_agent":
+            item["cross_model_reviewer_track"] = (
+                "configured_requires_explicit_content_consent"
+                if profile["cross_model_configured"]
+                else "not_configured_single_family_disclosure_required"
+            )
     gates = [gate for gate in manifest["quality_gates"] if gate["kind"] in {"routing", "agent-team", "integrity", "material-passport"}]
 
     return {
@@ -315,6 +605,7 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
         "stop_at_checkpoint": checkpoint,
         "agent_template": workflow_config.get("agent_template"),
         "agent_team_plan": agent_plan,
+        "topology_plan": topology_plan,
         "quality_gates": gates,
         "degraded_behavior": [] if profile["full_runtime_enabled"] else ["full-runtime disabled; executing inline role prompts only"],
     }

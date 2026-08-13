@@ -1,0 +1,264 @@
+{
+  "envelope": {
+    "arm_id": "workflow-current",
+    "control_run_id": "A2--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:A2",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "ea5a0af60fbd5e1a6ff520ae4d87e7b5ebc630281cfa30fd9a5e269487386f40",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "c56224eb77a56907c53b01577d31ac8f2af01365e2bad8cc3fd6ffdc3630032e",
+    "run_id": "A2--workflow-current",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "workflow-current",
+      "edges": [
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "integrity_verification_agent"
+        },
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "state_tracker_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "workflow_dependencies_only",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "pipeline_orchestrator_agent",
+          "phase": "orchestration"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "integrity_verification_agent",
+          "phase": "integrity_gate"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "state_tracker_agent",
+          "phase": "state_validation"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "pipeline_orchestrator_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "pipeline_orchestrator_agent",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "integrity_verification_agent",
+        "findings": [
+          {
+            "evidence_anchor": "lines 5-9",
+            "evidence_excerpt": "“Smith and Lee (2024) demonstrate that accreditation-driven governance changes concentrate in the 18-month window”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "IV-1",
+            "recommendation": "Block advancement; retrieve and manually verify the source before retaining this citation-dependent claim.",
+            "severity": "P1",
+            "summary": "The synthesis treats Smith and Lee (2024) as verified empirical evidence although the only supplied bibliography record is pending manual verification and says the source was not retrieved."
+          },
+          {
+            "evidence_anchor": "lines 5-9",
+            "evidence_excerpt": "“Research on institutional behaviour ... consistently shows”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "IV-2",
+            "recommendation": "After verification, limit the wording to the verified evidence and its scope.",
+            "severity": "P2",
+            "summary": "The claim of a research-wide consistent 18-month pattern exceeds the supplied source basis."
+          },
+          {
+            "evidence_anchor": "lines 11-14",
+            "evidence_excerpt": "“should interpret it as a strategic pre-review response rather than organic organisational learning”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "IV-3",
+            "recommendation": "Remove or qualify the causal interpretation unless independently supported.",
+            "severity": "P2",
+            "summary": "The deliverable asserts a definitive strategic causal interpretation without supplied evidence excluding alternatives."
+          },
+          {
+            "evidence_anchor": "lines 18-20",
+            "evidence_excerpt": "“the 18-month pre-review window is now empirically established”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "IV-4",
+            "recommendation": "Use appropriately tentative wording only after source verification, or omit the conclusion.",
+            "severity": "P2",
+            "summary": "The phrase ‘now empirically established’ overstates an unverified source."
+          },
+          {
+            "evidence_anchor": "lines 3-9",
+            "evidence_excerpt": "“audit_artifact: []”; “prior_findings: []”",
+            "evidence_file": "input/passport.yaml",
+            "finding_id": "IV-5",
+            "recommendation": "Record and resolve the verification gate before advancing the synthesis.",
+            "severity": "P1",
+            "summary": "The passport has no audit artifact or prior finding recording the unresolved citation-verification gate."
+          }
+        ],
+        "retries": 0,
+        "role": "integrity_verification_agent",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "state_tracker_agent",
+        "findings": [
+          {
+            "evidence_anchor": "lines 5-20",
+            "evidence_excerpt": "“demonstrate… 18-month window” and “now empirically established”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "ST-1",
+            "recommendation": "Do not advance; retrieve and manually verify Smith2024, then revise claims to match verified evidence.",
+            "severity": "P1",
+            "summary": "The deliverable relies on an unverified, unretrieved citation while presenting its conclusion as established."
+          },
+          {
+            "evidence_anchor": "lines 7-11",
+            "evidence_excerpt": "“pending manual verification”; “Source not yet retrieved; annotation inferred from abstract”",
+            "evidence_file": "input/prior_artifacts/bibliography_entry_pending.md",
+            "finding_id": "ST-2",
+            "recommendation": "Complete retrieval and manual verification before accepting the citation or dependent synthesis.",
+            "severity": "P1",
+            "summary": "The sole bibliography entry is explicitly pending manual verification and based on a publisher-abstract inference."
+          },
+          {
+            "evidence_anchor": "lines 3-7",
+            "evidence_excerpt": "“audit_artifact: []” and only a “kind: SLIM”, “stage: 1” checkpoint",
+            "evidence_file": "input/passport.yaml",
+            "finding_id": "ST-3",
+            "recommendation": "Keep the workflow blocked at source validation and record a successful audit artifact only after validation.",
+            "severity": "P1",
+            "summary": "No supplied audit artifact establishes that the workflow may advance past source validation."
+          }
+        ],
+        "retries": 0,
+        "role": "state_tracker_agent",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "workflow-current",
+    "protocol": {
+      "completed_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "declared_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "C1",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/prior_artifacts/bibliography_entry_pending.md"
+          ],
+          "severity": "P1",
+          "summary": "The deliverable presents an unretrieved, manually unverified source as established evidence."
+        },
+        {
+          "concept_id": "C2",
+          "contributing_agents": [
+            "integrity_verification_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md"
+          ],
+          "severity": "P2",
+          "summary": "The deliverable overstates the breadth and certainty of the claimed 18-month pattern."
+        },
+        {
+          "concept_id": "C3",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md"
+          ],
+          "severity": "P2",
+          "summary": "The deliverable makes an unsupported strategic-versus-organic causal interpretation."
+        },
+        {
+          "concept_id": "C4",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/passport.yaml"
+          ],
+          "severity": "P1",
+          "summary": "The passport lacks an audit record for the unresolved source-verification gate."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 3,
+      "rationale": "The supplied bibliography record is explicitly pending manual verification and unretrieved, while the deliverable treats it as established evidence. The corresponding source-validation gate is not recorded in the passport."
+    },
+    "task_id": "A2"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "2da81669d7084b4c466dafde2a66ee1cc4af645e0166721fc78b24e87f789727",
+    "total_tokens": 188034,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 157952,
+      "input_tokens": 185974,
+      "output_tokens": 2060,
+      "reasoning_output_tokens": 267
+    },
+    "wall_clock_ms": 79593
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

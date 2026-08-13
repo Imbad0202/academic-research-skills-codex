@@ -1,0 +1,177 @@
+{
+  "envelope": {
+    "arm_id": "workflow-current",
+    "control_run_id": "D1--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:D1",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "5e2b20a50f179018ff34a80ea0d35d165df2ba8565e4b1090942a830d2d1d972",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "cda02d95a63f7981ab1be2255009bb099e589f06113cf12511d672589d92cf62",
+    "run_id": "D1--workflow-current",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "workflow-current",
+      "edges": [
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "integrity_verification_agent"
+        },
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "state_tracker_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "workflow_dependencies_only",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "pipeline_orchestrator_agent",
+          "phase": "orchestration"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "integrity_verification_agent",
+          "phase": "integrity_gate"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "state_tracker_agent",
+          "phase": "state_validation"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "pipeline_orchestrator_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "pipeline orchestration synthesis",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "integrity_verification_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Synthesis paragraph 3 and embedded AUDIT NOTE",
+            "evidence_excerpt": "\"Both characterisations ... are consistent\"; Chapter A: \"suspension ... effective 90 days\"; Chapter B: \"immediate revocation ... within 30 days.\"",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "integrity-1",
+            "recommendation": "Block the pipeline and revise the synthesis to resolve the conflict against an authoritative source before making any consistency claim.",
+            "severity": "P1",
+            "summary": "The deliverable falsely states the two sanction characterisations are consistent; the supplied chapters prescribe incompatible outcomes and timelines."
+          }
+        ],
+        "retries": 0,
+        "role": "cross-file evidence and integrity audit",
+        "verifier_catches": 1
+      },
+      {
+        "agent_id": "state_tracker_agent",
+        "findings": [
+          {
+            "evidence_anchor": "audit_artifact and checkpoints",
+            "evidence_excerpt": "\"audit_artifact: []\"; \"stage: 1\".",
+            "evidence_file": "input/passport.yaml",
+            "finding_id": "state-1",
+            "recommendation": "Do not advance from the current checkpoint; record a corrected cross-file audit artifact only after the substantive contradiction is resolved.",
+            "severity": "P1",
+            "summary": "The legal next pipeline action is block: the stage-1 passport contains no audit artifact, while the deliverable's asserted cross-file clearance is contradicted by the supplied chapters."
+          }
+        ],
+        "retries": 0,
+        "role": "pipeline-state determination",
+        "verifier_catches": 1
+      }
+    ],
+    "arm_id": "workflow-current",
+    "protocol": {
+      "completed_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "declared_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "cross-file-sanction-conflict",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/prior_artifacts/chapter_a.md",
+            "input/prior_artifacts/chapter_b.md",
+            "input/passport.yaml"
+          ],
+          "severity": "P1",
+          "summary": "The deliverable's consistency conclusion conflicts with the supplied Chapter A and Chapter B sanction regimes, so progression must stop."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 1,
+      "rationale": "A P1 cross-file contradiction invalidates the deliverable's claimed consistency, and the passport has no audit artifact supporting advancement."
+    },
+    "task_id": "D1"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "9caf0e8fa09f9e69c35f5ea9d2dcdbe3b723e166ce1149acaab0f948e9e0bd37",
+    "total_tokens": 115816,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 109312,
+      "input_tokens": 114256,
+      "output_tokens": 1560,
+      "reasoning_output_tokens": 427
+    },
+    "wall_clock_ms": 45877
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

@@ -1,0 +1,283 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-two-plus-synthesis",
+    "control_run_id": "ms02_qual--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms02_qual",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "8e4315a40b90710060410a9a8376e6e48e38f84b523a675eb934a163e06cccf9",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "2728fe87b066a51e195fb9efe8b97df656819a7a5bc9e1734221a3f1480fbf13",
+    "run_id": "ms02_qual--reviewer-two-plus-synthesis",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-two-plus-synthesis",
+      "edges": [
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 4.3, final paragraph",
+            "evidence_excerpt": "A minority of participants expressed more skeptical or dissenting views about the value of the entire QA enterprise; these were excluded for space, as they fell outside the three-theme structure that organized our analysis.",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "METH-01",
+            "recommendation": "Reanalyse and report deviant and dissenting cases, explain how they refine or challenge the themes, and avoid presenting the retained themes as the full range of administrator perspectives.",
+            "severity": "P1",
+            "summary": "The analysis selectively excluded dissenting participant accounts to preserve a preselected three-theme structure, compromising the credibility of the qualitative findings."
+          },
+          {
+            "evidence_anchor": "Abstract; Section 3.2",
+            "evidence_excerpt": "Fourteen administrators were interviewed in depth... Twelve senior administrators (n=12) ... were recruited.",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "METH-02",
+            "recommendation": "Reconcile the participant count throughout the manuscript and state whether exclusions, withdrawals, or unusable interviews account for any discrepancy.",
+            "severity": "P1",
+            "summary": "The reported number of interview participants is internally inconsistent, making the qualitative sample and evidentiary base indeterminate."
+          },
+          {
+            "evidence_anchor": "Section 3.4",
+            "evidence_excerpt": "Coding proceeded iteratively, moving between transcripts and an emerging set of themes until a stable structure was reached.",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "METH-03",
+            "recommendation": "Specify who coded, how initial and revised codes/themes were developed, whether coding was independently checked or discussed, what constituted a stable structure, and what records supported analytic decisions.",
+            "severity": "P2",
+            "summary": "The thematic-analysis description lacks essential procedural detail, preventing assessment of coding rigour and theme development."
+          },
+          {
+            "evidence_anchor": "Section 3.2",
+            "evidence_excerpt": "Twelve senior administrators ... were recruited through institutional QA offices.",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "METH-04",
+            "recommendation": "Report eligibility criteria, sampling strategy, invitations/refusals, participant allocation across institutions and roles, and steps taken to limit QA-office gatekeeper influence.",
+            "severity": "P2",
+            "summary": "Recruitment via institutional QA offices is vulnerable to gatekeeper selection bias, but the manuscript gives no sampling criteria, participant distribution, or account of how this risk was addressed."
+          },
+          {
+            "evidence_anchor": "Sections 4.1 and 4.3",
+            "evidence_excerpt": "These themes emerged systematically ... giving us confidence that the pattern was not an artifact of any single institution's local circumstances. ... the study achieved balanced representation of perspectives, capturing the full range of administrator views",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "METH-05",
+            "recommendation": "Either provide concrete support for these claims through reflexivity, cross-site comparison, negative-case analysis, participant validation, peer debriefing, or an audit trail, or qualify the claims to reflect the limited evidence.",
+            "severity": "P2",
+            "summary": "The manuscript asserts confidence and balanced/full representation without reporting reflexive practice, negative-case treatment, or any trustworthiness procedures."
+          }
+        ],
+        "retries": 0,
+        "role": "qualitative design, sampling, coding, reflexivity, and trustworthiness",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Section 2 Literature Review; Section 5 Discussion, third finding; References: Delacroix (2018) annotation",
+            "evidence_excerpt": "Section 2: \"Delacroix (2018) ... argues against treating stakeholder consultation as sufficient evidence of a healthy quality culture.\" Section 5: \"our findings align with Delacroix (2018), who recommends that institutions treat broad stakeholder consultation as the central mechanism\"",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "DR-01",
+            "recommendation": "Correct the attribution: either present consultation as a potentially valuable but insufficient condition, consistent with Delacroix as described, or support the stronger consultation-as-engine claim with a different, accurately characterized source and qualify it against the ritualization risk.",
+            "severity": "P1",
+            "summary": "Discussion reverses the cited literature's position on stakeholder consultation, making a central QA-design implication unsupported by the manuscript's own literature review and reference annotation."
+          },
+          {
+            "evidence_anchor": "Section 6 Conclusion; Section 2 Literature Review",
+            "evidence_excerpt": "Section 6: \"This paper has offered the first comprehensive account of how university administrators experience and enact QA implementation.\" Section 2: \"Missing from this body of work is sustained attention to the administrators\"",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "DR-02",
+            "recommendation": "Replace with a bounded contribution claim, such as offering an in-depth account from three universities, unless the authors add a transparent, systematic review basis that can support the priority assertion.",
+            "severity": "P2",
+            "summary": "The paper claims novelty as the \"first comprehensive account\" without a literature-review method or evidence sufficient to substantiate a field-wide priority claim."
+          }
+        ],
+        "retries": 0,
+        "role": "higher-education governance accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-two-plus-synthesis",
+    "protocol": {
+      "completed_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "selective-exclusion-of-dissent",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Selective exclusion of dissenting accounts undermines the credibility of the qualitative findings."
+        },
+        {
+          "concept_id": "interview-sample-count-inconsistency",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The manuscript reports incompatible interview-participant counts, leaving the qualitative evidentiary base indeterminate."
+        },
+        {
+          "concept_id": "inadequate-thematic-analysis-reporting",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Insufficient reporting of thematic-analysis procedures prevents assessment of coding rigour and theme development."
+        },
+        {
+          "concept_id": "unaddressed-gatekeeper-selection-bias",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Recruitment through QA offices lacks the sampling and distribution detail needed to assess gatekeeper selection bias."
+        },
+        {
+          "concept_id": "unsupported-trustworthiness-claims",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Claims of confidence and balanced/full representation are unsupported by reported trustworthiness procedures."
+        },
+        {
+          "concept_id": "reversed-delacroix-attribution",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The discussion reverses Delacroix's stated position on stakeholder consultation, leaving a central QA-design implication unsupported."
+        },
+        {
+          "concept_id": "unsupported-priority-claim",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The field-wide claim to be the first comprehensive account is not supported by the reported literature review."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 0,
+      "rationale": "Three P1 defects affect the credibility of the qualitative evidence, the determination of its sample, and the support for a central design implication."
+    },
+    "task_id": "ms02_qual"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "13d65b859e98f5d853d5eb0bff4c528723fee8ae62a0d638347f409e8493981d",
+    "total_tokens": 185754,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 172288,
+      "input_tokens": 183170,
+      "output_tokens": 2584,
+      "reasoning_output_tokens": 205
+    },
+    "wall_clock_ms": 87685
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}
