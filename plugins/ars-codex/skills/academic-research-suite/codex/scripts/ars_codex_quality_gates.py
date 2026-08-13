@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -24,6 +25,7 @@ PLUGIN_ROOT = (
 FULL_RUNTIME_MANIFEST = CODEX_ROOT / "full-runtime-manifest.json"
 PACKAGE_MANIFEST = SUITE_ROOT / "manifest.json"
 HOOK_PACK = CODEX_ROOT / "hooks" / "hooks.json"
+TOPOLOGY_RUNNER = CODEX_ROOT / "scripts" / "ars_codex_topology_experiment.py"
 
 FORBIDDEN_HOOK_PATTERNS = (
     r"\benv\b",
@@ -195,6 +197,21 @@ def check_upstream_lock() -> list[str]:
     return [f"upstream lock pins academic-research-skills@{commit[:7]}"]
 
 
+def check_topology_experiment() -> list[str]:
+    spec = importlib.util.spec_from_file_location("ars_codex_topology_experiment", TOPOLOGY_RUNNER)
+    _require(bool(spec and spec.loader), "topology experiment runner cannot be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    result = module.validate_all(require_runs=False)
+    _require(result["status"] == "PASS", "topology experiment contract failed: " + ", ".join(result["reason_codes"]))
+    _require(result["task_count"] == 10, "topology experiment cohort must contain exactly 10 tasks")
+    _require(result["expected_run_count"] == 26, "topology experiment must declare exactly 26 matched task-arm runs")
+    return [
+        "topology experiment cohort freezes 10 tasks across reviewer and research/pipeline strata",
+        "26 task-arm plans have valid input digests and acyclic DAGs",
+    ]
+
+
 def check_desktop_plugin_bundle() -> list[str]:
     plugin_manifest = PLUGIN_ROOT / ".codex-plugin" / "plugin.json"
     plugin_skills = PLUGIN_ROOT / "skills"
@@ -290,6 +307,7 @@ GATES: dict[str, Callable[[], list[str]]] = {
     "hook-safety": check_hook_safety,
     "reviewer-fixture": check_reviewer_fixture,
     "upstream-lock": check_upstream_lock,
+    "topology-experiment": check_topology_experiment,
 }
 
 

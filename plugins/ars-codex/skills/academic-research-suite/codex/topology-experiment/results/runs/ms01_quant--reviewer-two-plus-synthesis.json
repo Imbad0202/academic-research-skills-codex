@@ -1,0 +1,333 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-two-plus-synthesis",
+    "control_run_id": "ms01_quant--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms01_quant",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "09ca3124838b0e12dbbcffca17743bd709fcdec48040676bb6e2e65b32200468",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "20e4f6a097d17a161070fbd0173b38b6f9706de97d38d1fdb019717960644cad",
+    "run_id": "ms01_quant--reviewer-two-plus-synthesis",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-two-plus-synthesis",
+      "edges": [
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§3.1; §4.2; §5; §6",
+            "evidence_excerpt": "“observational, cross-sectional design” and “positively associated” contrast with claims that engagement “improved” retention and “raises the probability.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M1",
+            "recommendation": "Reframe claims as associations, or use temporally ordered exposure measurement and adjustment for pre-exposure confounders.",
+            "severity": "P1",
+            "summary": "The manuscript makes causal retention claims from an observational, cross-sectional association without controlling for plausible confounding."
+          },
+          {
+            "evidence_anchor": "§3.2; §4.1; §4.3",
+            "evidence_excerpt": "Only 87 respondents answered perceived control, yet the comparison is reported as “t(156) = 3.02.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M2",
+            "recommendation": "Audit and rerun the analysis; report actual group sizes, missing-data handling, test variant, effect size, and confidence interval.",
+            "severity": "P1",
+            "summary": "The perceived-control t test is incompatible with the stated analytic sample size."
+          },
+          {
+            "evidence_anchor": "§4.3; Table 2",
+            "evidence_excerpt": "The text reports “t(140) = 1.31, p = .008,” while Table 2 reports 66 and 61 students.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M3",
+            "recommendation": "Reproduce the analysis and correct all quantities; report the actual analytic sample and test specification.",
+            "severity": "P1",
+            "summary": "The final-exam comparison has internally inconsistent sample sizes, degrees of freedom, and p value."
+          },
+          {
+            "evidence_anchor": "§3.2",
+            "evidence_excerpt": "The sample is called “random,” but students “chose to respond” and nonresponders were excluded.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M4",
+            "recommendation": "Describe it as a volunteer/respondent sample unless random selection can be documented; report denominator, response rate, exclusions, and nonresponse assessment.",
+            "severity": "P2",
+            "summary": "The sampling description contradicts itself and does not support implied representativeness."
+          },
+          {
+            "evidence_anchor": "Abstract; §4.2",
+            "evidence_excerpt": "The Abstract reports “r = .42,” whereas §4.2 reports “r = .24, p = .004.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M5",
+            "recommendation": "Trace or rerun the analysis and report one verified estimate consistently, including sample size and confidence interval.",
+            "severity": "P2",
+            "summary": "The abstract and results report different engagement-retention correlations."
+          },
+          {
+            "evidence_anchor": "§4.1",
+            "evidence_excerpt": "“N=10; M=3.00; sample SD=0.10; integer scale=1-5.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "M6",
+            "recommendation": "Verify the raw ratings and recalculate the descriptive statistics.",
+            "severity": "P2",
+            "summary": "The secondary clarity-item standard deviation is infeasible for the stated integer ratings."
+          }
+        ],
+        "retries": 0,
+        "role": "quantitative design, sampling, measurement, statistics, and inference",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§3.2",
+            "evidence_excerpt": "“Students were not informed that their dashboard activity data would be analyzed for this study.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D1",
+            "recommendation": "Document the ethics/IRB determination and governance basis, including notice, consent or waiver rationale, de-identification, access controls, retention, and protections from instructional consequences.",
+            "severity": "P1",
+            "summary": "The manuscript describes analysis of student activity without notice but supplies no governance, ethics, or data-protection basis."
+          },
+          {
+            "evidence_anchor": "§2; References",
+            "evidence_excerpt": "A claim of reliable improvement cites Ferro and Nakamura’s listed article, “When dashboards demotivate: Peer comparison and the lower-achieving student.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D2",
+            "recommendation": "Correct the characterization and revise the equity rationale to distinguish possible benefits from demotivation risks.",
+            "severity": "P2",
+            "summary": "The literature review misstates the cited evidence concerning lower-achieving students."
+          },
+          {
+            "evidence_anchor": "§2; §3.1",
+            "evidence_excerpt": "The dashboard includes “a peer-comparison band,” while the review acknowledges that unfavorable comparison can discourage struggling students.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D3",
+            "recommendation": "Discuss comparative analytics as an institutional design choice and specify framing, equity monitoring, accessible alternatives, and human support safeguards.",
+            "severity": "P2",
+            "summary": "Peer-comparison feedback is not positioned within governance concerns about equity, stigmatization, and accountable intervention design."
+          },
+          {
+            "evidence_anchor": "§6",
+            "evidence_excerpt": "It calls dashboard investment “a dependable strategy for improving retention across programs and disciplines.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "D4",
+            "recommendation": "Limit the contribution to the studied deployment and state the need for local validation, pedagogical support, equity monitoring, and transparent governance.",
+            "severity": "P2",
+            "summary": "The conclusion overgeneralizes a one-course deployment into a dependable worldwide institutional strategy."
+          }
+        ],
+        "retries": 0,
+        "role": "higher-education governance accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-two-plus-synthesis",
+    "protocol": {
+      "completed_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "S1",
+          "contributing_agents": [
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Causal and broadly generalizable retention claims exceed the observational, single-course evidence."
+        },
+        {
+          "concept_id": "S2",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The perceived-control t test is incompatible with the stated sample size."
+        },
+        {
+          "concept_id": "S3",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The final-exam comparison contains inconsistent sample sizes, degrees of freedom, and p value."
+        },
+        {
+          "concept_id": "S4",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Student activity data were analyzed without disclosed notice, ethics review, or data-governance safeguards."
+        },
+        {
+          "concept_id": "S5",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The sampling description conflicts between random selection and volunteer-response recruitment."
+        },
+        {
+          "concept_id": "S6",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The engagement-retention correlation differs between the abstract and results."
+        },
+        {
+          "concept_id": "S7",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The reported clarity-item standard deviation is infeasible for the stated integer-scale data."
+        },
+        {
+          "concept_id": "S8",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The literature review reverses the cited lower-achiever finding and understates equity risks."
+        },
+        {
+          "concept_id": "S9",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Peer-comparison feedback lacks treatment of accountable institutional safeguards."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 1,
+      "rationale": "Three independent P1 defects in quantitative reporting/inference and one P1 governance defect require correction before the manuscript can proceed."
+    },
+    "task_id": "ms01_quant"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "c7650a6cf2f481a1cfde2d335442d113354cd60a41b940f69d01cb3a853066cd",
+    "total_tokens": 245164,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 207872,
+      "input_tokens": 242264,
+      "output_tokens": 2900,
+      "reasoning_output_tokens": 446
+    },
+    "wall_clock_ms": 109747
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

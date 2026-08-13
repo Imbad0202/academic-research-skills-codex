@@ -1,0 +1,117 @@
+{
+  "envelope": {
+    "arm_id": "inline-solo",
+    "control_run_id": "A4--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:A4",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "a867e7e94739124230bea61df5b35515d2ae09c0fd855b93ef7fbb3cd7cc639d",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "c0197ce35f749741c4889538d1c55309d14683a612bc65968bc97b7a78b4e683",
+    "run_id": "A4--inline-solo",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "inline-solo",
+      "edges": [],
+      "information_sharing": {
+        "memory_scope": "off",
+        "peer_outputs": "not_applicable",
+        "policy": "single_context"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "inline_owner",
+          "phase": "inline"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "inline_owner",
+        "findings": [
+          {
+            "evidence_anchor": "Article 7 verified-phrase boundary",
+            "evidence_excerpt": "[verified-phrase boundary: up to and including \"five-year cycle\" — remainder of Article 7 not yet verified]",
+            "evidence_file": "./input/prior_artifacts/ministerial_order_2019.md",
+            "finding_id": "F1",
+            "recommendation": "Remove the unverified quotation tail and all conclusions about external experts, industry representatives, and a three-member external composition requirement unless supported by a verified source artifact.",
+            "severity": "P1",
+            "summary": "The deliverable presents unverified text as a verbatim Article 7 quotation and derives mandatory panel-composition requirements from it."
+          }
+        ],
+        "retries": 0,
+        "role": "inline audit",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "inline-solo",
+    "protocol": {
+      "completed_agent_ids": [
+        "inline_owner"
+      ],
+      "declared_agent_ids": [
+        "inline_owner"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "C1",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "./input/deliverable.md",
+            "./input/prior_artifacts/ministerial_order_2019.md"
+          ],
+          "severity": "P1",
+          "summary": "Unverified ministerial-order content is represented as verified statutory text and used for compliance conclusions."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 0,
+      "rationale": "A material source-boundary violation makes the panel-composition claims unsupported and requires correction before the pipeline can continue."
+    },
+    "task_id": "A4"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "afe94a69d86df982fbecb9ea4522ef6bd3b560a21606a441fde18e3e784f3f18",
+    "total_tokens": 71941,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 45568,
+      "input_tokens": 71049,
+      "output_tokens": 892,
+      "reasoning_output_tokens": 188
+    },
+    "wall_clock_ms": 28695
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

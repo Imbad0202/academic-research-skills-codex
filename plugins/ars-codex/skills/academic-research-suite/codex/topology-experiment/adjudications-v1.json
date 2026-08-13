@@ -1,0 +1,127 @@
+{
+  "schema": "ars.codex.topology-adjudications.v1",
+  "cohort_id": "issue-37-pilot-v1",
+  "joined_after_outputs_frozen": true,
+  "adjudicator_blinded_to_arm": false,
+  "policy": "A concept may match multiple seeded defects only when its frozen summary explicitly contains each defect. Extra findings are unscored unless factually false; they are not automatically false positives.",
+  "runs": {
+    "ms00_clean_control--inline-solo": {"matches": {}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "ms00_clean_control--reviewer-two-plus-synthesis": {"matches": {}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["sampling-generalizability", "adapted-measure-validity", "theoretical-positioning", "prior-evidence-comparison"]},
+    "ms00_clean_control--reviewer-five-panel": {"matches": {}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["adapted_scale_validity_and_comparability", "outcome_related_volunteer_coverage_bias", "technology_acceptance_literature_claim_calibration"]},
+    "ms00_clean_control--reviewer-full-seven": {"matches": {}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["claim-calibration-lms-engagement"]},
+
+    "ms01_quant--inline-solo": {
+      "matches": {
+        "causal-inference": ["SD-04"],
+        "statistical-inconsistency": ["SD-02", "SD-03", "SD-08"],
+        "research-ethics-consent": ["SD-07"],
+        "secondary-statistic-feasibility": ["SD-11"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": []
+    },
+    "ms01_quant--reviewer-two-plus-synthesis": {
+      "matches": {
+        "S1": ["SD-04", "SD-10"],
+        "S2": ["SD-02"],
+        "S3": ["SD-03", "SD-08"],
+        "S4": ["SD-07"],
+        "S5": ["SD-06"],
+        "S6": ["SD-09"],
+        "S7": ["SD-11"],
+        "S8": ["SD-05"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["S9"]
+    },
+    "ms01_quant--reviewer-five-panel": {
+      "matches": {
+        "causal-inference": ["SD-04"],
+        "primary-effect-discrepancy": ["SD-09"],
+        "sampling-and-data-governance": ["SD-06", "SD-07"],
+        "statistical-incoherence": ["SD-02", "SD-03", "SD-08"],
+        "overgeneralization": ["SD-10"],
+        "clarity-statistic-impossibility": ["SD-11"],
+        "literature-and-safeguards": ["SD-05"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["mechanism-overclaim"]
+    },
+    "ms01_quant--reviewer-full-seven": {
+      "matches": {
+        "C1": ["SD-04"],
+        "C2": ["SD-02", "SD-03", "SD-08", "SD-09"],
+        "C3": ["SD-07"],
+        "C4": ["SD-10"],
+        "C7": ["SD-06"],
+        "C8": ["SD-05"],
+        "C9": ["SD-11"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["C5", "C6"]
+    },
+
+    "ms02_qual--inline-solo": {
+      "matches": {
+        "sample-size-inconsistency": ["SD-04"],
+        "excluded-negative-cases": ["SD-05"],
+        "overgeneralization": ["SD-03"],
+        "citation-reversal": ["SD-08"],
+        "underreported-subgroup-test": ["SD-07"],
+        "identifiability-risk": ["SD-06"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": []
+    },
+    "ms02_qual--reviewer-two-plus-synthesis": {
+      "matches": {
+        "selective-exclusion-of-dissent": ["SD-05"],
+        "interview-sample-count-inconsistency": ["SD-04"],
+        "reversed-delacroix-attribution": ["SD-08"],
+        "unsupported-priority-claim": ["SD-09"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["inadequate-thematic-analysis-reporting", "unaddressed-gatekeeper-selection-bias", "unsupported-trustworthiness-claims"]
+    },
+    "ms02_qual--reviewer-five-panel": {
+      "matches": {
+        "C1": ["SD-04"],
+        "C2": ["SD-05"],
+        "C3": ["SD-08"],
+        "C4": ["SD-03"],
+        "C5": ["SD-06"],
+        "C9": ["SD-09"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["C6", "C7", "C8"]
+    },
+    "ms02_qual--reviewer-full-seven": {
+      "matches": {
+        "C1": ["SD-04"],
+        "C2": ["SD-05"],
+        "C3": ["SD-03"],
+        "C5": ["SD-08"],
+        "C6": ["SD-09"],
+        "C11": ["SD-06"],
+        "C14": ["SD-07"]
+      },
+      "factually_false_concept_ids": [],
+      "unscored_extra_concept_ids": ["C4", "C7", "C8", "C9", "C10", "C12", "C13"]
+    },
+
+    "A1--inline-solo": {"matches": {"C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "A1--workflow-current": {"matches": {"legal-effect-contradiction": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["unsupported-ambiguity", "timing-condition-error"]},
+    "A2--inline-solo": {"matches": {"C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "A2--workflow-current": {"matches": {"C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["C2", "C3", "C4"]},
+    "A3--inline-solo": {"matches": {"C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["C2"]},
+    "A3--workflow-current": {"matches": {"A3-C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["A3-C2", "A3-C3"]},
+    "A4--inline-solo": {"matches": {"C1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "A4--workflow-current": {"matches": {"source-boundary-unverified-article-7-remainder": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["fixed-three-member-overstatement", "missing-audit-artifact-record"]},
+    "A5--inline-solo": {"matches": {"unsupported_cross_chapter_claims": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "A5--workflow-current": {"matches": {"chapter-4-unsupported": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["chapter-3-source-missing", "chapter-5-unsupported", "chapter-2-scope-conflict", "pipeline-state-insufficient"]},
+    "B5--inline-solo": {"matches": {"option-list-mismatch-q1": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": ["option-list-mismatch-q2"]},
+    "B5--workflow-current": {"matches": {}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "D1--inline-solo": {"matches": {"cross_chapter_sanction_contradiction": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []},
+    "D1--workflow-current": {"matches": {"cross-file-sanction-conflict": ["F-001"]}, "factually_false_concept_ids": [], "unscored_extra_concept_ids": []}
+  }
+}

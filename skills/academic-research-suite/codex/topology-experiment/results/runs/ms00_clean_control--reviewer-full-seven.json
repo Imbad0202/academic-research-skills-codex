@@ -1,0 +1,295 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-full-seven",
+    "control_run_id": "ms00_clean_control--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms00_clean_control",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "1fd13a79f69c32a7d9512f832613e99ed657892d3ad8e9b1a18dfa9c5c37bcfb",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "73086ff2a1961410b37425ee2e0bc53938013015d3ad455606460a9d97d288da",
+    "run_id": "ms00_clean_control--reviewer-full-seven",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-full-seven",
+      "edges": [
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "eic_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "methodology_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "domain_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "perspective_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "devils_advocate_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "eic_agent_report"
+          ],
+          "from": "eic_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "perspective_reviewer_agent_report"
+          ],
+          "from": "perspective_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "devils_advocate_reviewer_agent_report"
+          ],
+          "from": "devils_advocate_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "field_analyst_agent",
+          "phase": "configuration"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "eic_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "perspective_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "devils_advocate_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent",
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "field_analyst_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "configuration validator",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "eic_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "journal fit, contribution, and claim calibration reviewer",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "design, sampling, measurement, and inference reviewer",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "domain accuracy and literature positioning reviewer",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "perspective_reviewer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "cross-disciplinary interpretation and practical implications reviewer",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "devils_advocate_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Abstract, final sentence; §3.2 Self-reported LMS use; §2 Literature Review, final paragraph",
+            "evidence_excerpt": "“perceived usefulness tracks with LMS engagement among undergraduates”; “self-reported use was captured with a single five-point frequency item”; “treat our self-report measure as an indicator of perceived use rather than a behavioral count.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-1",
+            "recommendation": "Replace “LMS engagement” with “self-reported LMS-use frequency” (or equivalent) and use that construct label consistently.",
+            "severity": "P2",
+            "summary": "The abstract's broad “LMS engagement” claim exceeds the sole outcome measure: a simultaneous self-reported frequency item."
+          }
+        ],
+        "retries": 0,
+        "role": "central-claim and unstated-assumption reviewer",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesizer",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-full-seven",
+    "protocol": {
+      "completed_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "claim-calibration-lms-engagement",
+          "contributing_agents": [
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The abstract overstates a self-reported LMS-use frequency measure as LMS engagement."
+        }
+      ],
+      "decision": "warn",
+      "duplicate_contributions": 0,
+      "rationale": "The frozen configuration was valid and five independent seat reports completed. One P2 claim-calibration issue remains; all other reviewers reported no consequential findings in their assigned scope."
+    },
+    "task_id": "ms00_clean_control"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "a6c33d57bf5aad1ed166678e048ce1c7128ee3f1b97b343b40ee5b1cde419310",
+    "total_tokens": 331350,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 314880,
+      "input_tokens": 329372,
+      "output_tokens": 1978,
+      "reasoning_output_tokens": 139
+    },
+    "wall_clock_ms": 107051
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

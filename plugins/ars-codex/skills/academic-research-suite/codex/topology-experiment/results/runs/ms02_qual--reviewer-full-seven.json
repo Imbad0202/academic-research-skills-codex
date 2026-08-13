@@ -1,0 +1,658 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-full-seven",
+    "control_run_id": "ms02_qual--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms02_qual",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "8e4315a40b90710060410a9a8376e6e48e38f84b523a675eb934a163e06cccf9",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "8edbc29c7a8ebc3ab02dcb37490a5530310b58ac471cacdcb7e78761aad036ab",
+    "run_id": "ms02_qual--reviewer-full-seven",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-full-seven",
+      "edges": [
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "eic_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "methodology_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "domain_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "perspective_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "devils_advocate_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "eic_agent_report"
+          ],
+          "from": "eic_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "perspective_reviewer_agent_report"
+          ],
+          "from": "perspective_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "devils_advocate_reviewer_agent_report"
+          ],
+          "from": "devils_advocate_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "field_analyst_agent",
+          "phase": "configuration"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "eic_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "perspective_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "devils_advocate_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent",
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "field_analyst_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "frozen configuration validation",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "eic_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Discussion, paragraph 3",
+            "evidence_excerpt": "“universities across the sector” and “administrators everywhere face the same fundamental tension”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-01",
+            "recommendation": "Recast these as bounded interpretations of the three-case sample, specify the national-system context, and reserve sector-wide claims for future comparative research.",
+            "severity": "P1",
+            "summary": "The central contribution is overgeneralized from three institutions and 12 administrator interviews to the higher-education sector as a whole."
+          },
+          {
+            "evidence_anchor": "Findings §4.3, final paragraph",
+            "evidence_excerpt": "“A minority of participants expressed more skeptical or dissenting views ... these were excluded for space”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-02",
+            "recommendation": "Analyze and report the dissenting accounts as negative cases, explain their relationship to the three themes, and revise claims of balanced or comprehensive representation accordingly.",
+            "severity": "P1",
+            "summary": "The manuscript reports selectively excluding dissenting accounts, undermining the credibility of its claimed thematic account."
+          },
+          {
+            "evidence_anchor": "Discussion, paragraph 4",
+            "evidence_excerpt": "“our findings align with Delacroix (2018), who recommends ... broad stakeholder consultation as the central mechanism”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-03",
+            "recommendation": "Replace this attribution with the manuscript's earlier account of Delacroix as cautioning against consultation-as-ritual, or substantiate a different source.",
+            "severity": "P2",
+            "summary": "The policy recommendation misstates the cited literature, creating a claim-to-source contradiction."
+          },
+          {
+            "evidence_anchor": "Conclusion, opening sentence",
+            "evidence_excerpt": "“the first comprehensive account of how university administrators experience and enact QA implementation”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-04",
+            "recommendation": "Qualify this as a contribution within the sampled national context and study design, or provide a systematic literature basis.",
+            "severity": "P2",
+            "summary": "The paper's novelty claim is not calibrated to the evidence provided or to the literature review."
+          },
+          {
+            "evidence_anchor": "Abstract; Methods §3.2",
+            "evidence_excerpt": "Abstract: “Fourteen administrators were interviewed”; Methods: “Twelve senior administrators (n=12)”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-05",
+            "recommendation": "Reconcile the participant count throughout and state any exclusions and the final analytic sample.",
+            "severity": "P2",
+            "summary": "The reported administrator sample size is internally inconsistent."
+          },
+          {
+            "evidence_anchor": "Findings §4.3, final paragraph",
+            "evidence_excerpt": "“achieved balanced representation of perspectives, capturing the full range”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "EIC-06",
+            "recommendation": "Remove or materially qualify this assertion; describe the reported themes as dominant themes among the analyzed accounts.",
+            "severity": "P2",
+            "summary": "The manuscript claims balanced, full-range representation while admitting that dissenting views were omitted."
+          }
+        ],
+        "retries": 0,
+        "role": "journal fit, contribution, and claim calibration",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Abstract; §3.2 Participants and setting",
+            "evidence_excerpt": "“Fourteen administrators were interviewed in depth” / “Twelve senior administrators (n=12) ... were recruited”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-01",
+            "recommendation": "Reconcile the discrepancy everywhere and state the final analytic sample, any exclusions, and whether all interviews contributed to the reported themes.",
+            "severity": "P1",
+            "summary": "The reported interview sample size is internally inconsistent, making the qualitative evidentiary base indeterminate."
+          },
+          {
+            "evidence_anchor": "§4.3 QA as identity work",
+            "evidence_excerpt": "“capturing the full range of administrator views” ... “these were excluded for space, as they fell outside the three-theme structure”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-02",
+            "recommendation": "Analyze and report dissenting or negative cases and revise claims of balanced or full representation.",
+            "severity": "P1",
+            "summary": "The analysis explicitly excluded dissenting accounts to preserve a three-theme structure, risking selective thematic reporting."
+          },
+          {
+            "evidence_anchor": "§3.2 Participants and setting",
+            "evidence_excerpt": "“Twelve senior administrators ... were recruited through institutional QA offices.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-03",
+            "recommendation": "Specify sampling logic, eligibility, recruitment, participation counts, role and institution distribution, and gatekeeper effects.",
+            "severity": "P2",
+            "summary": "The sampling strategy is insufficiently specified and recruitment through QA offices may have selected institutionally connected or favorable participants."
+          },
+          {
+            "evidence_anchor": "§3.4 Analysis",
+            "evidence_excerpt": "“Coding proceeded iteratively, moving between transcripts and an emerging set of themes until a stable structure was reached.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-04",
+            "recommendation": "Describe researcher roles, analytic orientation, coding stages, codebook revision, theme review, discrepant interpretations, and audit materials.",
+            "severity": "P2",
+            "summary": "The thematic-analysis account lacks coder, code-development, disagreement, and traceability detail."
+          },
+          {
+            "evidence_anchor": "§3 Methods, especially §§3.2–3.4",
+            "evidence_excerpt": "The methods describe recruitment, interviews, and iterative coding but do not identify interviewer or researcher positionality.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-05",
+            "recommendation": "Add a reflexivity statement addressing relationships to QA and institutions, assumptions, and practices used to examine their influence.",
+            "severity": "P2",
+            "summary": "No reflexivity account is provided despite possible professional proximity, power relations, and socially desirable responses."
+          },
+          {
+            "evidence_anchor": "§4.1; §4.2",
+            "evidence_excerpt": "“These themes emerged systematically ... giving us confidence” / “recurred across every interview.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "METH-06",
+            "recommendation": "Report theme distribution, audit procedures, peer debriefing or participant feedback where used, and exception analysis; otherwise temper the claims.",
+            "severity": "P2",
+            "summary": "Trustworthiness is asserted rather than demonstrated."
+          }
+        ],
+        "retries": 0,
+        "role": "qualitative design, sampling, coding, reflexivity, and trustworthiness",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§2 Literature Review; §5 Discussion; References",
+            "evidence_excerpt": "§2 says Delacroix “argues against” consultation as sufficient evidence; §5 says he “recommends ... broad stakeholder consultation as the central mechanism.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DG-01",
+            "recommendation": "Correct the attribution and treat participation as necessary but not sufficient, paired with trust, substantive shared decision-making, and observable improvement.",
+            "severity": "P2",
+            "summary": "The discussion reverses Delacroix (2018)'s stated position, making a core governance recommendation rest on a contradictory interpretation."
+          },
+          {
+            "evidence_anchor": "§5 Discussion, second finding; §6 Conclusion",
+            "evidence_excerpt": "“universities across the sector”; “a general account of how the higher education sector as a whole constructs quality culture”; “administrators everywhere”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DG-02",
+            "recommendation": "Limit conclusions to the sampled national system and make cross-sector or cross-national applicability a question for future testing.",
+            "severity": "P1",
+            "summary": "The manuscript generalizes from three universities in one national system to the whole sector and to administrators everywhere."
+          },
+          {
+            "evidence_anchor": "§2 Literature Review, fourth paragraph; §6 Conclusion",
+            "evidence_excerpt": "The review cites Pettersen (2022) and Rahman (2020), while the conclusion claims “the first comprehensive account.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DG-03",
+            "recommendation": "Remove or substantiate the novelty claim and specify the study's incremental contribution relative to those works.",
+            "severity": "P2",
+            "summary": "The first-comprehensive-account claim is not distinguished from cited work on distributed leadership and QA professional identity."
+          }
+        ],
+        "retries": 0,
+        "role": "higher-education governance accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "perspective_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Sections 3.2, 5, and 6",
+            "evidence_excerpt": "“Twelve senior administrators ... were recruited”; “an ongoing negotiation among administrators, academics, and external bodies.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "PERSPECTIVE-01",
+            "recommendation": "Limit conclusions to administrators' perceived negotiation, or collect and analyze other groups' perspectives.",
+            "severity": "P1",
+            "summary": "The paper treats administrator accounts as evidence of negotiation among administrators, academics, and external bodies although it collected no data from the latter groups."
+          },
+          {
+            "evidence_anchor": "Section 4.3, final paragraph",
+            "evidence_excerpt": "“capturing the full range”; “these were excluded for space.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "PERSPECTIVE-02",
+            "recommendation": "Analyze and report dissenting accounts and remove balance or full-representation claims unless supported by the revised analysis.",
+            "severity": "P1",
+            "summary": "Excluding dissenting administrator accounts while claiming balanced and full representation can materially distort participant meaning."
+          },
+          {
+            "evidence_anchor": "Sections 3.2, 3.5, and 4.1",
+            "evidence_excerpt": "“the quality director of the largest private university in the region”; “all data were fully anonymized.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "PERSPECTIVE-03",
+            "recommendation": "Broaden or remove identifying role-institution combinations and reassess consent and residual disclosure risk.",
+            "severity": "P2",
+            "summary": "Distinctive institutional and role details create a deductive-disclosure risk despite the assertion of full anonymization."
+          },
+          {
+            "evidence_anchor": "Sections 2 and 5, third discussion paragraph",
+            "evidence_excerpt": "“consultation is not enough”; “consultation as the central mechanism.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "PERSPECTIVE-04",
+            "recommendation": "Correct the attribution and qualify consultation as conditional on evidence of influence, trust, and ownership.",
+            "severity": "P2",
+            "summary": "The consultation recommendation conflicts with the manuscript's own account of Delacroix and is not validated by data from consulted groups."
+          }
+        ],
+        "retries": 0,
+        "role": "cross-disciplinary interpretation and participant implications",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "devils_advocate_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§3.2; §5, paragraph 3",
+            "evidence_excerpt": "“three universities in a single national system” ... “universities across the sector” ... “administrators everywhere”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-01",
+            "recommendation": "Restrict conclusions to the sample and national context, state transferability conditions, and frame broader claims as hypotheses.",
+            "severity": "P1",
+            "summary": "Sector-wide transferability claims exceed what a purposive, single-system three-university sample can support."
+          },
+          {
+            "evidence_anchor": "§4.3, final paragraph",
+            "evidence_excerpt": "“capturing the full range” ... “these were excluded for space.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-02",
+            "recommendation": "Report the dissenting accounts and revise claims of balance, completeness, and prevalence.",
+            "severity": "P1",
+            "summary": "Excluding dissenting accounts while claiming full-range representation creates selective-evidence risk."
+          },
+          {
+            "evidence_anchor": "§3.4; §4.1",
+            "evidence_excerpt": "“until a stable structure was reached” and “giving us confidence that the pattern was not an artifact.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-03",
+            "recommendation": "Specify code-development chronology, stopping rationale, negative-case handling, and institutional contribution to themes, or soften the claims.",
+            "severity": "P2",
+            "summary": "The manuscript asserts saturation or stability without documenting how it was assessed."
+          },
+          {
+            "evidence_anchor": "§3.1–§3.2; §4.4",
+            "evidence_excerpt": "“48 mid-level staff” ... “The survey corroborated the qualitative picture” ... “moderately positive ... score.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-04",
+            "recommendation": "Describe the survey as contextual or contrasting unless constructs map directly to interview themes; report the instrument, response rate, and integration logic.",
+            "severity": "P2",
+            "summary": "The survey is said to corroborate the qualitative findings despite a different respondent group and a directionally mixed result."
+          },
+          {
+            "evidence_anchor": "§4.4",
+            "evidence_excerpt": "“n=9” ... “n=11” ... “p<.05” ... “possible moderator.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "DA-05",
+            "recommendation": "Report test, group statistics, effect size, exact p-value, assumptions, and multiplicity handling; treat it as exploratory and avoid institutional-type attribution.",
+            "severity": "P2",
+            "summary": "The statistically significant institutional comparison is underreported and based on very small subgroups."
+          }
+        ],
+        "retries": 0,
+        "role": "stress-test saturation, transferability, and evidentiary claims",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-full-seven",
+    "protocol": {
+      "completed_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "C1",
+          "contributing_agents": [
+            "eic_agent",
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The qualitative interview sample is internally inconsistent: the abstract reports 14 administrators, while Methods reports 12, leaving the analytic evidence base unclear."
+        },
+        {
+          "concept_id": "C2",
+          "contributing_agents": [
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The study claims balanced, full-range representation while deliberately excluding dissenting accounts, creating selective thematic reporting risk."
+        },
+        {
+          "concept_id": "C3",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Sector-wide and universal claims substantially exceed a three-university, single-national-system sample."
+        },
+        {
+          "concept_id": "C4",
+          "contributing_agents": [
+            "perspective_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The conclusion treats administrator accounts as evidence of a negotiation involving academics and external bodies, without data from those groups."
+        },
+        {
+          "concept_id": "C5",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The discussion misattributes Delacroix's warning about consultation-as-ritual as an endorsement of consultation as the central mechanism."
+        },
+        {
+          "concept_id": "C6",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The paper's first-comprehensive-account novelty claim is not calibrated to the literature it cites."
+        },
+        {
+          "concept_id": "C7",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Sampling and QA-office recruitment are insufficiently specified, including potential gatekeeper effects."
+        },
+        {
+          "concept_id": "C8",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The thematic-analysis description lacks enough detail to assess coding and theme-development rigor."
+        },
+        {
+          "concept_id": "C9",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "No reflexivity account addresses researcher proximity, power relations, or socially desirable responses."
+        },
+        {
+          "concept_id": "C10",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Claims of systematic themes and cross-institutional coverage lack reported trustworthiness evidence."
+        },
+        {
+          "concept_id": "C11",
+          "contributing_agents": [
+            "perspective_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Distinctive role and institutional details may permit deductive disclosure despite the anonymity claim."
+        },
+        {
+          "concept_id": "C12",
+          "contributing_agents": [
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Saturation or thematic stability is asserted without a documented assessment procedure."
+        },
+        {
+          "concept_id": "C13",
+          "contributing_agents": [
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The survey's claimed corroboration is unsupported because it concerns a different respondent group and a mixed result."
+        },
+        {
+          "concept_id": "C14",
+          "contributing_agents": [
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The small-subgroup statistical comparison is underreported and cannot support the institutional-type moderator inference as written."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 10,
+      "rationale": "Four independently supported P1 concepts affect the integrity, scope, and evidentiary basis of the central claims; revision is required before the manuscript can be accepted."
+    },
+    "task_id": "ms02_qual"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "a85f6509d932bba32b5fc81a2f180d1640cfdffefed7b49cfe0079ea02cdf6e2",
+    "total_tokens": 498435,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 470784,
+      "input_tokens": 492112,
+      "output_tokens": 6323,
+      "reasoning_output_tokens": 721
+    },
+    "wall_clock_ms": 221354
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

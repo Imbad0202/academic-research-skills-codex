@@ -1,0 +1,1008 @@
+{
+  "cohort_id": "issue-37-pilot-v1",
+  "evidence": {
+    "per_run": [
+      {
+        "accepted_unique_findings": 0,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 47123,
+          "output_tokens": 581,
+          "total_tokens": 47704,
+          "wall_clock_ms": 21224
+        },
+        "critical_gold_count": 0,
+        "decision": "pass",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 0,
+        "matched_critical_count": 0,
+        "matched_gold_count": 0,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms00_clean_control",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 4,
+        "arm_id": "reviewer-two-plus-synthesis",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 228463,
+          "output_tokens": 2064,
+          "total_tokens": 230527,
+          "wall_clock_ms": 98395
+        },
+        "critical_gold_count": 0,
+        "decision": "warn",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 0,
+        "matched_critical_count": 0,
+        "matched_gold_count": 0,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms00_clean_control",
+        "unscored_extra_findings": 4,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 3,
+        "arm_id": "reviewer-five-panel",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 325797,
+          "output_tokens": 3396,
+          "total_tokens": 329193,
+          "wall_clock_ms": 119118
+        },
+        "critical_gold_count": 0,
+        "decision": "warn",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 0,
+        "matched_critical_count": 0,
+        "matched_gold_count": 0,
+        "reported_duplicate_contributions": 5,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms00_clean_control",
+        "unscored_extra_findings": 3,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "reviewer-full-seven",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 329372,
+          "output_tokens": 1978,
+          "total_tokens": 331350,
+          "wall_clock_ms": 107051
+        },
+        "critical_gold_count": 0,
+        "decision": "warn",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 0,
+        "matched_critical_count": 0,
+        "matched_gold_count": 0,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms00_clean_control",
+        "unscored_extra_findings": 1,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 4,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 50606,
+          "output_tokens": 1373,
+          "total_tokens": 51979,
+          "wall_clock_ms": 35252
+        },
+        "critical_gold_count": 4,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 11,
+        "matched_critical_count": 3,
+        "matched_gold_count": 6,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms01_quant",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 9,
+        "arm_id": "reviewer-two-plus-synthesis",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 242264,
+          "output_tokens": 2900,
+          "total_tokens": 245164,
+          "wall_clock_ms": 109747
+        },
+        "critical_gold_count": 4,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 11,
+        "matched_critical_count": 3,
+        "matched_gold_count": 10,
+        "reported_duplicate_contributions": 1,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms01_quant",
+        "unscored_extra_findings": 1,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 8,
+        "arm_id": "reviewer-five-panel",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 395576,
+          "output_tokens": 5279,
+          "total_tokens": 400855,
+          "wall_clock_ms": 145557
+        },
+        "critical_gold_count": 4,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 11,
+        "matched_critical_count": 3,
+        "matched_gold_count": 10,
+        "reported_duplicate_contributions": 10,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms01_quant",
+        "unscored_extra_findings": 1,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 9,
+        "arm_id": "reviewer-full-seven",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 538719,
+          "output_tokens": 4830,
+          "total_tokens": 543549,
+          "wall_clock_ms": 165623
+        },
+        "critical_gold_count": 4,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 11,
+        "matched_critical_count": 3,
+        "matched_gold_count": 10,
+        "reported_duplicate_contributions": 10,
+        "reported_retries": 0,
+        "run_status": "BUDGET_EXHAUSTED",
+        "task_id": "ms01_quant",
+        "unscored_extra_findings": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 6,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 50196,
+          "output_tokens": 1430,
+          "total_tokens": 51626,
+          "wall_clock_ms": 40111
+        },
+        "critical_gold_count": 2,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 9,
+        "matched_critical_count": 1,
+        "matched_gold_count": 6,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms02_qual",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 7,
+        "arm_id": "reviewer-two-plus-synthesis",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 183170,
+          "output_tokens": 2584,
+          "total_tokens": 185754,
+          "wall_clock_ms": 87685
+        },
+        "critical_gold_count": 2,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 9,
+        "matched_critical_count": 0,
+        "matched_gold_count": 4,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms02_qual",
+        "unscored_extra_findings": 3,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 9,
+        "arm_id": "reviewer-five-panel",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 400182,
+          "output_tokens": 4730,
+          "total_tokens": 404912,
+          "wall_clock_ms": 162952
+        },
+        "critical_gold_count": 2,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 9,
+        "matched_critical_count": 1,
+        "matched_gold_count": 6,
+        "reported_duplicate_contributions": 11,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms02_qual",
+        "unscored_extra_findings": 3,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 14,
+        "arm_id": "reviewer-full-seven",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 492112,
+          "output_tokens": 6323,
+          "total_tokens": 498435,
+          "wall_clock_ms": 221354
+        },
+        "critical_gold_count": 2,
+        "decision": "block",
+        "expected_action_correct": null,
+        "factually_false_findings": 0,
+        "gold_count": 9,
+        "matched_critical_count": 1,
+        "matched_gold_count": 7,
+        "reported_duplicate_contributions": 10,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "ms02_qual",
+        "unscored_extra_findings": 7,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "reviewer"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 71766,
+          "output_tokens": 1029,
+          "total_tokens": 72795,
+          "wall_clock_ms": 31404
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A1",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 3,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 193731,
+          "output_tokens": 1712,
+          "total_tokens": 195443,
+          "wall_clock_ms": 71798
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 1,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A1",
+        "unscored_extra_findings": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 45094,
+          "output_tokens": 694,
+          "total_tokens": 45788,
+          "wall_clock_ms": 23675
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A2",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 4,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 185974,
+          "output_tokens": 2060,
+          "total_tokens": 188034,
+          "wall_clock_ms": 79593
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 3,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A2",
+        "unscored_extra_findings": 3,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 2,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 71378,
+          "output_tokens": 1246,
+          "total_tokens": 72624,
+          "wall_clock_ms": 36420
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A3",
+        "unscored_extra_findings": 1,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 3,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 237271,
+          "output_tokens": 2050,
+          "total_tokens": 239321,
+          "wall_clock_ms": 106656
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 2,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A3",
+        "unscored_extra_findings": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 71049,
+          "output_tokens": 892,
+          "total_tokens": 71941,
+          "wall_clock_ms": 28695
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A4",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 3,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 141310,
+          "output_tokens": 2187,
+          "total_tokens": 143497,
+          "wall_clock_ms": 79577
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 1,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A4",
+        "unscored_extra_findings": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 45130,
+          "output_tokens": 840,
+          "total_tokens": 45970,
+          "wall_clock_ms": 27379
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A5",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 5,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 236786,
+          "output_tokens": 2349,
+          "total_tokens": 239135,
+          "wall_clock_ms": 88563
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 2,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "A5",
+        "unscored_extra_findings": 4,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 2,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": true,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 70977,
+          "output_tokens": 1029,
+          "total_tokens": 72006,
+          "wall_clock_ms": 48815
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "B5",
+        "unscored_extra_findings": 1,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 0,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": false,
+        "citation_faithfulness_eligible": true,
+        "coordination_cost": {
+          "input_tokens": 22163,
+          "output_tokens": 441,
+          "total_tokens": 22604,
+          "wall_clock_ms": 21385
+        },
+        "critical_gold_count": 1,
+        "decision": "pass",
+        "expected_action_correct": false,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 0,
+        "matched_gold_count": 0,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "B5",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "inline-solo",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 91997,
+          "output_tokens": 995,
+          "total_tokens": 92992,
+          "wall_clock_ms": 34193
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 0,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "D1",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      },
+      {
+        "accepted_unique_findings": 1,
+        "arm_id": "workflow-current",
+        "citation_faithfulness_correct": null,
+        "citation_faithfulness_eligible": false,
+        "coordination_cost": {
+          "input_tokens": 114256,
+          "output_tokens": 1560,
+          "total_tokens": 115816,
+          "wall_clock_ms": 45877
+        },
+        "critical_gold_count": 1,
+        "decision": "block",
+        "expected_action_correct": true,
+        "factually_false_findings": 0,
+        "gold_count": 1,
+        "matched_critical_count": 1,
+        "matched_gold_count": 1,
+        "reported_duplicate_contributions": 1,
+        "reported_retries": 0,
+        "run_status": "PASS",
+        "task_id": "D1",
+        "unscored_extra_findings": 0,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        },
+        "workflow": "pipeline"
+      }
+    ],
+    "pipeline": {
+      "inline-solo": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 0,
+          "input_tokens": 467391,
+          "output_tokens": 6725,
+          "reported_retries": 0,
+          "wall_clock_ms": 230581
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 9,
+          "reported_total": 0
+        },
+        "outcome_quality": {
+          "action_total": 7,
+          "citation_faithfulness_hits": 4,
+          "citation_faithfulness_total": 4,
+          "correct_block_actions": 7,
+          "critical_recall": 1.0,
+          "critical_total": 7,
+          "factually_false_findings": 0,
+          "gold_total": 7,
+          "matched_critical": 7,
+          "matched_gold": 7,
+          "recall": 1.0
+        },
+        "task_count": 7,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "workflow-current": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 0,
+          "input_tokens": 1131491,
+          "output_tokens": 12359,
+          "reported_retries": 0,
+          "wall_clock_ms": 493449
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 19,
+          "reported_total": 10
+        },
+        "outcome_quality": {
+          "action_total": 7,
+          "citation_faithfulness_hits": 3,
+          "citation_faithfulness_total": 4,
+          "correct_block_actions": 6,
+          "critical_recall": 0.8571428571428571,
+          "critical_total": 7,
+          "factually_false_findings": 0,
+          "gold_total": 7,
+          "matched_critical": 6,
+          "matched_gold": 6,
+          "recall": 0.8571428571428571
+        },
+        "task_count": 7,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      }
+    },
+    "reviewer": {
+      "inline-solo": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 0,
+          "input_tokens": 147925,
+          "output_tokens": 3384,
+          "reported_retries": 0,
+          "wall_clock_ms": 96587
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 10,
+          "reported_total": 0
+        },
+        "outcome_quality": {
+          "action_total": 0,
+          "citation_faithfulness_hits": 0,
+          "citation_faithfulness_total": 0,
+          "clean_control_false_findings": 0,
+          "correct_block_actions": 0,
+          "critical_recall": 0.6666666666666666,
+          "critical_total": 6,
+          "factually_false_findings": 0,
+          "gold_total": 20,
+          "matched_critical": 4,
+          "matched_gold": 12,
+          "recall": 0.6
+        },
+        "task_count": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "reviewer-five-panel": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 0,
+          "input_tokens": 1121555,
+          "output_tokens": 13405,
+          "reported_retries": 0,
+          "wall_clock_ms": 427627
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 20,
+          "reported_total": 26
+        },
+        "outcome_quality": {
+          "action_total": 0,
+          "citation_faithfulness_hits": 0,
+          "citation_faithfulness_total": 0,
+          "clean_control_false_findings": 0,
+          "correct_block_actions": 0,
+          "critical_recall": 0.6666666666666666,
+          "critical_total": 6,
+          "factually_false_findings": 0,
+          "gold_total": 20,
+          "matched_critical": 4,
+          "matched_gold": 16,
+          "recall": 0.8
+        },
+        "task_count": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "reviewer-full-seven": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 1,
+          "input_tokens": 1360203,
+          "output_tokens": 13131,
+          "reported_retries": 0,
+          "wall_clock_ms": 494028
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 24,
+          "reported_total": 20
+        },
+        "outcome_quality": {
+          "action_total": 0,
+          "citation_faithfulness_hits": 0,
+          "citation_faithfulness_total": 0,
+          "clean_control_false_findings": 0,
+          "correct_block_actions": 0,
+          "critical_recall": 0.6666666666666666,
+          "critical_total": 6,
+          "factually_false_findings": 0,
+          "gold_total": 20,
+          "matched_critical": 4,
+          "matched_gold": 17,
+          "recall": 0.85
+        },
+        "task_count": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      },
+      "reviewer-two-plus-synthesis": {
+        "coordination_cost": {
+          "budget_exhausted_runs": 0,
+          "input_tokens": 653897,
+          "output_tokens": 7548,
+          "reported_retries": 0,
+          "wall_clock_ms": 295827
+        },
+        "duplicate_contributions": {
+          "accepted_unique_findings": 20,
+          "reported_total": 1
+        },
+        "outcome_quality": {
+          "action_total": 0,
+          "citation_faithfulness_hits": 0,
+          "citation_faithfulness_total": 0,
+          "clean_control_false_findings": 0,
+          "correct_block_actions": 0,
+          "critical_recall": 0.5,
+          "critical_total": 6,
+          "factually_false_findings": 0,
+          "gold_total": 20,
+          "matched_critical": 3,
+          "matched_gold": 14,
+          "recall": 0.7
+        },
+        "task_count": 2,
+        "verifier_catches": {
+          "state": "unknown",
+          "value": null
+        }
+      }
+    }
+  },
+  "limitations": [
+    "One non-deterministic replicate per task-arm; no variance or causal topology claim is estimable.",
+    "Post-freeze adjudication was not blinded to arm identity.",
+    "Per-agent usage and verifier-catch events are unavailable in Codex CLI JSON and remain unknown rather than zero.",
+    "The ephemeral CLI stream did not expose independently replayable spawn events; declared/completed agent IDs are validated from the frozen structured output.",
+    "Reviewer extra findings are unscored unless factually false; they are not automatically false positives.",
+    "This report records local evidence only and does not update planner defaults or learning state."
+  ],
+  "local_go_no_go": {
+    "changes_default_routing": false,
+    "recommendations": [
+      {
+        "action": "retain",
+        "arm": "inline-solo",
+        "reason": "The pilot is single-replicate and no multi-agent arm improved critical recall over inline while staying proportionate in cost.",
+        "risk": "routine",
+        "workflow": "reviewer"
+      },
+      {
+        "action": "expand",
+        "arm": "reviewer-five-panel",
+        "reason": "Seeded-defect recall rose from 0.60 to 0.80, but critical recall stayed 0.67 and token cost increased substantially; replicate before any routing change.",
+        "risk": "high",
+        "workflow": "reviewer"
+      },
+      {
+        "action": "reduce",
+        "arm": "reviewer-full-seven",
+        "reason": "The extra configuration node yielded only 0.05 recall over the five-seat arm and one of two defective runs exhausted the matched token budget.",
+        "risk": "high",
+        "workflow": "reviewer"
+      },
+      {
+        "action": "retain",
+        "arm": "inline-solo",
+        "reason": "Inline found and blocked all 7 seeded P1 patterns in this cohort.",
+        "risk": "integrity-audit",
+        "workflow": "pipeline"
+      },
+      {
+        "action": "reduce",
+        "arm": "workflow-current",
+        "reason": "The three-role arm missed B5 and returned pass while using more coordination resources; do not expand it for this audit stratum.",
+        "risk": "integrity-audit",
+        "workflow": "pipeline"
+      }
+    ]
+  },
+  "report_digest": "d85533c9c8b33ef68adfaa7fbe8d8870d714884cd2d393d809b66f4a962e2d39",
+  "run_count": 26,
+  "schema": "ars.codex.topology-report.v1",
+  "status": "EXPLORATORY_COMPLETE",
+  "task_count": 10
+}

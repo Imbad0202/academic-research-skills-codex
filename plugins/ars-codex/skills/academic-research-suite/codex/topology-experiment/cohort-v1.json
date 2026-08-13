@@ -1,0 +1,148 @@
+{
+  "schema": "ars.codex.topology-cohort.v1",
+  "cohort_id": "issue-37-pilot-v1",
+  "frozen_at_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+  "exploratory": true,
+  "matched_conditions": {
+    "model_id": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "tool_allowance": ["exec_command.read_only_input_bundle", "collaboration.spawn_agent", "collaboration.wait_agent"],
+    "sandbox": "read-only",
+    "network": "disabled",
+    "aggregate_budget": {"max_total_tokens": 500000},
+    "retry_policy": {"max_attempts": 1, "selective_reruns": false},
+    "deterministic": false,
+    "seeds": []
+  },
+  "tasks": [
+    {
+      "task_id": "ms00_clean_control",
+      "workflow": "reviewer",
+      "input_digest": "1fd13a79f69c32a7d9512f832613e99ed657892d3ad8e9b1a18dfa9c5c37bcfb",
+      "arms": ["inline-solo", "reviewer-two-plus-synthesis", "reviewer-five-panel", "reviewer-full-seven"],
+      "inputs": [
+        {"bundle_path": "input/manuscript.md", "source": "ars/evals/heldout/reviewer_seeded_defects/manuscripts/ms00_clean_control.md"},
+        {"bundle_path": "input/reviewer-config.json", "source": "codex/topology-experiment/frozen-configs/ms00_clean_control.json"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/reviewer.md"}
+      ],
+      "held_out": {"kind": "clean_negative_control", "source": null}
+    },
+    {
+      "task_id": "ms01_quant",
+      "workflow": "reviewer",
+      "input_digest": "09ca3124838b0e12dbbcffca17743bd709fcdec48040676bb6e2e65b32200468",
+      "arms": ["inline-solo", "reviewer-two-plus-synthesis", "reviewer-five-panel", "reviewer-full-seven"],
+      "inputs": [
+        {"bundle_path": "input/manuscript.md", "source": "ars/evals/heldout/reviewer_seeded_defects/manuscripts/ms01_quant_defective.md"},
+        {"bundle_path": "input/reviewer-config.json", "source": "codex/topology-experiment/frozen-configs/ms01_quant.json"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/reviewer.md"}
+      ],
+      "held_out": {"kind": "seeded_defects", "source": "ars/evals/heldout/reviewer_seeded_defects/manifests/ms01_quant.defects.json"}
+    },
+    {
+      "task_id": "ms02_qual",
+      "workflow": "reviewer",
+      "input_digest": "8e4315a40b90710060410a9a8376e6e48e38f84b523a675eb934a163e06cccf9",
+      "arms": ["inline-solo", "reviewer-two-plus-synthesis", "reviewer-five-panel", "reviewer-full-seven"],
+      "inputs": [
+        {"bundle_path": "input/manuscript.md", "source": "ars/evals/heldout/reviewer_seeded_defects/manuscripts/ms02_qual_defective.md"},
+        {"bundle_path": "input/reviewer-config.json", "source": "codex/topology-experiment/frozen-configs/ms02_qual.json"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/reviewer.md"}
+      ],
+      "held_out": {"kind": "seeded_defects", "source": "ars/evals/heldout/reviewer_seeded_defects/manifests/ms02_qual.defects.json"}
+    },
+    {
+      "task_id": "A1",
+      "workflow": "pipeline",
+      "input_digest": "a4f9086759c9242f278108370547ccbb96c8722f997d958657ca8c52a5d7f4c2",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A1/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A1/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/regulation_qa_decree.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A1/upstream_context/prior_artifacts/regulation_qa_decree.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A1/bad_run"}
+    },
+    {
+      "task_id": "A2",
+      "workflow": "pipeline",
+      "input_digest": "ea5a0af60fbd5e1a6ff520ae4d87e7b5ebc630281cfa30fd9a5e269487386f40",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A2/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A2/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/bibliography_entry_pending.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A2/upstream_context/prior_artifacts/bibliography_entry_pending.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A2/bad_run"}
+    },
+    {
+      "task_id": "A3",
+      "workflow": "pipeline",
+      "input_digest": "89e7c3e0ad05e8786dd54d75a98326a85e5c918988a8f1e1a625222047554b3a",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A3/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A3/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/entry_A_general_overview.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A3/upstream_context/prior_artifacts/entry_A_general_overview.md"},
+        {"bundle_path": "input/prior_artifacts/entry_C_outcome_metrics.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A3/upstream_context/prior_artifacts/entry_C_outcome_metrics.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A3/bad_run"}
+    },
+    {
+      "task_id": "A4",
+      "workflow": "pipeline",
+      "input_digest": "a867e7e94739124230bea61df5b35515d2ae09c0fd855b93ef7fbb3cd7cc639d",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A4/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A4/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/ministerial_order_2019.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A4/upstream_context/prior_artifacts/ministerial_order_2019.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A4/bad_run"}
+    },
+    {
+      "task_id": "A5",
+      "workflow": "pipeline",
+      "input_digest": "48c80991a18e0dbf196f1d2b94cdd0227d95ae4bb697b0b9751c7332ea40c297",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A5/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A5/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/chapter_2_existing.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A5/upstream_context/prior_artifacts/chapter_2_existing.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/A5/bad_run"}
+    },
+    {
+      "task_id": "B5",
+      "workflow": "pipeline",
+      "input_digest": "445b2b1c018f1bbe325506605b096dd979fe05c3f3bdb22914e51b3872989201",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/B5/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/B5/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/primary_sources.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/B5/upstream_context/prior_artifacts/primary_sources.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/B5/bad_run"}
+    },
+    {
+      "task_id": "D1",
+      "workflow": "pipeline",
+      "input_digest": "5e2b20a50f179018ff34a80ea0d35d165df2ba8565e4b1090942a830d2d1d972",
+      "arms": ["inline-solo", "workflow-current"],
+      "inputs": [
+        {"bundle_path": "input/deliverable.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/D1/bad_run/deliverable.md"},
+        {"bundle_path": "input/passport.yaml", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/D1/upstream_context/passport_snippet.yaml"},
+        {"bundle_path": "input/prior_artifacts/chapter_a.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/D1/upstream_context/prior_artifacts/chapter_a.md"},
+        {"bundle_path": "input/prior_artifacts/chapter_b.md", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/D1/upstream_context/prior_artifacts/chapter_b.md"},
+        {"bundle_path": "input/rubric.md", "source": "codex/topology-experiment/rubrics/pipeline-audit.md"}
+      ],
+      "held_out": {"kind": "pattern_eval", "source": "ars/tests/fixtures/v3_6_7_pattern_eval/D1/bad_run"}
+    }
+  ]
+}

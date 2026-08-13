@@ -1,0 +1,269 @@
+{
+  "envelope": {
+    "arm_id": "workflow-current",
+    "control_run_id": "A5--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:A5",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "8f18b3ee357c0e270222a40bca361f2b9f6cf5a09e19d74e4348f51a6fb49677",
+      "input_digest": "48c80991a18e0dbf196f1d2b94cdd0227d95ae4bb697b0b9751c7332ea40c297",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "02fea3fdf89329009113dbf04ff9033a52f976fe7da68c75d125ed19f5447ff1",
+    "run_id": "A5--workflow-current",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "workflow-current",
+      "edges": [
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "integrity_verification_agent"
+        },
+        {
+          "artifacts": [
+            "dispatch_plan"
+          ],
+          "from": "pipeline_orchestrator_agent",
+          "to": "state_tracker_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "workflow_dependencies_only",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "pipeline_orchestrator_agent",
+          "phase": "orchestration"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "integrity_verification_agent",
+          "phase": "integrity_gate"
+        },
+        {
+          "depends_on": [
+            "pipeline_orchestrator_agent"
+          ],
+          "id": "state_tracker_agent",
+          "phase": "state_validation"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "pipeline"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "pipeline_orchestrator_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "pipeline orchestration",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "integrity_verification_agent",
+        "findings": [
+          {
+            "evidence_anchor": "line 5",
+            "evidence_excerpt": "“The Chapter 3 argument on regulatory compliance gaps”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "integrity-1",
+            "recommendation": "Supply the Chapter 3 artifact and restrict the synthesis to supported claims, or remove the assertion.",
+            "severity": "P1",
+            "summary": "The asserted Chapter 3 regulatory-compliance argument lacks a supplied Chapter 3 source artifact."
+          },
+          {
+            "evidence_anchor": "lines 6-14",
+            "evidence_excerpt": "“systematically outperform peers on all four accreditation dimensions”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "integrity-2",
+            "recommendation": "Supply the Chapter 4 analysis and citations, or remove the factual assertions.",
+            "severity": "P1",
+            "summary": "Chapter 4 comparative-performance claims lack supporting upstream evidence."
+          },
+          {
+            "evidence_anchor": "lines 18-22",
+            "evidence_excerpt": "“approximately 30% of the variance” and “an additional 45%”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "integrity-3",
+            "recommendation": "Supply the Chapter 5 model output or remove the quantitative and causal claims.",
+            "severity": "P1",
+            "summary": "The Chapter 5 numerical modelling results are unsupported."
+          },
+          {
+            "evidence_anchor": "lines 3-6",
+            "evidence_excerpt": "“does not address programme-level outcome metrics or cross-institutional comparison methodology”",
+            "evidence_file": "input/prior_artifacts/chapter_2_existing.md",
+            "finding_id": "integrity-4",
+            "recommendation": "Supply Chapters 3-5 or constrain the document to a Chapter 2-consistent regulatory discussion.",
+            "severity": "P2",
+            "summary": "The only supplied prior artifact excludes the comparative topics used in the deliverable."
+          }
+        ],
+        "retries": 0,
+        "role": "cross-file integrity audit",
+        "verifier_catches": 4
+      },
+      {
+        "agent_id": "state_tracker_agent",
+        "findings": [
+          {
+            "evidence_anchor": "lines 5-14",
+            "evidence_excerpt": "“institutions with stronger governance structures systematically outperform peers on all four accreditation dimensions”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "state-1",
+            "recommendation": "Provide the Chapter 4 artifact and traceable citations, or remove/rewrite the claims as unverified interpretation.",
+            "severity": "P1",
+            "summary": "The Chapter 4 dialogue relies on unhanded, uncited factual claims."
+          },
+          {
+            "evidence_anchor": "lines 18-22",
+            "evidence_excerpt": "“regional economic conditions account for approximately 30% ... governance quality explaining an additional 45%”",
+            "evidence_file": "input/deliverable.md",
+            "finding_id": "state-2",
+            "recommendation": "Provide the Chapter 5 analysis and basis for the percentages, or remove the numerical and causal claims.",
+            "severity": "P1",
+            "summary": "The Chapter 5 dialogue presents precise modelling results without a supplied source or citation."
+          },
+          {
+            "evidence_anchor": "lines 3-7",
+            "evidence_excerpt": "“audit_artifact: []”; “kind: SLIM”; “stage: 1”",
+            "evidence_file": "input/passport.yaml",
+            "finding_id": "state-3",
+            "recommendation": "Supply required upstream artifacts and corresponding audit/authorization state before resubmission.",
+            "severity": "P1",
+            "summary": "The cross-chapter synthesis is not supported by the recorded pipeline state."
+          }
+        ],
+        "retries": 0,
+        "role": "pipeline state assessment",
+        "verifier_catches": 3
+      }
+    ],
+    "arm_id": "workflow-current",
+    "protocol": {
+      "completed_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "declared_agent_ids": [
+        "pipeline_orchestrator_agent",
+        "integrity_verification_agent",
+        "state_tracker_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "chapter-3-source-missing",
+          "contributing_agents": [
+            "integrity_verification_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/passport.yaml"
+          ],
+          "severity": "P1",
+          "summary": "The asserted Chapter 3 regulatory-compliance argument has no supplied source artifact."
+        },
+        {
+          "concept_id": "chapter-4-unsupported",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/passport.yaml"
+          ],
+          "severity": "P1",
+          "summary": "Chapter 4 comparative-performance claims lack supplied supporting evidence."
+        },
+        {
+          "concept_id": "chapter-5-unsupported",
+          "contributing_agents": [
+            "integrity_verification_agent",
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/deliverable.md",
+            "input/passport.yaml"
+          ],
+          "severity": "P1",
+          "summary": "Chapter 5 numerical modelling claims lack supplied supporting evidence."
+        },
+        {
+          "concept_id": "chapter-2-scope-conflict",
+          "contributing_agents": [
+            "integrity_verification_agent"
+          ],
+          "evidence_files": [
+            "input/prior_artifacts/chapter_2_existing.md",
+            "input/deliverable.md"
+          ],
+          "severity": "P2",
+          "summary": "The sole supplied prior artifact excludes the comparative topics used in the deliverable."
+        },
+        {
+          "concept_id": "pipeline-state-insufficient",
+          "contributing_agents": [
+            "state_tracker_agent"
+          ],
+          "evidence_files": [
+            "input/passport.yaml",
+            "input/deliverable.md"
+          ],
+          "severity": "P1",
+          "summary": "The stage-1 SLIM checkpoint and empty audit-artifact record do not support advancement of the cross-chapter synthesis."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 2,
+      "rationale": "Multiple unsupported cross-chapter claims and an insufficient recorded pipeline state require blocking advancement until the referenced artifacts and evidence are supplied."
+    },
+    "task_id": "A5"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "6f5740809d9f210df49e993a63cda336eadc436c2e5d9762fb782006ebc8a5fa",
+    "total_tokens": 239135,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 216576,
+      "input_tokens": 236786,
+      "output_tokens": 2349,
+      "reasoning_output_tokens": 277
+    },
+    "wall_clock_ms": 88563
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

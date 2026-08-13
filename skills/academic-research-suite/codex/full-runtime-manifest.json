@@ -8,7 +8,8 @@
     "enabled_when": {
       "full_runtime": "ARS_CODEX_FULL_RUNTIME=1",
       "agent_team": "ARS_CODEX_AGENT_TEAM=1",
-      "hooks": "ARS_CODEX_HOOKS=1"
+      "hooks": "ARS_CODEX_HOOKS=1",
+      "topology_experiment": "ARS_CODEX_TOPOLOGY_EXPERIMENT=1 and ARS_CODEX_TOPOLOGY_ARM=<registered-arm>"
     },
     "fallback_when_disabled": "Use the root SKILL.md router and run ARS agent prompts inline in the current Codex conversation."
   },
@@ -18,7 +19,9 @@
     "adapter_root": "skills/academic-research-suite/codex",
     "hook_pack": "skills/academic-research-suite/codex/hooks/hooks.json",
     "quality_gate_runner": "skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py",
-    "runtime_planner": "skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py"
+    "runtime_planner": "skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py",
+    "topology_experiment": "skills/academic-research-suite/codex/topology-experiment/cohort-v1.json",
+    "topology_experiment_runner": "skills/academic-research-suite/codex/scripts/ars_codex_topology_experiment.py"
   },
   "commands": [
     {"aliases": ["/ars-plan", "ars-plan"], "recipe": "ars/commands/ars-plan.md", "workflow": "academic-paper", "mode": "plan", "model_hint": "sonnet"},
@@ -115,6 +118,8 @@
   },
   "agent_team_rules": {
     "spawn_condition": "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1",
+    "topology_experiment_condition": "A non-default arm requires ARS_CODEX_TOPOLOGY_EXPERIMENT=1, a registered ARS_CODEX_TOPOLOGY_ARM, and agent-team runtime. An arm variable alone is ignored.",
+    "topology_experiment_policy": "The planner records an explicit DAG and edge-level information policy. Experimental reports retain outcome quality, coordination cost, duplicate contributions, and verifier catches separately; they do not update routing or defaults.",
     "inline_fallback": "When either flag is absent, read the same agent prompt files and execute phases inline.",
     "reviewer_independence": [
       "For academic-paper-reviewer full and methodology-focus modes, create independent reviewer work products before editorial synthesis.",
@@ -151,12 +156,14 @@
     {"id": "citation_claim_audit", "kind": "integrity", "runner": "upstream:ars/scripts/claim_audit_pipeline.py", "parity": "partial"},
     {"id": "temporal_integrity", "kind": "integrity", "runner": "upstream:ars/scripts/temporal_integrity_audit.py", "parity": "near"},
     {"id": "reviewer_independence", "kind": "agent-team", "runner": "fixture", "parity": "near"},
+    {"id": "topology_experiment", "kind": "agent-team", "runner": "topology-experiment", "parity": "exploratory"},
     {"id": "hook_safety", "kind": "hooks", "runner": "hook-safety", "parity": "partial"},
     {"id": "upstream_lock", "kind": "provenance", "runner": "manifest", "parity": "near"}
   ],
   "known_degradations": [
     "Codex does not install Claude Code slash commands. Aliases are parsed by the root skill and full-runtime planner.",
     "Codex agent-team spawning is opt-in and planner-driven; inline mode remains the default.",
+    "Topology benchmark arms require a separate double opt-in. Experimental evidence never changes the inline default without a documented human go/no-go decision.",
     "Claude SessionStart and SubagentStop hooks are not installed automatically. The v3.18 upstream update reminder is therefore inactive; the Codex hook pack is local, safe-by-default, and must be explicitly enabled.",
     "Claude model hints opus/sonnet are recorded as metadata; Codex cannot guarantee identical model routing.",
     "ARS model tiering is classification-compatible but remains advisory unless the Codex runtime exposes explicit per-dispatch model selection.",

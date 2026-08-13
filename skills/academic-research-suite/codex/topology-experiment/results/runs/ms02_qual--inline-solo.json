@@ -1,0 +1,216 @@
+{
+  "envelope": {
+    "arm_id": "inline-solo",
+    "control_run_id": "ms02_qual--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms02_qual",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "8e4315a40b90710060410a9a8376e6e48e38f84b523a675eb934a163e06cccf9",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "8701b55c2b101bc11e5dcaac8725f395b9e69f70403272ba00f7464ca50f691f",
+    "run_id": "ms02_qual--inline-solo",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "inline-solo",
+      "edges": [],
+      "information_sharing": {
+        "memory_scope": "off",
+        "peer_outputs": "not_applicable",
+        "policy": "single_context"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "inline_owner",
+          "phase": "inline"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "inline_owner",
+        "findings": [
+          {
+            "evidence_anchor": "Abstract; §3.2",
+            "evidence_excerpt": "The abstract states “Fourteen administrators were interviewed,” whereas §3.2 specifies “Twelve senior administrators (n=12).”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F1",
+            "recommendation": "Reconcile the participant count throughout and explain any exclusions or additional interviews.",
+            "severity": "P1",
+            "summary": "The reported interview sample size is internally inconsistent."
+          },
+          {
+            "evidence_anchor": "§4.3",
+            "evidence_excerpt": "“A minority of participants expressed more skeptical or dissenting views ... these were excluded for space,” immediately after claiming “balanced representation.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F2",
+            "recommendation": "Analyze and report negative cases, or narrow the claims and transparently justify how excluded accounts affect the thematic interpretation.",
+            "severity": "P1",
+            "summary": "The analysis explicitly excludes dissenting accounts while claiming balanced representation and pervasive themes."
+          },
+          {
+            "evidence_anchor": "§5, second finding",
+            "evidence_excerpt": "“universities across the sector” and “administrators everywhere face the same fundamental tension.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F3",
+            "recommendation": "Limit conclusions to the three study institutions/national context and frame broader applicability as a hypothesis for future comparative research.",
+            "severity": "P1",
+            "summary": "The discussion makes sector-wide claims from three purposively bounded institutions without evidence supporting that transfer."
+          },
+          {
+            "evidence_anchor": "§2; §5, third finding; References",
+            "evidence_excerpt": "§2 says Delacroix “argues against treating stakeholder consultation as sufficient evidence,” but §5 says the findings align with Delacroix, “who recommends” consultation as the central mechanism.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F4",
+            "recommendation": "Correct the interpretation of Delacroix or explicitly explain a qualified disagreement rather than attributing the opposite recommendation to the source.",
+            "severity": "P2",
+            "summary": "The discussion reverses the cited source’s stated position on stakeholder consultation."
+          },
+          {
+            "evidence_anchor": "§4.4",
+            "evidence_excerpt": "The comparison reports only n=9, n=11, and “p<.05,” without group values, test, effect size, or treatment of multiple comparisons.",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F5",
+            "recommendation": "Report the comparison method, group descriptives, effect size and uncertainty; otherwise present it as exploratory and avoid significance-based inference.",
+            "severity": "P2",
+            "summary": "The reported statistically significant subgroup comparison is insufficiently specified for interpretation."
+          },
+          {
+            "evidence_anchor": "§3.5; §4.1",
+            "evidence_excerpt": "§3.5 says no individual could be identified, while §4.1 identifies “the quality director of the largest private university in the region.”",
+            "evidence_file": "input/manuscript.md",
+            "finding_id": "F6",
+            "recommendation": "Remove or generalize potentially identifying role/institution combinations, and reassess whether the anonymization and consent statements remain accurate.",
+            "severity": "P2",
+            "summary": "The confidentiality claim is difficult to reconcile with highly specific participant roles and institution descriptors attached to direct quotations."
+          }
+        ],
+        "retries": 0,
+        "role": "audit",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "inline-solo",
+    "protocol": {
+      "completed_agent_ids": [
+        "inline_owner"
+      ],
+      "declared_agent_ids": [
+        "inline_owner"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "sample-size-inconsistency",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Interview sample size conflicts between the abstract and methods."
+        },
+        {
+          "concept_id": "excluded-negative-cases",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Excluding dissenting accounts conflicts with claims of balanced and pervasive thematic representation."
+        },
+        {
+          "concept_id": "overgeneralization",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Sector-wide conclusions exceed evidence from three institutions in one national system."
+        },
+        {
+          "concept_id": "citation-reversal",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The discussion reverses Delacroix's stated position on consultation."
+        },
+        {
+          "concept_id": "underreported-subgroup-test",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The subgroup significance claim lacks essential analytic and effect information."
+        },
+        {
+          "concept_id": "identifiability-risk",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Specific quote attribution may undermine the stated anonymization guarantee."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 0,
+      "rationale": "Three consequential P1 defects affect participant accounting, qualitative evidentiary integrity, and the scope of the central conclusions."
+    },
+    "task_id": "ms02_qual"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "09d5e49c0997df42bfb6d8f612da0d997af6531f5bec937049ad3bc71add9d64",
+    "total_tokens": 51626,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 48640,
+      "input_tokens": 50196,
+      "output_tokens": 1430,
+      "reasoning_output_tokens": 101
+    },
+    "wall_clock_ms": 40111
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}

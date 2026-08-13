@@ -34,6 +34,19 @@ export ARS_CODEX_HOOKS=1
 If a flag is absent, the adapter degrades to inline role-prompt execution and
 must report that degraded behavior.
 
+Topology experiments require a separate, double opt-in in addition to the
+agent-team flags:
+
+```bash
+export ARS_CODEX_TOPOLOGY_EXPERIMENT=1
+export ARS_CODEX_TOPOLOGY_ARM=reviewer-five-panel
+```
+
+Registered arms are `inline-solo`, `reviewer-two-plus-synthesis`,
+`reviewer-five-panel`, `reviewer-full-seven`, and `workflow-current`. An arm
+variable by itself is ignored. Unknown or workflow-inapplicable arms fail
+closed. No experiment changes the inline default or writes routing state.
+
 ## Main Files
 
 - `full-runtime-manifest.json` is the adapter contract: command aliases,
@@ -47,6 +60,9 @@ must report that degraded behavior.
   source prompts rather than duplicating upstream prompt bodies.
 - `compatibility-matrix.md` records Claude Code parity, remaining gaps, and
   verification methods.
+- `topology-experiment/` contains the frozen issue #37 cohort, clean-room
+  envelopes, per-run resource receipts, held-out adjudications, and the local
+  go/no-go report.
 
 ## Agent-Team Semantics
 
@@ -80,6 +96,11 @@ Instead it provides an explicit Codex orchestration contract:
   by the Codex hook pack;
 - inline mode remains available and is the default.
 
+The canonical topology plan records node dependencies and edge-level
+information sharing. Reviewer seats cannot read peer outputs before synthesis;
+the seven-node reviewer arm is one field configurer, five blind reviewer seats,
+and one synthesizer, not seven reviewers.
+
 ## Verification
 
 Run the adapter smoke/parity checks from the repository root:
@@ -87,6 +108,7 @@ Run the adapter smoke/parity checks from the repository root:
 ```bash
 python3 skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py all
 python3 -m pytest skills/academic-research-suite/codex/tests
+python3 skills/academic-research-suite/codex/scripts/ars_codex_topology_experiment.py validate --require-runs
 ```
 
 Run upstream validators from the vendored ARS root as needed:

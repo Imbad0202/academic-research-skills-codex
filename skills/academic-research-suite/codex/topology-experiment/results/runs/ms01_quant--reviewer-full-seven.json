@@ -1,0 +1,570 @@
+{
+  "envelope": {
+    "arm_id": "reviewer-full-seven",
+    "control_run_id": "ms01_quant--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms01_quant",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "09ca3124838b0e12dbbcffca17743bd709fcdec48040676bb6e2e65b32200468",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "148888322f5e09c56a0df35d9be4b4e6d501b4ecdf3070690eb99ab14efa5124",
+    "run_id": "ms01_quant--reviewer-full-seven",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "reviewer-full-seven",
+      "edges": [
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "eic_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "methodology_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "domain_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "perspective_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "devils_advocate_reviewer_agent"
+        },
+        {
+          "artifacts": [
+            "reviewer_configuration"
+          ],
+          "from": "field_analyst_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "eic_agent_report"
+          ],
+          "from": "eic_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "methodology_reviewer_agent_report"
+          ],
+          "from": "methodology_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "domain_reviewer_agent_report"
+          ],
+          "from": "domain_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "perspective_reviewer_agent_report"
+          ],
+          "from": "perspective_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        },
+        {
+          "artifacts": [
+            "devils_advocate_reviewer_agent_report"
+          ],
+          "from": "devils_advocate_reviewer_agent",
+          "to": "editorial_synthesizer_agent"
+        }
+      ],
+      "information_sharing": {
+        "memory_scope": "role_scoped",
+        "peer_outputs": "hidden_until_synthesis",
+        "policy": "edge_allowlist"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "field_analyst_agent",
+          "phase": "configuration"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "eic_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "methodology_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "domain_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "perspective_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent"
+          ],
+          "id": "devils_advocate_reviewer_agent",
+          "phase": "blind_review"
+        },
+        {
+          "depends_on": [
+            "field_analyst_agent",
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "id": "editorial_synthesizer_agent",
+          "phase": "synthesis"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "field_analyst_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "configuration validation",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "eic_agent",
+        "findings": [
+          {
+            "evidence_anchor": "Abstract; §5; §6",
+            "evidence_excerpt": "“dashboard engagement improved course retention”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "E1",
+            "recommendation": "Reframe conclusions as associations and reserve causal claims for causal designs.",
+            "severity": "P1",
+            "summary": "Causal claims contradict the observational evidence."
+          },
+          {
+            "evidence_anchor": "Abstract; §4.2",
+            "evidence_excerpt": "“r = .42” versus “r = .24, p = .004”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "E2",
+            "recommendation": "Audit and reconcile the estimate, sample, and specification.",
+            "severity": "P1",
+            "summary": "The abstract and Results report conflicting retention correlations."
+          },
+          {
+            "evidence_anchor": "§4.3; §5",
+            "evidence_excerpt": "“dashboards scaffold monitoring and adjustment”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "E3",
+            "recommendation": "State that mediation and mechanism were not tested.",
+            "severity": "P2",
+            "summary": "The self-regulation mechanism is overstated from concurrent self-report."
+          },
+          {
+            "evidence_anchor": "§2; References",
+            "evidence_excerpt": "“reliably improve outcomes” versus “When dashboards demotivate”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "E4",
+            "recommendation": "Correct and qualify the equity literature characterization.",
+            "severity": "P2",
+            "summary": "The lower-achieving-student literature claim conflicts with the cited title."
+          }
+        ],
+        "retries": 0,
+        "role": "journal fit, contribution, and claim calibration",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "methodology_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§3.3; §4.2",
+            "evidence_excerpt": "“sessions ... during the term”; withdrawals were “coded as not retained”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M1",
+            "recommendation": "Use a common pre-outcome exposure window and re-estimate.",
+            "severity": "P1",
+            "summary": "Term-long engagement is confounded by time at risk because early withdrawals have fewer opportunities to generate sessions."
+          },
+          {
+            "evidence_anchor": "§3.1–3.2; §5–6",
+            "evidence_excerpt": "“observational, cross-sectional”; “students who chose to respond”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M2",
+            "recommendation": "Restrict claims to association or use a defensible causal design.",
+            "severity": "P1",
+            "summary": "Causal inference lacks confounding control and uses a volunteer cross-sectional sample."
+          },
+          {
+            "evidence_anchor": "§3.2; §4.3; Table 2",
+            "evidence_excerpt": "87 perceived-control respondents but “t(156)”; Table 2 totals 127",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M3",
+            "recommendation": "Reproduce analyses and report valid Ns, exclusions, and degrees of freedom.",
+            "severity": "P1",
+            "summary": "Reported group Ns and degrees of freedom are internally impossible."
+          },
+          {
+            "evidence_anchor": "§4.3; Table 2",
+            "evidence_excerpt": "“t(140) = 1.31, p = .008”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M4",
+            "recommendation": "Recalculate and report the valid test, effect size, and confidence interval.",
+            "severity": "P1",
+            "summary": "The final-exam t statistic and p value are incompatible."
+          },
+          {
+            "evidence_anchor": "§3.3",
+            "evidence_excerpt": "“enrolled but did not sit the final, were coded as not retained”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M5",
+            "recommendation": "Separate withdrawal, enrollment, assessment attendance, and completion.",
+            "severity": "P2",
+            "summary": "The retention endpoint conflates withdrawal and missing the final assessment."
+          },
+          {
+            "evidence_anchor": "§3.2",
+            "evidence_excerpt": "“random sample” and “Students who chose to respond”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M6",
+            "recommendation": "Report sampling frame, response rate, exclusions, and nonresponse comparison.",
+            "severity": "P2",
+            "summary": "The claimed random sample conflicts with volunteer recruitment."
+          },
+          {
+            "evidence_anchor": "§4.1",
+            "evidence_excerpt": "“N=10; M=3.00; sample SD=0.10; integer scale=1-5”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "M7",
+            "recommendation": "Verify raw data and correct or remove the statistic.",
+            "severity": "P2",
+            "summary": "The secondary-item SD is incompatible with ten integer-scale responses and an exact mean of 3.00."
+          }
+        ],
+        "retries": 0,
+        "role": "quantitative design, sampling, measurement, statistics, and inference",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "domain_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§3.2",
+            "evidence_excerpt": "“Students were not informed that their dashboard activity data would be analyzed”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "D1",
+            "recommendation": "Document ethics review, legal basis, notice/consent, linkage, and de-identification safeguards.",
+            "severity": "P1",
+            "summary": "Research use of student activity data lacks stated governance safeguards."
+          },
+          {
+            "evidence_anchor": "§3.3; §6",
+            "evidence_excerpt": "“completed the final assessment” and “retention across programs”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "D2",
+            "recommendation": "Use course persistence/completion and bound policy implications accordingly.",
+            "severity": "P2",
+            "summary": "Course completion is mislabeled and overextended as institutional retention."
+          },
+          {
+            "evidence_anchor": "§5–6",
+            "evidence_excerpt": "“dependable strategy”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "D3",
+            "recommendation": "Recommend local, equity-sensitive evaluation and monitoring instead.",
+            "severity": "P2",
+            "summary": "Deployment guidance ignores stated context and heterogeneous peer-comparison risks."
+          }
+        ],
+        "retries": 0,
+        "role": "higher-education governance accuracy and literature positioning",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "perspective_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§2; §3.1; §6",
+            "evidence_excerpt": "“dependable strategy” despite “can discourage struggling students”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "P1",
+            "recommendation": "Use conditional, equity-monitored implementation guidance.",
+            "severity": "P1",
+            "summary": "Universal deployment advice disregards potential peer-comparison harms for vulnerable students."
+          },
+          {
+            "evidence_anchor": "§5.1; §6",
+            "evidence_excerpt": "“across programs and disciplines”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "P2",
+            "recommendation": "Require multi-program replication before institution-wide claims.",
+            "severity": "P2",
+            "summary": "Cross-disciplinary policy claims exceed the single-course evidence."
+          },
+          {
+            "evidence_anchor": "§5",
+            "evidence_excerpt": "“scaffold monitoring and adjustment”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "P3",
+            "recommendation": "Treat perceived control as co-occurring self-report and test interpretation/support pathways.",
+            "severity": "P2",
+            "summary": "The implementation mechanism is untested."
+          }
+        ],
+        "retries": 0,
+        "role": "cross-disciplinary interpretation and policy implications",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "devils_advocate_reviewer_agent",
+        "findings": [
+          {
+            "evidence_anchor": "§5–6",
+            "evidence_excerpt": "“increasing dashboard engagement therefore raises the probability”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "V1",
+            "recommendation": "Use association-only language or a causal design.",
+            "severity": "P1",
+            "summary": "Causal claims are unsupported by the observational design and uncontrolled alternatives."
+          },
+          {
+            "evidence_anchor": "§3.1–3.2; §6",
+            "evidence_excerpt": "“For higher education institutions worldwide”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "V2",
+            "recommendation": "Limit conclusions and require replication.",
+            "severity": "P1",
+            "summary": "Worldwide cross-program recommendations exceed one-course volunteer evidence."
+          },
+          {
+            "evidence_anchor": "§3.2–3.4; §5",
+            "evidence_excerpt": "“perceived control as a mediating construct”",
+            "evidence_file": "./input/manuscript.md",
+            "finding_id": "V3",
+            "recommendation": "Use temporally ordered validated measures and prespecified mediation analysis.",
+            "severity": "P2",
+            "summary": "Perceived control cannot establish mediation or mechanism."
+          }
+        ],
+        "retries": 0,
+        "role": "stress-test causal and generalization claims",
+        "verifier_catches": 0
+      },
+      {
+        "agent_id": "editorial_synthesizer_agent",
+        "findings": [],
+        "retries": 0,
+        "role": "editorial synthesis",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "reviewer-full-seven",
+    "protocol": {
+      "completed_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "declared_agent_ids": [
+        "field_analyst_agent",
+        "eic_agent",
+        "methodology_reviewer_agent",
+        "domain_reviewer_agent",
+        "perspective_reviewer_agent",
+        "devils_advocate_reviewer_agent",
+        "editorial_synthesizer_agent"
+      ],
+      "peer_outputs_hidden_until_synthesis": true
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "C1",
+          "contributing_agents": [
+            "eic_agent",
+            "methodology_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Central causal claims are unsupported by a self-selected observational cross-sectional design with no confounding control; exposure timing also permits time-at-risk bias."
+        },
+        {
+          "concept_id": "C2",
+          "contributing_agents": [
+            "eic_agent",
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Core quantitative reporting is internally inconsistent: abstract and Results correlations conflict; group Ns/degrees of freedom are impossible; and the final-exam t statistic conflicts with its p value."
+        },
+        {
+          "concept_id": "C3",
+          "contributing_agents": [
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "The manuscript does not state governance safeguards for research use of student LMS activity data despite saying students were not informed of that use."
+        },
+        {
+          "concept_id": "C4",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Universal institutional deployment and generalization claims exceed the single-course volunteer sample and disregard stated risks of peer-comparison demotivation."
+        },
+        {
+          "concept_id": "C5",
+          "contributing_agents": [
+            "methodology_reviewer_agent",
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The course outcome conflates withdrawal with final-assessment attendance and is overnamed as institutional retention."
+        },
+        {
+          "concept_id": "C6",
+          "contributing_agents": [
+            "eic_agent",
+            "perspective_reviewer_agent",
+            "devils_advocate_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The perceived-control association does not test the proposed self-regulation mechanism or mediation pathway."
+        },
+        {
+          "concept_id": "C7",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "Sampling is inaccurately characterized as random despite volunteer survey recruitment and absent response-rate/nonresponse evidence."
+        },
+        {
+          "concept_id": "C8",
+          "contributing_agents": [
+            "eic_agent",
+            "domain_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The literature mischaracterizes the cited lower-achieving-student evidence as reliably positive despite its stated demotivation concern."
+        },
+        {
+          "concept_id": "C9",
+          "contributing_agents": [
+            "methodology_reviewer_agent"
+          ],
+          "evidence_files": [
+            "./input/manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The secondary clarity-item descriptive statistics are mathematically incompatible with the stated integer scale."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 10,
+      "rationale": "Multiple P1 defects invalidate the manuscript's central inference, quantitative reporting, governance basis, and deployment claims."
+    },
+    "task_id": "ms01_quant"
+  },
+  "reason_codes": [
+    "aggregate_token_budget_exceeded"
+  ],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "978ee472e6291fdbe775cfbfa3d0049e6f56ad072a4c3fc18c85cb6a73f9114e",
+    "total_tokens": 543549,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 514304,
+      "input_tokens": 538719,
+      "output_tokens": 4830,
+      "reasoning_output_tokens": 650
+    },
+    "wall_clock_ms": 165623
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "BUDGET_EXHAUSTED"
+}

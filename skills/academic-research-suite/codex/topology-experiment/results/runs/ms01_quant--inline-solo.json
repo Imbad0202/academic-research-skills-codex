@@ -1,0 +1,176 @@
+{
+  "envelope": {
+    "arm_id": "inline-solo",
+    "control_run_id": "ms01_quant--inline-solo",
+    "experiment_id": "issue-37-pilot-v1:ms01_quant",
+    "identity": {
+      "baseline_commit": "7ce77b19526fe6c78468e5330b13ae83b88c890f",
+      "budget": {
+        "max_total_tokens": 500000
+      },
+      "dataset_digest": "81f664d7225cff268157ffde3c0a9179396ec28de82edea78adb3909ad1283ac",
+      "deterministic": false,
+      "environment_digest": "1e67fc48490ead2e5b0b6af7e82c81cf945a5e37299e5fe511f41059c7ec77eb",
+      "evaluator_digest": "6ab6fc6c919604ad872d18e4f9a896c771ffc71574f12d91987d9722b2be1f92",
+      "input_digest": "09ca3124838b0e12dbbcffca17743bd709fcdec48040676bb6e2e65b32200468",
+      "model_allowance_digest": "af0556c07c0bb2e21a17afac875ffda06279432f568454d13ddc42b32a449a9d",
+      "outcome_metric": "held_out_defect_recall_and_false_findings",
+      "retry_policy": {
+        "max_attempts": 1,
+        "selective_reruns": false
+      },
+      "seeds": [],
+      "tool_allowance_digest": "3d619639805df5552967bd52b917aacc0486c703d9f058285fadeea4663d5ef3",
+      "trajectory": "single_final_checkpoint"
+    },
+    "protocol_digest": "99b298b3bda4fc093578684d1d67fc399c3e7694c3e9bd503b1d4761ffdca9b0",
+    "run_id": "ms01_quant--inline-solo",
+    "schema": "ars.codex.experiment-envelope.v1",
+    "topology": {
+      "arm_id": "inline-solo",
+      "edges": [],
+      "information_sharing": {
+        "memory_scope": "off",
+        "peer_outputs": "not_applicable",
+        "policy": "single_context"
+      },
+      "nodes": [
+        {
+          "depends_on": [],
+          "id": "inline_owner",
+          "phase": "inline"
+        }
+      ],
+      "schema": "ars.codex.experiment-topology.v1"
+    },
+    "workflow": "reviewer"
+  },
+  "output": {
+    "agent_reports": [
+      {
+        "agent_id": "inline_owner",
+        "findings": [
+          {
+            "evidence_anchor": "§3.1, §3.2, §5, §6",
+            "evidence_excerpt": "“This study used an observational, cross-sectional design”; “students who chose to respond... formed the study sample”; and “dashboard engagement improved course retention.”",
+            "evidence_file": "manuscript.md",
+            "finding_id": "F1",
+            "recommendation": "Restrict conclusions to an association among survey volunteers, explicitly discuss confounding and reverse causation, and reserve causal claims for a design with a defensible intervention or identification strategy.",
+            "severity": "P1",
+            "summary": "The manuscript makes causal claims that its cross-sectional, self-selected observational design cannot support."
+          },
+          {
+            "evidence_anchor": "§4.3, Table 2",
+            "evidence_excerpt": "Perceived control has “87 survey respondents,” yet t(156) = 3.02; Table 2 lists n=66 and n=61, while the text says “All 142 students” and reports t(140) = 1.31, p = .008.",
+            "evidence_file": "manuscript.md",
+            "finding_id": "F2",
+            "recommendation": "Reproduce the analyses from the analytic dataset; report the actual group Ns, exclusions, degrees of freedom, test variant, effect sizes, and corrected p values. Do not interpret these comparisons until reconciled.",
+            "severity": "P1",
+            "summary": "The reported group-comparison sample sizes, degrees of freedom, and p value are mutually inconsistent, undermining the quantitative results."
+          },
+          {
+            "evidence_anchor": "§3.2",
+            "evidence_excerpt": "“Students were not informed that their dashboard activity data would be analyzed for this study.”",
+            "evidence_file": "manuscript.md",
+            "finding_id": "F3",
+            "recommendation": "State the applicable ethics approval or waiver, lawful/authorized basis for linking LMS logs to survey data, consent or notice procedures, privacy safeguards, and whether participants could decline log-data use; otherwise do not present the study as ethically acceptable.",
+            "severity": "P1",
+            "summary": "The manuscript describes analysis of identifiable behavioral logs from survey respondents who were not informed that those data would be analyzed, creating an unresolved research-ethics and consent defect."
+          },
+          {
+            "evidence_anchor": "§4.1",
+            "evidence_excerpt": "“N=10; M=3.00; sample SD=0.10; integer scale=1-5.”",
+            "evidence_file": "manuscript.md",
+            "finding_id": "F4",
+            "recommendation": "Check the raw values and computation. For ten integer observations with mean 3.00, a nonzero sample SD cannot be 0.10; correct the statistic or explain a transformed/non-integer measure.",
+            "severity": "P2",
+            "summary": "The secondary clarity-item standard deviation is incompatible with an integer-valued 1–5 scale for N=10."
+          }
+        ],
+        "retries": 0,
+        "role": "quantitative design, sampling, measurement, statistics, inference, and claim audit",
+        "verifier_catches": 0
+      }
+    ],
+    "arm_id": "inline-solo",
+    "protocol": {
+      "completed_agent_ids": [
+        "inline_owner"
+      ],
+      "declared_agent_ids": [
+        "inline_owner"
+      ],
+      "peer_outputs_hidden_until_synthesis": false
+    },
+    "synthesis": {
+      "accepted_findings": [
+        {
+          "concept_id": "causal-inference",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Causal retention claims exceed the stated cross-sectional, self-selected observational design."
+        },
+        {
+          "concept_id": "statistical-inconsistency",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Reported group-comparison Ns, degrees of freedom, and p value conflict with one another."
+        },
+        {
+          "concept_id": "research-ethics-consent",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "manuscript.md"
+          ],
+          "severity": "P1",
+          "summary": "Analysis of dashboard logs without participant notice leaves consent and governance unresolved."
+        },
+        {
+          "concept_id": "secondary-statistic-feasibility",
+          "contributing_agents": [
+            "inline_owner"
+          ],
+          "evidence_files": [
+            "manuscript.md"
+          ],
+          "severity": "P2",
+          "summary": "The secondary clarity-item SD is incompatible with the stated integer scale and N."
+        }
+      ],
+      "decision": "block",
+      "duplicate_contributions": 0,
+      "rationale": "Multiple P1 defects affect causal validity, reported statistical results, and ethical acceptability."
+    },
+    "task_id": "ms01_quant"
+  },
+  "reason_codes": [],
+  "runtime": {
+    "codex_version": "codex-cli 0.146.0",
+    "event_types": [],
+    "returncode": 0,
+    "stderr_sha256": "3a40761e0c3b0a5e071365fac2b69a74d8efdd5e1d616aefa9d37671c1043e2f",
+    "total_tokens": 51979,
+    "usage": {
+      "cache_write_input_tokens": 0,
+      "cached_input_tokens": 44544,
+      "input_tokens": 50606,
+      "output_tokens": 1373,
+      "reasoning_output_tokens": 236
+    },
+    "wall_clock_ms": 35252
+  },
+  "schema": "ars.codex.topology-run.v1",
+  "status": "PASS"
+}
