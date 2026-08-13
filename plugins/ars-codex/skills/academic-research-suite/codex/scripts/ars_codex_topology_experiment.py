@@ -790,7 +790,7 @@ def build_report() -> dict[str, Any]:
                 {
                     "workflow": "reviewer",
                     "risk": "high",
-                    "action": "expand-evidence-only",
+                    "action": "expand",
                     "arm": "reviewer-five-panel",
                     "reason": "Seeded-defect recall rose from 0.60 to 0.80, but critical recall stayed 0.67 and token cost increased substantially; replicate before any routing change.",
                 },
@@ -843,7 +843,7 @@ def report_markdown(report: dict[str, Any]) -> str:
         "",
         "### Reviewer",
         "",
-        "| Arm | Seeded recall | Critical recall | Clean false findings | Total tokens | Wall time (s) | Budget exhausted | Retries | Reported duplicates |",
+        "| Arm | Seeded recall | Critical recall | Clean false findings | Total tokens | Wall time (s) | Budget exhausted | Reported retries | Reported duplicates |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for arm_id, arm in report["evidence"]["reviewer"].items():
@@ -860,7 +860,7 @@ def report_markdown(report: dict[str, Any]) -> str:
             "",
             "### Pipeline integrity audit",
             "",
-            "| Arm | Seeded P1 recall | Citation/source faithfulness | Correct block actions | Total tokens | Wall time (s) | Retries | Reported duplicates |",
+            "| Arm | Seeded P1 recall | Citation/source faithfulness | Correct block actions | Total tokens | Wall time (s) | Reported retries | Reported duplicates |",
             "|---|---:|---:|---:|---:|---:|---:|---:|",
         ]
     )

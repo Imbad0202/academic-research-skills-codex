@@ -6,7 +6,7 @@ Status: **EXPLORATORY_COMPLETE**. This is exploratory local evidence from 10 fro
 
 ### Reviewer
 
-| Arm | Seeded recall | Critical recall | Clean false findings | Total tokens | Wall time (s) | Budget exhausted | Retries | Reported duplicates |
+| Arm | Seeded recall | Critical recall | Clean false findings | Total tokens | Wall time (s) | Budget exhausted | Reported retries | Reported duplicates |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | `inline-solo` | 12/20 (60%) | 4/6 (67%) | 0 | 151,309 | 96.6 | 0 | 0 | 0 |
 | `reviewer-five-panel` | 16/20 (80%) | 4/6 (67%) | 0 | 1,134,960 | 427.6 | 0 | 0 | 26 |
@@ -15,7 +15,7 @@ Status: **EXPLORATORY_COMPLETE**. This is exploratory local evidence from 10 fro
 
 ### Pipeline integrity audit
 
-| Arm | Seeded P1 recall | Citation/source faithfulness | Correct block actions | Total tokens | Wall time (s) | Retries | Reported duplicates |
+| Arm | Seeded P1 recall | Citation/source faithfulness | Correct block actions | Total tokens | Wall time (s) | Reported retries | Reported duplicates |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | `inline-solo` | 7/7 (100%) | 4/4 | 7/7 | 474,116 | 230.6 | 0 | 0 |
 | `workflow-current` | 6/7 (86%) | 3/4 | 6/7 | 1,143,850 | 493.4 | 0 | 10 |
@@ -25,7 +25,7 @@ Verifier catches remain **unknown**, not zero, because the CLI event stream does
 ## Local go/no-go
 
 - **retain** `inline-solo` for reviewer / routine: The pilot is single-replicate and no multi-agent arm improved critical recall over inline while staying proportionate in cost.
-- **expand-evidence-only** `reviewer-five-panel` for reviewer / high: Seeded-defect recall rose from 0.60 to 0.80, but critical recall stayed 0.67 and token cost increased substantially; replicate before any routing change.
+- **expand** `reviewer-five-panel` for reviewer / high: Seeded-defect recall rose from 0.60 to 0.80, but critical recall stayed 0.67 and token cost increased substantially; replicate before any routing change.
 - **reduce** `reviewer-full-seven` for reviewer / high: The extra configuration node yielded only 0.05 recall over the five-seat arm and one of two defective runs exhausted the matched token budget.
 - **retain** `inline-solo` for pipeline / integrity-audit: Inline found and blocked all 7 seeded P1 patterns in this cohort.
 - **reduce** `workflow-current` for pipeline / integrity-audit: The three-role arm missed B5 and returned pass while using more coordination resources; do not expand it for this audit stratum.
@@ -41,4 +41,4 @@ Inline remains the default. This report does not mutate routing or learning stat
 - Reviewer extra findings are unscored unless factually false; they are not automatically false positives.
 - This report records local evidence only and does not update planner defaults or learning state.
 
-Report digest: `bf19744956b9f1a366c0e507fa6fda775190ee44148d8d19e25f84fa414f75ae`
+Report digest: `d85533c9c8b33ef68adfaa7fbe8d8870d714884cd2d393d809b66f4a962e2d39`

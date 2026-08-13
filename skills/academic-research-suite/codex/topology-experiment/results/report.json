@@ -971,7 +971,7 @@
         "workflow": "reviewer"
       },
       {
-        "action": "expand-evidence-only",
+        "action": "expand",
         "arm": "reviewer-five-panel",
         "reason": "Seeded-defect recall rose from 0.60 to 0.80, but critical recall stayed 0.67 and token cost increased substantially; replicate before any routing change.",
         "risk": "high",
@@ -1000,7 +1000,7 @@
       }
     ]
   },
-  "report_digest": "bf19744956b9f1a366c0e507fa6fda775190ee44148d8d19e25f84fa414f75ae",
+  "report_digest": "d85533c9c8b33ef68adfaa7fbe8d8870d714884cd2d393d809b66f4a962e2d39",
   "run_count": 26,
   "schema": "ars.codex.topology-report.v1",
   "status": "EXPLORATORY_COMPLETE",
