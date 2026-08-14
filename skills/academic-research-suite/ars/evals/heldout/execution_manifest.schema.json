@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ars://evals/heldout/execution_manifest.schema.json",
+  "title": "ARS held-out write-once execution manifest (#664)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "suite",
+    "created_at",
+    "write_once",
+    "calls"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "heldout-execution-manifest/1.0"
+    },
+    "suite": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "write_once": {
+      "const": true
+    },
+    "execution_window": {
+      "type": "object",
+      "required": [
+        "window_id",
+        "started_at",
+        "completed_at"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "window_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "calls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "call_id",
+          "sequence_index",
+          "started_at",
+          "completed_at",
+          "prompt_sha256",
+          "output_sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "call_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sequence_index": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "prompt_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "output_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "concurrency_group": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  }
+}

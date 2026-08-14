@@ -600,7 +600,8 @@ def test_empty_section_diagnostic_reports_the_non_blank_line_count():
 def test_non_canonical_dissent_field_shape_aborts(field_line):
     text = phase2_with_dissent_section([field_line])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError,
+        match="DISSENT-HIDDEN|DISSENT-RAW-HTML|canonical unbulleted",
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -613,7 +614,7 @@ def test_non_canonical_dissent_field_shape_aborts(field_line):
 def test_a_dissent_hidden_from_the_sanitizers_still_aborts(hidden):
     """Fences, comments and headings must not launder a dissent field."""
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(phase2_with_dissent_section(hidden))
 
@@ -630,7 +631,7 @@ def test_a_canonical_dissent_cannot_hide_a_second_laundered_one(wrapper):
         *wrapper,
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -667,7 +668,7 @@ def test_a_fenced_heading_does_not_end_the_scanned_span():
         "```",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -703,7 +704,7 @@ def test_a_fenced_structural_heading_does_not_end_the_scanned_span(fence):
         fence,
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -784,7 +785,7 @@ def test_a_duplicate_field_hidden_in_a_fence_is_counted_not_matched():
         "```",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -797,7 +798,7 @@ def test_a_commented_out_dissent_is_not_credited_as_one():
         "<!--", "dimension_id: D1", "rationale: plan was inadequate", "-->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -836,7 +837,7 @@ def test_a_comment_reopened_on_its_opening_line_still_hides(opener_line):
         "-->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -853,7 +854,7 @@ def test_a_comment_reopened_on_its_closing_line_still_hides():
         "-->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -878,7 +879,7 @@ def test_a_container_prefixed_opener_still_hides(opener):
         "rationale: plan was inadequate",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -894,31 +895,31 @@ def test_a_container_prefixed_opener_still_hides(opener):
     "  - \t<!--",
     " 1. \t<!--",
 ])
-def test_an_indented_container_marker_is_code_not_a_comment(indented):
-    """Four columns before the marker is indented code, so it hides nothing.
-
-    Widening the opener to container prefixes must not let the outer and inner
-    indentation allowances add up: `    - <!--` renders as a code example with
-    the fields below it in the clear, and striking them aborts a valid card on
-    a phase that permits no retry. A tab is measured to the next four-column
-    stop, not counted as one character, so `  - \\t<!--` reaches column eight
-    and is code while `> \\t<!--` reaches column four and is not.
+def test_an_indented_container_marker_aborts(indented):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         indented,
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("marker", ["2.", "9)", "10.", "  2."])
-def test_an_ordered_marker_cannot_interrupt_a_paragraph(marker):
-    """Only an ordered list starting at 1 may interrupt an open paragraph.
-
-    After a paragraph line, `2. <!--` is paragraph text: the marker is not a
-    list, no raw-HTML block opens, and the fields below stay on the page.
-    Striking them aborts a phase that permits no retry.
+def test_an_ordered_marker_mid_paragraph_aborts(marker):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "Reviewed the plan and stand by it.",
@@ -926,7 +927,8 @@ def test_an_ordered_marker_cannot_interrupt_a_paragraph(marker):
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("marker", ["1.", "1)", "2.", "10.", "-", ">"])
@@ -944,7 +946,7 @@ def test_a_container_marker_at_a_block_start_still_opens(marker):
         "rationale: plan was inadequate",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -971,7 +973,7 @@ def test_a_paragraph_closing_line_restores_every_marker(closer, marker):
         "<!-- -->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -1009,22 +1011,19 @@ def test_a_comment_block_is_not_a_paragraph(comment_block):
         "rationale: plan was inadequate",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("nested", ["- 2. <!--", "> 2. <!--", "> - 2. <!--"])
-def test_a_nested_marker_after_a_paragraph_is_a_declared_limit(nested):
-    """Documents an ACCEPTED miss, not a desired behaviour.
-
-    An outer bullet or quote interrupts the paragraph, and inside the
-    container it opens the nested ordered list may start at any number. The
-    start-at-1 restriction is applied to every ordered marker in the prefix
-    rather than only the interrupting one, because telling them apart means
-    tracking which container each marker sits in. That is the block-structure
-    modelling whose three earlier approximations cost 425, 77 and 154 false
-    aborts on the render grid. Tracked in #613. Change deliberately.
+def test_a_nested_marker_after_a_paragraph_aborts(nested):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "Standing by the plan.",
@@ -1032,17 +1031,18 @@ def test_a_nested_marker_after_a_paragraph_is_a_declared_limit(nested):
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("orphan", ["==", "--", "=", "===="])
-def test_an_orphan_setext_marker_is_paragraph_text(orphan):
-    """A setext underline needs a paragraph above it to underline.
-
-    With nothing above, `==` or `--` is ordinary paragraph text and OPENS a
-    paragraph rather than closing one, so a non-1 ordered marker on the next
-    line cannot interrupt it and the fields below stay on the page. Clearing
-    the flag here refused a card the base branch accepted.
+def test_a_marker_after_an_orphan_setext_line_aborts(orphan):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         orphan,
@@ -1050,7 +1050,8 @@ def test_an_orphan_setext_marker_is_paragraph_text(orphan):
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("marker", ["-", "*", "+"])
@@ -1065,19 +1066,19 @@ def test_a_lone_bullet_at_a_block_start_is_an_empty_list_item(marker):
         "<!-- -->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("marker", ["*", "+", "2.", "10)"])
-def test_a_lone_marker_cannot_interrupt_a_paragraph(marker):
-    """An empty list item has a blank first line, so it cannot interrupt a
-    paragraph: the line stays paragraph text and the paragraph stays open.
-
-    `-` is the exception and is covered above, because after a paragraph it
-    reads as a setext underline rather than a marker. Treating every lone
-    marker as a paragraph-closer looked symmetrical and aborted valid cards.
+def test_a_marker_after_a_lone_list_marker_aborts(marker):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "Standing by the plan.",
@@ -1086,7 +1087,8 @@ def test_a_lone_marker_cannot_interrupt_a_paragraph(marker):
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 def test_a_setext_underline_closes_the_paragraph_above_it():
@@ -1099,19 +1101,19 @@ def test_a_setext_underline_closes_the_paragraph_above_it():
         "<!-- -->",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("whitespace", ["　", " ", " ", "\x0c"])
-def test_a_line_of_exotic_whitespace_is_not_a_blank_line(whitespace):
-    """CommonMark counts only spaces and tabs as blank.
-
-    A line holding an ideographic space is a paragraph to the renderer, which
-    is a live shape in zh-TW output. Treating it as blank put the next line at
-    a block start, read `2. <!--` as an opener, struck the visible fields
-    below it and aborted a phase that permits no retry.
+def test_a_marker_after_exotic_whitespace_aborts(whitespace):
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "Reviewed the plan and stand by it.",
@@ -1120,7 +1122,8 @@ def test_a_line_of_exotic_whitespace_is_not_a_blank_line(whitespace):
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("marker", ["1.", "1)", "-", "*", ">"])
@@ -1134,7 +1137,7 @@ def test_a_paragraph_interrupting_marker_still_opens(marker):
         "rationale: plan was inadequate",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -1157,22 +1160,15 @@ def test_a_balanced_container_prefixed_comment_hides_nothing_after():
     ("> an earlier note", "> 2. <!--"),
     ("> an earlier note", ">     <!--"),
 ])
-def test_an_opener_inside_an_open_container_is_a_declared_limit(
+def test_an_opener_inside_an_open_container_aborts(
     container, opener
 ):
-    """Documents an ACCEPTED miss, not a desired behaviour.
-
-    An open list item or block quote shifts the column at which a block
-    starts, and changing marker type starts a fresh list, so shapes that read
-    as indented text at absolute column N are block openers relative to the
-    container. Resolving them needs a container parser, and this walk refuses
-    to grow one on measured grounds: over one 8064-shape render grid `main`
-    credits 4552 hidden shapes and this parser 1424, both at zero false
-    aborts, while the two interim spellings that approximated block structure
-    scored 1112/144 and 1709/57. Cost stated in full: each miss grants a
-    trigger-binding exemption for a dissent the page does not show. Tracked
-    in #613, whose closure is a reviewer-output-grammar rule, not more
-    parsing. Change deliberately.
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         container,
@@ -1181,7 +1177,8 @@ def test_an_opener_inside_an_open_container_is_a_declared_limit(
         "rationale: plan was inadequate",
         "-->",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 def test_an_angle_bracket_field_label_is_read_as_prose():
@@ -1198,18 +1195,13 @@ def test_an_angle_bracket_field_label_is_read_as_prose():
     assert len(parsed.diagnostics) == 1
 
 
-def test_an_indented_opener_continuing_a_paragraph_is_a_declared_limit():
-    """Documents an ACCEPTED miss, not a desired behaviour.
-
-    Four spaces makes an indented code block only when the line STARTS a
-    block. After a paragraph line it is lazy continuation, so CommonMark does
-    form the comment and the fields below are invisible to a reader while
-    still credited here. Deciding that needs the surrounding block context,
-    which the span walk deliberately does not model: every mechanism added to
-    this walk has produced a false abort of its own, and an indented `<!--`
-    that merely starts an example must stay inert. Cost stated in full: this
-    grants a trigger-binding exemption for a dissent the page does not show.
-    Change deliberately, never incidentally.
+def test_an_indented_opener_continuing_a_paragraph_aborts():
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "Reviewed the plan and stand by it.",
@@ -1218,7 +1210,8 @@ def test_an_indented_opener_continuing_a_paragraph_is_a_declared_limit():
         "rationale: plan was inadequate",
         "-->",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 @pytest.mark.parametrize("line,entering,expected", [
@@ -1290,20 +1283,13 @@ def test_a_comment_closed_and_reopened_then_closed_hides_nothing_after():
     assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
 
 
-def test_a_comment_opened_after_prose_on_its_line_is_a_declared_limit():
-    """Documents an ACCEPTED miss, not a desired behaviour.
-
-    Only a block opener starts a comment, so a marker following text on its
-    own line leaves the fields below credited. Cost stated in full, since it
-    is not the free kind: CommonMark does form that comment, so this grants a
-    trigger-binding exemption for a dissent the rendered page does not show
-    (omitting the section grants no exemption at all, so the two are not
-    equivalent). Refused anyway, because closing it deterministically means
-    reading a bare `<!--` inside unrestricted `rationale:` text as an opener,
-    which aborts the valid card pinned by the test below, and a Phase 2 abort
-    is unretryable. A grammar rule requiring seats to write comment syntax in
-    inline code would close it on the prompt side; that is a separate change
-    to reviewer output, not to this parser. Change deliberately.
+def test_a_comment_opened_after_prose_on_its_line_aborts():
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "an aside <!--",
@@ -1311,33 +1297,45 @@ def test_a_comment_opened_after_prose_on_its_line_is_a_declared_limit():
         "rationale: plan was inadequate",
         "-->",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
-def test_an_unbackticked_marker_in_a_rationale_hides_no_later_dissent():
-    """The false abort that keeps the opener rule at block start.
-
-    `rationale:` text is unrestricted, so a seat discussing an unclosed
-    marker is a plausible card, not decoration. Reading that mid-line opener
-    as real strikes the second dissent below it and aborts an unretryable
-    Phase 2 on a card that claimed both dissents in the clear.
-    """
+def test_an_unbackticked_marker_in_a_rationale_now_aborts_loudly():
+    """#613 flips the #612 pin: the delivered output grammar makes a bare
+    marker out-of-grammar prose (mentions go in inline code), so the
+    mid-line opener is read as real — it swallows the second dissent, and
+    the card aborts as unparsed occurrences instead of silently keeping
+    D2's credit while CommonMark hides it."""
     text = phase2_with_dissent_section([
         "dimension_id: D1",
         "rationale: the card left an unclosed <!-- marker in its own output",
         "dimension_id: D2",
         "rationale: the second plan was inadequate too",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1", "D2"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 def test_a_canonical_rationale_may_mention_comment_syntax():
-    """`rationale: <nonempty explanation>` permits any text, including the
-    literal comment tokens; rewriting them broke equality with the canonical
-    parse and aborted an unretryable Phase 2 on a valid card."""
+    """The sanctioned spelling: comment tokens in INLINE CODE are prose
+    under the #613 output grammar — code spans are blanked before the
+    inline-opener scan, so the mention neither opens a comment nor aborts."""
     text = phase2_with_dissent_section([
         "dimension_id: D1",
         "rationale: the seat wrote `<!--` and `-->` in its explanation",
+    ])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_an_inline_comment_that_closes_restores_the_parse():
+    """A mid-line comment that opens AND closes leaves the following
+    canonical fields rendered, so they parse normally — the inline state is
+    delimiter-order-resolved, not presence-tested."""
+    text = phase2_with_dissent_section([
+        "Reviewed the plan. <!-- aside --> Standing by the dissent:",
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
     ])
     assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
 
@@ -1352,23 +1350,26 @@ def test_a_comment_opened_before_the_heading_credits_no_dissent():
         1,
     )
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
 
-def test_an_indented_comment_marker_is_code_not_a_comment():
-    """CommonMark: four spaces STARTING a block makes it indented code.
-
-    The lazy-continuation case, where the same indent follows a paragraph
-    line and does form a comment, is the declared limit pinned above.
+def test_an_indented_comment_marker_aborts():
+    """#613: a bare `<!--` inside the dissent span is out-of-grammar
+    wherever it appears (the delivered prompts require inline code for
+    any mention), so this shape now aborts loudly instead of the
+    pre-#613 credit this test used to pin. Whether the renderer would
+    have shown the fields is decided by the output grammar now, not by
+    block-structure modelling in the parser.
     """
     text = phase2_with_dissent_section([
         "    <!-- an indented example with no closer",
         "dimension_id: D1",
         "rationale: plan was inadequate",
     ])
-    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
 
 
 def test_a_nested_paren_link_destination_is_a_declared_limit():
@@ -1383,11 +1384,24 @@ def test_a_nested_paren_link_destination_is_a_declared_limit():
     """
     for line in (
         "[dimension_id](https://e/x_(y_(z))w): D1",
-        '<span title="x>y">dimension_id</span>: D1',
         "dimension_id&#58; D1",
     ):
         text = phase2_with_dissent_section([line])
         assert phase.parse_dissent_dimensions(text).dimensions == set()
+
+
+def test_a_quoted_attribute_raw_html_field_now_aborts():
+    """#682 closes the raw-HTML half of the old declared limit.
+
+    The field-shape helper still need not parse quoted ``>`` attributes: the
+    span guard rejects the tag itself before an empty-section advisory could
+    grant any exemption.
+    """
+    text = phase2_with_dissent_section([
+        '<span title="x>y">dimension_id</span>: D1',
+    ])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-RAW-HTML"):
+        phase.parse_dissent_dimensions(text)
 
 
 def test_one_nesting_level_in_a_link_destination_still_aborts():
@@ -1395,7 +1409,7 @@ def test_one_nesting_level_in_a_link_destination_still_aborts():
         "[dimension_id](https://e/x_(y)z): D1",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -1425,7 +1439,7 @@ def test_bulleted_multi_dissent_cannot_bypass_the_cardinality_gate():
         "- rationale: second plan was inadequate",
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -1445,7 +1459,7 @@ def test_a_canonical_dissent_cannot_hide_a_second_decorated_one(wrapper):
         *wrapper,
     ])
     with pytest.raises(
-        phase.ConformanceError, match="canonical unbulleted"
+        phase.ConformanceError, match="DISSENT-HIDDEN|canonical unbulleted"
     ):
         phase.parse_dissent_dimensions(text)
 
@@ -4183,3 +4197,170 @@ def test_injected_identity_rejects_a_decorated_finding_ref(tmp_path, capsys):
     assert phase.main(injected_cli(tmp_path, lines, injected)) == \
         phase.EXIT_CONFORMANCE
     assert "[RECEIPT-IDENTITY:" in capsys.readouterr().out
+
+
+def test_an_escaped_backtick_span_cannot_hide_a_dissent(  # #613 sec P1a
+):
+    r"""CommonMark: `\`` is a literal backtick and opens no code span, so
+    the marker between two escaped backticks is a live comment opener —
+    blanking it credited a dissent the rendered page hides."""
+    text = phase2_with_dissent_section([
+        "Note: \\` <!-- \\` end.",
+        "dimension_id: D1",
+        "rationale: plan understated the sampling frame. -->",
+    ])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
+
+
+def test_a_cross_line_code_span_cannot_hide_a_dissent():  # #613 sec P1b
+    """A trailing unpaired backtick run pairs into the NEXT line for the
+    renderer, pulling the marker out of code; once a paragraph's runs stop
+    pairing locally, blanking is off and the marker opens."""
+    text = phase2_with_dissent_section([
+        "Note on markup: `",
+        "` <!-- `",
+        "dimension_id: D1",
+        "rationale: plan was inadequate -->",
+    ])
+    with pytest.raises(phase.ConformanceError,
+                       match="DISSENT-HIDDEN|DISSENT-GRAMMAR"):
+        phase.parse_dissent_dimensions(text)
+
+
+def test_balanced_inline_code_mention_still_parses_after_the_fix():
+    """The sanctioned spelling survives both new guards: escaped-backtick
+    blanking and paragraph run-parity poisoning leave a balanced same-line
+    span as prose."""
+    text = phase2_with_dissent_section([
+        "dimension_id: D1",
+        "rationale: the seat wrote `<!--` and `-->` in inline code",
+    ])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_an_empty_comment_closer_overlap_does_not_false_abort():
+    """codex #650 round 1 (P2): `<!-->` and `<!--->` CLOSE in CommonMark —
+    the closer reuses the opener's dashes — so the rendered fields below
+    them must keep parsing."""
+    for empty in ("<!-->", "<!--->"):
+        text = phase2_with_dissent_section([
+            f"note {empty}",
+            "dimension_id: D1",
+            "rationale: plan was inadequate",
+        ])
+        assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_a_mid_line_reopen_after_a_close_hides_again():
+    """codex #650 round 1 (P3): a genuine close-and-REOPEN on one mid-line
+    — the second opener hides the fields below it."""
+    text = phase2_with_dissent_section([
+        "prose <!-- first --> more <!--",
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+        "-->",
+    ])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-HIDDEN"):
+        phase.parse_dissent_dimensions(text)
+
+
+def test_a_mid_line_double_close_leaves_fields_parsed():
+    text = phase2_with_dissent_section([
+        "prose <!-- a --> and <!-- b --> clear:",
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+    ])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+@pytest.mark.parametrize("raw_html", [
+    "<script>",
+    "</script>",
+    "<style media=\"screen\">",
+    "<template>",
+    "<div hidden>",
+    "<span style=\"display:none\">",
+    "<input type=\"hidden\" />",
+    "<details>",
+    "<svg aria-hidden=\"true\">",
+    "<!DOCTYPE html>",
+    "<![CDATA[",
+    "<?xml version=\"1.0\"?>",
+    "<script",
+    "<span>dimension_id</span>: D1",
+])
+def test_non_comment_raw_html_in_dissent_aborts(raw_html):
+    text = phase2_with_dissent_section([
+        raw_html,
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+    ])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-RAW-HTML"):
+        phase.parse_dissent_dimensions(text)
+
+
+@pytest.mark.parametrize("container", ["- ", "* ", "1. ", "> ", "> - "])
+def test_container_prefixed_raw_html_in_dissent_aborts(container):
+    text = phase2_with_dissent_section([
+        f"{container}<template hidden>",
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+        f"{container}</template>",
+    ])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-RAW-HTML"):
+        phase.parse_dissent_dimensions(text)
+
+
+@pytest.mark.parametrize("code", [
+    "`<script>`",
+    "``<template data-tick=`x`>``",
+    "```<span hidden>```",
+])
+def test_inline_code_raw_html_mention_in_dissent_is_permitted(code):
+    text = phase2_with_dissent_section([
+        "dimension_id: D1",
+        f"rationale: the seat mentioned {code} as literal syntax",
+    ])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_fenced_raw_html_example_in_dissent_keeps_existing_semantics():
+    text = phase2_with_dissent_section([
+        "```html",
+        "<script>",
+        "const example = true;",
+        "</script>",
+        "```",
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+    ])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_raw_html_outside_dissent_span_is_not_scanned():
+    text = phase2_with_dissent_section([
+        "dimension_id: D1",
+        "rationale: plan was inadequate",
+    ]).replace(
+        "## Review Body",
+        "## Review Body\n\n<script hidden>outside the dissent span</script>",
+        1,
+    )
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+@pytest.mark.parametrize("prose", [
+    "rationale: compare x < y before accepting the plan",
+    "rationale: see <https://example.test> for the public protocol",
+    "rationale: contact <reviewer@example.test> for the archived note",
+])
+def test_non_html_angle_bracket_prose_in_dissent_is_permitted(prose):
+    text = phase2_with_dissent_section(["dimension_id: D1", prose])
+    assert phase.parse_dissent_dimensions(text).dimensions == {"D1"}
+
+
+def test_raw_html_without_fields_aborts_instead_of_empty_advisory():
+    text = phase2_with_dissent_section(["<template>withdrawn draft</template>"])
+    with pytest.raises(phase.ConformanceError, match="DISSENT-RAW-HTML"):
+        phase.parse_dissent_dimensions(text)

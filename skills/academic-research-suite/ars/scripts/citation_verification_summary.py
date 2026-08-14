@@ -23,8 +23,10 @@ and the user guide) and the policy that consumes this verdict
 the Delta 3 / C-V6 policy batch — this data-layer batch only computes the
 verdict; it does not gate on it. Gold fixture 051 (the OQ-5 by-design
 false-negative: a no-identifier fabrication) pins that a title-only unmatched
-reduces to unresolvable, never false. The complementary real-but-unindexed
-canary remains unfilled (issue #250).
+reduces to unresolvable, never false. The absent genuine all-resolver-unmatched
+canary is #250's accepted corpus-representativeness limit, not a client-test
+gap; #431/#432 cover title-match behavior directly and there is no current
+gold-tuple action item.
 
 Spec: docs/design/2026-05-21-v3.10-182-promote-citation-gate-spec.md
 §2 Delta 4 + §0(4a) + INVARIANT C-V6(a).
@@ -62,8 +64,10 @@ def reduce_lookup_verified(resolver_outcomes: Mapping[str, Any]) -> str:
     * `unresolvable` otherwise — every applicable resolver `unreachable` (total
       outage), OR every resolver `skipped` (empty adjudicating set, manual
       exempt), OR the only negative signals are title-only `unmatched`
-      (queried_by != 'id' — no resolvable identifier to key on = coverage gap,
-      the real-but-unindexed paper; C-V6(a)/(f) + OQ-5 by-design FN).
+      (queried_by != 'id' — no resolvable identifier to key on = the
+      coverage-safe class for a potentially real-but-unindexed paper;
+      C-V6(a)/(f) + OQ-5 by-design FN). The static fixture is not claimed to be
+      a representative genuine unindexed work (#250).
     """
     outcomes = [v or {} for v in resolver_outcomes.values()]
     applicable = [o for o in outcomes if o.get("status") != STATUS_SKIPPED]

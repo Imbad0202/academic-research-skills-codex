@@ -10,6 +10,7 @@ This template is used by the Journal-Fit Reviewer and Reviewers 1-3. Each review
 2. Each reviewer must fully complete all required fields (items marked with *)
 3. Detailed Comments are section-by-section commentary; only comment on sections relevant to your review focus
 4. Language follows the paper's language (Chinese papers reviewed in Chinese, English papers in English)
+5. Never emit raw HTML in a reviewer card; mention markup only in inline code. Inside `## Scoring Plan Dissent`, any non-comment raw-HTML tag or delimiter outside inline code aborts as `[DISSENT-RAW-HTML]` and cannot grant a trigger-binding exemption.
 
 ---
 

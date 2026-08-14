@@ -154,7 +154,7 @@ This document lists all failure scenarios that may be encountered across all mod
 5. User may override any flag with recorded reasoning → log to the Ethics Decision Log and proceed; do not re-block an overridden item
 
 **Recovery Paths**:
-- Fix ethical issues → re-execute ethics_review_agent → continue after CLEARED
+- Fix integrity issues → re-execute ethics_review_agent → continue after the integrity disposition is recorded; any human-subjects authorization remains a separate institutional status
 - Modify research design → return to Phase 1
 - Issues are irremediable → suggest abandoning this research direction, provide alternative direction suggestions
 

@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Imbad0202/academic-research-skills/shared/contracts/evidence/evidence_row_v1_1.schema.json",
+  "title": "ARS Shared Evidence Row v1.1 — authority-profile content coverage",
+  "description": "Closed evidence-row/1.1 carrier for the LLM-ADVISORY authority-profile content-coverage surface. It binds a bounded quoted passage, a checked-no-match scope, or an explicit unperformed state to one replay-validated requirement expectation and one explicitly named packet artifact. It carries no claim verdict, adequacy judgment, readiness update, authorization decision, institutional acceptance, or efficacy measurement.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "surface",
+    "row_id",
+    "coverage_subject",
+    "source",
+    "anchor",
+    "excerpt",
+    "cache",
+    "content_handling",
+    "row_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": "evidence-row/1.1"},
+    "surface": {"const": "authority_profile_content_coverage"},
+    "row_id": {
+      "type": "string",
+      "pattern": "^EVR-[A-Za-z0-9._:-]+(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "coverage_subject": {"$ref": "#/$defs/coverage_subject"},
+    "source": {"$ref": "#/$defs/source"},
+    "anchor": {"$ref": "#/$defs/anchor"},
+    "excerpt": {"$ref": "#/$defs/excerpt"},
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "key_sha256"],
+      "properties": {
+        "status": {"const": "not_used"},
+        "key_sha256": {"type": "null"}
+      },
+      "description": "V1.1 deliberately performs no model-result or excerpt cache lookup."
+    },
+    "content_handling": {"$ref": "#/$defs/content_handling"},
+    "row_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "content_handling": {
+            "properties": {"sharing_scope": {"const": "user_confirmed_shareable"}},
+            "required": ["sharing_scope"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "content_handling": {
+            "properties": {"rights_basis": {"const": "user_declared_authorized"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "content_handling": {
+            "properties": {"rights_basis": {"const": "user_declared_authorized"}},
+            "required": ["rights_basis"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "content_handling": {
+            "properties": {"sharing_scope": {"const": "user_confirmed_shareable"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "agent_extracted"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "source_content_sha256": {"$ref": "#/$defs/sha256"},
+              "source_content_utf8_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864}
+            }
+          },
+          "anchor": {
+            "properties": {
+              "kind": {"const": "quote"},
+              "value_encoded": {"type": "string", "minLength": 1},
+              "value_decoded": {"type": "string", "minLength": 1}
+            }
+          },
+          "excerpt": {
+            "properties": {
+              "text": {"type": "string", "minLength": 1},
+              "excerpt_sha256": {"$ref": "#/$defs/sha256"},
+              "source_span_utf8": {"$ref": "#/$defs/source_span_utf8"},
+              "captured_at": {"$ref": "#/$defs/rfc3339"}
+            }
+          },
+          "content_handling": {
+            "properties": {"contains_external_text": {"const": true}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "checked_no_match"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "source_content_sha256": {"$ref": "#/$defs/sha256"},
+              "source_content_utf8_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864}
+            }
+          },
+          "anchor": {"$ref": "#/$defs/empty_anchor"},
+          "excerpt": {"$ref": "#/$defs/null_excerpt_payload"},
+          "content_handling": {
+            "properties": {"contains_external_text": {"const": false}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "not_checked",
+                  "source_missing",
+                  "access_failed",
+                  "retrieval_failed"
+                ]
+              }
+            },
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "source_content_sha256": {"type": "null"},
+              "source_content_utf8_bytes": {"type": "null"}
+            }
+          },
+          "anchor": {"$ref": "#/$defs/empty_anchor"},
+          "excerpt": {"$ref": "#/$defs/null_excerpt_payload"},
+          "content_handling": {
+            "properties": {"contains_external_text": {"const": false}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "anchor": {
+            "properties": {"kind": {"const": "none"}},
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {"properties": {"anchor": {"$ref": "#/$defs/empty_anchor"}}},
+      "else": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "agent_extracted"}}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF][^\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF]*(?![\\s\\S])"
+    },
+    "requirement_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+(?![\\s\\S])"
+    },
+    "authority_anchor_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/authority_anchor(?![\\s\\S])"
+    },
+    "expectation_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/structured_expectations/[0-9]+(?![\\s\\S])"
+    },
+    "rfc3339": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])"
+    },
+    "coverage_subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "requirement_pointer",
+        "authority_anchor_pointer",
+        "expectation_field_id",
+        "expectation_pointer",
+        "expectation_digest",
+        "document_locator"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "requirement_pointer": {"$ref": "#/$defs/requirement_pointer"},
+        "authority_anchor_pointer": {"$ref": "#/$defs/authority_anchor_pointer"},
+        "expectation_field_id": {"$ref": "#/$defs/identifier"},
+        "expectation_pointer": {"$ref": "#/$defs/expectation_pointer"},
+        "expectation_digest": {"$ref": "#/$defs/sha256"},
+        "document_locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value", "provenance"],
+          "properties": {
+            "kind": {"enum": ["document", "page", "section", "paragraph", "other"]},
+            "value": {"type": "string", "minLength": 1, "maxLength": 500},
+            "provenance": {"const": "agent_supplied_not_independently_authenticated"}
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "relative_path",
+        "source_artifact_sha256",
+        "source_artifact_size_bytes",
+        "source_content_sha256",
+        "source_content_utf8_bytes"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "relative_path": {"$ref": "#/$defs/relative_path"},
+        "source_artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "source_artifact_size_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+        "source_content_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "source_content_utf8_bytes": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 67108864
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value_encoded", "value_decoded"],
+      "properties": {
+        "kind": {"enum": ["quote", "none"]},
+        "value_encoded": {"type": "string", "maxLength": 12000},
+        "value_decoded": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "empty_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value_encoded", "value_decoded"],
+      "properties": {
+        "kind": {"const": "none"},
+        "value_encoded": {"const": ""},
+        "value_decoded": {"const": ""}
+      }
+    },
+    "source_span_utf8": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 0},
+        "end": {"type": "integer", "minimum": 1}
+      }
+    },
+    "excerpt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "text", "excerpt_sha256", "source_span_utf8", "captured_at"],
+      "properties": {
+        "state": {
+          "enum": [
+            "agent_extracted",
+            "checked_no_match",
+            "not_checked",
+            "source_missing",
+            "access_failed",
+            "retrieval_failed"
+          ]
+        },
+        "text": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000},
+        "excerpt_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "source_span_utf8": {
+          "oneOf": [{"$ref": "#/$defs/source_span_utf8"}, {"type": "null"}]
+        },
+        "captured_at": {
+          "oneOf": [{"$ref": "#/$defs/rfc3339"}, {"type": "null"}]
+        }
+      }
+    },
+    "null_excerpt_payload": {
+      "type": "object",
+      "properties": {
+        "text": {"type": "null"},
+        "excerpt_sha256": {"type": "null"},
+        "source_span_utf8": {"type": "null"},
+        "captured_at": {"type": "null"}
+      }
+    },
+    "content_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_external_text", "sharing_scope", "rights_basis"],
+      "properties": {
+        "contains_external_text": {"type": "boolean"},
+        "sharing_scope": {"enum": ["session_only", "user_confirmed_shareable"]},
+        "rights_basis": {"enum": ["not_assessed", "user_declared_authorized"]}
+      }
+    }
+  }
+}

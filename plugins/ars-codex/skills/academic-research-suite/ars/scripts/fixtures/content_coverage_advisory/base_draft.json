@@ -1,0 +1,48 @@
+{
+  "schema_version": "content-coverage-advisory-draft/1.0",
+  "layer": "LLM-ADVISORY",
+  "judgments": [
+    {
+      "requirement_id": "us.45cfr46.116.informed-consent",
+      "expectation_pointer": "/profiles/0/requirements/1/structured_expectations/0",
+      "artifact_id": "fixture.us-consent",
+      "coverage_check_state": "performed",
+      "advisory_coverage_status": "DOCUMENTED",
+      "document_locator": {
+        "kind": "section",
+        "value": "Consent"
+      },
+      "quoted_anchor_encoded": "Prospective%20information%20is%20provided%20before%20consent.",
+      "captured_at": "2026-08-09T12:00:00Z",
+      "failure_state": null
+    },
+    {
+      "requirement_id": "us.45cfr46.116.informed-consent",
+      "expectation_pointer": "/profiles/0/requirements/1/structured_expectations/1",
+      "artifact_id": "fixture.us-consent",
+      "coverage_check_state": "performed",
+      "advisory_coverage_status": "DOCUMENTED",
+      "document_locator": {
+        "kind": "section",
+        "value": "Consent"
+      },
+      "quoted_anchor_encoded": "Participation%20is%20voluntary.",
+      "captured_at": "2026-08-09T12:00:00Z",
+      "failure_state": null
+    },
+    {
+      "requirement_id": "us.45cfr46.116.informed-consent",
+      "expectation_pointer": "/profiles/0/requirements/1/structured_expectations/2",
+      "artifact_id": "fixture.us-consent",
+      "coverage_check_state": "performed",
+      "advisory_coverage_status": "DOCUMENTED",
+      "document_locator": {
+        "kind": "section",
+        "value": "Consent"
+      },
+      "quoted_anchor_encoded": "Participation%20is%20voluntary.",
+      "captured_at": "2026-08-09T12:00:00Z",
+      "failure_state": null
+    }
+  ]
+}

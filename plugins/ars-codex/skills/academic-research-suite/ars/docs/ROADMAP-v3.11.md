@@ -45,9 +45,10 @@ boundary discipline for everything else.
     is "the human decides at every gate." The #182 spec should state explicitly whether this
     block is hard (auto) or surfaced-for-human-override, so it reads as a flag-and-surface
     gate, not an AI culling decision. This is a #182 spec clarification, not a roadmap blocker.
-  - **#250** (non-blocking) — gold-set coverage gap: the `false` class is only exercised by
-    fabricated tuples, not real-but-unindexed citations. Closing condition (a paper unmatched
-    across all four resolvers) is hard to satisfy and may stay open; tracked, not committed.
+  - **#250** (historical accepted limitation; no action item) — the static gold corpus has no
+    stable, first-party-verifiable real work unmatched across all four resolvers, so its `false`
+    class is exercised only by fabricated tuples. This is a representativeness limit, not a
+    missing title-match regression: #431/#432 fixed and directly test resolver-client behavior.
 
 ### Kim et al. peer-review failure modes (epic #217)
 

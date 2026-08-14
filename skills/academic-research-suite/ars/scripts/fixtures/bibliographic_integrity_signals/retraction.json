@@ -1,0 +1,46 @@
+{
+  "schema_version": "bibliographic-integrity-signal/1.0",
+  "signal_id": "bis:smith2024:retraction_status",
+  "signal_type": "retraction_status",
+  "epistemic_class": "deterministic_fact",
+  "epistemic_label": "RESOLVER-OR-LIST-OBSERVATION",
+  "check_status": "checked",
+  "finding": "detected",
+  "evidence": [
+    {
+      "evidence_type": "list_record",
+      "source_name": "Retraction Watch",
+      "record_locator": "doi:10.1234/retracted.1",
+      "observed_value": "retracted",
+      "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "provenance": {
+    "source_name": "Retraction Watch",
+    "source_version": "snapshot-2026-08-01",
+    "source_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "checked_at": "2026-08-08T00:00:00Z",
+    "recorded_at": "2026-08-08T00:00:01Z",
+    "stale_after": "2026-09-08T00:00:00Z",
+    "freshness": "current"
+  },
+  "subject": {
+    "citation_key": "smith2024",
+    "source_pointer": "https://doi.org/10.1234/retracted.1",
+    "affected_claims": [
+      "claim:results-2"
+    ]
+  },
+  "terminal_policy": {
+    "eligible": false,
+    "owner": "none",
+    "policy_key": null,
+    "current_effect": "advisory_only"
+  },
+  "display": {
+    "carrier": "provenance_summary",
+    "section": "Bibliographic Integrity Advisories",
+    "summary_label": "Retraction-list status",
+    "marker_token": null
+  }
+}

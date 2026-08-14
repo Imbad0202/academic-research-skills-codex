@@ -45,8 +45,12 @@ The original spec defined a `valid_unresolvable` class (tuples 031–040) — re
 that are unmatched across all four resolvers. No stable, first-party-verifiable source
 satisfying that constraint was found under current index coverage, so the class was
 removed and 031–040 are now `fabricated`. The `false` class is carried by `fabricated`
-tuples. A known coverage gap (no real-but-unindexed tuple to exercise the resolver's
-fuzzy-match false-positive path) is tracked in issue #250.
+tuples. The missing real-but-unindexed tuple is an accepted **corpus-representativeness
+limitation**, recorded historically in #250; there is no current action item to add one.
+It is not missing resolver regression coverage: this static harness reduces authored
+`resolver_outcomes` and cannot exercise resolver-client title matching. The client-layer
+false-positive behavior was isolated in #431, fixed by #432, and is covered by direct
+client HTTP-path tests.
 
 ## Human expert verdicts
 

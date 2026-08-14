@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 CODEX_ROOT = Path(__file__).resolve().parents[1]
 SUITE_ROOT = CODEX_ROOT.parent
@@ -137,6 +139,19 @@ def test_model_tiering_is_surfaced_without_forcing_a_codex_model() -> None:
     assert delegated["profile"]["model_tiering_requested"] == "quality-boost"
 
 
+def test_command_model_hints_match_upstream_frontmatter_semantics() -> None:
+    manifest = json.loads((CODEX_ROOT / "full-runtime-manifest.json").read_text(encoding="utf-8"))
+    hints = {
+        command["aliases"][1]: command["model_hint"]
+        for command in manifest["commands"]
+    }
+
+    for alias in ("ars-full", "ars-reviewer", "ars-revision-coach"):
+        assert hints.pop(alias) == "inherit"
+    assert hints
+    assert set(hints.values()) == {"sonnet"}
+
+
 def test_cross_model_configuration_requires_dispatcher_consent_gate() -> None:
     planner = _load_planner()
     inline = planner.plan_request(
@@ -167,6 +182,112 @@ def test_cross_model_configuration_requires_dispatcher_consent_gate() -> None:
     assert reviewer_2["cross_model_reviewer_track"] == (
         "configured_requires_explicit_content_consent"
     )
+
+
+def test_cross_model_transport_selector_surfaces_closed_api_and_unset_states() -> None:
+    planner = _load_planner()
+
+    default = planner.plan_request("ars-plan Research question: Why?", env={})
+    assert default["profile"]["cross_model_transport_selector"] == "unset"
+    assert default["profile"]["cross_model_effective_transport"] == "api"
+    assert default["profile"]["cross_model_transport_scope"] == "none"
+
+    api = planner.plan_request(
+        "ars-reviewer full review for this manuscript.",
+        env={
+            "ARS_CROSS_MODEL": "gpt-5.5",
+            "ARS_CROSS_MODEL_TRANSPORT": "api",
+        },
+    )
+    assert api["profile"]["cross_model_transport_selector"] == "api"
+    assert api["profile"]["cross_model_effective_transport"] == "api"
+    assert api["profile"]["cross_model_transport_scope"] == "api_cross_model_workflows"
+    assert api["profile"]["cross_model_explicit_consent_required"] is True
+
+
+def test_codex_transport_is_citation_only_and_excluded_from_reviewer_plan() -> None:
+    planner = _load_planner()
+    plan = planner.plan_request(
+        "ars-reviewer full review for this manuscript.",
+        env={
+            "ARS_CODEX_FULL_RUNTIME": "1",
+            "ARS_CODEX_AGENT_TEAM": "1",
+            "ARS_CROSS_MODEL": "gpt-5.6-sol",
+            "ARS_CROSS_MODEL_TRANSPORT": "codex",
+        },
+    )
+    profile = plan["profile"]
+    assert profile["cross_model_transport_selector"] == "codex"
+    assert profile["cross_model_effective_transport"] == "codex"
+    assert profile["cross_model_transport_ready"] is True
+    assert profile["cross_model_transport_scope"] == "citation_integrity_only"
+    assert profile["cross_model_explicit_consent_required"] is True
+    assert profile["cross_model_handoff_status"] == (
+        "codex_citation_only_requires_explicit_request_and_consent"
+    )
+    assert set(profile["cross_model_forbidden_uses"]) == {
+        "devils_advocate",
+        "reviewer_seat",
+        "re_review_judge",
+        "general_judgment",
+    }
+
+    reviewer_2 = next(
+        item
+        for item in plan["agent_team_plan"]
+        if item["agent"] == "domain_reviewer_agent"
+    )
+    assert reviewer_2["cross_model_reviewer_track"] == (
+        "excluded_codex_transport_is_citation_only"
+    )
+    devil = next(
+        item
+        for item in plan["agent_team_plan"]
+        if item["agent"] == "devils_advocate_reviewer_agent"
+    )
+    assert "cross_model_reviewer_track" not in devil
+
+
+def test_codex_transport_without_ars_cross_model_is_visibly_unavailable() -> None:
+    planner = _load_planner()
+    plan = planner.plan_request(
+        "ars-citation-check verify this reference.",
+        env={"ARS_CROSS_MODEL_TRANSPORT": "codex"},
+    )
+    profile = plan["profile"]
+    assert profile["cross_model_effective_transport"] == "codex"
+    assert profile["cross_model_transport_ready"] is False
+    assert profile["cross_model_transport_scope"] == "none"
+    assert profile["cross_model_handoff_status"] == (
+        "codex_transport_unavailable_missing_ARS_CROSS_MODEL"
+    )
+
+
+def test_invalid_cross_model_transport_selector_fails_closed() -> None:
+    planner = _load_planner()
+    for invalid_selector in ("openai", "unset"):
+        with pytest.raises(
+            ValueError,
+            match="expected the variable to be absent, or set to api or codex",
+        ):
+            planner.plan_request(
+                "ars-reviewer full review for this manuscript.",
+                env={
+                    "ARS_CROSS_MODEL": "gpt-5.5",
+                    "ARS_CROSS_MODEL_TRANSPORT": invalid_selector,
+                },
+            )
+
+    result = subprocess.run(
+        [sys.executable, str(PLANNER_PATH), "ars-reviewer", "full", "review"],
+        env={"ARS_CROSS_MODEL_TRANSPORT": "openai"},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "refused to fall through" in result.stderr
+    assert not result.stdout
 
 
 def test_v318_cache_controls_are_surfaced_without_changing_gate_semantics() -> None:
@@ -299,6 +420,67 @@ def test_cli_outputs_json_plan() -> None:
     payload = json.loads(result.stdout)
     assert payload["workflow"] == "academic-paper-reviewer"
     assert payload["mode"] == "full"
+
+
+def test_v320_manifest_registers_only_hermetic_runtime_contract_gates() -> None:
+    manifest = json.loads((CODEX_ROOT / "full-runtime-manifest.json").read_text(encoding="utf-8"))
+    options = manifest["runtime_options"]
+    transport = options["cross_model_transport"]
+    assert transport["allowed_values"] == ["api", "codex"]
+    assert transport["variable_may_be_absent"] is True
+    assert transport["normalized_absent_label"] == "unset"
+    assert transport["codex_scope"] == "citation_integrity_only"
+    assert transport["codex_requires_explicit_consent"] is True
+    assert transport["codex_requires_ars_cross_model"] is True
+    assert transport["codex_min_cli_version"] == "0.147.0"
+    assert transport["codex_login_attestation"] == "Logged in using ChatGPT"
+    assert set(transport["codex_forbidden_uses"]) >= {
+        "devils_advocate",
+        "reviewer_seat",
+        "re_review_judge",
+        "general_judgment",
+    }
+
+    pdf = options["pdf_content_classifier"]
+    assert pdf["mode"] == "optional_advisory"
+    assert pdf["auto_install"] is False
+    assert pdf["verdict_scope"] == "STRUCTURE_ONLY"
+    assert (SUITE_ROOT / pdf["dependency_file"]).is_file()
+
+    gates = {
+        gate["id"]: gate
+        for gate in manifest["quality_gates"]
+        if gate["id"].startswith("v320_")
+    }
+    required = {
+        "v320_codex_subscription_transport_contract",
+        "v320_codex_subscription_transport_runtime",
+        "v320_pdf_content_classifier_isolation",
+        "v320_phase_e_evidence_rows",
+        "v320_revision_roadmap_author_adjudication",
+        "v320_post_terminal_adjudication_activity",
+        "v320_human_subjects_authority",
+        "v320_review_pathway_rule_trace",
+        "v320_submission_packet_manifest",
+        "v320_human_subjects_reference_migration",
+        "v320_human_subjects_content_coverage",
+        "v320_bibliographic_integrity_signals",
+        "v320_retraction_status",
+        "v320_tortured_phrase_advisory",
+        "v320_preregistration_cross_document_advisory",
+        "v320_review_target_context",
+        "v320_review_criteria_binding",
+        "v320_committee_correspondence",
+    }
+    assert required == set(gates)
+    for gate in gates.values():
+        assert gate["execution"] == "hermetic"
+        runner = gate["runner"].removeprefix("upstream:")
+        assert (SUITE_ROOT / runner).is_file(), runner
+
+    all_runners = "\n".join(gate["runner"] for gate in manifest["quality_gates"])
+    assert "cross_model_smoke_test_codex.sh" not in all_runners
+    assert "run_review_criteria_constructive_value.py" not in all_runners
 
 
 def test_quality_gates_all_pass() -> None:

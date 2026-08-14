@@ -1,0 +1,101 @@
+{
+  "schema_version": "submission-packet-inventory/1.0",
+  "inventory_id": "fixture.packet-v1",
+  "declared_by": "author",
+  "packet_responsibility_role_ids": [
+    "investigator",
+    "investigator_and_irb",
+    "principal_investigator"
+  ],
+  "authorization_status_input": {
+    "value": "not_provided",
+    "source_reference": null,
+    "provenance": "caller_supplied_no_derivation"
+  },
+  "waiver_or_exception_claims": [],
+  "artifacts": [
+    {
+      "artifact_id": "fixture.us-consent",
+      "relative_path": "consent-materials.txt",
+      "declared_sha256": "c4cc775db4eb3a033a9d2f33d8fced93592e603c7b8ebc2ecea1e17eef26366d",
+      "declared_size_bytes": 65,
+      "media_type": "text/plain",
+      "artifact_type": "consent_materials",
+      "declared_holder_role_id": "investigator",
+      "evidence_bindings": [
+        {
+          "requirement_id": "us.45cfr46.116.informed-consent",
+          "evidence_id": "consent.participant-materials"
+        }
+      ],
+      "declared_structure": {
+        "version_id": "v1",
+        "document_date": "2026-08-09",
+        "signature_blocks": [
+          {
+            "role_id": "investigator",
+            "state": "present"
+          }
+        ],
+        "certificate": null
+      }
+    },
+    {
+      "artifact_id": "fixture.tw-consent",
+      "relative_path": "tw-consent-materials.txt",
+      "declared_sha256": "fc1db0044f7960b8d3369cee52ff67971ae60cd13d8d27d7b94ffaf0de8d34bf",
+      "declared_size_bytes": 78,
+      "media_type": "text/plain",
+      "artifact_type": "consent_materials",
+      "declared_holder_role_id": "principal_investigator",
+      "evidence_bindings": [
+        {
+          "requirement_id": "tw.hsra.article-14.consent-information",
+          "evidence_id": "consent.article-14-materials"
+        }
+      ],
+      "declared_structure": {
+        "version_id": "v1",
+        "document_date": "2026-08-09",
+        "signature_blocks": [
+          {
+            "role_id": "principal_investigator",
+            "state": "present"
+          }
+        ],
+        "certificate": null
+      }
+    },
+    {
+      "artifact_id": "fixture.training-certificate",
+      "relative_path": "training-certificate.txt",
+      "declared_sha256": "aaaa507d099d83ab819a0080ed0fd02b25fed034512b1b7f0620dcb596970bf6",
+      "declared_size_bytes": 56,
+      "media_type": "text/plain",
+      "artifact_type": "training_certificate",
+      "declared_holder_role_id": "investigator",
+      "evidence_bindings": [
+        {
+          "requirement_id": "synthetic.packet.waiver-route",
+          "evidence_id": "synthetic.waiver-decision"
+        }
+      ],
+      "declared_structure": {
+        "version_id": "v1",
+        "document_date": "2026-08-09",
+        "signature_blocks": [
+          {
+            "role_id": "institutional_review_office",
+            "state": "present"
+          }
+        ],
+        "certificate": {
+          "certificate_id": "fixture.training-667",
+          "holder_role_id": "investigator",
+          "issued_on": "2026-01-01",
+          "expires_on": "2027-01-01"
+        }
+      }
+    }
+  ]
+}

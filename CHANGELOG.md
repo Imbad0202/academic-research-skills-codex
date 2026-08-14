@@ -4,6 +4,24 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.25] - 2026-08-14
+
+### What's Changed
+- Synced the vendored ARS suite to the `v3.20.0` release at
+  `3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`.
+- Added evidence-bound review and revision contracts, including durable
+  evidence rows, author-confirmed review criteria, non-ranking revision
+  roadmaps, author adjudication, and revision-evidence bundles.
+- Added the contained, consent-gated Codex citation transport for narrow
+  citation-integrity checks, plus stronger human-subjects authority boundaries.
+- Vendored the optional sandboxed PDF content classifier as an advisory tool;
+  it is not a required dependency and does not change structural PDF preflight.
+- Adapted the v3.20 indirect-injection no-call envelope to verify its upstream
+  suite commit through the package source lock when the nested vendor tree has
+  no `.git` directory.
+- Preserved the single-root Codex router, `WORKFLOW.md` entrypoint mapping,
+  inactive Claude-only hooks, and separately vendored experiment-agent v1.1.0.
+
 ## [0.1.24] - 2026-08-06
 
 ### What's Changed

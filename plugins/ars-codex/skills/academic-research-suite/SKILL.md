@@ -15,7 +15,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, and /ars-full. This skill vendors ARS role prompts,
   references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.24"
+  version: "0.1.25"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -28,7 +28,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.24`. The repo-root `VERSION`, this
+This Codex package is version `0.1.25`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.
@@ -152,12 +152,37 @@ using them in Codex:
 | Claude, Claude Code, model-specific wording | Interpret as "the current Codex agent" unless the text is part of a disclosure template or historical example. |
 | `ARS_MODEL_TIERING=economy|quality-boost` | Unset remains the default and preserves current-model behavior. The upstream relative Opus/Sonnet tier names are not hard-mapped to Codex model ids. Apply tiering only when the active Codex runtime supports an explicit per-dispatch model override; otherwise announce a one-line no-op and keep every role on the active model. Use `ars/shared/model_tiering.md` and `ars/scripts/model_tiering_manifest.json` as the classification contract. |
 | `ARS_CROSS_MODEL`, `ARS_CROSS_MODEL_REASONING_EFFORT`, `ARS_OPENAI_COMPAT_BASE_URL`, `ARS_OPENAI_COMPAT_API_KEY` | Treat upstream secondary-model dispatch instructions as no-op unless the user explicitly asks for cross-model review. When explicitly enabled in this Codex package, follow `ars/shared/cross_model_verification.md`: identify the provider/model/id status/content class, obtain explicit user consent before any external upload, preserve risk-stratified sampling and blind-disagreement checkpoint rules, and call only the configured provider API. A dispatched owner emits the canonical `[CROSS-MODEL-HANDOFF v1]` envelope; the dispatching Codex context validates it, sends only the payload, applies the mechanical result routing, and returns judgment work to the owner. In reviewer `full` mode, the consented cross-model track swaps the existing Reviewer 2 seat rather than adding a reviewer; re-review runs the independent Priority-1 judge pass and records the Judge Record. Disclose single-family or fallback execution and never simulate either track through the active Codex model. |
+| `ARS_CROSS_MODEL_TRANSPORT=codex`, `scripts/cross_model_codex_transport.py` | This explicit selector is limited to contained, one-reference citation checks at Stage 2.5 / 4.5 through a ChatGPT-subscription Codex app-server. Require Codex CLI 0.147.0 or newer, `ARS_CROSS_MODEL`, the exact `Logged in using ChatGPT` attestation, and the normal provider/content/cost consent gate; do not accept caller-authored prompts or paths, widen the selector to reviewer/DA/calibration/re-review/handoff calls, or fall back automatically to an API. A result is accepted only after `turn/completed`, clean process exit, and stdout/stderr EOF; late forbidden or malformed events, drain timeout, nonzero exit, reader failure, or stderr overflow fail visibly. |
 | `S2_API_KEY`, `OPENALEX_API_KEY`, `OPENALEX_POLITE_EMAIL`, `CROSSREF_POLITE_EMAIL` | These are optional upstream bibliographic lookup settings. Use them only when the user explicitly runs contamination-signal migration or programmatic reference verification; normal Codex routing does not require them. Never log credential-bearing query strings, and do not use browser retrieval to bypass API rate limits. |
 | `ARS_VERIFICATION_CACHE_PATH`, `ARS_CACHE_STALE_ADVISORY_DAYS`, `ARS_CACHE_REVALIDATE` | These configure the local SQLite citation-verification cache, the advisory-only stale-row threshold (default 30 days; `0` disables), and opt-in live re-validation. Preserve cached-by-default behavior when the programmatic citation gate is run. Live re-validation may call external bibliographic services, so use it only within the user's verification task and normal network/credential boundaries; an advisory never becomes a gate failure. |
-| Local PDF page anchors, `scripts/pdf_read_preflight.py` | Before trusting a `page` anchor from a locally read PDF, run the v3.19 preflight once and carry its sidecar by `ref_slug`. Treat `FAIL` as positive read-integrity evidence against the page anchor and `UNAVAILABLE` as an explicit advisory; never convert a missing dependency, encrypted file, parser repair, or absent sidecar into `PASS`. |
+| Local PDF page anchors, `scripts/pdf_read_preflight.py` | Before trusting a `page` anchor from a locally read PDF, run the structural preflight once and carry its sidecar by `ref_slug`. Treat `FAIL` as positive read-integrity evidence against the page anchor and `UNAVAILABLE` as an explicit advisory; never convert a missing dependency, encrypted file, parser repair, or absent sidecar into `PASS`. The v3.20 `--classify-content` extension is opt-in and process-isolated, depends on the separately pinned `requirements-pdf-content-classifier.txt`, and emits only a `TEXT_AVAILABLE` / `OCR_RECOMMENDED` / `unavailable` advisory while the verdict scope remains `STRUCTURE_ONLY`; never turn it into an automatic OCR or anchor-acceptance gate. |
 | `fresh Claude Code session`, `Claude Code session` | Read as "a new Codex conversation". Material Passport reset semantics still apply; only the runtime changes. This rule covers `ars/academic-pipeline/WORKFLOW.md`, `ars/academic-pipeline/agents/pipeline_orchestrator_agent.md`, `ars/academic-pipeline/references/passport_as_reset_boundary.md`, `ars/experiment-agent/README.md`, `ars/experiment-agent/README.zh-TW.md`, and `ars/docs/PERFORMANCE.md`. |
 | `/ars-*` slash command, Claude plugin command | Treat `ars/commands/ars-*.md` as optional prompt recipes. Codex does not register slash commands from this package. |
 | SessionStart hook, SubagentStop hook, `hooks/hooks.json`, `scripts/ars_update_check.sh` | Treat as upstream Claude Code hook metadata only. The v3.18 update checker is vendored for traceability and tests but is not installed or executed by Codex; Codex package updates remain manual unless the user explicitly asks to port hook behavior. |
+
+### ARS v3.20 Evidence and Authority Boundaries
+
+- Phase E evidence rows are deterministic, source-bound checkpoint artifacts.
+  They preserve the existing citation verdict and gate, do not mark a source as
+  human-read, and must replay against explicit session-held source bytes.
+- Revision roadmaps remain non-ranking proposals. Only an explicit author
+  adjudication may authorize exact choices or integrity-correction targets;
+  never infer, fabricate, or auto-apply author decisions. Optional cross-run
+  adjudication-activity capture is local, best-effort, and advisory only.
+- Review-target context must be author-confirmed, and criteria are carried by
+  resolved pointers across formative, internal, and external review. Do not
+  infer a missing venue/track, invent evidence, or let binding conformance alter
+  integrity verdicts, editorial arithmetic, checkpoints, or author triage.
+- Human-subjects authority resolution keeps review-ethics and data-protection
+  axes separate and fails closed when scope, currency, or applicability is
+  unresolved. Outputs remain institution-owned navigation aids, never legal
+  advice, an IRB/REC determination, an authorization, or a fabricated timeline.
+- Bibliographic-integrity and retraction carriers preserve observations,
+  provenance, disagreement, staleness, and degradation without minting a clean
+  certificate or replacing the citation finalizer's policy authority. The
+  preregistration cross-document consistency carrier is nonblocking,
+  `LLM-ADVISORY` / `UNMEASURED`, and never a score, rewrite, protocol duplicate,
+  or proof that documents agree.
 
 ## Security Boundaries
 
@@ -269,7 +294,22 @@ Use `ars/shared/` for cross-workflow contracts and quality gates:
 - `ars/shared/cross_model_verification.md` defines risk-stratified verification,
   blind disagreement checkpoints, the canonical dispatcher handoff envelope,
   the fixed-seat cross-model reviewer track, re-review judge independence,
-  provider grounding guards, and model-id status.
+  provider grounding guards, model-id status, and the contained citation-only
+  Codex subscription transport.
+- `ars/shared/references/evidence_row_protocol.md` defines source-bound Phase E
+  evidence rows; `ars/shared/contracts/revision/` separates non-ranking roadmaps
+  from author adjudication and current revision evidence.
+- `ars/shared/references/human_subjects_authority_protocol.md`,
+  `ars/shared/references/review_pathway_rule_trace_protocol.md`, and
+  `ars/shared/references/submission_packet_manifest_protocol.md` define the
+  institution-owned human-subjects authority, navigation, and packet boundaries.
+- `ars/shared/review_criteria_registry.json` and
+  `ars/shared/references/review_criteria_consumer_protocol.md` bind one
+  author-confirmed review target across formative, internal, and external review.
+- `ars/shared/bibliographic_integrity_signals.md` and
+  `ars/shared/references/cross_document_consistency_advisory_protocol.md` keep
+  bibliographic, retraction, preregistration, and cross-document signals
+  provenance-bearing and advisory rather than clean-document certificates.
 - `ars/academic-pipeline/references/claim_verification_protocol.md` defines the
   v3.18 high-impact-first sampling gate plus advisory-only scope-conformance
   and search-bounded novelty classifications, and the v3.19 revision-round

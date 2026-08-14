@@ -1,0 +1,44 @@
+{
+  "schema_version": "bibliographic-integrity-signal/1.0",
+  "signal_id": "bis:legacy2024:retraction_status",
+  "signal_type": "retraction_status",
+  "epistemic_class": "process_attestation",
+  "epistemic_label": "CHECK-EXECUTION-ATTESTATION",
+  "check_status": "checked",
+  "finding": "unresolved",
+  "evidence": [
+    {
+      "evidence_type": "legacy_attestation",
+      "source_name": "Retraction Watch",
+      "record_locator": null,
+      "observed_value": true,
+      "evidence_sha256": null
+    }
+  ],
+  "provenance": {
+    "source_name": "Retraction Watch",
+    "source_version": null,
+    "source_sha256": null,
+    "checked_at": "2026-08-01T00:00:00Z",
+    "recorded_at": "2026-08-08T00:00:00Z",
+    "stale_after": null,
+    "freshness": "unknown"
+  },
+  "subject": {
+    "citation_key": "legacy2024",
+    "source_pointer": "zotero://select/items/0_LEGACY",
+    "affected_claims": []
+  },
+  "terminal_policy": {
+    "eligible": false,
+    "owner": "none",
+    "policy_key": null,
+    "current_effect": "advisory_only"
+  },
+  "display": {
+    "carrier": "provenance_summary",
+    "section": "Bibliographic Integrity Advisories",
+    "summary_label": "Retraction-list status",
+    "marker_token": null
+  }
+}

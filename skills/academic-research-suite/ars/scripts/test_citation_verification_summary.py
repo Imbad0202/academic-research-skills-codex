@@ -237,7 +237,8 @@ def test_reduce_id_keyed_unmatched_is_false():
 
 def test_reduce_title_only_unmatched_is_unresolvable_NOT_false():
     """THE narrowed-false case (C-V6(a)): only title-only unmatched (no
-    resolvable ID) → unresolvable, never false. The real-but-unindexed paper."""
+    resolvable ID) → unresolvable, never false. This is the coverage-safe
+    verdict shape, not a representative genuine-unindexed gold tuple (#250)."""
     from citation_verification_summary import reduce_lookup_verified
     assert reduce_lookup_verified(_ro(
         crossref=("unmatched", "title"),

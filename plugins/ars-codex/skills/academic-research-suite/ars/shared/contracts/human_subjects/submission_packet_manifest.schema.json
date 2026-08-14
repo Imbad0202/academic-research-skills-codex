@@ -1,0 +1,999 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Imbad0202/academic-research-skills/shared/contracts/human_subjects/submission_packet_manifest.schema.json",
+  "title": "Deterministic human-subjects submission-packet manifest",
+  "description": "Pointer-only result of replay-bound, mechanical packet inventory checks. It carries no prose, excerpt, verdict, review level, adequacy judgment, institutional acceptance, approval, compliance, or authorization decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "inventory_pointer",
+    "authority_binding",
+    "packet_pointer",
+    "packet_observations",
+    "capability_envelope",
+    "overlay_selection_state",
+    "administrative_status",
+    "acceptance_boundary",
+    "entries",
+    "excluded_requirements",
+    "unresolved_reasons",
+    "boundary_footer",
+    "manifest_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "submission-packet-manifest/1.0"},
+    "inventory_pointer": {"$ref": "#/$defs/inventory_pointer"},
+    "authority_binding": {"$ref": "#/$defs/authority_binding"},
+    "packet_pointer": {"$ref": "#/$defs/packet_pointer"},
+    "packet_observations": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/packet_observation"}
+    },
+    "capability_envelope": {"$ref": "#/$defs/capability_envelope"},
+    "overlay_selection_state": {
+      "oneOf": [{"$ref": "#/$defs/overlay_selection_state"}, {"type": "null"}]
+    },
+    "administrative_status": {"$ref": "#/$defs/administrative_status"},
+    "acceptance_boundary": {"$ref": "#/$defs/acceptance_boundary"},
+    "entries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/entry"}
+    },
+    "excluded_requirements": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/excluded_requirement"}
+    },
+    "unresolved_reasons": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/unresolved_reason"}
+    },
+    "boundary_footer": {
+      "const": "Human-subjects boundary: This output does not authorize recruitment, consent, access to identifiable data, intervention, or data collection."
+    },
+    "manifest_digest": {
+      "description": "SHA-256 of the canonical manifest object with this field excluded.",
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "authority_binding": {
+            "properties": {"state": {"const": "not_provided"}},
+            "required": ["state"]
+          }
+        },
+        "required": ["authority_binding"]
+      },
+      "then": {
+        "properties": {
+          "entries": {"maxItems": 0},
+          "excluded_requirements": {"maxItems": 0},
+          "packet_observations": {"maxItems": 0},
+          "overlay_selection_state": {"type": "null"},
+          "administrative_status": {
+            "properties": {"submission_readiness": {"const": "unresolved"}}
+          },
+          "unresolved_reasons": {
+            "contains": {
+              "properties": {"code": {"const": "AUTHORITY_INPUT_NOT_PROVIDED"}},
+              "required": ["code"]
+            },
+            "minContains": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "overlay_selection_state": {"$ref": "#/$defs/overlay_selection_state"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "authority_binding": {
+            "properties": {
+              "state": {"const": "replay_validated"},
+              "resolution_state": {
+                "enum": ["jurisdiction_unresolved", "applicability_unresolved"]
+              }
+            },
+            "required": ["state", "resolution_state"]
+          }
+        },
+        "required": ["authority_binding"]
+      },
+      "then": {
+        "properties": {
+          "entries": {"maxItems": 0},
+          "excluded_requirements": {"maxItems": 0},
+          "packet_observations": {"maxItems": 0},
+          "administrative_status": {
+            "properties": {"submission_readiness": {"const": "unresolved"}}
+          },
+          "unresolved_reasons": {
+            "contains": {
+              "properties": {"code": {"const": "AUTHORITY_RESOLUTION_NOT_PERMITTED"}},
+              "required": ["code"]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "capability_envelope": {
+            "properties": {"state": {"const": "unresolved"}},
+            "required": ["state"]
+          }
+        },
+        "required": ["capability_envelope"]
+      },
+      "then": {
+        "properties": {
+          "entries": {"maxItems": 0},
+          "excluded_requirements": {"maxItems": 0},
+          "packet_observations": {"maxItems": 0},
+          "administrative_status": {
+            "properties": {"submission_readiness": {"const": "unresolved"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "overlay_selection_state": {
+            "type": "object",
+            "anyOf": [
+              {
+                "properties": {"institutional": {"const": "not_provided"}},
+                "required": ["institutional"]
+              },
+              {
+                "properties": {"funder": {"const": "not_provided"}},
+                "required": ["funder"]
+              }
+            ]
+          }
+        },
+        "required": ["overlay_selection_state"]
+      },
+      "then": {
+        "properties": {
+          "administrative_status": {
+            "properties": {"submission_readiness": {"const": "unresolved"}}
+          },
+          "unresolved_reasons": {
+            "contains": {
+              "properties": {"code": {"const": "OVERLAY_SELECTION_NOT_PROVIDED"}},
+              "required": ["code"]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "axis": {"enum": ["review_ethics", "data_protection"]},
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF][^\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF]*(?![\\s\\S])",
+      "not": {
+        "pattern": "[\u00AD\u0600-\u0605\u061C\u06DD\u070F\u0890-\u0891\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB\uD804\uDCBD\uD804\uDCCD\uD80D\uDC30-\uD80D\uDC5F\uD82F\uDCA0-\uD82F\uDCA3\uD834\uDD73-\uD834\uDD7A\uDB40\uDC01\uDB40\uDC20-\uDB40\uDC7F]"
+      }
+    },
+    "authorization_status_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source_reference", "provenance"],
+      "properties": {
+        "value": {"enum": ["documented", "not_provided", "cannot_verify"]},
+        "source_reference": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "provenance": {"const": "caller_supplied_no_derivation"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"value": {"const": "documented"}},
+            "required": ["value"]
+          },
+          "then": {
+            "properties": {
+              "source_reference": {"$ref": "#/$defs/identifier"}
+            }
+          },
+          "else": {
+            "properties": {"source_reference": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "inventory_pointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inventory_id", "schema_version", "inventory_digest"],
+      "properties": {
+        "inventory_id": {"$ref": "#/$defs/identifier"},
+        "schema_version": {"const": "submission-packet-inventory/1.0"},
+        "inventory_digest": {
+          "description": "SHA-256 of the protocol-defined semantic inventory: set-like arrays are sorted without changing any scalar value.",
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "context_pointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context_record_id", "schema_version", "context_digest"],
+      "properties": {
+        "context_record_id": {"$ref": "#/$defs/identifier"},
+        "schema_version": {"const": "irb-context-record/1.0"},
+        "context_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "registry_pointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_id", "registry_version", "as_of", "registry_digest"],
+      "properties": {
+        "registry_id": {"$ref": "#/$defs/identifier"},
+        "registry_version": {"$ref": "#/$defs/version"},
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+        },
+        "registry_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "downstream_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "both_axes_selected",
+        "exact_selection_resolved",
+        "all_applicability_resolved",
+        "profile_dependent_result_allowed"
+      ],
+      "properties": {
+        "both_axes_selected": {"type": "boolean"},
+        "exact_selection_resolved": {"type": "boolean"},
+        "all_applicability_resolved": {"type": "boolean"},
+        "profile_dependent_result_allowed": {"type": "boolean"}
+      }
+    },
+    "authority_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "context_pointer",
+        "registry_pointer",
+        "resolved_digest",
+        "resolution_state",
+        "downstream_gate"
+      ],
+      "properties": {
+        "state": {"enum": ["replay_validated", "not_provided"]},
+        "context_pointer": {
+          "oneOf": [{"$ref": "#/$defs/context_pointer"}, {"type": "null"}]
+        },
+        "registry_pointer": {
+          "oneOf": [{"$ref": "#/$defs/registry_pointer"}, {"type": "null"}]
+        },
+        "resolved_digest": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "resolution_state": {
+          "oneOf": [
+            {"enum": ["resolved", "jurisdiction_unresolved", "applicability_unresolved"]},
+            {"type": "null"}
+          ]
+        },
+        "downstream_gate": {
+          "oneOf": [{"$ref": "#/$defs/downstream_gate"}, {"type": "null"}]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"state": {"const": "replay_validated"}},
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "context_pointer": {"$ref": "#/$defs/context_pointer"},
+              "registry_pointer": {"$ref": "#/$defs/registry_pointer"},
+              "resolved_digest": {"$ref": "#/$defs/sha256"},
+              "resolution_state": {
+                "enum": ["resolved", "jurisdiction_unresolved", "applicability_unresolved"]
+              },
+              "downstream_gate": {"$ref": "#/$defs/downstream_gate"}
+            }
+          },
+          "else": {
+            "properties": {
+              "context_pointer": {"type": "null"},
+              "registry_pointer": {"type": "null"},
+              "resolved_digest": {"type": "null"},
+              "resolution_state": {"type": "null"},
+              "downstream_gate": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"resolution_state": {"const": "resolved"}},
+            "required": ["resolution_state"]
+          },
+          "then": {
+            "properties": {
+              "downstream_gate": {
+                "allOf": [
+                  {"$ref": "#/$defs/downstream_gate"},
+                  {
+                    "properties": {
+                      "both_axes_selected": {"const": true},
+                      "exact_selection_resolved": {"const": true},
+                      "all_applicability_resolved": {"const": true},
+                      "profile_dependent_result_allowed": {"const": true}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution_state": {
+                "enum": ["jurisdiction_unresolved", "applicability_unresolved"]
+              }
+            },
+            "required": ["resolution_state"]
+          },
+          "then": {
+            "properties": {
+              "downstream_gate": {
+                "allOf": [
+                  {"$ref": "#/$defs/downstream_gate"},
+                  {
+                    "properties": {
+                      "profile_dependent_result_allowed": {"const": false}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "packet_pointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "observation_digest"],
+      "properties": {
+        "scope": {"const": "explicit_inventory_paths_only"},
+        "observation_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "packet_observation": {
+      "type": "object",
+      "description": "Declared-vs-observed accounting for every explicit inventory path. Its status is visible even when no selected requirement consumes the artifact, but it does not by itself change submission readiness.",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "relative_path",
+        "state",
+        "observed_sha256",
+        "observed_size_bytes",
+        "status",
+        "reason_codes"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "relative_path": {"$ref": "#/$defs/relative_path"},
+        "state": {"enum": ["located", "not_located"]},
+        "observed_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "observed_size_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0, "maximum": 67108864},
+            {"type": "null"}
+          ]
+        },
+        "status": {"enum": ["DOCUMENTED", "CONFLICTING"]},
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "STRUCTURE_DOCUMENTED",
+              "DECLARED_ATTACHMENT_NOT_LOCATED",
+              "ARTIFACT_DIGEST_MISMATCH",
+              "ARTIFACT_SIZE_MISMATCH",
+              "CERTIFICATE_HOLDER_MISMATCH",
+              "DECLARED_STRUCTURE_CONFLICT"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"state": {"const": "located"}},
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "observed_sha256": {"$ref": "#/$defs/sha256"},
+              "observed_size_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864}
+            }
+          },
+          "else": {
+            "properties": {
+              "observed_sha256": {"type": "null"},
+              "observed_size_bytes": {"type": "null"},
+              "status": {"const": "CONFLICTING"},
+              "reason_codes": {"const": ["DECLARED_ATTACHMENT_NOT_LOCATED"]}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"const": "DOCUMENTED"}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "state": {"const": "located"},
+              "reason_codes": {"const": ["STRUCTURE_DOCUMENTED"]}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {"const": "located"},
+              "status": {"const": "CONFLICTING"}
+            },
+            "required": ["state", "status"]
+          },
+          "then": {
+            "properties": {
+              "reason_codes": {
+                "not": {
+                  "contains": {
+                    "enum": [
+                      "STRUCTURE_DOCUMENTED",
+                      "DECLARED_ATTACHMENT_NOT_LOCATED"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "envelope_reason_code": {
+      "enum": [
+        "V1_ENVELOPE_FACT_MISSING",
+        "V1_ENVELOPE_FACT_UNKNOWN",
+        "V1_ENVELOPE_OUTSIDE"
+      ]
+    },
+    "envelope_fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact_id", "required_value", "declared_state", "declared_value"],
+      "properties": {
+        "fact_id": {
+          "enum": [
+            "packet_v1.non_clinical",
+            "packet_v1.single_institution",
+            "packet_v1.competent_adults_only",
+            "packet_v1.biospecimens_involved",
+            "packet_v1.regulated_clinical_trial",
+            "packet_v1.cross_border_material_transfer",
+            "packet_v1.multisite_reliance"
+          ]
+        },
+        "required_value": {"type": "boolean"},
+        "declared_state": {"enum": ["declared", "unknown", "missing"]},
+        "declared_value": {"type": ["boolean", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"declared_state": {"const": "declared"}},
+            "required": ["declared_state"]
+          },
+          "then": {"properties": {"declared_value": {"type": "boolean"}}},
+          "else": {"properties": {"declared_value": {"type": "null"}}}
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.non_clinical"},
+                "required_value": {"const": true}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.single_institution"},
+                "required_value": {"const": true}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.competent_adults_only"},
+                "required_value": {"const": true}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.biospecimens_involved"},
+                "required_value": {"const": false}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.regulated_clinical_trial"},
+                "required_value": {"const": false}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.cross_border_material_transfer"},
+                "required_value": {"const": false}
+              },
+              "required": ["fact_id", "required_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.multisite_reliance"},
+                "required_value": {"const": false}
+              },
+              "required": ["fact_id", "required_value"]
+            }
+          ]
+        }
+      ]
+    },
+    "envelope_fact_within": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope_fact"},
+        {
+          "properties": {"declared_state": {"const": "declared"}},
+          "required": ["declared_state"]
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.non_clinical"},
+                "declared_value": {"const": true}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.single_institution"},
+                "declared_value": {"const": true}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.competent_adults_only"},
+                "declared_value": {"const": true}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.biospecimens_involved"},
+                "declared_value": {"const": false}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.regulated_clinical_trial"},
+                "declared_value": {"const": false}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.cross_border_material_transfer"},
+                "declared_value": {"const": false}
+              },
+              "required": ["fact_id", "declared_value"]
+            },
+            {
+              "properties": {
+                "fact_id": {"const": "packet_v1.multisite_reliance"},
+                "declared_value": {"const": false}
+              },
+              "required": ["fact_id", "declared_value"]
+            }
+          ]
+        }
+      ]
+    },
+    "capability_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "facts", "reason_codes"],
+      "properties": {
+        "state": {"enum": ["within_v1", "unresolved"]},
+        "facts": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {"$ref": "#/$defs/envelope_fact"},
+          "allOf": [
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.non_clinical"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.single_institution"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.competent_adults_only"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.biospecimens_involved"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.regulated_clinical_trial"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.cross_border_material_transfer"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {"properties": {"fact_id": {"const": "packet_v1.multisite_reliance"}}, "required": ["fact_id"]},
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/envelope_reason_code"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"state": {"const": "within_v1"}},
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "facts": {"items": {"$ref": "#/$defs/envelope_fact_within"}},
+              "reason_codes": {"maxItems": 0}
+            }
+          },
+          "else": {"properties": {"reason_codes": {"minItems": 1}}}
+        }
+      ]
+    },
+    "overlay_selection_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["institutional", "funder"],
+      "properties": {
+        "institutional": {"enum": ["selected", "not_provided", "none_declared_by_author"]},
+        "funder": {"enum": ["selected", "not_provided", "none_declared_by_author"]}
+      }
+    },
+    "administrative_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_pathway",
+        "submission_readiness",
+        "authorization_status",
+        "review_timeline"
+      ],
+      "properties": {
+        "review_pathway": {"const": "institutional determination required"},
+        "submission_readiness": {
+          "enum": ["gaps_located", "no_listed_gaps_located", "unresolved"]
+        },
+        "authorization_status": {"$ref": "#/$defs/authorization_status_input"},
+        "review_timeline": {"const": "unknown — obtain current institutional estimate"}
+      }
+    },
+    "acceptance_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code", "affects_submission_readiness"],
+      "properties": {
+        "status": {"const": "ACCEPTANCE_UNVERIFIED"},
+        "reason_code": {"const": "INSTITUTIONAL_DETERMINATION_REQUIRED"},
+        "affects_submission_readiness": {"const": false}
+      }
+    },
+    "consumer_scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "contains": {"const": "submission_packet"},
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "requirement_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "authority_kind",
+        "authority_id",
+        "authority_version",
+        "authority_digest",
+        "axis",
+        "obligated_actor",
+        "consumer_scopes",
+        "applicability",
+        "requirement_digest",
+        "requirement_pointer",
+        "authority_anchor_pointer"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "authority_kind": {"enum": ["profile", "institutional_overlay", "funder_overlay"]},
+        "authority_id": {"$ref": "#/$defs/identifier"},
+        "authority_version": {"$ref": "#/$defs/version"},
+        "authority_digest": {"$ref": "#/$defs/sha256"},
+        "axis": {"$ref": "#/$defs/axis"},
+        "obligated_actor": {"$ref": "#/$defs/identifier"},
+        "consumer_scopes": {"$ref": "#/$defs/consumer_scopes"},
+        "applicability": {"enum": ["true", "false"]},
+        "requirement_digest": {"$ref": "#/$defs/sha256"},
+        "requirement_pointer": {
+          "type": "string",
+          "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+(?![\\s\\S])"
+        },
+        "authority_anchor_pointer": {
+          "type": "string",
+          "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/authority_anchor(?![\\s\\S])"
+        }
+      }
+    },
+    "evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "evidence_pointer",
+        "evidence_digest",
+        "artifact_type",
+        "held_by"
+      ],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/identifier"},
+        "evidence_pointer": {
+          "type": "string",
+          "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/evidence_expected/[0-9]+(?![\\s\\S])"
+        },
+        "evidence_digest": {"$ref": "#/$defs/sha256"},
+        "artifact_type": {"$ref": "#/$defs/identifier"},
+        "held_by": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "entry_reason_code": {
+      "enum": [
+        "STRUCTURE_DOCUMENTED",
+        "EXTERNAL_HOLDER_DEPENDENCY",
+        "WAIVER_OR_EXCEPTION_CLAIM_UNVERIFIED",
+        "EXPECTED_PACKET_ARTIFACT_NOT_LOCATED",
+        "DUPLICATE_EVIDENCE_BINDING",
+        "DECLARED_ATTACHMENT_NOT_LOCATED",
+        "ARTIFACT_DIGEST_MISMATCH",
+        "ARTIFACT_SIZE_MISMATCH",
+        "ARTIFACT_TYPE_MISMATCH",
+        "ARTIFACT_HOLDER_MISMATCH",
+        "CERTIFICATE_HOLDER_MISMATCH",
+        "DECLARED_STRUCTURE_CONFLICT"
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_ref",
+        "evidence_ref",
+        "responsibility",
+        "status",
+        "readiness_effect",
+        "reason_codes",
+        "matched_artifact_ids"
+      ],
+      "properties": {
+        "requirement_ref": {
+          "allOf": [
+            {"$ref": "#/$defs/requirement_ref"},
+            {"properties": {"applicability": {"const": "true"}}, "required": ["applicability"]}
+          ]
+        },
+        "evidence_ref": {"$ref": "#/$defs/evidence_ref"},
+        "responsibility": {"enum": ["packet_owned", "external_dependency"]},
+        "status": {
+          "enum": [
+            "DOCUMENTED",
+            "NOT_LOCATED",
+            "CONFLICTING",
+            "APPLICABILITY_UNRESOLVED",
+            "ACCEPTANCE_UNVERIFIED"
+          ]
+        },
+        "readiness_effect": {"enum": ["none", "gap", "unresolved"]},
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/entry_reason_code"}
+        },
+        "matched_artifact_ids": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "DOCUMENTED"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "responsibility": {"const": "packet_owned"},
+              "readiness_effect": {"const": "none"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"enum": ["NOT_LOCATED", "CONFLICTING"]}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "responsibility": {"const": "packet_owned"},
+              "readiness_effect": {"const": "gap"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"const": "APPLICABILITY_UNRESOLVED"}},
+            "required": ["status"]
+          },
+          "then": {"properties": {"readiness_effect": {"const": "unresolved"}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {"const": "ACCEPTANCE_UNVERIFIED"},
+              "responsibility": {"const": "external_dependency"}
+            },
+            "required": ["status", "responsibility"]
+          },
+          "then": {"properties": {"readiness_effect": {"const": "none"}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {"const": "ACCEPTANCE_UNVERIFIED"},
+              "responsibility": {"const": "packet_owned"}
+            },
+            "required": ["status", "responsibility"]
+          },
+          "then": {"properties": {"readiness_effect": {"const": "unresolved"}}}
+        }
+      ]
+    },
+    "excluded_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_ref", "exclusion_basis"],
+      "properties": {
+        "requirement_ref": {
+          "allOf": [
+            {"$ref": "#/$defs/requirement_ref"},
+            {"properties": {"applicability": {"const": "false"}}, "required": ["applicability"]}
+          ]
+        },
+        "exclusion_basis": {"const": "resolved_predicate_false"}
+      }
+    },
+    "unresolved_reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "code", "fact_id", "overlay_kind"],
+      "properties": {
+        "status": {"const": "APPLICABILITY_UNRESOLVED"},
+        "code": {
+          "enum": [
+            "AUTHORITY_INPUT_NOT_PROVIDED",
+            "AUTHORITY_RESOLUTION_NOT_PERMITTED",
+            "V1_ENVELOPE_FACT_MISSING",
+            "V1_ENVELOPE_FACT_UNKNOWN",
+            "V1_ENVELOPE_OUTSIDE",
+            "OVERLAY_SELECTION_NOT_PROVIDED"
+          ]
+        },
+        "fact_id": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "overlay_kind": {
+          "oneOf": [
+            {"enum": ["institutional", "funder"]},
+            {"type": "null"}
+          ]
+        }
+      }
+    }
+  }
+}

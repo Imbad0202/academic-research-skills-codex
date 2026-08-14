@@ -11,7 +11,10 @@ description: |
   coverage-gap path: a title-only unmatched stays unresolvable, never
   false, because no resolvable identifier exists to key the lookup on.
   The complementary real-but-unindexed canary (a verified genuine paper
-  unmatched across all four resolvers) remains unfilled — see issue #250.
+  unmatched across all four resolvers) remains an accepted representativeness
+  limitation from #250, with no current action item. Resolver-client title-match
+  false positives are covered directly at the client layer after #431/#432; this
+  static tuple harness cannot exercise that HTTP path.
 target:
   entrypoint: verification_gate.verify_citation
   predicted_field: lookup_verified

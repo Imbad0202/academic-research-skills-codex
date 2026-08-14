@@ -74,6 +74,9 @@ jobs:
           PYTHONPATH: .
         run: python3 scripts/run_ci_pytest_manifest.py
 
+      - name: Check claim-standing candidate-ledger integration (#655)
+        run: python3 scripts/check_claim_standing_candidate_ledger_integration.py
+
       - name: Check PREPRINT_VENUES list consistency (#105)
         run: python3 scripts/check_preprint_venues_consistency.py
 
@@ -95,6 +98,22 @@ jobs:
         # pytest manifest above. Commit-time documentation check only — not a
         # runtime gate (see docs/design/2026-06-07-272-...-design.md § 3/§ 5).
         run: python3 scripts/check_instruction_data_boundary.py
+
+      - name: Validate indirect prompt-injection behavior probe (#675)
+        # Hermetic asset/materialization contract only. This executes no model,
+        # provider, web, tool, or structural enforcement claim; the mutation and
+        # scoring tests run through the pytest manifest above.
+        run: python3 scripts/run_indirect_prompt_injection_probe.py validate-assets
+
+      - name: Validate role-topology utility dry-run assets (#582)
+        # Design/seed validation only: no provider, model, tool, judge, or dispatch.
+        run: python3 scripts/run_role_topology_utility_dry_run.py validate-assets
+
+      - name: Check indirect prompt-injection no-call envelope (#675 Phase 2)
+        # AST-only exact module/symbol/attribute/call allowlist. It rejects
+        # aliases, module escapes, provider/network/process capabilities, and any
+        # CLI beyond the five offline envelope commands.
+        run: python3 scripts/check_indirect_prompt_injection_no_call.py
 
       - name: Check task_type declarations
         env:
@@ -383,6 +402,83 @@ jobs:
         # unified manifest (#156).
         run: python3 scripts/check_pipeline_boundary_semantics.py
 
+      - name: Run held-out measurement contract validation (#654)
+        # Marker-based discovery: walks evals/heldout/ recursively and
+        # validates every JSON file carrying the measurement_contract key
+        # (schema branches B1-B6 + invariants I1-I14 + reference resolution
+        # R1-R5 + location binding L1). Filename conventions do not gate
+        # discovery; near-miss markers and strict-parse failures on marked
+        # files fail loudly. Legacy rows without the marker are skipped by
+        # design (retrofit scope: future runs and re-runs only). The mutation
+        # tests `test_check_heldout_measurement_report.py` run via the
+        # unified manifest (#156).
+        run: python3 scripts/check_heldout_measurement_report.py --all
+
+      - name: Check revision-claim-drift suite v2 protocol (#679)
+        # Pins the prospective C9 rubric amendment, historical-artifact lock,
+        # context/launcher/call-plan schemas, fixtures, complete future call/raw
+        # inventory, C9 evidence replay, and future measurement-row binding.
+        # Mutation tests run through the unified pytest manifest above.
+        run: python scripts/check_revision_claim_drift_suite_v2.py
+
+      - name: Check human-subjects output boundary (#665)
+        # Pins separate readiness/authorization fields, integrity-only verdict
+        # scope, the institution-owned pathway value, fixed footer, and the
+        # byte-stable existing Ethics Decision Log. Mutation tests run through
+        # the unified pytest manifest above.
+        run: python3 scripts/check_human_subjects_output_contract.py
+
+      - name: Check review-pathway rule-trace integration (#669)
+        # Pins the closed request/trace schemas, exact selected-profile
+        # predicate/anchor replay, fixed renderer, surface-scoped banned-output
+        # lint, hermetic runtime, and advisory-only non-consumer wiring. Runtime
+        # and mutation tests run through the unified pytest manifest above.
+        run: python3 scripts/check_669_review_pathway_rule_trace.py
+
+      - name: Check bibliographic-integrity signal contract (#678)
+        # Validates the canonical schema + #651/#660 round-trip fixtures and
+        # locks the finalizer/formatter to the one-summary-section,
+        # no-new-marker-token migration boundary. Mutation tests run through
+        # the unified pytest manifest above.
+        run: python3 scripts/check_bibliographic_integrity_signals.py
+
+      - name: Check tortured-phrase screening integration (#660)
+        # Locks the closed snapshot/manifest/advisory schemas, v1.2 carrier,
+        # exact-byte synthetic fixture, hermetic runtime, one-page renderer,
+        # UNMEASURED claim ceiling, documentation, and CI bindings. Behavioral
+        # and mutation tests run through the unified pytest manifest above.
+        env:
+          PYTHONPATH: .
+        run: python3 scripts/check_tortured_phrase_screening_integration.py
+
+      - name: Check cross-document consistency advisory integration (#672)
+        # Locks the five closed contracts, exact bilateral/trilateral evidence
+        # replay, preregistration handoff binding, #660 checkpoint coexistence,
+        # hermetic runtime, UNMEASURED claim ceiling, and legacy isolation.
+        # Behavioral and mutation tests run through the unified manifest above.
+        env:
+          PYTHONPATH: .
+        run: python3 scripts/check_cross_document_consistency_advisory_integration.py
+
+      - name: Check adjudication-activity advisory integration (#673)
+        # Static, hermetic guard for the closed schemas and CLI, exact renderer
+        # language, terminal-first/post-terminal best-effort wiring, sealed
+        # terminal authority, and the non-consumer boundary. Mutation tests run
+        # through the unified pytest manifest above.
+        env:
+          PYTHONPATH: .
+        run: python3 scripts/check_673_adjudication_activity.py
+
+      - name: Check review-criteria consumer binding integration (#684)
+        # Pins the one manifest authority, three exact consumer receipts,
+        # paper-blind Phase 1 wiring, five external seats including DA,
+        # constructive finding safety, advisory/non-consumer boundaries, and
+        # the contained subscription runner plus human-expert held-out plan.
+        # Focused and mutation tests run through the unified pytest manifest.
+        env:
+          PYTHONPATH: .
+        run: python3 scripts/check_684_review_criteria_binding.py
+
       - name: Run v3.9.2 Phase Boundary coverage lint (#133)
         # Enforces 22 Bucket A agents have ## Phase Boundary (v3.9.2)
         # block, 16 Bucket B/C/D agents DON'T, and each Bucket A block
@@ -623,6 +719,12 @@ jobs:
         # untouched .jq files. Behavior of the filters themselves is pinned by the manifest test
         # 346-349-cross-model-grounding-guards.
         run: python3 scripts/check_cross_model_verification_sync.py
+
+      - name: Check Codex subscription citation transport (#630)
+        # Pins the closed citation-only selector, auth-only containment,
+        # structured app-server result binding, Bash 3.2 wrappers, contributor
+        # credit, hermetic fixtures/tests, and explicit exclusion of live smoke.
+        run: python3 scripts/check_630_codex_subscription_transport.py
 
       - name: Run v3.8 claim_audit pipeline + schema + uncited-assertion + manifest + finalizer + e2e + calibration tests (#103)
         # The v3.8 #103 test suite covers the L3 claim-faithfulness audit

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from fnmatch import fnmatch
 import json
 import re
@@ -113,7 +114,7 @@ def check_relative_markdown_links(rel_path: str) -> None:
 def check_mode_registry() -> None:
     rel_path = "MODE_REGISTRY.md"
     text = read(rel_path)
-    expect_contains(rel_path, "Last updated: v3.19.0 (2026-07-22)")
+    expect_contains(rel_path, "Last updated: v3.20.0 (2026-08-14)")
     for heading in (
         "## deep-research (8 modes)",
         "## academic-paper (11 modes)",
@@ -130,7 +131,7 @@ def check_claude_md() -> None:
         return
     expect_contains(rel_path, "integrity check (Stage 2.5)")
     expect_contains(rel_path, "final integrity check (Stage 4.5)")
-    expect_contains(rel_path, "**Suite version**: 3.19.0")
+    expect_contains(rel_path, "**Suite version**: 3.20.0")
     for forbidden in (
         "6th independent reviewer",
         "Peer review gains 6th independent reviewer",
@@ -343,8 +344,8 @@ def check_readme_sections() -> None:
     rel_path = "README.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.19.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.19.0")
+    expect_contains(rel_path, "version-v3.20.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.20.0")
     expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
     expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
     expect_contains(rel_path, "### v3.11.0 (2026-06-04)")
@@ -374,10 +375,10 @@ def check_readme_sections() -> None:
         "#### Deep Research (8 modes)",
         "#### Academic Paper (11 modes)",
         "#### Academic Paper Reviewer (6 modes)",
-        "### Deep Research (v2.11.0)",
-        "### Academic Paper (v3.2.0)",
-        "### Academic Paper Reviewer (v1.10.0)",
-        "### Academic Pipeline (v3.19.0)",
+        "### Deep Research (v2.12.0)",
+        "### Academic Paper (v3.3.0)",
+        "### Academic Paper Reviewer (v1.11.0)",
+        "### Academic Pipeline (v3.20.0)",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -426,8 +427,8 @@ def check_readme_ja_sections() -> None:
     rel_path = "README.ja-JP.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.19.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.19.0")
+    expect_contains(rel_path, "version-v3.20.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.20.0")
     expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
     expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
     expect_contains(rel_path, "### v3.11.0 (2026-06-04)")
@@ -458,10 +459,10 @@ def check_readme_ja_sections() -> None:
         "#### Academic Paper（11 モード）",
         "#### Academic Paper Reviewer（6 モード）",
         "#### Academic Pipeline（オーケストレーター）",
-        "### Deep Research（v2.11.0）",
-        "### Academic Paper（v3.2.0）",
-        "### Academic Paper Reviewer（v1.10.0）",
-        "### Academic Pipeline（v3.19.0）",
+        "### Deep Research（v2.12.0）",
+        "### Academic Paper（v3.3.0）",
+        "### Academic Paper Reviewer（v1.11.0）",
+        "### Academic Pipeline（v3.20.0）",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -495,8 +496,8 @@ def check_readme_ko_sections() -> None:
     rel_path = "README.ko-KR.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.19.0-blue")
-    expect_contains(rel_path, "releases/tag/v3.19.0")
+    expect_contains(rel_path, "version-v3.20.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.20.0")
     expect_contains(rel_path, "### v3.18.0 (2026-07-18)")
     expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
     expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
@@ -528,10 +529,10 @@ def check_readme_ko_sections() -> None:
         "#### Academic Paper (11개 모드)",
         "#### Academic Paper Reviewer (6개 모드)",
         "#### Academic Pipeline (오케스트레이터)",
-        "### Deep Research (v2.11.0)",
-        "### Academic Paper (v3.2.0)",
-        "### Academic Paper Reviewer (v1.10.0)",
-        "### Academic Pipeline (v3.19.0)",
+        "### Deep Research (v2.12.0)",
+        "### Academic Paper (v3.3.0)",
+        "### Academic Paper Reviewer (v1.11.0)",
+        "### Academic Pipeline (v3.20.0)",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -553,10 +554,10 @@ ZH_README_CONFIGS = (
             "#### Deep Research（深度研究，8 種模式）",
             "#### Academic Paper（學術論文撰寫，11 種模式）",
             "#### Academic Paper Reviewer（論文審查，6 種模式）",
-            "### Deep Research (v2.11.0)",
-            "### Academic Paper (v3.2.0)",
-            "### Academic Paper Reviewer (v1.10.0)",
-            "### Academic Pipeline (v3.19.0)",
+            "### Deep Research (v2.12.0)",
+            "### Academic Paper (v3.3.0)",
+            "### Academic Paper Reviewer (v1.11.0)",
+            "### Academic Pipeline (v3.20.0)",
         ),
         "paper_start": "#### Academic Paper（學術論文撰寫，11 種模式）",
         "reviewer_start": "#### Academic Paper Reviewer（論文審查，6 種模式）",
@@ -570,10 +571,10 @@ ZH_README_CONFIGS = (
             "#### Deep Research（深度研究，8 种模式）",
             "#### Academic Paper（学术论文撰写，11 种模式）",
             "#### Academic Paper Reviewer（论文审查，6 种模式）",
-            "### Deep Research (v2.11.0)",
-            "### Academic Paper (v3.2.0)",
-            "### Academic Paper Reviewer (v1.10.0)",
-            "### Academic Pipeline (v3.19.0)",
+            "### Deep Research (v2.12.0)",
+            "### Academic Paper (v3.3.0)",
+            "### Academic Paper Reviewer (v1.11.0)",
+            "### Academic Pipeline (v3.20.0)",
         ),
         "paper_start": "#### Academic Paper（学术论文撰写，11 种模式）",
         "reviewer_start": "#### Academic Paper Reviewer（论文审查，6 种模式）",
@@ -589,8 +590,8 @@ def check_readme_zh_sections() -> None:
         rel_path = config["rel_path"]
         text = read(rel_path)
 
-        expect_contains(rel_path, "version-v3.19.0-blue")
-        expect_contains(rel_path, "releases/tag/v3.19.0")
+        expect_contains(rel_path, "version-v3.20.0-blue")
+        expect_contains(rel_path, "releases/tag/v3.20.0")
         expect_contains(rel_path, "### v3.12.0（2026-06-08）")
         expect_contains(rel_path, "### v3.11.1（2026-06-06）")
         expect_contains(rel_path, "### v3.11.0（2026-06-04）")
@@ -764,6 +765,516 @@ def check_rebuttal_audit_guard() -> None:
         )
 
 
+def check_ideation_diversity_no_call_contract() -> None:
+    """Keep #659's schemas, runner, docs, and CI registration aligned."""
+    suite = "evals/heldout/within_session_ideation_diversity"
+    schema_paths = {
+        "run_plan": f"{suite}/run_plan.schema.json",
+        "authorization": f"{suite}/authorization_record.schema.json",
+        "transcript": f"{suite}/transcript.schema.json",
+        "ingestion": f"{suite}/ingestion_manifest.schema.json",
+        "stop_intent": f"{suite}/stop_intent.schema.json",
+        "blind_packet": f"{suite}/blind_packet.schema.json",
+        "blind_inventory": f"{suite}/blind_inventory.schema.json",
+        "blind_manifest": f"{suite}/blind_manifest.schema.json",
+        "private_arm_map": f"{suite}/private_arm_map.schema.json",
+        "blind_intent": f"{suite}/blind_intent.schema.json",
+    }
+    schemas: dict[str, dict] = {}
+    for name, rel_path in schema_paths.items():
+        try:
+            value = json.loads(read(rel_path))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            fail(f"{rel_path}: cannot load #659 contract: {exc}")
+            continue
+        if not isinstance(value, dict) or value.get("additionalProperties") is not False:
+            fail(f"{rel_path}: root contract must be a closed object")
+            continue
+        schemas[name] = value
+
+    plan = schemas.get("run_plan", {})
+    plan_properties = plan.get("properties", {})
+    design = plan_properties.get("design", {}).get("properties", {})
+    expected_design = {
+        "experiments": 2,
+        "scenarios": 6,
+        "arms_per_experiment": 2,
+        "replicates_per_scenario_arm": 2,
+        "subject_session_cells": 48,
+    }
+    for field, expected in expected_design.items():
+        if design.get(field, {}).get("const") != expected:
+            fail(f"{schema_paths['run_plan']}: {field} must remain const {expected}")
+    execution = plan.get("$defs", {}).get("execution", {}).get("properties", {})
+    no_call_constants = {
+        "tools": [],
+        "web_enabled": False,
+        "runner_transport": "none",
+        "dispatch_available": False,
+        "api_spend_ceiling_usd": 0,
+        "api_fallback": False,
+        "envelope_grants_consent": False,
+        "fresh_external_authorization_required": True,
+    }
+    for field, expected in no_call_constants.items():
+        if execution.get(field, {}).get("const") != expected:
+            fail(f"{schema_paths['run_plan']}: no-call constant {field!r} drifted")
+    provenance = plan_properties.get("suite_commit_provenance", {}).get(
+        "properties", {}
+    )
+    if provenance.get("status", {}).get("const") != "operator_declared_unverified":
+        fail(f"{schema_paths['run_plan']}: suite commit must remain unverified")
+    cap_boundary = execution.get("token_cap_verification", {}).get("properties", {})
+    for field, expected in {
+        "status": "operator_declared_unverified",
+        "enforced_by_no_call_runner": False,
+        "observed_usage_recorded": False,
+        "provider_tokenizer_verified": False,
+    }.items():
+        if cap_boundary.get(field, {}).get("const") != expected:
+            fail(
+                f"{schema_paths['run_plan']}: token-cap boundary {field!r} drifted"
+            )
+    judge = plan_properties.get("judge_requirements", {}).get("properties", {})
+    for field, expected in {
+        "first_round_assignment_ledger_required_before_delivery": True,
+        "same_role_card_cross_arm_or_replicate_exposure_forbidden": True,
+        "bundle_alone_proves_judge_exposure_blindness": False,
+    }.items():
+        if judge.get(field, {}).get("const") != expected:
+            fail(f"{schema_paths['run_plan']}: judge exposure boundary {field!r} drifted")
+    if plan_properties.get("cells", {}).get("minItems") != 48 or plan_properties.get(
+        "cells", {}
+    ).get("maxItems") != 48:
+        fail(f"{schema_paths['run_plan']}: cells must remain exactly 48")
+    assets = plan_properties.get("asset_bindings", {})
+    if assets.get("minItems") != 18 or assets.get("maxItems") != 18:
+        fail(f"{schema_paths['run_plan']}: asset bindings must remain exactly 18")
+
+    stop_receipt = (
+        schemas.get("ingestion", {})
+        .get("$defs", {})
+        .get("stop_receipt", {})
+        .get("properties", {})
+    )
+    if "pre_stop_inventory" not in stop_receipt:
+        fail(f"{schema_paths['ingestion']}: compact pre-stop inventory binding missing")
+    blind_intent = schemas.get("blind_intent", {}).get("properties", {})
+    for field, expected in {
+        "staging_ref": "blind-staging",
+        "final_ref": "blind",
+        "recovery_policy": "exact_recovery_only_no_second_bundle",
+    }.items():
+        if blind_intent.get(field, {}).get("const") != expected:
+            fail(f"{schema_paths['blind_intent']}: {field!r} recovery boundary drifted")
+    intent_protection = blind_intent.get("protection", {}).get("properties", {})
+    for field, expected in {
+        "procedural_nondisclosure_only": True,
+        "file_mode": "0600",
+        "deliver_to_judges": False,
+    }.items():
+        if intent_protection.get(field, {}).get("const") != expected:
+            fail(
+                f"{schema_paths['blind_intent']}: "
+                f"protection boundary {field!r} drifted"
+            )
+
+    runner_path = "scripts/run_ideation_diversity_no_call.py"
+    runner_source = read(runner_path)
+    try:
+        tree = ast.parse(runner_source)
+    except SyntaxError as exc:
+        fail(f"{runner_path}: cannot parse runner AST: {exc}")
+        tree = ast.Module(body=[], type_ignores=[])
+    allowed_direct_imports = {
+        "argparse",
+        "base64",
+        "copy",
+        "hashlib",
+        "json",
+        "os",
+        "re",
+        "secrets",
+        "stat",
+        "sys",
+        "unicodedata",
+        "validate_ideation_diversity_assets",
+    }
+    allowed_from_imports = {
+        "__future__": {"annotations"},
+        "datetime": {"datetime"},
+        "jsonschema": {"Draft202012Validator", "FormatChecker"},
+        "pathlib": {"Path"},
+        "typing": {"Any", "NoReturn"},
+    }
+    allowed_module_calls = {
+        "argparse": {"ArgumentParser"},
+        "base64": {"b64decode", "b64encode"},
+        "copy": {"deepcopy"},
+        "hashlib": {"sha256"},
+        "json": {"dumps", "loads"},
+        "os": {
+            "chmod",
+            "close",
+            "fsync",
+            "link",
+            "open",
+            "rename",
+            "replace",
+            "write",
+        },
+        "re": {"compile", "escape", "search"},
+        "secrets": {"token_hex"},
+        "stat": {"S_IFMT", "S_IMODE", "S_ISREG"},
+        "unicodedata": {"category", "normalize"},
+        "validate_ideation_diversity_assets": {"load_assets", "render_variant"},
+    }
+    allowed_module_constants = {
+        "argparse": {"ArgumentParser", "Namespace"},
+        "json": {"JSONDecodeError"},
+        "os": {
+            "O_CREAT",
+            "O_DIRECTORY",
+            "O_EXCL",
+            "O_NOFOLLOW",
+            "O_RDONLY",
+            "O_WRONLY",
+        },
+        "re": {"IGNORECASE"},
+    }
+    forbidden_dynamic_names = {
+        "__builtins__",
+        "__import__",
+        "breakpoint",
+        "compile",
+        "delattr",
+        "eval",
+        "exec",
+        "getattr",
+        "globals",
+        "locals",
+        "setattr",
+        "vars",
+    }
+    forbidden_dynamic_attributes = {
+        "Popen",
+        "__bases__",
+        "__builtins__",
+        "__class__",
+        "__closure__",
+        "__code__",
+        "__dict__",
+        "__getattribute__",
+        "__globals__",
+        "__import__",
+        "__loader__",
+        "__subclasses__",
+        "_getframe",
+        "call",
+        "check_call",
+        "check_output",
+        "connect",
+        "create_connection",
+        "execv",
+        "execve",
+        "f_builtins",
+        "f_globals",
+        "f_locals",
+        "fork",
+        "import_module",
+        "modules",
+        "popen",
+        "request",
+        "run",
+        "spawn",
+        "system",
+        "urlopen",
+    }
+    commands: set[str] = set()
+    forbidden_imports: set[str] = set()
+    direct_module_bindings: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name not in allowed_direct_imports:
+                    forbidden_imports.add(alias.name)
+                    continue
+                binding = alias.asname or alias.name
+                existing = direct_module_bindings.get(binding)
+                if existing is not None and existing != alias.name:
+                    forbidden_imports.add(f"ambiguous-binding:{binding}")
+                direct_module_bindings[binding] = alias.name
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or "<relative>"
+            allowed_symbols = (
+                allowed_from_imports.get(module, set())
+                if node.level == 0
+                else set()
+            )
+            forbidden_imports.update(
+                f"{module}.{alias.name}"
+                for alias in node.names
+                if alias.name not in allowed_symbols
+            )
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "add_parser"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+        ):
+            commands.add(node.args[0].value)
+    if forbidden_imports:
+        fail(
+            f"{runner_path}: imports must match the exact import allowlist: "
+            f"{sorted(forbidden_imports)!r}"
+        )
+
+    shadowed_module_bindings: set[str] = set()
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Name)
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+            and node.id in direct_module_bindings
+        ):
+            shadowed_module_bindings.add(node.id)
+        elif isinstance(node, ast.arg) and node.arg in direct_module_bindings:
+            shadowed_module_bindings.add(node.arg)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name in direct_module_bindings:
+                shadowed_module_bindings.add(node.name)
+        elif isinstance(node, ast.ExceptHandler):
+            if isinstance(node.name, str) and node.name in direct_module_bindings:
+                shadowed_module_bindings.add(node.name)
+        elif isinstance(node, (ast.MatchAs, ast.MatchStar)):
+            if isinstance(node.name, str) and node.name in direct_module_bindings:
+                shadowed_module_bindings.add(node.name)
+        elif isinstance(node, ast.MatchMapping):
+            if isinstance(node.rest, str) and node.rest in direct_module_bindings:
+                shadowed_module_bindings.add(node.rest)
+        elif isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                binding = alias.asname or alias.name
+                if binding in direct_module_bindings:
+                    shadowed_module_bindings.add(binding)
+    if shadowed_module_bindings:
+        fail(
+            f"{runner_path}: direct module bindings cannot be shadowed: "
+            f"{sorted(shadowed_module_bindings)!r}"
+        )
+
+    parents = {
+        child: parent
+        for parent in ast.walk(tree)
+        for child in ast.iter_child_nodes(parent)
+    }
+    module_reference_errors: set[str] = set()
+    for node in ast.walk(tree):
+        if not (
+            isinstance(node, ast.Name)
+            and isinstance(node.ctx, ast.Load)
+            and node.id in direct_module_bindings
+        ):
+            continue
+        module = direct_module_bindings[node.id]
+        parent = parents.get(node)
+        allowed_hasattr = (
+            isinstance(parent, ast.Call)
+            and isinstance(parent.func, ast.Name)
+            and parent.func.id == "hasattr"
+            and len(parent.args) == 2
+            and parent.args[0] is node
+            and isinstance(parent.args[1], ast.Constant)
+            and parent.args[1].value in {"O_DIRECTORY", "O_NOFOLLOW"}
+            and module == "os"
+        )
+        if allowed_hasattr:
+            continue
+        if not (isinstance(parent, ast.Attribute) and parent.value is node):
+            module_reference_errors.add(
+                f"{module} via {node.id}: bare module reference"
+            )
+            continue
+        attributes = [parent.attr]
+        outer = parent
+        while True:
+            ancestor = parents.get(outer)
+            if not (
+                isinstance(ancestor, ast.Attribute) and ancestor.value is outer
+            ):
+                break
+            attributes.append(ancestor.attr)
+            outer = ancestor
+        attribute_path = ".".join(attributes)
+        use_parent = parents.get(outer)
+        allowed_call = (
+            attribute_path in allowed_module_calls.get(module, set())
+            and isinstance(use_parent, ast.Call)
+            and use_parent.func is outer
+        )
+        allowed_print_value = (
+            module == "sys"
+            and attribute_path == "stderr"
+            and isinstance(use_parent, ast.keyword)
+            and use_parent.arg == "file"
+            and isinstance(parents.get(use_parent), ast.Call)
+            and isinstance(parents[use_parent].func, ast.Name)
+            and parents[use_parent].func.id == "print"
+        )
+        allowed_constant = (
+            attribute_path in allowed_module_constants.get(module, set())
+            and isinstance(outer.ctx, ast.Load)
+        )
+        if not (allowed_call or allowed_print_value or allowed_constant):
+            module_reference_errors.add(
+                f"{module} via {node.id}.{attribute_path}"
+            )
+    if module_reference_errors:
+        fail(
+            f"{runner_path}: direct module references must match exact "
+            "current-use call/value allowlists: "
+            f"{sorted(module_reference_errors)!r}"
+        )
+
+    dynamic_references: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id in forbidden_dynamic_names:
+            dynamic_references.add(node.id)
+        elif (
+            isinstance(node, ast.Attribute)
+            and node.attr in forbidden_dynamic_attributes
+        ):
+            dynamic_references.add(node.attr)
+    if dynamic_references:
+        fail(
+            f"{runner_path}: dynamic import, introspection, process, or network "
+            f"references are forbidden: {sorted(dynamic_references)!r}"
+        )
+    expected_commands = {
+        "init-run",
+        "materialize",
+        "validate",
+        "ingest",
+        "prepare-blind-packet",
+    }
+    if commands != expected_commands:
+        fail(f"{runner_path}: command set must be exactly {sorted(expected_commands)!r}")
+
+    readme = f"{suite}/README.md"
+    design_doc = "docs/design/2026-08-13-659-within-session-ideation-diversity-design.md"
+    for rel_path, phrases in (
+        (
+            readme,
+            (
+                "48-cell plan",
+                "no transport, dispatch, probe",
+                "The first binding",
+                "compact canonical digest",
+                "blind-intent.json",
+                "exactly one isolated packet",
+                "cannot authenticate the operator",
+                "two independent human judges",
+            ),
+        ),
+        (
+            design_doc,
+            (
+                "Phase-2 no-call execution envelope",
+                "= 48 subject-session",
+                "API spend ceiling USD 0",
+                "48 write-once isolated single-session packets",
+                "durable deterministic blind intent",
+                "does not authenticate operator identity",
+                "No subject, actor, judge, or adjudicator session is authorized",
+            ),
+        ),
+    ):
+        for phrase in phrases:
+            expect_contains(rel_path, phrase)
+    expect_contains(
+        "scripts/_ci_pytest_manifest.toml",
+        'id = "659-within-session-ideation-diversity-no-call-envelope"',
+    )
+    expect_contains(
+        "scripts/_ci_pytest_manifest.toml",
+        'path = "scripts/test_run_ideation_diversity_no_call.py"',
+    )
+    expect_contains(
+        "CHANGELOG.md",
+        "Within-session ideation-diversity Phase-2 no-call envelope (#659)",
+    )
+def check_indirect_prompt_injection_no_call_envelope() -> None:
+    """Pin #675 Phase-2's no-call surface and human-evidence boundary."""
+    readme = "evals/heldout/indirect_prompt_injection_behavior/README.md"
+    design = "docs/design/2026-08-13-675-indirect-prompt-injection-behavior-eval-spec.md"
+    workflow = ".github/workflows/spec-consistency.yml"
+    manifest = "scripts/_ci_pytest_manifest.toml"
+    for rel_path in (
+        "evals/heldout/indirect_prompt_injection_behavior/run_plan.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/authorization_record.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/transcript.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/ingestion_manifest.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/blind_session_packet.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/blind_inventory.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/blind_private_map.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/blind_manifest.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/stop_intent.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/judge_assignment_ledger.schema.json",
+        "evals/heldout/indirect_prompt_injection_behavior/journal_token.schema.json",
+        "scripts/run_indirect_prompt_injection_no_call.py",
+        "scripts/check_indirect_prompt_injection_no_call.py",
+        "scripts/test_run_indirect_prompt_injection_no_call.py",
+    ):
+        if not (ROOT / rel_path).is_file():
+            fail(f"#675 Phase-2 required surface is missing: {rel_path}")
+    for needle in (
+        "8 scenarios x 2 content conditions x 2 guidance",
+        "runner_transport=none",
+        "64 complete records",
+        "two independent arm-blind human judges",
+        "separate arm-blind human",
+        "does not verify",
+        "operator identity",
+        "pinned canonical-event decoder",
+        "unique receipt id",
+        "write-once stop intent",
+        "pre-armed journal claim",
+        "pre-load-terminal token",
+        "same-inode completed",
+        "ambiguous state before reading another transcript",
+        "deterministic sibling staging path",
+        "pre-load quarantine",
+        "future closed assignment ledger",
+        "does not prove arm blindness",
+        "finalized blind manifest",
+        "map is unencrypted",
+    ):
+        expect_contains(readme, needle)
+    for needle in (
+        "exactly 64 subject",
+        "provider transport, detect, dispatch, probe, model, network, process",
+        "does not authenticate the operator",
+        "two independent arm-blind human judges",
+        "closed write-once stop",
+        "pre-arms 64 immutable ingestion journal tokens",
+        "one pre-load-terminal",
+        "same-inode completed",
+        "claimed-only state is permanently ambiguous",
+        "deterministic sibling staging path",
+        "pre-load quarantine",
+        "future closed assignment ledger",
+        "does not prove that property",
+        "unique receipt id",
+        "final manifest binds the exact",
+        "private map is not encrypted",
+    ):
+        expect_contains(design, needle)
+    expect_contains(workflow, "python3 scripts/check_indirect_prompt_injection_no_call.py")
+    expect_contains(manifest, 'path = "scripts/test_run_indirect_prompt_injection_no_call.py"')
+    check_relative_markdown_links(readme)
+
+
 def main() -> int:
     check_mode_registry()
     check_claude_md()
@@ -779,6 +1290,8 @@ def main() -> int:
     check_docx_contract()
     check_reference_docs()
     check_rebuttal_audit_guard()
+    check_ideation_diversity_no_call_contract()
+    check_indirect_prompt_injection_no_call_envelope()
 
     if ERRORS:
         print("Spec consistency check failed:")

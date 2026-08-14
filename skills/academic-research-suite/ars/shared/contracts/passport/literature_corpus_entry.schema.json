@@ -228,6 +228,13 @@
           ]
         }
       }
+    },
+    "bibliographic_integrity_signals": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "#678 additive v1 carrier. Each item MUST validate against shared/contracts/passport/bibliographic_integrity_signal.schema.json; scripts/check_literature_corpus_schema.py performs that cross-schema validation. This array is the canonical destination for new bibliographic-integrity observations. Legacy contamination_signals, contamination_signal_omissions, contamination_signals_backfilled_at, and retraction_check producers remain readable during the pinned dual-write migration and retain their existing marker/policy behavior."
     }
   },
   "allOf": [

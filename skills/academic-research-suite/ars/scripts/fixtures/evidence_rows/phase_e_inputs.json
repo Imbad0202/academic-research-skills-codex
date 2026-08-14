@@ -1,0 +1,114 @@
+{
+  "base": {
+    "surface": "phase_e_claim_verification",
+    "row_id": "EVR-000001",
+    "claim": {
+      "claim_id": "E-C-0001",
+      "text": "The reported estimate was 15.2%.",
+      "paper_locator": "Results, paragraph 3",
+      "selection_tier": "ALL"
+    },
+    "source": {
+      "ref_slug": "smith2024",
+      "display_label": "Smith (2024)",
+      "source_artifact_sha256": null
+    },
+    "anchor": {
+      "kind": "quote",
+      "value_encoded": "The%20estimate%20was%2015.2%25."
+    },
+    "verdict": "VERIFIED",
+    "detail": "The claim preserves the reported value.",
+    "content_handling": {
+      "sharing_scope": "session_only",
+      "rights_basis": "not_assessed"
+    }
+  },
+  "cases": [
+    {
+      "name": "quote_exact",
+      "row_id": "EVR-000001",
+      "anchor_kind": "quote",
+      "anchor_value_encoded": "The%20estimate%20was%2015.2%25.",
+      "source_key": "smith2024",
+      "expected_state": "verified_exact_match"
+    },
+    {
+      "name": "quote_mismatch",
+      "row_id": "EVR-000002",
+      "anchor_kind": "quote",
+      "anchor_value_encoded": "The%20estimate%20was%2015.3%25.",
+      "source_key": "smith2024",
+      "expected_state": "unconfirmed_anchor"
+    },
+    {
+      "name": "page_extracted",
+      "row_id": "EVR-000003",
+      "anchor_kind": "page",
+      "anchor_value_encoded": "12",
+      "source_key": "smith2024",
+      "extracted_text": "Page evidence says treatment improved outcomes.",
+      "expected_state": "agent_extracted"
+    },
+    {
+      "name": "section_extracted",
+      "row_id": "EVR-000004",
+      "anchor_kind": "section",
+      "anchor_value_encoded": "Results",
+      "source_key": "smith2024",
+      "extracted_text": "Section evidence reports no serious adverse events.",
+      "expected_state": "agent_extracted"
+    },
+    {
+      "name": "paragraph_not_checked",
+      "row_id": "EVR-000005",
+      "anchor_kind": "paragraph",
+      "anchor_value_encoded": "3",
+      "source_key": "smith2024",
+      "expected_state": "not_checked"
+    },
+    {
+      "name": "anchorless",
+      "row_id": "EVR-000006",
+      "anchor_kind": "none",
+      "anchor_value_encoded": "",
+      "source_key": null,
+      "expected_state": "anchorless"
+    },
+    {
+      "name": "source_missing",
+      "row_id": "EVR-000007",
+      "anchor_kind": "quote",
+      "anchor_value_encoded": "Unavailable%20writer%20anchor",
+      "source_key": null,
+      "expected_state": "source_missing"
+    },
+    {
+      "name": "access_failed",
+      "row_id": "EVR-000008",
+      "anchor_kind": "page",
+      "anchor_value_encoded": "7",
+      "source_key": null,
+      "failure_state": "access_failed",
+      "expected_state": "access_failed"
+    },
+    {
+      "name": "retrieval_failed",
+      "row_id": "EVR-000009",
+      "anchor_kind": "section",
+      "anchor_value_encoded": "Methods",
+      "source_key": null,
+      "failure_state": "retrieval_failed",
+      "expected_state": "retrieval_failed"
+    },
+    {
+      "name": "explicit_not_checked",
+      "row_id": "EVR-000010",
+      "anchor_kind": "page",
+      "anchor_value_encoded": "20",
+      "source_key": "smith2024",
+      "failure_state": "not_checked",
+      "expected_state": "not_checked"
+    }
+  ]
+}

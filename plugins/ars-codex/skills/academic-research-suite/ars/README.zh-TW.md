@@ -1,6 +1,6 @@
 # Academic Research Skills for Claude Code
 
-[![Version](https://img.shields.io/badge/version-v3.19.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.19.0)
+[![Version](https://img.shields.io/badge/version-v3.20.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.20.0)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20696614-blue)](https://doi.org/10.5281/zenodo.20696614)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -91,6 +91,8 @@ v3.3 的靈感來自 [**PaperOrchestra**](https://arxiv.org/abs/2604.05018)（So
 - **Benchmark 報告 Schema**（v3.3.5+）— JSON Schema + lint script，要求誠實的 benchmark 比較報告。詳見 [`shared/benchmark_report_pattern.md`](shared/benchmark_report_pattern.md)。
 - **Artifact 可重現性 Lockfile**（v3.3.5+）— Material Passport 新增可選 `repro_lock` 子區塊。**是設定文件化，不是重播保證** — LLM 輸出不是位元可重現。詳見 [`shared/artifact_reproducibility_pattern.md`](shared/artifact_reproducibility_pattern.md)。
 - **實驗來源憑證登錄**（#260）— Material Passport 可選的 `experiment_provenance[]` 記錄研究者在**外部**跑過的實驗（ARS 從不執行實驗），論文宣稱透過 `claim_intent_manifest.planned_experiment_ids[]` 與之 join。誠信 gate（Stage 2.5/4.5）逐條比對實驗支撐型宣稱與登錄憑證 — `ALIGNED` / `OVERSTATED` / `NOT_SUPPORTED_BY_PROVENANCE` / `PROVENANCE_INSUFFICIENT` — **但不判定實驗本身是否正確**。fail-closed 的 `experiment_intake_declaration` 讓「有沒有跑實驗」成為 Stage 1 明確決定。詳見 [`shared/handoff_schemas.md`](shared/handoff_schemas.md)。
+
+**誠信與驗證邊界：**ARS 檢查的是論文與被報告的研究過程，包括引用是否存在、宣稱與來源是否一致、所述方法、已登錄實驗結果與論文宣稱的一致性、圖表忠實度，以及報告／流程／提交包的一致性；部分檢查採抽樣或由 LLM 判斷。ARS **不能**證明程序確實執行、原始資料真實，或結果可重現；若捏造內容被前後一致地報告，仍可能通過這些檢查。詳見 [POSITIONING.md〈Integrity checks and the empirical-work boundary〉](POSITIONING.md#integrity-checks-and-the-empirical-work-boundary)。
 
 ---
 
@@ -236,19 +238,19 @@ ARS Stage 2 寫作      →  用驗證過的實驗結果撰寫論文
 
 各 agent 的職責與各階段產出物現已移至 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。版本號保留在此以維持 release metadata 集中管理。
 
-### Deep Research (v2.11.0)
+### Deep Research (v2.12.0)
 
 13 個 Agent 的研究團隊。模式：full、quick、review、lit-review、three-way-scan、fact-check、socratic、systematic-review。完整 agent 名單與產出物：見 ARCHITECTURE.md §3。
 
-### Academic Paper (v3.2.0)
+### Academic Paper (v3.3.0)
 
 12 個 Agent 的論文撰寫 pipeline。模式：full、plan、outline-only、revision、revision-coach、abstract-only、lit-review、format-convert、citation-check、disclosure、rebuttal-audit。輸出：MD + DOCX（Pandoc 可用時）+ LaTeX（APA 7.0 `apa7` class / IEEE / Chicago）→ tectonic 編譯 PDF。完整 agent 名單與各 phase 職責：見 ARCHITECTURE.md §3。
 
-### Academic Paper Reviewer (v1.10.0)
+### Academic Paper Reviewer (v1.11.0)
 
 7 個 Agent 的多視角審查，搭配 **0-100 品質量表**。模式：full、re-review、quick、methodology-focus、guided、calibration。**決策對照：** ≥80 接受、65-79 小修、50-64 大修、<50 退稿。第一輪審查面板 vs. 契約治理再審派送的分界：見 ARCHITECTURE.md §3 Stage 3 / Stage 3'。
 
-### Academic Pipeline (v3.19.0)
+### Academic Pipeline (v3.20.0)
 
 10 階段調度器，含誠信驗證、兩階段審查、蘇格拉底指導、協作品質評估。Pipeline 保證：每個階段都需使用者確認 checkpoint；誠信驗證（Stage 2.5 + 4.5）不可跳過；R&R 追溯矩陣（Schema 11）獨立驗證作者修訂宣稱。v3.4 新增 Compliance Agent（PRISMA-trAIce + RAISE）於 Stage 2.5 / 4.5。v3.5 新增 **協作深度觀察員**（`collaboration_depth_agent`，僅諮詢性質、永不阻擋流程）於每一次 FULL/SLIM checkpoint 與 pipeline 完成時。MANDATORY 誠信閘門（2.5 / 4.5）明確跳過觀察員，避免稀釋合規檢查。理論基礎：Wang & Zhang (2026), IJETHE 23:11。逐階段矩陣（agent、產出物、閘門）：見 ARCHITECTURE.md §3。
 
@@ -314,9 +316,13 @@ https://github.com/Imbad0202/academic-research-skills
 
 ## 更新紀錄
 
+### v3.20.0（2026-08-14）— 證據綁定的審查與修訂、受限傳輸、可重現的評估基礎
+
+> **新增與強化：**v3.20.0 強化審查、修訂、引用、人體研究與投稿流程的證據及權限邊界。新增來源綁定 evidence rows、由作者控制且不排名的修訂 roadmap、可重播的跨文件一致性與內容覆蓋 advisory、統一審查準則、人體研究權威依據與 pathway trace、確定性投稿及委員會往來 artifact、選用型跨 run adjudication 活動觀察、受限的 ChatGPT 訂閱引用傳輸、離線 claim-standing 候選 ledger，以及選用型行程隔離 PDF 文字/OCR advisory。Reviewer 與 re-review contract 加入 role-scoped scoring、evidence-before-persuasion gate，並收緊 provenance 與 transport 處理；臨床報告、中文文獻解析、plugin alias、Pi 與平台文件也有擴充。新 eval 資產包含 revision drift、role topology、ideation diversity、間接 prompt injection 與 tortured-phrase screening 的凍結 hermetic fixture 和 no-call envelope。除非 `CHANGELOG.md` 明確引用已保留的實測 cohort，這些只證明 protocol 或 synthetic/offline conformance，不證明安全性、效能、準確度或行為改善。套件／pipeline → v3.20.0；deep-research → v2.12.0；academic-paper → v3.3.0；academic-paper-reviewer → v1.11.0。
+
 ### v3.19.0（2026-07-22）— 修訂輪次的主張漂移防護、PDF 讀取完整性預檢、read-scope 誠實覆蓋標記
 
-> **新增**：三個 advisory-or-opt-in 的完整性層加一個 launcher 修復。**修訂輪次主張漂移防護（#569/#570）**：一條主張強度階梯（`is associated with < predicts < causes`，未經授權的 roadmap 項目不得靜默移動）接進修訂草擬與新的 advisory Phase E6，外加一支決定性的數值/引註 token 守恆檢查器——兩者合起來補上 #390 honest-claim 殘餘的認知面與 token 面（被改動的 block 內部原本沒有完整性檢查）。先在當前前沿模型量測 baseline（`evals/heldout/revision_claim_drift/`），機制形狀出處歸功 [Yila-AI/sci-ssci-skills](https://github.com/Yila-AI/sci-ssci-skills)。**PDF 讀取完整性預檢（#512）**：三信號的頁數交叉檢查，讓被截斷／頁碼錯位的 PDF 讀取無法產生一個看似有效的 `page` 錨點。**read_scope 誠實覆蓋標記（#513）**：在人工讀取台帳上可選地宣告誠實覆蓋範圍（`full_text` / `sections` / `abstract_only` / `toc_only`），讓 finalizer 的引用晉升具備 read-scope 意識。**launcher watchdog 修復（#545）**：移除一個會讓每次正常 PreToolUse write-scope-guard 呼叫卡滿整個 wall-clock 上限的 pipe 停滯。套件 → v3.19.0；底層三個 skill 版本不變。
+> **新增**：三個 advisory-or-opt-in 的完整性層加一個 launcher 修復。**修訂輪次主張漂移防護（#569/#570）**：一條主張強度階梯（`is associated with < predicts < causes`，未經授權的 roadmap 項目不得靜默移動）接進修訂草擬與新的 advisory Phase E6，外加一支決定性的數值/引註 token 守恆檢查器；兩者為 #390 honest-claim 殘餘的認知面與 token 面各加上一道看守（被改動的 block 內部原本沒有完整性檢查；防護屬 advisory 看守，是否降低已量測到的漂移率由 #652 複測回答）。先在當前前沿模型量測 baseline（`evals/heldout/revision_claim_drift/`），機制形狀出處歸功 [Yila-AI/sci-ssci-skills](https://github.com/Yila-AI/sci-ssci-skills)。**PDF 讀取完整性預檢（#512）**：三信號的頁數交叉檢查，讓被截斷／頁碼錯位的 PDF 讀取無法產生一個看似有效的 `page` 錨點。**read_scope 誠實覆蓋標記（#513）**：在人工讀取台帳上可選地宣告誠實覆蓋範圍（`full_text` / `sections` / `abstract_only` / `toc_only`），讓 finalizer 的引用晉升具備 read-scope 意識。**launcher watchdog 修復（#545）**：移除一個會讓每次正常 PreToolUse write-scope-guard 呼叫卡滿整個 wall-clock 上限的 pipe 停滯。套件 → v3.19.0；底層三個 skill 版本不變。
 
 ### v3.18.0（2026-07-18）— 自我改進 survey 整合
 

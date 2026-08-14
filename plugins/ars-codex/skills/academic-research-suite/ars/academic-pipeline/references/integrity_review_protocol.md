@@ -44,6 +44,58 @@ Execution steps:
 5. ⚠️ **IRON RULE**: Must PASS with zero issues to proceed to Stage 5
 ```
 
+## Tortured-Phrase Advisory Boundary (#660)
+
+Tortured-phrase screening is not a sixth integrity phase and never changes a
+Stage 2.5 or Stage 4.5 PASS/FAIL decision. After the exact final draft passes
+Stage 4.5, the orchestrator builds the separate own-draft
+`tortured-phrase-advisory/1.0` immediately before formatting. It remains
+`HEURISTIC-ADVISORY` / `UNMEASURED`; a match requires review but establishes no
+AI/author origin, paper-mill production, misconduct, cleanliness, contextual
+false-positive/false-negative status, accuracy, or publisher acceptance. A
+zero-match result states only that no list match was observed on the checked
+bytes and is not a clean certification.
+
+The checker consumes only the explicitly named local draft and, when supplied,
+canonical snapshot and detached-manifest paths. The manifest's
+`snapshot_sha256` binds the exact raw snapshot bytes and declares
+`user_supplied` or `synthetic_fixture` supply; omitted supply produces an
+explicit `not_checked` artifact. The #660 path
+has no native PPS import/fetch or redistributed PPS content and invokes no
+model, external API, human/model judge, ambient clock, file time, or network
+time; timestamps are explicit inputs. It never edits the draft. A user-chosen
+revision changes the checked bytes and must re-enter the existing integrity
+and screening sequence rather than being auto-rewritten by the advisory.
+
+Cited-source v1.2 rows remain separate per title and abstract. A missing
+abstract is explicit `not_checked` / `unresolved` (`ABSTRACT_MISSING`). They
+render only in the single `Bibliographic Integrity Advisories` section and
+never mint a marker, trigger a gate, or supply replacement text.
+
+## Cross-Document Consistency Advisory Boundary (#672)
+
+#672 is not a sixth integrity phase. After the same exact Stage 4.5 PASS, it runs
+second, after #660, inside the one existing mandatory Stage-5 entry checkpoint.
+Both bind the identical accepted draft: #660's
+`input_binding.artifact.artifact_id/artifact_sha256` must equal #672's
+`input_binding.accepted_draft_artifact_id/accepted_draft_sha256`. Their
+independent carriers and failure semantics must not be merged.
+
+Before observations are consumed, the #672 finalizer replay-validates the exact
+builder-produced `preregistration-artifact/1.0` sidecar, its provided companion,
+the exact two-artifact source manifest, and the accepted draft. Methods absence
+requires an exact named counterpart scope; a performed preregistration deviation
+requires its third exact manuscript disclosure-scope witness. Missing or
+unavailable evidence remains not checked and cannot become a clean result.
+
+The result is always `LLM-ADVISORY` / `UNMEASURED`. It has no score, pass/fail,
+gate, issue-count effect, ClaimIntent, rewrite authority, consent/protocol
+duplicate, or agreement/clean meaning. A #672 contract failure writes no carrier
+and leaves only bounded `ADVISORY_UNAVAILABLE:<CODE>`; it does not change the
+Stage 4.5 verdict, block or delay the checkpoint, enter Phase E, or change
+formatter/Stage-5 routing. A later manuscript revision stales both #660 and #672
+and must re-enter integrity before both rerun in fixed order.
+
 ## Score Trajectory Tracking (v3.3)
 
 Reference: `academic-pipeline/references/score_trajectory_protocol.md`

@@ -1,0 +1,504 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Imbad0202/academic-research-skills/shared/contracts/evidence/evidence_row.schema.json",
+  "title": "ARS Shared Evidence Row v1",
+  "description": "Closed shared evidence-row carrier owned by #656. V1 persists one row per (Phase E claim, citation anchor) in Integrity Report phases.E_claims.evidence_rows[]. excerpt.state is provenance/availability only and MUST NOT be interpreted as a Phase E support verdict, severity, read attestation, or gate decision. Cross-field, exact-substring, word-budget, hash, strict-percent-decoding, and replay invariants are enforced by scripts/evidence_rows.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "surface",
+    "row_id",
+    "claim",
+    "source",
+    "anchor",
+    "verdict",
+    "detail",
+    "excerpt",
+    "cache",
+    "content_handling",
+    "row_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "evidence-row/1.0"
+    },
+    "surface": {
+      "const": "phase_e_claim_verification"
+    },
+    "row_id": {
+      "type": "string",
+      "pattern": "^EVR-[A-Za-z0-9._:-]+(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "text", "paper_locator", "selection_tier"],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "paper_locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "selection_tier": {
+          "enum": ["HIGH-IMPACT", "RANDOM", "TOP-UP", "ALL"]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_slug",
+        "display_label",
+        "source_content_sha256",
+        "source_content_utf8_bytes",
+        "source_artifact_sha256"
+      ],
+      "properties": {
+        "ref_slug": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z][A-Za-z0-9_:-]*(?![\\s\\S])",
+          "maxLength": 300
+        },
+        "display_label": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_content_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "source_content_utf8_bytes": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "source_artifact_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64,
+          "description": "Optional SHA-256 of raw artifact bytes. It is distinct from, and never substitutes for, source_content_sha256 over the exact session-held Unicode text used for matching. source_pointer is deliberately not persisted."
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value_encoded", "value_decoded"],
+      "properties": {
+        "kind": {
+          "enum": ["quote", "page", "section", "paragraph", "none"]
+        },
+        "value_encoded": {
+          "type": "string",
+          "maxLength": 12000,
+          "description": "Writer-emitted marker payload. The runtime performs one strict RFC-3986 percent decode; '+' remains '+', malformed escapes and invalid UTF-8 are rejected, and rendering never decodes again."
+        },
+        "value_decoded": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      }
+    },
+    "verdict": {
+      "enum": [
+        "VERIFIED",
+        "MINOR_DISTORTION",
+        "MAJOR_DISTORTION",
+        "UNVERIFIABLE",
+        "UNVERIFIABLE_ACCESS"
+      ],
+      "description": "Existing Phase E claim verdict, carried without modification. There is deliberately no conditional mapping from verdict to excerpt.state."
+    },
+    "detail": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "excerpt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "text",
+        "excerpt_sha256",
+        "source_span_utf8",
+        "captured_at"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "verified_exact_match",
+            "agent_extracted",
+            "unconfirmed_anchor",
+            "not_checked",
+            "source_missing",
+            "access_failed",
+            "retrieval_failed",
+            "anchorless"
+          ],
+          "description": "The single canonical evidence provenance/availability vocabulary. It never expresses whether the claim is supported."
+        },
+        "text": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "At most 25 words by Python whitespace split, additionally bounded to 1000 Unicode code points. Non-null only for verified_exact_match or agent_extracted."
+        },
+        "excerpt_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "source_span_utf8": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["start", "end"],
+              "properties": {
+                "start": {"type": "integer", "minimum": 0},
+                "end": {"type": "integer", "minimum": 1}
+              }
+            },
+            {"type": "null"}
+          ],
+          "description": "Zero-based, end-exclusive byte offsets in source_content_sha256's exact UTF-8 byte stream."
+        },
+        "captured_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])",
+          "description": "Original extraction timestamp. Cache replay preserves it instead of refreshing it."
+        }
+      }
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "key_sha256"],
+      "properties": {
+        "status": {
+          "enum": ["not_used", "miss", "hit"]
+        },
+        "key_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      }
+    },
+    "content_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_external_text", "sharing_scope", "rights_basis"],
+      "properties": {
+        "contains_external_text": {
+          "type": "boolean",
+          "description": "True when the row persists an excerpt or a decoded quote anchor. This is derived, not a rights judgment."
+        },
+        "sharing_scope": {
+          "enum": ["session_only", "user_confirmed_shareable"]
+        },
+        "rights_basis": {
+          "enum": ["not_assessed", "user_declared_authorized"]
+        }
+      },
+      "description": "External-text rows default to session_only/not_assessed. The 25-word ceiling is data minimization, not a licence or fair-use determination."
+    },
+    "row_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "minLength": 64,
+      "maxLength": 64,
+      "description": "Unkeyed SHA-256 integrity checksum of the runtime's canonical JSON serialization of the complete row excluding only row_sha256 itself. It is not a signature or independent provenance proof; source-bound rows require explicit source replay before rendering."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "content_handling": {
+            "properties": {"sharing_scope": {"const": "user_confirmed_shareable"}},
+            "required": ["sharing_scope"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "content_handling": {
+            "properties": {"rights_basis": {"const": "user_declared_authorized"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "content_handling": {
+            "properties": {"rights_basis": {"const": "user_declared_authorized"}},
+            "required": ["rights_basis"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "content_handling": {
+            "properties": {"sharing_scope": {"const": "user_confirmed_shareable"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "anchor": {
+            "properties": {"kind": {"const": "none"}},
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "anchor": {
+            "properties": {
+              "value_encoded": {"const": ""},
+              "value_decoded": {"const": ""}
+            }
+          },
+          "excerpt": {
+            "properties": {"state": {"const": "anchorless"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "anchor": {
+            "properties": {"kind": {"const": "paragraph"}},
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "not_checked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {
+              "state": {"enum": ["verified_exact_match", "agent_extracted"]}
+            },
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "ref_slug": {"type": "string"},
+              "source_content_sha256": {"type": "string"},
+              "source_content_utf8_bytes": {"type": "integer"}
+            }
+          },
+          "excerpt": {
+            "properties": {
+              "text": {"type": "string", "minLength": 1},
+              "excerpt_sha256": {"type": "string"},
+              "source_span_utf8": {"type": "object"},
+              "captured_at": {"type": "string", "format": "date-time"}
+            }
+          },
+          "cache": {
+            "properties": {
+              "status": {"enum": ["miss", "hit"]},
+              "key_sha256": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "verified_exact_match"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "anchor": {"properties": {"kind": {"const": "quote"}}}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "agent_extracted"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "anchor": {"properties": {"kind": {"enum": ["page", "section"]}}}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "unconfirmed_anchor"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "anchor": {"properties": {"kind": {"const": "quote"}}},
+          "source": {
+            "properties": {
+              "ref_slug": {"type": "string"},
+              "source_content_sha256": {"type": "string"},
+              "source_content_utf8_bytes": {"type": "integer"}
+            }
+          },
+          "excerpt": {
+            "properties": {
+              "text": {"type": "null"},
+              "excerpt_sha256": {"type": "null"},
+              "source_span_utf8": {"type": "null"},
+              "captured_at": {"type": "null"}
+            }
+          },
+          "cache": {
+            "properties": {
+              "status": {"enum": ["miss", "hit"]},
+              "key_sha256": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "not_checked",
+                  "source_missing",
+                  "access_failed",
+                  "retrieval_failed",
+                  "anchorless"
+                ]
+              }
+            },
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "source_content_sha256": {"type": "null"},
+              "source_content_utf8_bytes": {"type": "null"}
+            }
+          },
+          "excerpt": {
+            "properties": {
+              "text": {"type": "null"},
+              "excerpt_sha256": {"type": "null"},
+              "source_span_utf8": {"type": "null"},
+              "captured_at": {"type": "null"}
+            }
+          },
+          "cache": {
+            "properties": {
+              "status": {"const": "not_used"},
+              "key_sha256": {"type": "null"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "anchor": {
+            "properties": {"kind": {"enum": ["page", "section"]}},
+            "required": ["kind"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "excerpt": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "agent_extracted",
+                  "not_checked",
+                  "source_missing",
+                  "access_failed",
+                  "retrieval_failed"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "excerpt": {
+            "properties": {"state": {"const": "anchorless"}},
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "anchor": {
+            "properties": {
+              "kind": {"const": "none"},
+              "value_encoded": {"const": ""},
+              "value_decoded": {"const": ""}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

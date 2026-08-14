@@ -1,0 +1,44 @@
+{
+  "schema_version": "bibliographic-integrity-signal/1.0",
+  "signal_id": "bis:jones2025:tortured_phrase_match",
+  "signal_type": "tortured_phrase_match",
+  "epistemic_class": "heuristic_advisory",
+  "epistemic_label": "HEURISTIC-INDICATOR",
+  "check_status": "checked",
+  "finding": "detected",
+  "evidence": [
+    {
+      "evidence_type": "phrase_match",
+      "source_name": "tortured-phrase matcher fixture",
+      "record_locator": "title",
+      "observed_value": "matched candidate phrase",
+      "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "provenance": {
+    "source_name": "tortured-phrase matcher fixture",
+    "source_version": "ruleset/1.0",
+    "source_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "checked_at": "2026-08-08T00:00:00Z",
+    "recorded_at": "2026-08-08T00:00:01Z",
+    "stale_after": null,
+    "freshness": "unknown"
+  },
+  "subject": {
+    "citation_key": "jones2025",
+    "source_pointer": "zotero://select/items/0_JONES25",
+    "affected_claims": []
+  },
+  "terminal_policy": {
+    "eligible": false,
+    "owner": "none",
+    "policy_key": null,
+    "current_effect": "advisory_only"
+  },
+  "display": {
+    "carrier": "provenance_summary",
+    "section": "Bibliographic Integrity Advisories",
+    "summary_label": "Tortured-phrase heuristic match",
+    "marker_token": null
+  }
+}

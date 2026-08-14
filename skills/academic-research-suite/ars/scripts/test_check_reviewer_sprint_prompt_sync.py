@@ -22,6 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CHECKER = REPO_ROOT / "scripts" / "check_reviewer_sprint_prompt_sync.py"
 CANONICAL = "academic-paper-reviewer/references/reviewer_sprint_prompt_source.md"
 SPRINT_REF = "academic-paper-reviewer/references/sprint_contract_protocol.md"
+TEMPLATE = "academic-paper-reviewer/templates/peer_review_report_template.md"
 REVIEWERS = (
     "academic-paper-reviewer/agents/eic_agent.md",
     "academic-paper-reviewer/agents/methodology_reviewer_agent.md",
@@ -31,7 +32,8 @@ REVIEWERS = (
 )
 SCORING_REVIEWERS = REVIEWERS[:-1]
 SYNTH = "academic-paper-reviewer/agents/editorial_synthesizer_agent.md"
-ALL_FILES = (CANONICAL, SPRINT_REF, *REVIEWERS, SYNTH)
+ALL_FILES = (CANONICAL, SPRINT_REF, TEMPLATE, *REVIEWERS, SYNTH)
+RAW_HTML_RULE_SURFACES = (CANONICAL, SPRINT_REF, TEMPLATE, *REVIEWERS)
 
 
 def _run(root: Path) -> subprocess.CompletedProcess[str]:
@@ -61,6 +63,15 @@ def _mutate(root: Path, rel: str, old: str, new: str) -> None:
 def test_clean_tree_passes(tree: Path) -> None:
     result = _run(tree)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("rel", RAW_HTML_RULE_SURFACES)
+def test_dissent_raw_html_rule_is_present_on_every_surface(
+    tree: Path, rel: str
+) -> None:
+    text = (tree / rel).read_text(encoding="utf-8")
+    assert "[DISSENT-RAW-HTML]" in text
+    assert "trigger-binding exemption" in text
 
 
 @pytest.mark.parametrize("rel", REVIEWERS)

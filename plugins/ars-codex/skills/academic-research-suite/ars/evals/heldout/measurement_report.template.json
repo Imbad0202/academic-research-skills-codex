@@ -1,0 +1,121 @@
+{
+  "measurement_contract": "heldout-measurement/1.1",
+  "suite": "revision_claim_drift",
+  "suite_class": "llm_judged",
+  "measurement_date": "2099-01-01",
+  "decision_relevant": true,
+  "subject": {
+    "model_id": "replace-with-exact-subject-model",
+    "config": {
+      "suite_commit": "0000000000000000000000000000000000000000",
+      "prompts_ref": "replace-with-suite-prompt-reference",
+      "settings": "replace-with-frozen-settings",
+      "sampling": "replace-with-sampling-configuration"
+    }
+  },
+  "judge_plan": {
+    "exception": "none"
+  },
+  "judges": [
+    {
+      "judge_id": "judge-1",
+      "model_id": "replace-with-exact-judge-model-1",
+      "model_family": "family-1",
+      "prompt_ref": "replace-with-versioned-judge-template",
+      "evidence_provided": "replace-with-judge-visible-evidence and anonymization-map path",
+      "judging_budget": "replace-with-budget",
+      "blinded_to": [],
+      "per_item": [
+        {
+          "item_id": "item-1",
+          "verdict": "example"
+        }
+      ]
+    },
+    {
+      "judge_id": "judge-2",
+      "model_id": "replace-with-exact-judge-model-2",
+      "model_family": "family-2",
+      "prompt_ref": "replace-with-versioned-judge-template",
+      "evidence_provided": "replace-with-judge-visible-evidence and anonymization-map path",
+      "judging_budget": "replace-with-budget",
+      "blinded_to": [],
+      "per_item": [
+        {
+          "item_id": "item-1",
+          "verdict": "example"
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "headline": {
+      "metric_name": "replace-with-suite-metric",
+      "value": "replace-with-value",
+      "construction_rule": "replace-with-frozen-construction-rule",
+      "estimand_status": "point_estimate"
+    },
+    "agreement": {
+      "rate": 1.0,
+      "divergent_items": [],
+      "note": "judges agree in this structural template"
+    }
+  },
+  "replicates": {
+    "per_item": 2,
+    "rule_ref": "replace-with-suite-replicate-rule",
+    "spread": null,
+    "exception": null
+  },
+  "adjudication": {
+    "applies": true,
+    "rubric_ref": "replace-with-rubric-reference",
+    "rubric_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "rubric_precommitted": true,
+    "blinded_to": [],
+    "resolution_direction": "bidirectional",
+    "resolution_rule_ref": "replace-with-rubric-direction-anchor",
+    "overrides": [],
+    "raw_published": true
+  },
+  "preregistration": {
+    "plan_ref": "replace-with-run-plan-reference",
+    "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "rubric_ref": "replace-with-rubric-reference",
+    "rubric_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "frozen_commit": "0000000000000000000000000000000000000000",
+    "frozen_before_dispatch": true,
+    "rubric_and_plan_frozen_together": true,
+    "judge_template_version": "replace-with-version",
+    "amendments_append_only": true,
+    "amendments": []
+  },
+  "execution_manifest": {
+    "ref": "evals/heldout/revision_claim_drift/runs/replace-with-run/execution-manifest.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "write_once": true,
+    "claims": []
+  },
+  "attempts": {
+    "atomicity": "replace-with-frozen-attempt rule",
+    "partial_published": true,
+    "blocked_runs": []
+  },
+  "raw_outputs": {
+    "retained": true,
+    "paths": [
+      "evals/heldout/revision_claim_drift/runs/replace-with-run/"
+    ]
+  },
+  "results": {
+    "design": "replace-with-experimental-design-label",
+    "arm_roles": {
+      "treatment_or_cohort_arms": [],
+      "variant_packet_arms": []
+    }
+  },
+  "verdict": "template-only; replace before publication",
+  "caveats": [
+    "Template placeholders are not measurement evidence."
+  ]
+}

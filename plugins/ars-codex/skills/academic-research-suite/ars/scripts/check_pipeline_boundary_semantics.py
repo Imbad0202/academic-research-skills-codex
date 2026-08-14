@@ -70,11 +70,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # reviewed against the #528 resolutions.
 # ---------------------------------------------------------------------------
 CONTENT_LOCKS = {
-    "academic-pipeline/WORKFLOW.md": "a37492536f1eda2b974efe53d9cad2324587c759f1d542a8c6d6af6603990bd7",
-    "academic-pipeline/agents/pipeline_orchestrator_agent.md": "d8479fca26e243b21cd4b852175dfa3647a9cfcf1dfed7c19e7473a65878055e",
-    "academic-pipeline/agents/state_tracker_agent.md": "7c1762740a1bc57e47aa5ab02f6b07dc7fea6a40b6e7adbc1e4c3741e66a0f26",
-    "academic-pipeline/references/pipeline_state_machine.md": "acd65b3abcd844f1b2baaf850bafe9d9739b3d2302c62706a9d8e0040abe37b0",
-    "academic-pipeline/references/process_summary_protocol.md": "5c7053230d73b39d0a5d9d6f5e9f339c12570ae6d3aa2eae2eaf74f51d571e94",
+    "academic-pipeline/WORKFLOW.md": "f67d9dea20974328044c503809ffd9bdb27392dc9da2d496c8cf0f1a26806073",
+    "academic-pipeline/agents/pipeline_orchestrator_agent.md": "72bac0ccfde16d1049de038cf8af7239cf994b1d031a9e7dc0a7af2f2c2678bc",
+    "academic-pipeline/agents/state_tracker_agent.md": "59455856e8186192d5f07dbd5aaf4e71db427158856eae7b6658544cb488fd3c",
+    "academic-pipeline/references/pipeline_state_machine.md": "a9bfad44e24f6553cb42b77190eea64e2db796d9caeae08bd3df233cb4ef93e6",
+    "academic-pipeline/references/process_summary_protocol.md": "1052d8cb8ee00c1cd0fcc70a18aee5a0f92db2ebe0a74930b04d4b05d888cfdf",
 }
 
 SKILL = "academic-pipeline/WORKFLOW.md"
@@ -180,7 +180,7 @@ PROTO_DECLINE_PIN = "Stage 6 is non-mandatory — the user may decline it at tha
 # Type-bearing completion-checkpoint triggers on the mirrors (codex round-6
 # P1: a (FULL)->(MANDATORY) flip on either mirror stayed green).
 ORCH_STAGE56_TRIGGER_PIN = "Dispatched only after the user confirms the Stage 5 completion checkpoint (FULL)"
-ORCH_STAGE56_HANDOFF_ROW = "| Stage 5 -> 6 | Final deliverables list + pipeline state history (state_tracker JSON, agent logs) | — (Process Record; no numbered schema) | Dispatched only after the user confirms the Stage 5 completion checkpoint (FULL). User may decline Stage 6 there: mark it `skipped`, set pipeline state `completed`. Protocol: `../references/process_summary_protocol.md`; terminal semantics: `../references/pipeline_state_machine.md` § Stage 6 terminal semantics |"
+ORCH_STAGE56_HANDOFF_ROW = "| Stage 5 -> 6 | Final deliverables list + Process-Summary projection of pipeline state history and agent logs, explicitly omitting the #673 activity projection of terminal root `run_id`, pending/sealed activity fields, selected-store data, renderer output, and diagnostics | — (Process Record; no numbered schema) | Dispatched only after the user confirms the Stage 5 completion checkpoint (FULL). User may decline Stage 6 there: mark it `skipped`, set pipeline state `completed`. Protocol: `../references/process_summary_protocol.md`; terminal semantics: `../references/pipeline_state_machine.md` § Stage 6 terminal semantics |"
 PROTO_TRIGGER_PIN = "After the user confirms the Stage 5 completion checkpoint (FULL)"
 # Delivery-before-acknowledgement sequencing (codex round-6 P1: on->before /
 # After->Before mutations stayed green).
@@ -191,7 +191,7 @@ PROTO_STEP5_HEADER = "5. Terminal acknowledgement (pipeline terminal checkpoint)
 PROTO_NO_NEXT_STAGE = "There is no next stage."
 # SKILL Step 4 handoff line (codex round-7 P1: the executing transition list
 # could reverse the decline option while the Stage 6 section stayed pinned).
-SKILL_STEP4_HANDOFF = "- Stage 5  --> 6: Pass final deliverables list + pipeline state history to Process Summary (user may decline Stage 6 at the Stage 5 completion checkpoint)"
+SKILL_STEP4_HANDOFF = "- Stage 5  --> 6: Pass final deliverables list + the Process-Summary projection of pipeline state history, omitting the #673 activity projection of terminal root `run_id`, pending/sealed activity fields, selected-store data, renderer output, and diagnostics (user may decline Stage 6 at the Stage 5 completion checkpoint)"
 
 # The #528/#529 diagram edges (codex round-7 P1: the ASCII diagram is an
 # operative surface too — a /Minor -> /Reject or relabeled terminal edge

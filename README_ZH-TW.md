@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.24-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.25-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -43,7 +43,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `0.1.24`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `0.1.25`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 獨立追蹤 Codex 套件版本，與內嵌的 ARS 套件版本分開管理。
@@ -51,16 +51,13 @@ skills/academic-research-suite/
 
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-目前內嵌的 ARS 原始碼追蹤至
-`Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`
-（`v3.19.0` 之後的上游 `main`，2026-08-06；套件版本仍為 3.19.0）。內嵌內容新增
-reviewer 硬化系列（角色範圍評分契約與棄權機制、具型別的證據錨點與覆蓋
-receipt、Stage 3' 三閘門 re-review 預承諾契約、算術 receipt 文法與其
-deterministic 計算器、空異議規則）、新的 reviewer held-out 評測集與裁定
-cohort、醫學期刊揭露政策與 fail-closed 渲染、中文文獻 resolver client，以及
-CARE／STARD 2015／TRIPOD+AI 精要指引。v3.19 的 PDF preflight、閱讀範圍聲明、
-claim-drift 防護，v3.18 的 cross-model reviewer／judge、快取重驗、風險分層
-檢核與既有最小權限契約仍完整保留。
+目前內嵌的 ARS 原始碼追蹤至 `v3.20.0` 發行版：
+`Imbad0202/academic-research-skills@3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`
+（2026-08-14）。此版本新增證據綁定的 review／revision 契約、經作者確認的
+review target／criteria binding、明確的 human-subjects authority 邊界，以及
+用途受限且須取得同意的 Codex citation transport。另內嵌選用的 sandbox PDF
+內容分類器；其輸出僅為 advisory，不會取代結構性 PDF preflight。既有的引用、
+完整性、最小權限、degradation 與 transport 防護仍完整保留。
 
 ## 安裝 ARS-Codex Plugin
 
@@ -289,9 +286,9 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.19+ 功能對等
+### ARS v3.20.0 功能對等
 
-本套件旨在與上游 ARS `main`（`5769d7b`，`v3.19.0` 之後；套件版本 3.19.0）
+本套件旨在與上游 ARS `v3.20.0`（`3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`）
 在 Codex 具有對等概念之處，提供相同的使用者面向 workflow 內容。
 
 | 上游 ARS 功能 | Codex 套件行為 |
@@ -300,16 +297,20 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 | `/ars-*` 斜線指令 | 透過 skill router 作為 `ars-*` 別名模擬；非原生斜線指令 |
 | 四個上游 skill 從 `skills/` 符號連結自動發現 | 單一 Codex router skill 選擇 workflow 並讀取內嵌的 workflow `WORKFLOW.md` 檔案 |
 | Plugin 隨附的 agent | Agent 檔案作為角色/階段提示詞；Codex 以內嵌方式執行，除非使用者明確要求委派子 agent |
-| `model: opus` / `model: sonnet` 指令路由 | 視為 Claude metadata；Codex 使用當前活躍的模型 |
+| 重型指令（`ars-full`、`ars-reviewer`、`ars-revision-coach`）省略 `model:`，輕量模式保留 `model: sonnet` | 重型指令繼承目前 Codex session 模型；輕量模式的 `sonnet` 作為上游 Claude metadata 保留，不會覆寫 session 模型 |
 | `ARS_MODEL_TIERING=economy\|quality-boost` | 保留 judgment/execution 分類；僅在 Codex 支援逐次 dispatch 指定模型時套用，否則維持當前模型 |
 | 受保護 agent 的 `tools:` allowlist | 保留為最小權限角色邊界；被委派的 owner 不取得 Bash 或網路 transport |
 | Canonical cross-model handoff envelope | Dispatcher 驗證 envelope、取得同意後只傳送 payload，並依封閉的結果路由 contract 執行 |
+| 用途受限的 Codex citation transport | 僅在明確設定、要求並取得同意後，用於窄範圍 citation-integrity 檢查 |
+| 證據綁定的 review／revision | 保留持久 evidence row、已確認 criteria、非排序 roadmap、author adjudication 與 revision-evidence bundle |
+| Review criteria 與 human-subjects authority | Venue／criteria 與 ethics／data-protection authority 必須由使用者確認；Codex 不推論或模擬核准 |
+| 選用 PDF 內容分類器 | sandbox classifier 是 opt-in advisory，不能覆蓋結構性 PDF preflight 結果 |
 | Cross-model Reviewer 2 與 re-review judge | 僅在 provider 已設定且取得內容傳輸同意時啟用；保留固定席次、Judge Record、單一模型家族與 fallback 揭露 |
 | 快取過期 advisory 與即時重驗 | 預設使用本地快取；過期列僅為 advisory，`ARS_CACHE_REVALIDATE=1` 才啟用即時書目重驗 |
 | 風險分層主張、範圍與新穎性檢查 | 保留高影響主張優先抽樣，以及不阻擋 gate 的 scope 與 search-bounded novelty advisory |
-| 本機 PDF 讀取完整性 preflight | 內嵌 pypdf preflight 與 sidecar contract；parser 無法使用或修復警告會明確保留為 `UNAVAILABLE` advisory |
+| 本機 PDF 讀取完整性 preflight | 結構性 pypdf preflight 與 sidecar contract 維持預設；parser 無法使用或修復警告會明確保留為 `UNAVAILABLE` advisory，上述 v3.20 classifier 仍僅為 opt-in |
 | 人工閱讀範圍聲明 | 保留使用者擁有的可選 `read_scope` 與章節 locator；部分覆蓋不會被視為全文閱讀 |
-| 修訂主張漂移防護 | 內嵌主張強度階梯、revision-evidence bundle、deterministic token-conservation checker 與 held-out 測量集及測試 |
+| 修訂主張漂移防護 | v3.20 非排序 roadmap 與 author-adjudication contract，搭配主張強度階梯、revision-evidence bundle、deterministic token-conservation checker 及 held-out 測量集 |
 | Panel／degradation／pipeline-boundary 可執行檢查 | 與 hermetic 測試一併內嵌，並由選用的 full-runtime manifest 公開 |
 | SessionStart 和 SubagentStop hooks（含更新提醒） | 僅為可追溯性而保留；Codex 不安裝或執行 Claude hooks |
 | Plugin marketplace 更新 | 執行 `codex plugin marketplace upgrade ars-codex` 後重新加入 `ars-codex@ars-codex`；直接安裝的 skill 仍以重新安裝或 pull 更新 |

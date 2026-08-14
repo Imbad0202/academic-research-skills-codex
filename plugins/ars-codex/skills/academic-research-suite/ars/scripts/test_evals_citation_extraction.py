@@ -105,8 +105,9 @@ def test_reducer_unresolvable_never_collapsed_into_false():
 
 # ---------------------------------------------------------------------------
 # Full 51-tuple gold-set run (50 + 1 C-V6(a) coverage-gap fixture: the OQ-5
-# by-design FN, a no-identifier fabrication). The complementary real-but-
-# unindexed canary remains unfilled (issue #250).
+# by-design FN, a no-identifier fabrication). The missing real-but-unindexed
+# canary is #250's accepted representativeness limit, not missing client-layer
+# regression coverage (#431/#432); there is no current action item.
 # ---------------------------------------------------------------------------
 def test_full_gold_set_runs_at_high_accuracy():
     result = run_evals.run_task("citation_extraction")
@@ -124,7 +125,8 @@ def test_full_gold_set_per_class_all_pass():
         assert by_class[cls]["passed"] is True, cls
     # Distribution: 30 true (20 doi + 10 arxiv), 15 false (all ID-keyed),
     # 6 unresolvable (5 manual_exempt + 1 fabricated_title_only by-design
-    # FN fixture; the real-but-unindexed canary is unfilled, issue #250).
+    # FN fixture). No genuine all-resolver-unmatched tuple exists: #250 records
+    # that accepted corpus-representativeness limit, with no current action.
     assert by_class["true"]["support"] == 30
     assert by_class["false"]["support"] == 15
     assert by_class["unresolvable"]["support"] == 6

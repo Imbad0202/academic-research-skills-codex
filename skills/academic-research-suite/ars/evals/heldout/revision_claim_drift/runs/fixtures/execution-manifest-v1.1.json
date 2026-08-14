@@ -1,0 +1,18 @@
+{
+  "schema_version": "heldout-execution-manifest/1.0",
+  "suite": "revision_claim_drift",
+  "created_at": "2026-08-08T00:00:00Z",
+  "write_once": true,
+  "calls": [
+    {
+      "call_id": "fixture-call-1",
+      "sequence_index": 1,
+      "started_at": "2026-08-08T00:00:00Z",
+      "completed_at": "2026-08-08T00:00:01Z",
+      "prompt_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "output_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "concurrency_group": null,
+      "attempt": 1
+    }
+  ]
+}

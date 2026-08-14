@@ -244,8 +244,9 @@ def test_reducer_case_a_id_keyed_unmatched_is_false():
 
 def test_reducer_case_a_title_only_unmatched_is_unresolvable_not_false():
     """C-V6(a): a title-only unmatched (no resolvable identifier to key on) ⟹
-    unresolvable, NEVER false (real-but-unindexed coverage gap). This is the case the
-    narrowing was designed to protect — it must not block under strict."""
+    unresolvable, NEVER false (the coverage-safe shape for a potentially
+    real-but-unindexed work). This is a policy regression pin, not the genuine
+    all-resolver-unmatched corpus canary absent under accepted limitation #250."""
     assert reduce_lookup_verified(_ro(crossref=("unmatched", "title"))) == "unresolvable"
 
 
@@ -407,9 +408,10 @@ def test_formatter_has_no_per_policy_citation_existence_refusal(formatter_text):
 
 def test_mutation_M1_title_only_as_false_must_fail_case_a():
     """M1 (spec line 158): a trivial reducer that treats a title-only unmatched as
-    `false` MUST break case (a) — the unindexed-real-paper protection. We assert the
-    trivial verdict FAILS the case-(a) assertion, proving the real reducer's narrowing
-    is load-bearing (not incidentally satisfied)."""
+    `false` MUST break case (a) — the potentially-unindexed-work protection. We
+    assert the trivial verdict FAILS the case-(a) assertion, proving the real
+    reducer's narrowing is load-bearing (not incidentally satisfied). This does
+    not claim the fixture is #250's unavailable genuine-unindexed canary."""
     def trivial_reduce_unmatched_is_false(ro):
         outcomes = [v or {} for v in ro.values()]
         applicable = [o for o in outcomes if o.get("status") != "skipped"]

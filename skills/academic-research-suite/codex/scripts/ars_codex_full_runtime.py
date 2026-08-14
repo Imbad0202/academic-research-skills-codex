@@ -98,6 +98,14 @@ REVIEWER_SEATS = [
     "devils_advocate_reviewer_agent",
 ]
 
+CROSS_MODEL_TRANSPORT_SELECTORS = frozenset({"", "api", "codex"})
+CODEX_CITATION_TRANSPORT_FORBIDDEN_USES = [
+    "devils_advocate",
+    "reviewer_seat",
+    "re_review_judge",
+    "general_judgment",
+]
+
 
 def load_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -196,6 +204,20 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
     hooks = env.get("ARS_CODEX_HOOKS") == "1"
     requested_tiering = env.get("ARS_MODEL_TIERING", "").strip().lower()
     requested_cross_model = env.get("ARS_CROSS_MODEL", "").strip()
+    raw_cross_model_transport = env.get("ARS_CROSS_MODEL_TRANSPORT", "")
+    if raw_cross_model_transport not in CROSS_MODEL_TRANSPORT_SELECTORS:
+        raise ValueError(
+            "invalid ARS_CROSS_MODEL_TRANSPORT selector; expected the variable to be "
+            "absent, or set to api or codex "
+            "and refused to fall through to another transport"
+        )
+    cross_model_transport_selector = raw_cross_model_transport or "unset"
+    cross_model_effective_transport = (
+        "codex" if cross_model_transport_selector == "codex" else "api"
+    )
+    cross_model_transport_ready = not (
+        cross_model_effective_transport == "codex" and not requested_cross_model
+    )
     raw_stale_days = env.get("ARS_CACHE_STALE_ADVISORY_DAYS")
     try:
         cache_stale_advisory_days = 30 if raw_stale_days is None else int(raw_stale_days)
@@ -214,12 +236,21 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
         tiering_status = "inline_noop"
     else:
         tiering_status = "advisory_requires_runtime_model_override"
-    if not requested_cross_model:
+    if cross_model_effective_transport == "codex" and not cross_model_transport_ready:
+        cross_model_status = "codex_transport_unavailable_missing_ARS_CROSS_MODEL"
+        cross_model_scope = "none"
+    elif cross_model_effective_transport == "codex":
+        cross_model_status = "codex_citation_only_requires_explicit_request_and_consent"
+        cross_model_scope = "citation_integrity_only"
+    elif not requested_cross_model:
         cross_model_status = "unset"
+        cross_model_scope = "none"
     elif full_runtime and agent_team:
         cross_model_status = "dispatcher_transport_requires_explicit_request_and_consent"
+        cross_model_scope = "api_cross_model_workflows"
     else:
         cross_model_status = "inline_transport_requires_explicit_request_and_consent"
+        cross_model_scope = "api_cross_model_workflows"
     return {
         "full_runtime_enabled": full_runtime,
         "agent_team_enabled": full_runtime and agent_team,
@@ -228,6 +259,17 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
         "model_tiering_requested": requested_tiering or None,
         "model_tiering_status": tiering_status,
         "cross_model_configured": requested_cross_model or None,
+        "cross_model_transport_selector": cross_model_transport_selector,
+        "cross_model_effective_transport": cross_model_effective_transport,
+        "cross_model_transport_ready": cross_model_transport_ready,
+        "cross_model_transport_scope": cross_model_scope,
+        "cross_model_explicit_consent_required": bool(requested_cross_model)
+        or cross_model_effective_transport == "codex",
+        "cross_model_forbidden_uses": (
+            CODEX_CITATION_TRANSPORT_FORBIDDEN_USES
+            if cross_model_effective_transport == "codex"
+            else []
+        ),
         "cross_model_handoff_status": cross_model_status,
         "cache_stale_advisory_days": cache_stale_advisory_days,
         "cache_revalidation_requested": cache_revalidation_requested,
@@ -585,11 +627,18 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
         agent_plan = []
     for item in agent_plan:
         if item["agent"] == "domain_reviewer_agent":
-            item["cross_model_reviewer_track"] = (
-                "configured_requires_explicit_content_consent"
-                if profile["cross_model_configured"]
-                else "not_configured_single_family_disclosure_required"
-            )
+            if profile["cross_model_effective_transport"] == "codex":
+                item["cross_model_reviewer_track"] = (
+                    "excluded_codex_transport_is_citation_only"
+                )
+            elif profile["cross_model_configured"]:
+                item["cross_model_reviewer_track"] = (
+                    "configured_requires_explicit_content_consent"
+                )
+            else:
+                item["cross_model_reviewer_track"] = (
+                    "not_configured_single_family_disclosure_required"
+                )
     gates = [gate for gate in manifest["quality_gates"] if gate["kind"] in {"routing", "agent-team", "integrity", "material-passport"}]
 
     return {
@@ -622,7 +671,10 @@ def main() -> int:
         request = args.request_file.read_text(encoding="utf-8")
     else:
         request = " ".join(args.request)
-    result = plan_request(request)
+    try:
+        result = plan_request(request)
+    except ValueError as exc:
+        parser.error(str(exc))
     print(json.dumps(result, ensure_ascii=False, indent=2 if args.pretty else None, sort_keys=args.pretty))
     return 0
 

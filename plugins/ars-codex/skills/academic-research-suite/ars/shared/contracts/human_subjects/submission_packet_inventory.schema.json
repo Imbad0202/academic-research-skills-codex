@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Imbad0202/academic-research-skills/shared/contracts/human_subjects/submission_packet_inventory.schema.json",
+  "title": "Human-subjects submission-packet inventory",
+  "description": "Author-declared, pointer-only inventory of explicitly listed packet artifacts and mechanical structure observations. It is not an authority selection, content review, institutional acceptance, readiness result, or authorization decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "inventory_id",
+    "declared_by",
+    "packet_responsibility_role_ids",
+    "authorization_status_input",
+    "waiver_or_exception_claims",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "submission-packet-inventory/1.0"},
+    "inventory_id": {"$ref": "#/$defs/identifier"},
+    "declared_by": {"const": "author"},
+    "packet_responsibility_role_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "description": "Exact author-declared actor roles whose held evidence belongs in this packet. Absence from this list makes an evidence expectation an external dependency; it never reassigns the authority row's obligated actor.",
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "authorization_status_input": {"$ref": "#/$defs/authorization_status_input"},
+    "waiver_or_exception_claims": {
+      "type": "array",
+      "maxItems": 512,
+      "description": "Author declarations that a waiver or exception route is being claimed. A claim, a profiled route, or a located decision artifact never means that the route applies or was granted.",
+      "items": {"$ref": "#/$defs/waiver_or_exception_claim"}
+    },
+    "artifacts": {
+      "type": "array",
+      "maxItems": 512,
+      "description": "Every row is an author declaration that one exact regular file is attached at the named packet-relative path. The checker opens only these paths and never scans the packet directory.",
+      "items": {"$ref": "#/$defs/artifact"}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF][^\\\\\\u0000-\\u001f\\u007f-\\u009f\\uD800-\\uDFFF]*(?![\\s\\S])",
+      "not": {
+        "pattern": "[\u00AD\u0600-\u0605\u061C\u06DD\u070F\u0890-\u0891\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB\uD804\uDCBD\uD804\uDCCD\uD80D\uDC30-\uD80D\uDC5F\uD82F\uDCA0-\uD82F\uDCA3\uD834\uDD73-\uD834\uDD7A\uDB40\uDC01\uDB40\uDC20-\uDB40\uDC7F]"
+      },
+      "description": "POSIX packet-relative path. Runtime validation additionally rejects empty, dot, dot-dot, repeated-separator, non-normalized, absolute, directory, and symlink targets."
+    },
+    "authorization_status_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source_reference", "provenance"],
+      "properties": {
+        "value": {"enum": ["documented", "not_provided", "cannot_verify"]},
+        "source_reference": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}],
+          "description": "Opaque caller-supplied pointer. The packet checker never derives, promotes, or verifies authorization from an artifact."
+        },
+        "provenance": {"const": "caller_supplied_no_derivation"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"value": {"const": "documented"}},
+            "required": ["value"]
+          },
+          "then": {
+            "properties": {
+              "source_reference": {"$ref": "#/$defs/identifier"}
+            }
+          },
+          "else": {
+            "properties": {"source_reference": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "waiver_or_exception_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "route_requirement_ids",
+        "decision_artifact_id",
+        "declared_by"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "route_requirement_ids": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "decision_artifact_id": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "declared_by": {"const": "author"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "relative_path",
+        "declared_sha256",
+        "declared_size_bytes",
+        "media_type",
+        "artifact_type",
+        "declared_holder_role_id",
+        "evidence_bindings",
+        "declared_structure"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "relative_path": {"$ref": "#/$defs/relative_path"},
+        "declared_sha256": {"$ref": "#/$defs/sha256"},
+        "declared_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 67108864
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+(?![\\s\\S])"
+        },
+        "artifact_type": {"$ref": "#/$defs/identifier"},
+        "declared_holder_role_id": {"$ref": "#/$defs/identifier"},
+        "evidence_bindings": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidence_binding"}
+        },
+        "declared_structure": {"$ref": "#/$defs/declared_structure"}
+      }
+    },
+    "evidence_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "evidence_id"],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "evidence_id": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "declared_structure": {
+      "type": "object",
+      "description": "Author-declared mechanical metadata. V1 validates closed syntax and internal consistency only; without a separately source-backed mechanical expectation, null or not-located values do not create a readiness gap.",
+      "additionalProperties": false,
+      "required": [
+        "version_id",
+        "document_date",
+        "signature_blocks",
+        "certificate"
+      ],
+      "properties": {
+        "version_id": {
+          "oneOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]
+        },
+        "document_date": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+            },
+            {"type": "null"}
+          ]
+        },
+        "signature_blocks": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/signature_block"}
+        },
+        "certificate": {
+          "oneOf": [{"$ref": "#/$defs/certificate"}, {"type": "null"}]
+        }
+      }
+    },
+    "signature_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role_id", "state"],
+      "properties": {
+        "role_id": {"$ref": "#/$defs/identifier"},
+        "state": {"enum": ["present", "not_located", "unknown"]}
+      }
+    },
+    "certificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["certificate_id", "holder_role_id", "issued_on", "expires_on"],
+      "properties": {
+        "certificate_id": {"$ref": "#/$defs/identifier"},
+        "holder_role_id": {"$ref": "#/$defs/identifier"},
+        "issued_on": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+        },
+        "expires_on": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+            },
+            {"type": "null"}
+          ]
+        }
+      }
+    }
+  }
+}

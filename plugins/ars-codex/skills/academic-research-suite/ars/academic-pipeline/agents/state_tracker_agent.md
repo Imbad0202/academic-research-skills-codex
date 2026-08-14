@@ -31,6 +31,116 @@ For every stage transition, the tracker records a `dialogue_log_ref` containing 
 
 Append-only list. Each entry is an observer report produced at a FULL/SLIM checkpoint or during Stage 6 record compilation (the whole-pipeline pass). Entries never gate state transitions — they are stored for the final Process Record's "Collaboration Depth Trajectory" chapter only. The tracker must reject any write request that attempts to turn observer output into a blocking condition.
 
+### Adjudication-activity metadata (#673; authoritative producer/state contract)
+
+Adjudication activity is an opt-in, local, deterministic, **advisory-only**
+side channel. At run initialization the tracker receives one explicit `run_id`
+matching `^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$`; it stores that value at the
+state root and never regenerates, changes, or infers it from a clock, path,
+conversation, artifact content, or filesystem metadata.
+
+The tracker is sole writer for two internal root fields:
+
+- `pending_adjudication_activity_bindings[]` is a non-authoritative staging
+  inventory with exactly the five canonical source-family rows. Through the
+  sole-writer API, a producer may best-effort append a captured artifact binding
+  to its row only **after** it has durably applied the user's ordinary
+  routing/state effect. Captured pending bindings carry only artifact id, role,
+  group id, `artifact_group_stage`, and relative path—never a caller-computed
+  hash. A not-applicable or unavailable row has empty artifacts plus its closed
+  reason. A failed append emits an advisory diagnostic and cannot refuse, roll
+  back, or alter the ordinary effect.
+- `adjudication_activity_sources` is absent until post-terminal sealing. Once
+  sealed, it is the exact five-row inventory, in frozen-spec order, and is never
+  inferred or rebuilt. The terminal state file's root `run_id` plus this sealed
+  root inventory are the exact source/run authority. Pending bindings are not
+  authority.
+
+Action-time producers use only closed receipts from the #673 spec:
+
+1. Author adjudication captures one or two complete two-artifact groups
+   (`author_adjudication_input`, then `author_adjudication`). Each group uses
+   `artifact_group_stage`, with Stage 3 before Stage 3-prime when both exist.
+   The author occurrence identity is the run-scoped `author_event_id`; its
+   interaction digest is derived from `run_id` plus that occurrence id, never
+   from content.
+2. Compliance captures each report group. A plain PASS/WARN report without
+   `user_override` is a valid report-only captured-zero group. Only a qualifying
+   blocking compliance override receives the paired
+   `compliance_override_action_receipt`; a non-qualifying report must not receive
+   one.
+3. Re-review capture binds the exact manifest/precommitment/verdict/traceability
+   quartet after that existing producer has completed.
+4. Explicit-request and MANDATORY-checkpoint logs are written only by the
+   structured action handler at occurrence time, never reconstructed from
+   transcript prose. The complete receipt-stage enum is
+   `pipeline_stage_1 | pipeline_stage_2 | pipeline_stage_2_5 |
+   pipeline_stage_3 | pipeline_stage_3_prime | pipeline_stage_4 |
+   pipeline_stage_4_prime | pipeline_stage_4_5 | pipeline_stage_5 |
+   pipeline_stage_6`. There is no Stage 0. An attempted MANDATORY `skip` first
+   follows the existing refusal path and leaves pipeline state unchanged; only
+   afterward may the best-effort receipt store `skip_refused`.
+
+Terminal writes are strictly ordered. The tracker first durably performs the
+existing terminal transition without reading or depending on any activity
+metadata. Only if the user selected a store may the orchestrator then call the
+deterministic post-terminal helper
+`seal_terminal_inventory(state_path, artifact_root, pending_bindings)` with the
+explicit state path, artifact-root path, and explicitly passed five-row
+`pending_adjudication_activity_bindings[]`. The helper does not read that field
+from state, infer roles, paths, groups, stages, or reasons, or scan for artifacts.
+It may append/seal `adjudication_activity_sources` in the already-terminal state
+file, but must leave terminal `pipeline_state`, current stage, and stage status
+byte-semantically unchanged. Seal/build/append/render failure is advisory,
+creates no substitute store record, and never changes the durable terminal
+outcome. `build-input` projects only the sealed inventory; it accepts no
+caller-reported paths or hashes and performs no ambient scan. `append-run` treats
+an identical `run_id` plus input-receipt digest as idempotent success with no
+write, revision/sequence allocation, or metadata change; a different digest is
+a conflict. Artifact hashes are byte bindings, not identities, and may legally
+repeat within or across retained runs. Optional renderer output is a standalone
+user-facing advisory: its exact limitation and coverage strings are surfaced
+verbatim and never rewritten by the orchestrator.
+
+Neither pending bindings, sealed inventory, selected-store information, store
+contents, renderer output, nor diagnostics may enter a Material Passport,
+stage handoff, Process Record, reviewer/model/observer input, compliance
+decision, gate, verdict, or checkpoint input. Producers and terminal helpers use
+no live model, judge, eval, network/API, ambient clock, directory scan, or glob.
+The frozen design spec and activity schemas remain authoritative for receipt
+shapes, capture-state reasons, group/role ordering, hashing, and replay.
+
+### Review-criteria binding pointer (#684)
+
+The tracker may store one non-authoritative root index named
+`review_criteria_binding`:
+
+```json
+{
+  "status": "active",
+  "manifest_ref": "phase0/review_criteria_binding.json",
+  "target_review_id": "review-001"
+}
+```
+
+`status` is `active` or `unavailable`; the latter carries null reference/id and
+means the explicit field-general path. This index only tells the orchestrator
+which explicitly named manifest to validate. The manifest itself is the sole
+context/criterion/receipt authority; the tracker never copies selected ids,
+hashes, digest, conflict groups, or receipts into state and never reconstructs
+them from prompt output or the filesystem.
+
+Only the tracker writes the index, after deterministic `init` succeeds or the
+caller explicitly chooses the unavailable path. A target/profile change under
+one `target_review_id` is rejected by the builder; a new id records a
+non-comparable predecessor. Before a criteria-aware handoff, the orchestrator
+validates the explicitly referenced manifest and named context/registry. This
+check may refuse only that mismatched criteria-aware handoff. It never supplies
+or alters a severity, editorial verdict, pipeline stage decision, checkpoint,
+or author triage. Consumer receipts are written only by the deterministic
+recorder after their ordinary artifacts exist; no missing consumer is
+fabricated for a skipped or mid-entry stage.
+
 ### State Update Protocol
 
 1. Requesting agent calls `request_update(field, new_value, reason)`
@@ -68,6 +178,12 @@ Every material artifact produced by the pipeline carries a version label. These 
 
 ```json
 {
+  "run_id": "run-42",
+  "review_criteria_binding": {
+    "status": "active",
+    "manifest_ref": "phase0/review_criteria_binding.json",
+    "target_review_id": "review-001"
+  },
   "topic": "Paper topic (determined by Stage 1 or user input)",
   "language": "en",
   "pipeline_version": "2.6",
@@ -310,7 +426,7 @@ Update the specified stage's status.
 - Status can only advance (pending -> in_progress -> completed), cannot regress
 - Exception: Stage 2.5 and 4.5 FAIL retries are legal (status remains in_progress)
 - Skipped status means the user skipped this stage (Stage 2.5 and 4.5 cannot be skipped)
-- Stage 6 terminal semantics (#528): on the terminal acknowledgement, `update_stage("6", "completed", outputs)` then `update_pipeline_state("completed")`; if the user declines Stage 6 at the Stage 5 completion checkpoint, `update_stage("6", "skipped", {reason: "user declined Stage 6"})` then `update_pipeline_state("completed")`. See `../references/pipeline_state_machine.md` § Stage 6 terminal semantics
+- Stage 6 terminal semantics (#528): on the terminal acknowledgement, `update_stage("6", "completed", outputs)` then `update_pipeline_state("completed")`; if the user declines Stage 6 at the Stage 5 completion checkpoint, `update_stage("6", "skipped", {reason: "user declined Stage 6"})` then `update_pipeline_state("completed")`. This terminal transition is persisted before, and never depends on, #673 post-terminal activity work. See `../references/pipeline_state_machine.md` § Stage 6 terminal semantics
 
 ### 2. update_pipeline_state(state)
 
@@ -371,7 +487,7 @@ Check whether prerequisite materials for entering the specified stage are availa
 | Stage 2.5 | Paper Draft | -- |
 | Stage 3 | **Verified Paper Draft + Integrity Report (Pre)** | -- |
 | Stage 4 | Review Reports + Revision Roadmap | Paper Draft |
-| Stage 3' | Revised Draft + Round-1 Revision Roadmap (re-review mode — the default Stage 3'; not required when the user explicitly requests a fresh full review instead, e.g. the mid-entry quick→full path) | Original (pre-revision) Draft (#576 §11 presence policy — the Phase 2A comparison base; absent → every new issue `indeterminate`, MADE_WORSE partly unevaluable, visible markers); Response to Reviewers; Editorial Decision Letter (#539 Judge Record input); Round-1 review findings (Schema 6 reports — #576 §4 level-3 criterion layer); apply report(s) + the paired revision patch/diff files (#390/#576 §11 — reports without their paired patches is `manifest_incomplete` at dispatch, so warn when one is present without the other); Round-1 Reviewer Configuration Cards (re-review mode only — a fresh full review regenerates configuration via field_analyst by definition, no missing-material warning) |
+| Stage 3' | Revised Draft + hard-required Original pre-revision Draft + Round-1 Revision Roadmap + exact author-adjudication sidecar + fully replayed Revision-Evidence Bundle (current contract re-review; not required for an explicitly requested fresh full review) | Response to Reviewers; Editorial Decision Letter; Round-1 findings; exact ordered apply report/patch pairs matching the bundle projection; Round-1 Reviewer Configuration Cards. Missing any current hard-required artifact or a mismatched pair is `manifest_incomplete`, not a warning-only degradation. |
 | Stage 4' | Re-Review Report (Decision: Major) | Revised Draft |
 | Stage 4.5 | Revised Draft or Re-Revised Draft | -- |
 | Stage 5 | **Integrity Report (Final) — verdict: PASS** | -- |

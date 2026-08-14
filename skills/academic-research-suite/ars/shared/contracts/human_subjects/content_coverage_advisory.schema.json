@@ -1,0 +1,620 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Imbad0202/academic-research-skills/shared/contracts/human_subjects/content_coverage_advisory.schema.json",
+  "title": "Authority-profile content-coverage advisory",
+  "description": "Closed LLM-ADVISORY carrier for requirement-scoped, quoted submission-content coverage observations. It copies deterministic #667 status without changing it, records UNMEASURED until a real held-out scored row exists, and carries no adequacy, readiness, authorization, acceptance, or efficacy determination.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "layer",
+    "evaluation_status",
+    "input_binding",
+    "deterministic_status",
+    "requirement_results",
+    "excluded_requirements",
+    "boundary",
+    "report_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "content-coverage-advisory/1.0"},
+    "layer": {"const": "LLM-ADVISORY"},
+    "evaluation_status": {
+      "const": "UNMEASURED",
+      "description": "An honest marker, not a scored measurement row or efficacy claim."
+    },
+    "input_binding": {"$ref": "#/$defs/input_binding"},
+    "deterministic_status": {"$ref": "#/$defs/deterministic_status"},
+    "requirement_results": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/requirement_result"}
+    },
+    "excluded_requirements": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/excluded_requirement"}
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deterministic_status_unchanged",
+        "submission_readiness_unchanged",
+        "authorization_status_unchanged",
+        "institutional_acceptance_unchanged",
+        "adequacy_not_assessed"
+      ],
+      "properties": {
+        "deterministic_status_unchanged": {"const": true},
+        "submission_readiness_unchanged": {"const": true},
+        "authorization_status_unchanged": {"const": true},
+        "institutional_acceptance_unchanged": {"const": true},
+        "adequacy_not_assessed": {"const": true}
+      }
+    },
+    "report_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?![\\s\\S])",
+      "maxLength": 200
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+    },
+    "axis": {"enum": ["review_ethics", "data_protection"]},
+    "consumer_scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "requirement_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+(?![\\s\\S])"
+    },
+    "authority_anchor_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/authority_anchor(?![\\s\\S])"
+    },
+    "expectation_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/structured_expectations/[0-9]+(?![\\s\\S])"
+    },
+    "evidence_pointer": {
+      "type": "string",
+      "pattern": "^/(profiles|overlays)/[0-9]+/requirements/[0-9]+/evidence_expected/[0-9]+(?![\\s\\S])"
+    },
+    "advisory_status": {
+      "enum": [
+        "DOCUMENTED",
+        "NOT_LOCATED",
+        "CONFLICTING",
+        "APPLICABILITY_UNRESOLVED",
+        "ACCEPTANCE_UNVERIFIED"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "ALL_EXPECTATIONS_APPEAR_COVERED",
+        "EXPECTATION_NOT_LOCATED",
+        "CONFLICTING_COVERAGE_OBSERVATIONS",
+        "COVERAGE_CHECK_NOT_PERFORMED",
+        "SESSION_CONTENT_NOT_PROVIDED",
+        "SOURCE_ACCESS_FAILED",
+        "SOURCE_RETRIEVAL_FAILED",
+        "DETERMINISTIC_PACKET_GAP",
+        "DETERMINISTIC_PACKET_CONFLICT",
+        "WAIVER_OR_EXCEPTION_BOUNDARY",
+        "EXTERNAL_DEPENDENCY",
+        "APPLICABILITY_UNRESOLVED",
+        "NO_PROFILED_STRUCTURED_EXPECTATIONS",
+        "INSTITUTIONAL_ACCEPTANCE_REQUIRED"
+      ]
+    },
+    "reason_codes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/reason_code"}
+    },
+    "input_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_schema_version",
+        "manifest_digest",
+        "inventory_id",
+        "inventory_digest",
+        "observation_digest",
+        "context_record_id",
+        "context_digest",
+        "registry_id",
+        "registry_version",
+        "registry_as_of",
+        "registry_digest",
+        "resolved_digest"
+      ],
+      "properties": {
+        "manifest_schema_version": {"const": "submission-packet-manifest/1.0"},
+        "manifest_digest": {"$ref": "#/$defs/sha256"},
+        "inventory_id": {"$ref": "#/$defs/identifier"},
+        "inventory_digest": {"$ref": "#/$defs/sha256"},
+        "observation_digest": {"$ref": "#/$defs/sha256"},
+        "context_record_id": {"$ref": "#/$defs/identifier"},
+        "context_digest": {"$ref": "#/$defs/sha256"},
+        "registry_id": {"$ref": "#/$defs/identifier"},
+        "registry_version": {"$ref": "#/$defs/version"},
+        "registry_as_of": {"$ref": "#/$defs/date"},
+        "registry_digest": {"$ref": "#/$defs/sha256"},
+        "resolved_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "authorization_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source_reference", "provenance"],
+      "properties": {
+        "value": {"enum": ["documented", "not_provided", "cannot_verify"]},
+        "source_reference": {
+          "oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "provenance": {"const": "caller_supplied_no_derivation"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"value": {"const": "documented"}},
+            "required": ["value"]
+          },
+          "then": {
+            "properties": {"source_reference": {"$ref": "#/$defs/identifier"}}
+          },
+          "else": {"properties": {"source_reference": {"type": "null"}}}
+        }
+      ]
+    },
+    "deterministic_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_pathway",
+        "submission_readiness",
+        "authorization_status",
+        "review_timeline",
+        "acceptance_status"
+      ],
+      "properties": {
+        "review_pathway": {"const": "institutional determination required"},
+        "submission_readiness": {
+          "enum": ["gaps_located", "no_listed_gaps_located", "unresolved"]
+        },
+        "authorization_status": {"$ref": "#/$defs/authorization_status"},
+        "review_timeline": {"const": "unknown — obtain current institutional estimate"},
+        "acceptance_status": {"const": "ACCEPTANCE_UNVERIFIED"}
+      }
+    },
+    "requirement_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "authority_kind",
+        "authority_id",
+        "authority_version",
+        "authority_digest",
+        "axis",
+        "obligated_actor",
+        "consumer_scopes",
+        "applicability",
+        "requirement_digest",
+        "requirement_pointer",
+        "authority_anchor_pointer"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "authority_kind": {
+          "enum": ["profile", "institutional_overlay", "funder_overlay"]
+        },
+        "authority_id": {"$ref": "#/$defs/identifier"},
+        "authority_version": {"$ref": "#/$defs/version"},
+        "authority_digest": {"$ref": "#/$defs/sha256"},
+        "axis": {"$ref": "#/$defs/axis"},
+        "obligated_actor": {"$ref": "#/$defs/identifier"},
+        "consumer_scopes": {"$ref": "#/$defs/consumer_scopes"},
+        "applicability": {"enum": ["true", "false"]},
+        "requirement_digest": {"$ref": "#/$defs/sha256"},
+        "requirement_pointer": {"$ref": "#/$defs/requirement_pointer"},
+        "authority_anchor_pointer": {"$ref": "#/$defs/authority_anchor_pointer"}
+      }
+    },
+    "evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "evidence_pointer",
+        "evidence_digest",
+        "artifact_type",
+        "held_by"
+      ],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/identifier"},
+        "evidence_pointer": {"$ref": "#/$defs/evidence_pointer"},
+        "evidence_digest": {"$ref": "#/$defs/sha256"},
+        "artifact_type": {"$ref": "#/$defs/identifier"},
+        "held_by": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "entry_reason_code": {
+      "enum": [
+        "STRUCTURE_DOCUMENTED",
+        "EXTERNAL_HOLDER_DEPENDENCY",
+        "WAIVER_OR_EXCEPTION_CLAIM_UNVERIFIED",
+        "EXPECTED_PACKET_ARTIFACT_NOT_LOCATED",
+        "DUPLICATE_EVIDENCE_BINDING",
+        "DECLARED_ATTACHMENT_NOT_LOCATED",
+        "ARTIFACT_DIGEST_MISMATCH",
+        "ARTIFACT_SIZE_MISMATCH",
+        "ARTIFACT_TYPE_MISMATCH",
+        "ARTIFACT_HOLDER_MISMATCH",
+        "CERTIFICATE_HOLDER_MISMATCH",
+        "DECLARED_STRUCTURE_CONFLICT"
+      ]
+    },
+    "deterministic_entry_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_ref",
+        "responsibility",
+        "deterministic_status",
+        "reason_codes",
+        "matched_artifact_ids"
+      ],
+      "properties": {
+        "evidence_ref": {"$ref": "#/$defs/evidence_ref"},
+        "responsibility": {"enum": ["packet_owned", "external_dependency"]},
+        "deterministic_status": {"$ref": "#/$defs/advisory_status"},
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/entry_reason_code"}
+        },
+        "matched_artifact_ids": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        }
+      }
+    },
+    "authority_anchor_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_anchor_pointer",
+        "authority_anchor_digest",
+        "source_id",
+        "provision",
+        "effective_date",
+        "authority_url"
+      ],
+      "properties": {
+        "authority_anchor_pointer": {"$ref": "#/$defs/authority_anchor_pointer"},
+        "authority_anchor_digest": {"$ref": "#/$defs/sha256"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "provision": {"type": "string", "minLength": 1, "maxLength": 300},
+        "effective_date": {"$ref": "#/$defs/date"},
+        "authority_url": {
+          "type": "string",
+          "minLength": 9,
+          "maxLength": 2048,
+          "pattern": "^https://[^\\s]+(?![\\s\\S])"
+        }
+      }
+    },
+    "expectation_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field_id", "expectation_pointer", "expectation_digest"],
+      "properties": {
+        "field_id": {"$ref": "#/$defs/identifier"},
+        "expectation_pointer": {"$ref": "#/$defs/expectation_pointer"},
+        "expectation_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "expectation_finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "authority_anchor_pointer",
+        "expectation_ref",
+        "coverage_check_state",
+        "advisory_coverage_status",
+        "reason_codes",
+        "evidence_rows"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "authority_anchor_pointer": {"$ref": "#/$defs/authority_anchor_pointer"},
+        "expectation_ref": {"$ref": "#/$defs/expectation_ref"},
+        "coverage_check_state": {"enum": ["performed", "not_checked"]},
+        "advisory_coverage_status": {
+          "oneOf": [
+            {"enum": ["DOCUMENTED", "NOT_LOCATED", "CONFLICTING"]},
+            {"type": "null"}
+          ]
+        },
+        "reason_codes": {"$ref": "#/$defs/reason_codes"},
+        "evidence_rows": {
+          "type": "array",
+          "maxItems": 512,
+          "items": {
+            "$ref": "../evidence/evidence_row_v1_1.schema.json"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"coverage_check_state": {"const": "performed"}},
+            "required": ["coverage_check_state"]
+          },
+          "then": {
+            "properties": {
+              "advisory_coverage_status": {
+                "enum": ["DOCUMENTED", "NOT_LOCATED", "CONFLICTING"]
+              },
+              "evidence_rows": {"minItems": 1}
+            }
+          },
+          "else": {
+            "properties": {"advisory_coverage_status": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "requirement_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_ref",
+        "authority_anchor_ref",
+        "deterministic_entry_refs",
+        "coverage_check_state",
+        "advisory_coverage_status",
+        "reason_codes",
+        "expectation_findings"
+      ],
+      "properties": {
+        "requirement_ref": {
+          "allOf": [
+            {"$ref": "#/$defs/requirement_ref"},
+            {
+              "properties": {"applicability": {"const": "true"}},
+              "required": ["applicability"]
+            }
+          ]
+        },
+        "authority_anchor_ref": {"$ref": "#/$defs/authority_anchor_ref"},
+        "deterministic_entry_refs": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/deterministic_entry_ref"}
+        },
+        "coverage_check_state": {"enum": ["performed", "not_checked"]},
+        "advisory_coverage_status": {
+          "oneOf": [{"$ref": "#/$defs/advisory_status"}, {"type": "null"}]
+        },
+        "reason_codes": {"$ref": "#/$defs/reason_codes"},
+        "expectation_findings": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/expectation_finding"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"coverage_check_state": {"const": "performed"}},
+            "required": ["coverage_check_state"]
+          },
+          "then": {
+            "properties": {
+              "advisory_coverage_status": {
+                "enum": ["DOCUMENTED", "NOT_LOCATED", "CONFLICTING"]
+              },
+              "expectation_findings": {"minItems": 1}
+            }
+          },
+          "else": {
+            "properties": {
+              "advisory_coverage_status": {
+                "oneOf": [
+                  {"enum": ["APPLICABILITY_UNRESOLVED", "ACCEPTANCE_UNVERIFIED"]},
+                  {"type": "null"}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "excluded_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_ref", "exclusion_basis"],
+      "properties": {
+        "requirement_ref": {
+          "allOf": [
+            {"$ref": "#/$defs/requirement_ref"},
+            {
+              "properties": {"applicability": {"const": "false"}},
+              "required": ["applicability"]
+            }
+          ]
+        },
+        "exclusion_basis": {"const": "resolved_predicate_false"}
+      }
+    },
+    "advisory_draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "layer", "judgments"],
+      "properties": {
+        "schema_version": {"const": "content-coverage-advisory-draft/1.0"},
+        "layer": {"const": "LLM-ADVISORY"},
+        "judgments": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/advisory_draft_judgment"}
+        }
+      },
+      "description": "Closed evaluator-to-finalizer machine input. The runtime validates drafts directly against this definition before using any judgment."
+    },
+    "advisory_draft_judgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "expectation_pointer",
+        "artifact_id",
+        "coverage_check_state",
+        "advisory_coverage_status",
+        "document_locator",
+        "quoted_anchor_encoded",
+        "captured_at",
+        "failure_state"
+      ],
+      "properties": {
+        "requirement_id": {"$ref": "#/$defs/identifier"},
+        "expectation_pointer": {"$ref": "#/$defs/expectation_pointer"},
+        "artifact_id": {"$ref": "#/$defs/identifier"},
+        "coverage_check_state": {"enum": ["performed", "not_checked"]},
+        "advisory_coverage_status": {
+          "oneOf": [
+            {"enum": ["DOCUMENTED", "NOT_LOCATED", "CONFLICTING"]},
+            {"type": "null"}
+          ]
+        },
+        "document_locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {"enum": ["document", "page", "section", "paragraph", "other"]},
+            "value": {"type": "string", "minLength": 1, "maxLength": 500}
+          }
+        },
+        "quoted_anchor_encoded": {"type": "string", "maxLength": 12000},
+        "captured_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])"
+            },
+            {"type": "null"}
+          ]
+        },
+        "failure_state": {
+          "oneOf": [
+            {
+              "enum": [
+                "not_checked",
+                "source_missing",
+                "access_failed",
+                "retrieval_failed"
+              ]
+            },
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"coverage_check_state": {"const": "performed"}},
+            "required": ["coverage_check_state"]
+          },
+          "then": {
+            "properties": {
+              "advisory_coverage_status": {
+                "enum": ["DOCUMENTED", "NOT_LOCATED", "CONFLICTING"]
+              },
+              "failure_state": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "advisory_coverage_status": {"type": "null"},
+              "quoted_anchor_encoded": {"const": ""},
+              "captured_at": {"type": "null"},
+              "failure_state": {
+                "enum": [
+                  "not_checked",
+                  "source_missing",
+                  "access_failed",
+                  "retrieval_failed"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "advisory_coverage_status": {
+                "enum": ["DOCUMENTED", "CONFLICTING"]
+              }
+            },
+            "required": ["advisory_coverage_status"]
+          },
+          "then": {
+            "properties": {
+              "quoted_anchor_encoded": {"minLength": 1},
+              "captured_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])(?![\\s\\S])"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"advisory_coverage_status": {"const": "NOT_LOCATED"}},
+            "required": ["advisory_coverage_status"]
+          },
+          "then": {
+            "properties": {
+              "quoted_anchor_encoded": {"const": ""},
+              "captured_at": {"type": "null"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

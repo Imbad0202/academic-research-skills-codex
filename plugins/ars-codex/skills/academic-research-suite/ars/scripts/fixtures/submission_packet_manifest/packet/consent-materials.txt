@@ -1,0 +1,3 @@
+STRUCTURAL-FIXTURE-667
+Version: v1
+Signature block: investigator

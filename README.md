@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.24-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.25-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -51,7 +51,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This ARS-Codex package is version `0.1.24`. The repo-root `VERSION` file,
+This ARS-Codex package is version `0.1.25`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version independently of the vendored ARS suite. Vendored upstream
@@ -59,20 +59,14 @@ versions are recorded by commit in `manifest.source_repositories[]`.
 
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
-The vendored ARS source currently tracks
-`Imbad0202/academic-research-skills@5769d7b51adfba45593ad95721436fd114aaa735`
-(post-`v3.19.0` upstream `main`, 2026-08-06; suite version 3.19.0). Vendored
-runtime content adds the reviewer hardening track (role-scoped scoring
-contracts with abstention, typed evidence anchors and coverage receipts, the
-three-gate Stage 3' re-review pre-commitment contract, the arithmetic-receipt
-grammar with its deterministic receipt calculator, and the empty-dissent
-rule), new held-out reviewer eval sets with adjudicated cohorts, medical
-venue disclosure policies with fail-closed rendering, the Chinese-literature
-resolver client, and CARE / STARD 2015 / TRIPOD+AI condensed guidance. The
-v3.19 PDF preflight, read-scope attestation, and claim-drift guards, the
-v3.18 cross-model reviewer/judge tracks, and earlier dispatcher,
-least-privilege, panel, degradation, boundary, and transport contracts remain
-intact.
+The vendored ARS source currently tracks release `v3.20.0` at
+`Imbad0202/academic-research-skills@3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`
+(2026-08-14). This release adds evidence-bound review and revision contracts,
+author-confirmed review-target and criteria binding, explicit human-subjects
+authority boundaries, and a contained, consent-gated Codex citation transport.
+It also includes an optional sandboxed PDF content classifier whose output is
+advisory and does not replace structural PDF preflight. Earlier citation,
+integrity, least-privilege, degradation, and transport safeguards remain intact.
 Nested upstream `.github/` workflows and root `agents/` mirrors are preserved
 for traceability and self-tests, but are not repo-level CI or Codex entrypoints;
 Claude/plugin loader files under `.claude/` and `.claude-plugin/` remain
@@ -356,14 +350,17 @@ ARS was originally written for Claude Code. In this Codex package:
   while `ARS_CACHE_REVALIDATE=1` opts into live bibliographic re-validation.
   These settings apply when the programmatic citation gate is run; stale rows
   alone never fail an integrity gate.
-- Locally read PDFs run the v3.19 `pdf_read_preflight.py` before page anchors
-  are trusted. `FAIL` and `UNAVAILABLE` remain distinct, and a missing parser or
-  sidecar is never treated as `PASS`.
+- Locally read PDFs run the structural `pdf_read_preflight.py` by default before
+  page anchors are trusted. `FAIL` and `UNAVAILABLE` remain distinct, and a
+  missing parser or sidecar is never treated as `PASS`. The v3.20 sandboxed
+  content classifier is an explicit opt-in advisory and cannot override this
+  structural preflight.
 - `ars-mark-read` can record an optional, user-declared `read_scope`. Unknown or
   partial coverage stays visible; Codex does not infer full-text reading.
-- Revision rounds preserve the v3.19 claim-strength ladder and deterministic
-  numeric, citation, marker, and protected-term conservation checks as
-  advisory-first guards.
+- Revision rounds use the v3.20 evidence-bound, non-ranking roadmap and explicit
+  author-adjudication contract. They also preserve the v3.19-introduced
+  claim-strength ladder and deterministic numeric, citation, marker, and
+  protected-term conservation checks as advisory-first guards.
 - The upstream v3.18 SessionStart update checker is vendored but not installed
   or executed as a Codex hook. Plugin users update with
   `codex plugin marketplace upgrade ars-codex` followed by
@@ -374,10 +371,10 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS v3.19+ Parity
+### ARS v3.20.0 Parity
 
 This package aims for the same user-facing workflow content as upstream ARS
-`main` at `5769d7b` (post-`v3.19.0`, suite version 3.19.0) where Codex has an
+`v3.20.0` at `3af9f03d5aadb0bca51af1440f20b5cbf97d6dba` where Codex has an
 equivalent concept.
 
 | Upstream ARS feature | Codex package behavior |
@@ -387,16 +384,20 @@ equivalent concept.
 | Four upstream skills auto-discovered from `skills/` symlinks | Single Codex router skill selects the workflow and reads the vendored workflow `WORKFLOW.md` files |
 | Plugin-shipped agents | Agent files are role/phase prompts; Codex runs them inline unless the user explicitly asks for delegated subagents |
 | Optional Codex full-runtime profile | Planner, agent-team templates, and hook pack live under `skills/academic-research-suite/codex/`; disabled by default |
-| `model: opus` / `model: sonnet` command routing | Treated as Claude metadata; Codex uses the active model |
+| Heavy commands (`ars-full`, `ars-reviewer`, `ars-revision-coach`) omit `model:`; light modes retain `model: sonnet` | Heavy commands inherit the current Codex session model; light-mode `sonnet` remains upstream Claude metadata and does not override the session model |
 | `ARS_MODEL_TIERING=economy\|quality-boost` | Classification is preserved; routing remains advisory unless Codex exposes per-dispatch model selection |
 | Protected agent `tools:` allowlists | Preserved as least-privilege role boundaries; dispatched owners do not receive Bash/network transport |
 | Canonical cross-model handoff envelope | Dispatcher validates the envelope, transports only the payload after consent, and follows the closed result-routing contract |
+| Contained Codex citation transport | Opt-in, consent-gated transport is limited to narrow citation-integrity checks; it is inactive unless explicitly configured and requested |
+| Evidence-bound review and revision | Durable evidence rows, confirmed review criteria, non-ranking roadmaps, author adjudication, and revision-evidence bundles are preserved |
+| Review criteria and human-subjects authority | Venue/criteria and ethics/data-protection authority require explicit user confirmation; Codex does not infer or simulate approval |
+| Optional PDF content classifier | The sandboxed classifier is an opt-in advisory dependency and cannot override structural PDF preflight results |
 | Cross-model Reviewer 2 and re-review judge tracks | Available only with explicit provider configuration and content consent; the fixed seat, Judge Record, single-family disclosure, and fallback disclosure are preserved |
 | Cache staleness advisory and live re-validation | Local cache remains the default; stale rows are advisory-only and `ARS_CACHE_REVALIDATE=1` opts into live bibliographic checks |
 | Risk-stratified claim, scope, and novelty checks | Vendored workflow prompts and schemas preserve high-impact-first sampling plus advisory-only scope and search-bounded novelty rows |
-| Local-PDF read-integrity preflight | The pypdf-backed preflight and sidecar contract are vendored; parser unavailability or repair warnings remain explicit `UNAVAILABLE` advisories |
+| Local-PDF read-integrity preflight | The structural pypdf preflight and sidecar contract remain the default; parser unavailability or repair warnings stay explicit `UNAVAILABLE` advisories, while the v3.20 classifier above remains opt-in only |
 | Human-read scope attestation | Optional user-owned `read_scope` and section locators are preserved; partial coverage remains distinguishable from full coverage |
-| Revision claim-drift guards | The claim-strength ladder, revision-evidence bundle, deterministic token-conservation checker, and held-out measurement set are vendored with tests |
+| Revision claim-drift guards | The v3.20 non-ranking roadmap and author-adjudication contract complement the claim-strength ladder, revision-evidence bundle, deterministic token-conservation checker, and held-out measurement set |
 | Executable panel/degradation/pipeline-boundary checks | Vendored with their hermetic tests and exposed by the optional full-runtime manifest |
 | SessionStart and SubagentStop hooks, including the update reminder | Vendored for traceability only; Codex does not install or execute Claude hooks |
 | Plugin marketplace update | Refresh with `codex plugin marketplace upgrade ars-codex`, then re-add `ars-codex@ars-codex`; direct skill installs still reinstall or pull |

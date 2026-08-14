@@ -1,0 +1,1039 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ars://evals/heldout/measurement_report.schema.json",
+  "title": "ARS held-out measurement report envelope (#654/#664, heldout-measurement/1.0-1.1)",
+  "description": "Opt-in envelope for scored held-out measurement rows. Version 1.1 adds judge-side blinding, adjudication direction, experimental-design/arm vocabulary, a pre-registration record, and a hashed write-once execution manifest. Frozen 1.0 rows remain valid and byte-unchanged. Normative text: evals/heldout/MEASUREMENT_CONTRACT.md. Cross-field invariants I1-I14, reference-resolution checks R1-R5, and location binding L1 are enforced by scripts/check_heldout_measurement_report.py.",
+  "type": "object",
+  "required": [
+    "measurement_contract",
+    "suite",
+    "suite_class",
+    "measurement_date",
+    "decision_relevant",
+    "subject",
+    "judge_plan",
+    "judges",
+    "aggregate",
+    "replicates",
+    "adjudication",
+    "attempts",
+    "raw_outputs",
+    "verdict",
+    "caveats"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "measurement_contract": {
+      "enum": [
+        "heldout-measurement/1.0",
+        "heldout-measurement/1.1"
+      ],
+      "description": "Opt-in marker + contract version. The checker derives supported/current versions from this enum; only the exact path+hash allowlisted frozen 1.0 row is accepted, and all new rows use 1.1."
+    },
+    "suite": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Suite directory name. Must be a key of evals/heldout/suite_registry.json, whose class must equal suite_class (checker I5)."
+    },
+    "suite_class": {
+      "enum": [
+        "llm_judged",
+        "mechanical_match",
+        "seeded_manifest_adjudicated",
+        "paired_controls"
+      ],
+      "description": "Which contract clauses apply. Asserted here, verified against suite_registry.json by the checker. See MEASUREMENT_CONTRACT.md § Suite classes."
+    },
+    "measurement_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "decision_relevant": {
+      "type": "boolean",
+      "description": "True when the row is cited for a mechanism/advisory decision. Gates the derived >=2-judge minimum (checker I2) and the >=2 replicate rule (checker I6)."
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "config"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config": {
+          "type": "object",
+          "required": [
+            "suite_commit"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "suite_commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$",
+              "description": "Full 40-hex commit SHA of the suite state measured. Revision expressions and branch names are rejected; R3 verifies the object exists in this repository."
+            },
+            "prompts_ref": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "string"
+            },
+            "sampling": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "judge_plan": {
+      "type": "object",
+      "required": [
+        "exception"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "exception": {
+          "enum": [
+            "none",
+            "legacy_comparability",
+            "mechanical_suite",
+            "human_expert_panel"
+          ],
+          "description": "Why fewer model judges than the contract's derived minimum is acceptable. The minimum itself is never author-declared: the checker derives it from (decision_relevant, suite_class) — 2 judges from >=2 model families for decision-relevant non-mechanical runs (I2). 'legacy_comparability' = the #652 pattern (original judge kept for comparability; new judges report separately); 'mechanical_suite' is legal only on mechanical_match (branch B3); 'human_expert_panel' is legal only on paired_controls and binds a suite-owned record for >=2 independent blinded human experts (branch B8/R6)."
+        },
+        "legacy_baseline_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when exception == 'legacy_comparability': the legacy measurement row this run stays comparable to."
+        },
+        "expert_panel_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when exception == 'human_expert_panel': repository-relative path to the suite-owned closed human expert adjudication record."
+        },
+        "expert_panel_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of expert_panel_ref, required for the human_expert_panel exception."
+        }
+      }
+    },
+    "judges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "judge_id",
+          "model_id",
+          "model_family",
+          "prompt_ref",
+          "evidence_provided",
+          "judging_budget",
+          "per_item"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "judge_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "model_family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prompt_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_provided": {
+            "type": "string",
+            "minLength": 1
+          },
+          "judging_budget": {
+            "type": "string",
+            "minLength": 1
+          },
+          "blinded_to": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "condition",
+                "mechanism_state",
+                "subject_model",
+                "expected_label",
+                "arm_identity",
+                "control_status",
+                "replicate_structure",
+                "other_judges",
+                "raw_aggregate"
+              ]
+            },
+            "uniqueItems": true,
+            "description": "Judge-side blinding, separate from adjudicator blinding. Empty is legal and honest."
+          },
+          "per_item": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "item_id"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "item_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "minProperties": 2
+            }
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "required": [
+        "headline",
+        "agreement"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "headline": {
+          "type": "object",
+          "required": [
+            "metric_name",
+            "value",
+            "construction_rule"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "metric_name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                }
+              ]
+            },
+            "construction_rule": {
+              "type": "string",
+              "minLength": 1,
+              "description": "How the headline number is built from per-judge rows + adjudication. Agreement rate is a diagnostic and is never the headline."
+            },
+            "estimand_status": {
+              "enum": [
+                "point_estimate",
+                "lower_bound"
+              ],
+              "description": "Whether the headline is presented as a point estimate or a lower bound. Flags-only adjudication requires lower_bound (I13)."
+            }
+          }
+        },
+        "agreement": {
+          "type": "object",
+          "required": [
+            "rate",
+            "divergent_items",
+            "note"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rate": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Recomputed by the checker (I1): 1 - |divergent| / |items judged by >=2 judges|; null iff no item is judged by >=2 judges."
+            },
+            "divergent_items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Item ids where judges disagree. Divergent items surface individually — never averaged away (checker I8).",
+              "uniqueItems": true
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "replicates": {
+      "type": "object",
+      "required": [
+        "per_item",
+        "rule_ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "per_item": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rule_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Anchor to the suite's own replicate rule. The contract records each suite's rule; it does not force uniformity."
+        },
+        "spread": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "exception": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 20
+            }
+          ],
+          "description": "Why a below-minimum replicate count is acceptable. A written sentence, not a dash — minLength 20."
+        }
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "required": [
+        "applies"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "applies": {
+          "type": "boolean"
+        },
+        "rubric_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rubric_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "rubric_precommitted": {
+          "const": true,
+          "description": "Attestation: the rubric was committed + hashed before any judge output existed. const true — the contract offers no other value."
+        },
+        "blinded_to": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "condition",
+              "mechanism_state",
+              "subject_model",
+              "judge_identity",
+              "expected_label",
+              "raw_aggregate"
+            ]
+          },
+          "description": "Which dimensions the adjudicator was blinded to. Enumerated, not vibes; an empty list is legal and honest."
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "item_id",
+              "judge_id",
+              "raw",
+              "adjudicated",
+              "criterion_ref"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "item_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "judge_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "raw": {
+                "type": "string",
+                "minLength": 1
+              },
+              "adjudicated": {
+                "type": "string",
+                "minLength": 1
+              },
+              "criterion_ref": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The precommitted-rubric criterion this override applied."
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "raw_published": {
+          "const": true,
+          "description": "Attestation: raw pre-adjudication numbers publish alongside adjudicated ones. const true — the contract offers no other value."
+        },
+        "resolution_direction": {
+          "enum": [
+            "flags_only",
+            "bidirectional",
+            "other_frozen"
+          ],
+          "description": "Frozen rule for whether adjudication can remove flags only, resolve both directions, or follows another pre-registered direction."
+        },
+        "resolution_rule_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Anchor in the frozen rubric/plan that defines the resolution direction."
+        },
+        "resolution_direction_note": {
+          "type": "string",
+          "minLength": 20,
+          "description": "For other_frozen only: an explicit account of whether the frozen rule may add and/or remove flags and how the headline is interpreted."
+        }
+      },
+      "allOf": [
+        {
+          "description": "applies:true carries the full adjudication record.",
+          "if": {
+            "properties": {
+              "applies": {
+                "const": true
+              }
+            },
+            "required": [
+              "applies"
+            ]
+          },
+          "then": {
+            "required": [
+              "rubric_ref",
+              "rubric_sha256",
+              "rubric_precommitted",
+              "blinded_to",
+              "overrides",
+              "raw_published"
+            ]
+          }
+        },
+        {
+          "description": "applies:false records nothing else — an unapplied adjudication may not carry a rubric.",
+          "if": {
+            "properties": {
+              "applies": {
+                "const": false
+              }
+            },
+            "required": [
+              "applies"
+            ]
+          },
+          "then": {
+            "maxProperties": 1
+          }
+        },
+        {
+          "description": "other_frozen cannot hide its directional semantics.",
+          "if": {
+            "properties": {
+              "resolution_direction": {
+                "const": "other_frozen"
+              }
+            },
+            "required": [
+              "resolution_direction"
+            ]
+          },
+          "then": {
+            "required": [
+              "resolution_direction_note"
+            ]
+          }
+        }
+      ]
+    },
+    "attempts": {
+      "type": "object",
+      "required": [
+        "atomicity",
+        "partial_published",
+        "blocked_runs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "atomicity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "partial_published": {
+          "type": "boolean"
+        },
+        "blocked_runs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "raw_outputs": {
+      "type": "object",
+      "required": [
+        "retained",
+        "paths"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "retained": {
+          "const": true,
+          "description": "Attestation: raw subject and judge outputs are retained. const true; paths must be non-empty (checker I7)."
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "preregistration": {
+      "type": "object",
+      "required": [
+        "plan_ref",
+        "plan_sha256",
+        "frozen_commit",
+        "frozen_before_dispatch",
+        "rubric_and_plan_frozen_together",
+        "amendments_append_only",
+        "amendments"
+      ],
+      "additionalProperties": false,
+      "dependentRequired": {
+        "rubric_ref": [
+          "rubric_sha256"
+        ],
+        "rubric_sha256": [
+          "rubric_ref"
+        ]
+      },
+      "properties": {
+        "plan_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plan_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "rubric_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rubric_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "frozen_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "frozen_before_dispatch": {
+          "const": true
+        },
+        "rubric_and_plan_frozen_together": {
+          "const": true
+        },
+        "judge_template_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amendments_append_only": {
+          "const": true
+        },
+        "amendments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "amendment_id",
+              "recorded_at",
+              "description"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "amendment_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "supersedes_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "execution_manifest": {
+      "type": "object",
+      "required": [
+        "ref",
+        "sha256",
+        "write_once",
+        "claims"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "write_once": {
+          "const": true
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "same_window",
+              "ordering",
+              "concurrency"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "Timing/ordering/concurrency claims supported by the referenced per-call execution manifest."
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "description": "Suite-specific payload. Version 1.1 reserves design and arm_roles while leaving other fields unconstrained.",
+      "properties": {
+        "design": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical experimental-design label; never an arm label."
+        },
+        "arm_roles": {
+          "type": "object",
+          "required": [
+            "treatment_or_cohort_arms",
+            "variant_packet_arms"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "treatment_or_cohort_arms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "variant_packet_arms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "verdict": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    }
+  },
+  "allOf": [
+    {
+      "description": "B1: non-mechanical suite classes require at least one model judge, except paired_controls using the closed human_expert_panel path.",
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "suite_class": {
+                "enum": [
+                  "llm_judged",
+                  "seeded_manifest_adjudicated"
+                ]
+              }
+            },
+            "required": [
+              "suite_class"
+            ]
+          },
+          {
+            "properties": {
+              "suite_class": {
+                "const": "paired_controls"
+              },
+              "judge_plan": {
+                "properties": {
+                  "exception": {
+                    "not": {
+                      "const": "human_expert_panel"
+                    }
+                  }
+                },
+                "required": [
+                  "exception"
+                ]
+              }
+            },
+            "required": [
+              "suite_class",
+              "judge_plan"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "judges": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "per_item": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "B2: llm_judged and seeded_manifest_adjudicated suites cannot opt out of adjudication.",
+      "if": {
+        "properties": {
+          "suite_class": {
+            "enum": [
+              "llm_judged",
+              "seeded_manifest_adjudicated"
+            ]
+          }
+        },
+        "required": [
+          "suite_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "adjudication": {
+            "properties": {
+              "applies": {
+                "const": true
+              }
+            },
+            "required": [
+              "applies"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "B3: the 'mechanical_suite' judge-plan exception is legal only on mechanical_match.",
+      "if": {
+        "properties": {
+          "suite_class": {
+            "enum": [
+              "llm_judged",
+              "seeded_manifest_adjudicated",
+              "paired_controls"
+            ]
+          }
+        },
+        "required": [
+          "suite_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "judge_plan": {
+            "properties": {
+              "exception": {
+                "enum": [
+                  "none",
+                  "legacy_comparability",
+                  "human_expert_panel"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "B4: the legacy_comparability exception must name the legacy row it is comparable to.",
+      "if": {
+        "properties": {
+          "judge_plan": {
+            "properties": {
+              "exception": {
+                "const": "legacy_comparability"
+              }
+            },
+            "required": [
+              "exception"
+            ]
+          }
+        },
+        "required": [
+          "judge_plan"
+        ]
+      },
+      "then": {
+        "properties": {
+          "judge_plan": {
+            "required": [
+              "legacy_baseline_ref"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "B8: human_expert_panel is a paired-controls-only, zero-model-judge path bound to a suite-owned hashed expert record and applied blinded adjudication.",
+      "if": {
+        "properties": {
+          "judge_plan": {
+            "properties": {
+              "exception": {
+                "const": "human_expert_panel"
+              }
+            },
+            "required": [
+              "exception"
+            ]
+          }
+        },
+        "required": [
+          "judge_plan"
+        ]
+      },
+      "then": {
+        "properties": {
+          "suite_class": {
+            "const": "paired_controls"
+          },
+          "judge_plan": {
+            "required": [
+              "expert_panel_ref",
+              "expert_panel_sha256"
+            ],
+            "not": {
+              "required": [
+                "legacy_baseline_ref"
+              ]
+            }
+          },
+          "judges": {
+            "maxItems": 0
+          },
+          "adjudication": {
+            "properties": {
+              "applies": {
+                "const": true
+              }
+            },
+            "required": [
+              "applies"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "judge_plan": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "expert_panel_ref"
+                  ]
+                },
+                {
+                  "required": [
+                    "expert_panel_sha256"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "B5: heldout-measurement/1.1 requires judge-side blinding, headline estimand status, reserved design/arm vocabulary, pre-registration, and a write-once execution manifest.",
+      "if": {
+        "properties": {
+          "measurement_contract": {
+            "const": "heldout-measurement/1.1"
+          }
+        },
+        "required": [
+          "measurement_contract"
+        ]
+      },
+      "then": {
+        "required": [
+          "results",
+          "preregistration",
+          "execution_manifest"
+        ],
+        "properties": {
+          "judges": {
+            "items": {
+              "required": [
+                "judge_id",
+                "model_id",
+                "model_family",
+                "prompt_ref",
+                "evidence_provided",
+                "judging_budget",
+                "blinded_to",
+                "per_item"
+              ]
+            }
+          },
+          "aggregate": {
+            "properties": {
+              "headline": {
+                "required": [
+                  "metric_name",
+                  "value",
+                  "construction_rule",
+                  "estimand_status"
+                ]
+              }
+            }
+          },
+          "results": {
+            "required": [
+              "design",
+              "arm_roles"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "B6: 1.1 rows with adjudication pin the resolution direction and bind the preregistration rubric to the adjudication rubric.",
+      "if": {
+        "properties": {
+          "measurement_contract": {
+            "const": "heldout-measurement/1.1"
+          },
+          "adjudication": {
+            "properties": {
+              "applies": {
+                "const": true
+              }
+            },
+            "required": [
+              "applies"
+            ]
+          }
+        },
+        "required": [
+          "measurement_contract",
+          "adjudication"
+        ]
+      },
+      "then": {
+        "properties": {
+          "adjudication": {
+            "required": [
+              "resolution_direction",
+              "resolution_rule_ref"
+            ]
+          },
+          "preregistration": {
+            "required": [
+              "rubric_ref",
+              "rubric_sha256"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "B7: 1.1 judgment-bearing suites freeze the exact model-judge or human-expert label-template version; mechanical suites do not invent one.",
+      "if": {
+        "properties": {
+          "measurement_contract": {
+            "const": "heldout-measurement/1.1"
+          },
+          "suite_class": {
+            "enum": [
+              "llm_judged",
+              "seeded_manifest_adjudicated",
+              "paired_controls"
+            ]
+          }
+        },
+        "required": [
+          "measurement_contract",
+          "suite_class"
+        ]
+      },
+      "then": {
+        "properties": {
+          "preregistration": {
+            "required": [
+              "judge_template_version"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
