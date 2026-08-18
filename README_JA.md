@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.25-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.26-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -36,11 +36,11 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `0.1.25` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、ベンダリングされた ARS スイートとは独立して Codex パッケージのバージョンを管理します。ベンダリングされたアップストリームのバージョンは `manifest.source_repositories[]` にコミット単位で記録されています。
+この ARS-Codex パッケージのバージョンは `0.1.26` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、ベンダリングされた ARS スイートとは独立して Codex パッケージのバージョンを管理します。ベンダリングされたアップストリームのバージョンは `manifest.source_repositories[]` にコミット単位で記録されています。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-現在ベンダリングされている ARS ソースは、リリース `v3.20.0` の `Imbad0202/academic-research-skills@3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`（2026-08-14）を追跡しています。このリリースでは、証拠に結び付いた review／revision contract、著者確認済みの review target／criteria binding、明示的な human-subjects authority 境界、および用途を限定し同意を必須とする Codex citation transport が追加されました。sandbox 内で動作する PDF content classifier も任意の advisory として同梱され、構造的 PDF preflight を置き換えることはありません。従来の citation、integrity、最小権限、degradation、transport の安全策も維持されています。
+現在ベンダリングされている ARS ソースは、署名済みリリース `v3.21.0` の `Imbad0202/academic-research-skills@2b639c12ee4e7c694a32336cc59dc2616e0d89fe`（2026-08-18）を追跡しています。このリリースでは、canonical data-flow map、チャネル別 control-availability matrix、stage-capability matrix、risk register、governance statement、および限定的な claim-standing probe の consent／freshness／transmission wiring が追加されました。この probe は引き続きユーザー要求型の advisory であり、eligibility だけで外部呼び出しを許可することはありません。従来の citation、integrity、最小権限、degradation、transport の安全策も維持されています。
 
 ## ARS-Codex Plugin のインストール
 
@@ -247,9 +247,9 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS v3.20.0 パリティ
+### ARS v3.21 パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.20.0`（`3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`）と同等のユーザー向けワークフロー内容を目指しています。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.21.0`（`2b639c12ee4e7c694a32336cc59dc2616e0d89fe`）と同等のユーザー向けワークフロー内容を目指しています。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|
@@ -262,13 +262,16 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 | Canonical cross-model handoff envelope | Dispatcher が envelope を検証し、同意後は payload のみを送信して、閉じた結果ルーティング contract に従います |
 | 用途を限定した Codex citation transport | 明示的に設定・要求され、同意が得られた場合のみ、狭い citation-integrity チェックに使用されます |
 | 証拠に結び付いた review／revision | 永続的な evidence row、確認済み criteria、非ランキング roadmap、author adjudication、revision-evidence bundle を保持します |
+| Socratic の研究質問 authorship | 非収束だけでは system-authored candidate RQ を生成せず、non-generation モードからの退出にはユーザーの明示的な要求が必要です |
+| カテゴリ型 reviewer judgement と panel provenance | Live package は `NOT_CALIBRATED` のままとし、数値 score、weight、aggregate、ranking、二値 independence claim を捏造しません |
 | Review criteria と human-subjects authority | Venue／criteria と ethics／data-protection authority はユーザー確認を必須とし、Codex は承認を推測・模擬しません |
 | 任意の PDF content classifier | sandbox 化された classifier は opt-in advisory であり、構造的 PDF preflight の結果を上書きできません |
 | Cross-model Reviewer 2 と re-review judge | provider 設定と送信内容への同意がある場合のみ有効。固定席、Judge Record、単一モデル family／fallback の開示を保持します |
 | キャッシュ stale advisory とライブ再検証 | ローカルキャッシュが既定。stale 行は advisory のみで、`ARS_CACHE_REVALIDATE=1` がライブ書誌再検証を有効にします |
 | リスク層別 claim・scope・novelty チェック | 高影響 claim 優先サンプリングと、gate を阻害しない scope／search-bounded novelty advisory を保持します |
 | ローカル PDF 読取整合性 preflight | 構造的な pypdf preflight と sidecar contract が既定です。parser 不在や修復警告は明示的な `UNAVAILABLE` advisory のまま保持され、上記 v3.20 classifier は opt-in のみです |
-| 人間読了範囲 attestation | ユーザー所有の任意 `read_scope` と section locator を保持し、部分カバレッジを全文読了として扱いません |
+| 人間読了範囲 attestation | 新規 mark ごとにユーザー所有の `read_scope` を必須とし、scope のない legacy record は unknown のまま、部分カバレッジを全文読了として扱いません |
+| Claim coverage と限定的な評価基盤 | 正確な registered-claim coverage、drift disposition、claim-standing tool、blind ideation assignment は provenance と未測定境界を保持し、semantic completeness や correctness を証明しません |
 | 改訂 claim-drift ガード | v3.20 の非ランキング roadmap と author-adjudication contract を、claim-strength ladder、revision-evidence bundle、deterministic token-conservation checker、held-out 測定セットと組み合わせます |
 | Panel／degradation／pipeline-boundary の実行可能チェック | hermetic テストとともにベンダリングされ、オプションの full-runtime manifest から公開されます |
 | SessionStart および SubagentStop hooks（更新通知を含む） | トレーサビリティのためのみベンダリングされています。Codex は Claude hooks をインストールまたは実行しません |

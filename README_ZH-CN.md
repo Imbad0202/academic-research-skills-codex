@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.25-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.26-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -46,17 +46,17 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `0.1.25`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `0.1.26`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-当前内嵌的 ARS 源码追踪至 `v3.20.0` 发行版：
-`Imbad0202/academic-research-skills@3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`
-（2026-08-14）。该版本新增证据绑定的 review／revision 契约、经作者确认的
-review target／criteria binding、明确的 human-subjects authority 边界，以及
-用途受限且必须取得同意的 Codex citation transport。另内嵌可选的 sandbox PDF
-内容分类器；其输出仅为 advisory，不会取代结构性 PDF preflight。既有的引用、
-完整性、最小权限、degradation 与 transport 防护仍完整保留。
+当前内嵌的 ARS 源码追踪至已签署的 `v3.21.0` 发行版：
+`Imbad0202/academic-research-skills@2b639c12ee4e7c694a32336cc59dc2616e0d89fe`
+（2026-08-18）。该版本加入 canonical data-flow map、各通道
+control-availability matrix、stage-capability matrix、risk register、governance
+statement，以及有界 claim-standing probe 的 consent／freshness／transmission
+完整 wiring。该 probe 仍须由用户请求且仅提供 advisory；eligibility 不会授权
+外部调用。既有的引用、完整性、最小权限、degradation 与 transport 防护仍完整保留。
 
 上游嵌套的 `.github/` 工作流和根级 `agents/` 镜像保留用于可追溯性和自测，
 但不是仓库级 CI 或 Codex 入口；`.claude/` 与 `.claude-plugin/` 下的
@@ -289,15 +289,15 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 在审阅者 `full` 模式下，显式配置且经同意的跨模型运行会替换现有 Reviewer 2 席位，绝不会增加第六位审阅者。复审应用独立的 Priority-1 judge 通道并记录 provenance（来源信息）。单一族执行和 provider fallback 会被披露。
 - `ARS_CACHE_STALE_ADVISORY_DAYS` 控制仅作建议的缓存过期阈值，`ARS_CACHE_REVALIDATE=1` 则选择启用实时书目重新验证。这些设置仅在运行程序化引用闸门时生效；单独的过期行永远不会让完整性闸门失败。
 - 本地读取的 PDF 在信任页面锚点之前会运行 v3.19 `pdf_read_preflight.py`。`FAIL` 与 `UNAVAILABLE` 保持区分，缺失解析器或 sidecar 绝不会被视为 `PASS`。
-- `ars-mark-read` 可以记录可选的、用户声明的 `read_scope`。未知或部分覆盖保持可见；Codex 不会推断全文阅读。
+- `ars-mark-read` 的每个新标记都必须带有用户声明的 `read_scope`。显式 unknown 与旧版无 scope 记录仍为 `coverage_unknown`；部分覆盖保持可见，Codex 不会推断全文阅读。
 - 修订轮次保留 v3.19 的主张强度阶梯，以及确定性的数字、引用、标记和受保护术语守恒检查，作为 advisory-first 防护。
 - 上游 v3.18 的 SessionStart 更新检查器已内嵌，但不会作为 Codex hook 安装或执行。插件用户通过 `codex plugin marketplace upgrade ars-codex` 后接 `codex plugin add ars-codex@ars-codex` 更新；直接安装的 skill 仍通过重装或拉取本仓库更新。
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.20.0 功能对等
+### ARS v3.21 功能对等
 
-本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `v3.20.0`（`3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`）相同的用户侧 workflow 内容。
+本包旨在 Codex 具有等效概念的地方，提供与上游 ARS `v3.21.0`（`2b639c12ee4e7c694a32336cc59dc2616e0d89fe`）相同的用户侧 workflow 内容。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|
@@ -312,13 +312,16 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 | Canonical cross-model handoff envelope | Dispatcher 验证 envelope、取得同意后仅传输 payload，并遵循封闭的结果路由 contract |
 | 用途受限的 Codex citation transport | 仅在明确配置、请求并取得同意后用于窄范围 citation-integrity 检查 |
 | 证据绑定的 review／revision | 保留持久 evidence row、已确认 criteria、非排序 roadmap、author adjudication 与 revision-evidence bundle |
+| Socratic 研究问题作者权 | 未收敛不会触发系统代拟候选研究问题；必须由用户明确请求才能离开 non-generation 模式 |
+| 类别式审稿判断与 panel provenance | Live package 保持 `NOT_CALIBRATED`；不虚构数值分数、权重、总分、排名或二元 independence 声明 |
 | Review criteria 与 human-subjects authority | Venue／criteria 和 ethics／data-protection authority 必须由用户确认；Codex 不推断或模拟批准 |
 | 可选 PDF 内容分类器 | sandbox classifier 是 opt-in advisory，不能覆盖结构性 PDF preflight 结果 |
 | Cross-model Reviewer 2 与 re-review judge | 仅在 provider 已配置且取得内容传输同意时启用；保留固定席位、Judge Record、单一模型族与 fallback 披露 |
 | 缓存陈旧 advisory 与实时重验 | 默认使用本地缓存；陈旧行仅为 advisory，`ARS_CACHE_REVALIDATE=1` 才启用实时书目重验 |
 | 风险分层主张、范围与新颖性检查 | 保留高影响主张优先抽样，以及不阻断 gate 的 scope 与 search-bounded novelty advisory |
 | 本地 PDF 读取完整性 preflight | 结构性 pypdf preflight 与 sidecar contract 保持默认；parser 不可用或修复警告会明确保留为 `UNAVAILABLE` advisory，上述 v3.20 classifier 仍仅为 opt-in |
-| 人工阅读范围声明 | 保留用户拥有的可选 `read_scope` 与章节 locator；部分覆盖不会被视为全文阅读 |
+| 人工阅读范围声明 | 每个新标记都必须提供用户拥有的 `read_scope`；旧记录缺少 scope 时仍为 unknown，部分覆盖不会被视为全文阅读 |
+| Claim coverage 与有界评估基础设施 | 精确的 registered-claim coverage、drift disposition、claim-standing 工具与盲化 ideation assignment 保留 provenance 与未测量边界，不证明语义完整性或正确性 |
 | 修订主张漂移防护 | v3.20 非排序 roadmap 与 author-adjudication contract，配合主张强度阶梯、revision-evidence bundle、deterministic token-conservation checker 和 held-out 测量集 |
 | Panel／degradation／pipeline-boundary 可执行检查 | 连同 hermetic 测试一起内嵌，并由可选 full-runtime manifest 暴露 |
 | SessionStart 和 SubagentStop hook（含更新提醒） | 仅为可追溯性而内嵌保留；Codex 不安装或执行 Claude hook |

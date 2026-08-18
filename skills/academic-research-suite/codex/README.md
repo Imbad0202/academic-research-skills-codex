@@ -74,10 +74,10 @@ Instead it provides an explicit Codex orchestration contract:
   evidence and severity;
 - pipeline orchestration stops at requested checkpoints;
 - the heavy `ars-full`, `ars-reviewer`, and `ars-revision-coach` routes inherit
-  the active session model because v3.20 gives them no model frontmatter;
+  the active session model because v3.21 gives them no model frontmatter;
   light-route `sonnet` hints remain upstream metadata and do not force a Codex
   model;
-- ARS v3.20 retains model tiering as advisory metadata; it is applied only
+- ARS v3.21 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - canonical cross-model handoffs are validated and transported by the
   dispatching context, not by least-privilege owner roles;
@@ -98,8 +98,8 @@ Instead it provides an explicit Codex orchestration contract:
   are trusted; the v3.20 `--classify-content` extension is opt-in,
   process-isolated, separately pinned, and advisory-only, with
   `STRUCTURE_ONLY` verdict scope and no automatic OCR/anchor gate;
-- optional human-read scope attestations remain user-owned and preserve
-  partial-coverage status;
+- human-read attestations remain user-owned; every new mark requires an
+  explicit `read_scope`, and partial-coverage status remains visible;
 - revision rounds retain the claim-strength ladder and deterministic
   token-conservation advisory checks;
 - Phase E evidence rows remain source-bound and preserve the existing verdict;
@@ -114,6 +114,15 @@ Instead it provides an explicit Codex orchestration contract:
 - bibliographic/retraction and preregistration-consistency carriers preserve
   provenance, staleness, disagreement, and degradation without becoming a
   clean-document certificate, agreement finding, rewrite, or consent record;
+- ordinary discovery and inline ingest use Codex browsing; `ars-full` alone
+  does not launch the four Python resolver clients, and script-backed citation
+  verification remains an explicit programmatic request;
+- the v3.21 claim-standing query-plan, affirmative-consent, freshness, and
+  transmission sequence is preserved as a separate user-requested advisory
+  path; eligibility never dispatches a call;
+- the v3.21 data-flow, control-availability, stage-capability, risk, and
+  governance transparency surfaces remain available with their deterministic
+  validators and without becoming effectiveness or certification claims;
 - the v3.17 panel, degradation-registry, tools-allowlist, and pipeline-boundary
   validators remain available as vendored quality gates;
 - the upstream v3.18 SessionStart update reminder is vendored but not executed
@@ -146,6 +155,10 @@ python3 scripts/check_cross_model_handoff_contract.py
 python3 scripts/check_degradation_registry.py
 python3 scripts/check_pipeline_boundary_semantics.py
 python3 scripts/check_tools_allowlist.py
+python3 scripts/check_data_flows.py
+python3 scripts/check_control_availability.py
+python3 scripts/check_stage_capability_matrix.py
+python3 scripts/check_risk_register.py
 python3 -m pytest scripts/test_verification_cache.py scripts/test_verification_gate.py
 python3 -m pytest scripts/test_ars_update_check.py
 python3 -m pytest scripts/test_pdf_read_preflight.py scripts/test_ars_mark_read.py

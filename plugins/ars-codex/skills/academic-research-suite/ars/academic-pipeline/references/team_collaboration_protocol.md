@@ -38,7 +38,7 @@ For each stage transition, the following handoff procedure applies:
 | **Who receives** | Lead Author |
 | **Materials** | RQ Brief, Bibliography, Synthesis Report (conforming to Schemas 1-3 in `shared/handoff_schemas.md`) |
 | **Approval needed** | Research Lead confirms synthesis is complete and RQ is finalized |
-| **Handoff checklist** | All Material Passports (Schema 9) attached; Bibliography minimum source count met; Synthesis has 3+ themes |
+| **Handoff checklist** | All Material Passports (Schema 9) attached; bibliography coverage is assessed against the planned claims and field-specific evidence needs; synthesis structure fits the material rather than a fixed theme count |
 
 ### Stage 2 -> Stage 2.5 (Write -> Integrity)
 
@@ -56,9 +56,9 @@ For each stage transition, the following handoff procedure applies:
 |------|--------|
 | **Who hands off** | Integration Lead |
 | **Who receives** | Review Coordinator |
-| **Materials** | Verified Paper Draft + Integrity Report (Schema 5) |
-| **Approval needed** | Integrity verdict is PASS; any PASS_WITH_CONDITIONS items acknowledged |
-| **Handoff checklist** | Integrity Report attached; all SERIOUS/MEDIUM issues resolved |
+| **Materials** | Stage 2.5 Paper Draft (verified, or carrying the recorded FAIL-loop warning) + Integrity Report (Schema 5) |
+| **Approval needed** | Integrity verdict is PASS (any PASS_WITH_CONDITIONS items acknowledged), or the recorded Integrity Check FAIL Loop user decision |
+| **Handoff checklist** | Integrity Report attached; all SERIOUS/MEDIUM issues resolved, or covered by the recorded FAIL-loop decision |
 
 ### Stage 3 -> Stage 4 (Review -> Revise)
 
@@ -86,9 +86,9 @@ For each stage transition, the following handoff procedure applies:
 |------|--------|
 | **Who hands off** | Integration Lead |
 | **Who receives** | Lead Author |
-| **Materials** | Final Verified Draft + Final Integrity Report |
-| **Approval needed** | Integrity verdict PASS with zero issues |
-| **Handoff checklist** | All previous integrity issues confirmed resolved; Material Passport updated to VERIFIED |
+| **Materials** | Final Draft (verified, or carrying the recorded partially-unverified warning) + Final Integrity Report |
+| **Approval needed** | Integrity verdict PASS with zero issues (or the recorded Integrity Check FAIL Loop user decision) |
+| **Handoff checklist** | All previous integrity issues resolved, or covered by the recorded FAIL-loop decision with the partially-unverified warning carried forward; Material Passport `verification_status` set to `VERIFIED` only on a zero-issue PASS (a FAIL-loop continuation keeps `UNVERIFIED`) |
 
 ---
 

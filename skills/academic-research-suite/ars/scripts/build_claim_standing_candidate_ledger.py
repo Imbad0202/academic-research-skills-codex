@@ -29,6 +29,24 @@ from jsonschema.exceptions import SchemaError, ValidationError
 
 
 PLAN_VERSION = "claim-standing-query-plan/1.0"
+PLAN_VERSION_1_1 = "claim-standing-query-plan/1.1"
+PLAN_SCHEMA_FILENAMES = {
+    PLAN_VERSION: "query_plan.schema.json",
+    PLAN_VERSION_1_1: "query_plan_v1_1.schema.json",
+}
+RETRIEVAL_ONLY_CONTENT_CLASSES = ["accepted_search_query"]
+STANCE_CONTENT_CLASSES = [
+    "accepted_search_query",
+    "claim_and_selected_evidence_to_stance_provider",
+]
+CHECKPOINT_REQUIRED_TIER = {"stage_2_5": "HIGH-IMPACT", "stage_4_5": "ALL"}
+HIGH_IMPACT_BASIS_VALUES = (
+    "headline_conclusion",
+    "numerical",
+    "causal",
+    "methods_critical",
+    "disputed",
+)
 INPUT_VERSION = "claim-standing-retrieval-input/1.0"
 LEDGER_VERSION = "claim-standing-candidate-ledger/1.0"
 RELEVANCE_INPUT_VERSION = "claim-standing-relevance-assessment-input/1.0"
@@ -40,6 +58,19 @@ MAX_SELECTED = 40
 EXPLICIT_LOCAL_EXPORT_BOUNDARY = (
     "One local candidate-ledger export to the operator-named output path is authorized."
 )
+# Complete family of artifacts derivable from one consented
+# authorized_output_path ("" = the candidate ledger at the path itself).
+# Consumed by the consent surface disclosure and pinned to each owning
+# module's suffix constant by test.
+ARTIFACT_SUFFIXES = {
+    "candidate_ledger": "",
+    "query_plan": ".query-plan.json",
+    "retrieval_input": ".retrieval-input.json",
+    "transmission_ledger": ".transmission-ledger.json",
+    "stance_record": ".stance-record.json",
+    "evidence_rows": ".evidence-rows.json",
+    "rendered_view": ".view.md",
+}
 CAPS = {
     "max_queries": MAX_QUERIES,
     "max_indexes": MAX_INDEXES,
@@ -104,11 +135,19 @@ def load_json(path: Path) -> Any:
         raise LedgerError(f"{path}: cannot read strict UTF-8 JSON: {exc}") from exc
 
 
+_VALIDATOR_CACHE: dict[str, Draft202012Validator] = {}
+
+
 def validate_schema(value: Any, filename: str, label: str) -> None:
-    schema = load_json(SCHEMA_DIR / filename)
     try:
-        Draft202012Validator.check_schema(schema)
-        Draft202012Validator(schema).validate(value)
+        validator = _VALIDATOR_CACHE.get(filename)
+        if validator is None:
+            # Schema files are read-only within a process; meta-validate once.
+            schema = load_json(SCHEMA_DIR / filename)
+            Draft202012Validator.check_schema(schema)
+            validator = Draft202012Validator(schema)
+            _VALIDATOR_CACHE[filename] = validator
+        validator.validate(value)
     except (SchemaError, ValidationError) as exc:
         location = ".".join(str(part) for part in exc.absolute_path) or "<root>"
         raise LedgerError(f"{label} schema violation at {location}: {exc.message}") from exc
@@ -145,10 +184,20 @@ def bound_digest(value: dict[str, Any], field: str) -> str:
     return digest(payload)
 
 
+def plan_schema_filename(plan: dict[str, Any]) -> str:
+    version = plan.get("schema_version")
+    filename = PLAN_SCHEMA_FILENAMES.get(version)
+    if filename is None:
+        raise LedgerError(
+            f"schema_version: unknown query-plan version {version!r}"
+        )
+    return filename
+
+
 def consentable_plan_projection(plan: dict[str, Any]) -> dict[str, Any]:
     """Return every plan field whose use requires the named consent receipt."""
 
-    return {
+    projection = {
         "schema_version": plan["schema_version"],
         "probe_id": plan["probe_id"],
         "claim": copy.deepcopy(plan["claim"]),
@@ -162,6 +211,9 @@ def consentable_plan_projection(plan: dict[str, Any]) -> dict[str, Any]:
         "caps": copy.deepcopy(plan["caps"]),
         "created_at": plan["created_at"],
     }
+    if plan.get("schema_version") == PLAN_VERSION_1_1:
+        projection["stance_plan"] = copy.deepcopy(plan["stance_plan"])
+    return projection
 
 
 def relevance_assessment_input_projection(
@@ -251,8 +303,76 @@ def _unique(rows: list[dict[str, Any]], field: str, path: str) -> dict[str, dict
     return result
 
 
+def _validate_stance_authorization(
+    plan: dict[str, Any], consent: dict[str, Any]
+) -> None:
+    stance_plan = plan.get("stance_plan")
+    if consent["decision"] == "retrieval_plus_stance":
+        _expect(
+            consent["stance_classification_authorized"] is True,
+            "consent.stance_classification_authorized",
+            "retrieval_plus_stance requires an explicit true",
+        )
+        _expect(
+            isinstance(stance_plan, dict),
+            "stance_plan",
+            "retrieval_plus_stance requires a stance_plan",
+        )
+        _expect(
+            consent.get("stance_plan_sha256") == digest(stance_plan),
+            "consent.stance_plan_sha256",
+            "does not bind the stance_plan",
+        )
+        _expect(
+            plan["authorized_content_classes"] == STANCE_CONTENT_CLASSES,
+            "authorized_content_classes",
+            "retrieval_plus_stance authorizes exactly the stance content classes",
+        )
+        for field in ("provider_identity", "model_identity"):
+            _expect(
+                has_visible_semantic_text(stance_plan[field], allow_symbols=True),
+                f"stance_plan.{field}",
+                "must contain visible semantic text after NFKC normalization",
+            )
+        if stance_plan["retention_state"] == "known":
+            _expect(
+                has_visible_semantic_text(
+                    stance_plan["retention_reference"], allow_symbols=True
+                ),
+                "stance_plan.retention_reference",
+                "known retention requires a semantically visible reference",
+            )
+        else:
+            _expect(
+                stance_plan["retention_reference"] is None,
+                "stance_plan.retention_reference",
+                "unknown retention requires a null reference",
+            )
+    else:
+        _expect(
+            consent["stance_classification_authorized"] is False,
+            "consent.stance_classification_authorized",
+            "retrieval_only must be false",
+        )
+        _expect(stance_plan is None, "stance_plan", "retrieval_only requires null")
+        _expect(
+            consent.get("stance_plan_sha256") is None,
+            "consent.stance_plan_sha256",
+            "retrieval_only requires null",
+        )
+        _expect(
+            plan["authorized_content_classes"] == RETRIEVAL_ONLY_CONTENT_CLASSES,
+            "authorized_content_classes",
+            "retrieval_only authorizes exactly the accepted search queries",
+        )
+
+
 def validate_plan(plan: dict[str, Any]) -> None:
-    _expect(plan.get("schema_version") == PLAN_VERSION, "schema_version", f"must equal {PLAN_VERSION}")
+    _expect(
+        plan.get("schema_version") in PLAN_SCHEMA_FILENAMES,
+        "schema_version",
+        f"must be one of {sorted(PLAN_SCHEMA_FILENAMES)}",
+    )
     _expect(plan.get("caps") == CAPS, "caps", "must equal the frozen v1 ceilings")
     claim = plan["claim"]
     _expect(
@@ -264,8 +384,7 @@ def validate_plan(plan: dict[str, Any]) -> None:
     checkpoint = claim["checkpoint"]
     tier = claim["registry_selection_tier"]
     _expect(
-        (checkpoint == "stage_2_5" and tier == "HIGH-IMPACT")
-        or (checkpoint == "stage_4_5" and tier == "ALL"),
+        CHECKPOINT_REQUIRED_TIER.get(checkpoint) == tier,
         "claim.registry_selection_tier",
         "must be HIGH-IMPACT at Stage 2.5 or ALL with explicit high-impact basis at Stage 4.5",
     )
@@ -275,7 +394,8 @@ def validate_plan(plan: dict[str, Any]) -> None:
     _expect(1 <= len(queries) <= MAX_QUERIES, "queries", "must contain 1..3 rows")
     _expect(1 <= len(roster) <= MAX_INDEXES, "provider_roster", "must contain 1..4 rows")
     _expect(
-        plan["authorized_content_classes"] == ["accepted_search_query"],
+        plan.get("schema_version") == PLAN_VERSION_1_1
+        or plan["authorized_content_classes"] == RETRIEVAL_ONLY_CONTENT_CLASSES,
         "authorized_content_classes",
         "Track A retrieval authorizes only accepted search-query text",
     )
@@ -325,8 +445,11 @@ def validate_plan(plan: dict[str, Any]) -> None:
         if dates["from_year"] is not None and dates["through_year"] is not None:
             _expect(dates["from_year"] <= dates["through_year"], f"queries.{query_id}.date_filter", "from_year exceeds through_year")
     consent = plan["consent"]
-    _expect(consent["decision"] == "retrieval_only", "consent.decision", "Track A accepts retrieval_only")
-    _expect(consent["stance_classification_authorized"] is False, "consent.stance_classification_authorized", "must be false")
+    if plan.get("schema_version") == PLAN_VERSION_1_1:
+        _validate_stance_authorization(plan, consent)
+    else:
+        _expect(consent["decision"] == "retrieval_only", "consent.decision", "Track A accepts retrieval_only")
+        _expect(consent["stance_classification_authorized"] is False, "consent.stance_classification_authorized", "must be false")
     for disclosure_field in ("deletion_boundary", "export_boundary"):
         _expect(
             has_visible_semantic_text(
@@ -352,6 +475,11 @@ def validate_plan(plan: dict[str, Any]) -> None:
             Path(consent["authorized_output_path"]).is_absolute(),
             "consent.authorized_output_path",
             "must be an absolute path so its target cannot vary by working directory",
+        )
+        _expect(
+            not consent["authorized_output_path"].endswith(("/", "\\")),
+            "consent.authorized_output_path",
+            "must not end with a path separator: derived artifact names would become hidden dotfiles",
         )
     else:
         _expect(
@@ -798,7 +926,7 @@ def _union_find(ids: list[str]) -> tuple[dict[str, str], Any]:
 
 
 def build_ledger(plan: dict[str, Any], retained: dict[str, Any]) -> dict[str, Any]:
-    validate_schema(plan, "query_plan.schema.json", "query plan")
+    validate_schema(plan, plan_schema_filename(plan), "query plan")
     validate_schema(retained, "retrieval_input.schema.json", "retrieval input")
     validate_plan(plan)
     validate_input(plan, retained)
@@ -1025,6 +1153,40 @@ def write_new_ledger(path: Path, value: dict[str, Any]) -> None:
     finally:
         if descriptor is not None:
             os.close(descriptor)
+
+
+def authorized_export_path(plan: dict[str, Any], suffix: str) -> Path:
+    """The only writable path for a consent-derived artifact of this probe."""
+    authorized = plan["consent"]["authorized_output_path"]
+    if not isinstance(authorized, str) or not authorized:
+        raise LedgerError(
+            "consent.authorized_output_path: no operator-named output path is "
+            "bound by this receipt"
+        )
+    if authorized.endswith(("/", "\\")):
+        raise LedgerError(
+            "consent.authorized_output_path: a trailing path separator would "
+            "derive a hidden artifact name; name a file base, not a directory"
+        )
+    return Path(authorized + suffix)
+
+
+def require_export_consent(
+    plan: dict[str, Any], output: Path, suffix: str
+) -> Path:
+    """Fail closed unless the hash-bound consent authorizes exactly `output`."""
+    if plan["consent"]["local_persistence"] != "explicit_local_export":
+        raise LedgerError(
+            "consent does not say explicit_local_export: refusing to create "
+            "any output path"
+        )
+    authorized = authorized_export_path(plan, suffix)
+    if str(output) != str(authorized):
+        raise LedgerError(
+            "output path must exactly match the consent-derived path "
+            f"{str(authorized)!r}"
+        )
+    return authorized
 
 
 def _parser() -> Any:

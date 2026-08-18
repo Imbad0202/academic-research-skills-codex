@@ -4,6 +4,38 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [0.1.26] - 2026-08-18
+
+### What's Changed
+- Synced the vendored ARS suite through the signed `v3.21.0` release at
+  `2b639c12ee4e7c694a32336cc59dc2616e0d89fe`, rolling the unreleased
+  v3.20.1 alignment into the same Codex package version.
+- Added the default Socratic non-generation exit: non-convergence alone no
+  longer authorizes system-authored research-question candidates.
+- Adopted categorical, criterion-bound reviewer judgements, `NOT_CALIBRATED`
+  live packages, and six-axis panel provenance while retiring numeric reviewer
+  scores, weights, aggregates, and score trajectories.
+- Added exact-span/raw-byte claim-registry coverage, claim-strength disposition
+  sidecars, required scope for new human-read attestations, and a closed
+  deterministic attestation resolver.
+- Vendored the bounded claim-standing stance and blind ideation-assignment
+  evaluation infrastructure with its consent, provenance, no-call, and
+  unmeasured boundaries.
+- Added the v3.21 claim-standing query-plan, affirmative-consent, freshness,
+  transmission-ledger, and pipeline-wiring contracts. Eligibility remains an
+  offer signal and never dispatches an external call.
+- Vendored the canonical data-flow map, control-availability matrix,
+  stage-capability matrix, risk register, governance statement, and their
+  deterministic transparency checks.
+- Documented the Codex bibliographic routing boundary: ordinary discovery and
+  inline ingest use browsing; `ars-full` alone does not launch the four Python
+  resolver clients; programmatic citation verification and claim-standing
+  discovery retain separate explicit triggers.
+- Preserved the single-root Codex router, `WORKFLOW.md` path adaptations,
+  inactive Claude-only calibration and distribution-surface gates,
+  materialized Desktop plugin mirror, and the separately pinned
+  experiment-agent v1.1.0 tree.
+
 ## [0.1.25] - 2026-08-14
 
 ### What's Changed

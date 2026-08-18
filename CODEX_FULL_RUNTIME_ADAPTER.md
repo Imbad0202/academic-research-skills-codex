@@ -71,7 +71,7 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   "ars-reviewer full review for this manuscript."
 ```
 
-## ARS v3.20 Runtime Boundaries
+## ARS v3.21 Runtime Boundaries
 
 - `ARS_CROSS_MODEL_TRANSPORT=codex` is an explicit, contained
   ChatGPT-subscription transport for one-reference citation checks at Stage 2.5
@@ -84,6 +84,12 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   It closes stdin and requires clean process exit plus stdout/stderr EOF within
   the bounded drain; late forbidden or malformed events, drain timeout,
   nonzero exit, reader failure, and stderr overflow fail visibly.
+- Ordinary discovery and inline metadata checks use Codex browsing and
+  authoritative metadata. Calling `ars-full` alone does not launch the
+  Semantic Scholar, OpenAlex, Crossref, or arXiv Python resolver clients;
+  programmatic reference verification must be requested explicitly. The v3.21
+  claim-standing path is separate and requires both a user request and
+  affirmative plan-bound consent before selected discovery adapters run.
 - Local-PDF structural preflight remains the page-anchor authority. The
   `--classify-content` extension is opt-in and process-isolated, uses the
   separately pinned `ars/requirements-pdf-content-classifier.txt`, and emits
@@ -125,7 +131,7 @@ python3 -m pytest skills/academic-research-suite/codex/tests -q
   slash-command registration and hook behavior are not reproduced.
 - Hook installation is manual and disabled by default.
 - The heavy `ars-full`, `ars-reviewer`, and `ars-revision-coach` routes have no
-  v3.20 model frontmatter and inherit the active Codex session model. Light
+  v3.21 model frontmatter and inherit the active Codex session model. Light
   routes retain upstream `sonnet` metadata, but the adapter does not force a
   Codex model unless the user or runtime explicitly overrides it.
 - External cross-model verification is never silently simulated.
@@ -134,6 +140,6 @@ python3 -m pytest skills/academic-research-suite/codex/tests -q
   provider-API fallback.
 - Optional PDF content classification needs its separate dependency and remains
   an advisory; absence cannot be promoted to structural `PASS`.
-- Deterministic v3.20 evidence, review, revision, human-subjects,
+- Deterministic v3.21 evidence, review, revision, human-subjects,
   bibliographic, and preregistration artifacts do not substitute for author,
   reviewer, institutional, legal, or domain-expert judgment.

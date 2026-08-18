@@ -1093,7 +1093,7 @@ class PromptBuilder:
 
         The value is THIS seat's configuration card, which is where full
         mode's reviewer identity and review angle come from
-        (`academic-paper-reviewer/SKILL.md` Phase 0). A Phase 2 call without
+        (`academic-paper-reviewer/WORKFLOW.md` Phase 0). A Phase 2 call without
         one dispatches a generic seat rather than the configured one; a call
         with all five would hand each seat its peers' angles, which Iron Rule
         #2 has the panel reviewing without. It goes to Phase 2 only: the cards

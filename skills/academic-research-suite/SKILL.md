@@ -15,7 +15,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, and /ars-full. This skill vendors ARS role prompts,
   references, templates, and shared handoff schemas under ars/.
 metadata:
-  version: "0.1.25"
+  version: "0.1.26"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -28,7 +28,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.25`. The repo-root `VERSION`, this
+This Codex package is version `0.1.26`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Vendored ARS suite versions are tracked separately by source repository commit
 in `manifest.json`.
@@ -123,7 +123,7 @@ uses the current model unless the user explicitly requests another model.
 | `/ars-revision`, `ars-revision` | `ars/commands/ars-revision.md` | `ars/academic-paper/WORKFLOW.md` in `revision` mode |
 | `/ars-rebuttal-audit`, `ars-rebuttal-audit` | `ars/commands/ars-rebuttal-audit.md` | `ars/academic-paper/WORKFLOW.md` in `rebuttal-audit` mode; requires both reviewer comments and an existing response draft |
 | `/ars-reviewer`, `ars-reviewer` | `ars/commands/ars-reviewer.md` | `ars/academic-paper-reviewer/WORKFLOW.md` in `full` mode unless another reviewer mode is explicit |
-| `/ars-mark-read`, `ars-mark-read` | `ars/commands/ars-mark-read.md` | Mark one or more citation keys as human-read against the active Material Passport, optionally declaring `read_scope` and locators without fabricating coverage |
+| `/ars-mark-read`, `ars-mark-read` | `ars/commands/ars-mark-read.md` | Record a user-attested read declaration against the active Material Passport; every new mark requires a user-owned `read_scope`, with locators allowed only for `sections` scope |
 | `/ars-unmark-read`, `ars-unmark-read` | `ars/commands/ars-unmark-read.md` | Rescind a prior human-read mark against the active Material Passport |
 | `/ars-cache-invalidate`, `ars-cache-invalidate` | `ars/commands/ars-cache-invalidate.md` | Invalidate cached verification entries for one citation key |
 | `/ars-full`, `ars-full` | `ars/commands/ars-full.md` | `ars/academic-pipeline/WORKFLOW.md` |
@@ -160,7 +160,25 @@ using them in Codex:
 | `/ars-*` slash command, Claude plugin command | Treat `ars/commands/ars-*.md` as optional prompt recipes. Codex does not register slash commands from this package. |
 | SessionStart hook, SubagentStop hook, `hooks/hooks.json`, `scripts/ars_update_check.sh` | Treat as upstream Claude Code hook metadata only. The v3.18 update checker is vendored for traceability and tests but is not installed or executed by Codex; Codex package updates remain manual unless the user explicitly asks to port hook behavior. |
 
-### ARS v3.20 Evidence and Authority Boundaries
+### Bibliographic Network Routing
+
+The upstream prompt contracts, Python resolver clients, and v3.21
+claim-standing adapters are distinct execution paths. Apply this table before
+following any vendored instruction that says a lookup happens automatically:
+
+| Path | Default ARS-Codex behavior | Dedicated client trigger |
+|---|---|---|
+| Ordinary topic or candidate discovery | Use Codex browsing and authoritative web sources. | Never launches the Semantic Scholar, OpenAlex, Crossref, or arXiv Python resolver clients. |
+| Agent-side ingest, deduplication, and source verification | In the default inline route, translate prompt-level `WebSearch` or index lookups into Codex browsing or official metadata pages. | Upstream prompt wording such as “automatic S2 lookup” does not itself launch a Python client in Codex. |
+| Script-backed citation-existence gate | Do not infer this from an `ars-full` request alone. Stage 2.5 and 4.5 remain mandatory integrity checkpoints, but default Codex routing performs their source work through browsing unless the user also requests programmatic verification. | An explicit request to run `verify_passport.py`, `verification_gate`, or equivalent programmatic reference verification. Once invoked, cache misses may call Crossref, OpenAlex, and Semantic Scholar for non-manual references; arXiv runs only when `arxiv_id` is present. Manual references skip all four. |
+| Claim-standing discovery | Offer only after an eligible Claim Registry row at Stage 2.5 or 4.5. It is advisory and separate from citation verification. | A separate user request plus affirmative, plan-bound consent. It uses the v3.21 keyword-discovery adapters, not the four single-reference resolver clients; absent, cancelled, invalidated, or stale consent means no call. |
+| Contamination backfill or migration | No automatic migration. | Only the explicitly selected migration CLI and its documented indexes. |
+
+The canonical upstream network map remains available at
+`ars/docs/DATA_FLOWS.md`; this section is the Codex adapter override for when
+those flows are actually launched here.
+
+### ARS v3.21 Contract-Honesty Boundaries
 
 - Phase E evidence rows are deterministic, source-bound checkpoint artifacts.
   They preserve the existing citation verdict and gate, do not mark a source as
@@ -183,6 +201,31 @@ using them in Codex:
   preregistration cross-document consistency carrier is nonblocking,
   `LLM-ADVISORY` / `UNMEASURED`, and never a score, rewrite, protocol duplicate,
   or proof that documents agree.
+- Every new `USER_ATTESTED_READ` mark requires an explicit user-owned
+  `read_scope`; never infer it. Legacy records without scope and explicit
+  `unknown` both resolve as `coverage_unknown`, and the deterministic resolver
+  must fail visibly on malformed or ambiguous ledger state.
+- Live reviewer packages use evidence-anchored categorical criterion judgements,
+  not numeric points, weights, averages, rankings, or score trajectories.
+  Reviewer seats and current Schema 6 packages remain `NOT_CALIBRATED`.
+- Claim-registry coverage is exact-span and raw-byte bounded. A complete report
+  covers every registered E1 claim but does not prove semantic extraction
+  completeness or manuscript correctness; claim-strength drift dispositions
+  remain a separate evidence sidecar rather than revision authority.
+- Review-panel provenance records six observable axes and never collapses them
+  into a binary independence claim. Claim-standing and blind ideation-assignment
+  tools remain bounded evaluation infrastructure, not correctness certificates
+  or permission to bypass user consent.
+- While non-generation Socratic mode is active, non-convergence never authorizes
+  system-authored candidate research questions. Candidate generation requires
+  the user's explicit request and the visible upstream exit marker.
+- The v3.21 data-flow, control-availability, stage-capability, risk, and
+  governance documents are transparency surfaces. Their evidence labels and
+  residual-gap rows must not be promoted into effectiveness, certification, or
+  readiness claims.
+- Claim-standing eligibility is not dispatch authority. The query plan,
+  affirmative consent receipt, freshness bindings, and transmission ledger
+  remain mandatory, and the result is advisory even after a live call.
 
 ## Security Boundaries
 

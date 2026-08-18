@@ -23,6 +23,7 @@ check_firm_rules_sync — predate this helper; migrating them is a follow-up.)
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -44,15 +45,38 @@ class FrontmatterError(Exception):
     """
 
 
+def _uses_codex_workflow_overlay(root: Path) -> bool:
+    """Return whether *root* is the vendored tree of the Codex package."""
+    manifest_path = root.parent / "manifest.json"
+    if not manifest_path.is_file():
+        return False
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        return False
+    return isinstance(manifest, dict) and manifest.get("generated_for") == "codex"
+
+
 def iter_skill_files(root: Path) -> list[Path]:
-    """Top-level SKILL.md files only. Skips SKIP_DIRS."""
+    """Top-level workflow entry files only. Skips SKIP_DIRS.
+
+    Upstream uses ``SKILL.md``. The Codex distribution deliberately renames
+    those four entry files to ``WORKFLOW.md`` so only its root router is
+    discoverable; the adjacent package manifest is the authority for that
+    fallback.
+    """
     results: list[Path] = []
+    codex_overlay = _uses_codex_workflow_overlay(root)
     for child in sorted(root.iterdir()):
         if not child.is_dir() or child.name in SKIP_DIRS:
             continue
         skill_md = child / "SKILL.md"
         if skill_md.is_file():
             results.append(skill_md)
+            continue
+        workflow_md = child / "WORKFLOW.md"
+        if codex_overlay and workflow_md.is_file():
+            results.append(workflow_md)
     return results
 
 
@@ -113,7 +137,7 @@ def check_metadata_field(
     violations: list[str] = []
     skills = iter_skill_files(root)
     if not skills:
-        violations.append(f"no SKILL.md files found under {root}")
+        violations.append(f"no workflow entry files found under {root}")
         return violations
     for path in skills:
         try:
@@ -233,7 +257,9 @@ def read_or_exit2(root: Path, rel: str) -> str:
 
 
 def run_lint(field: str, legal_values: set[str] | frozenset[str], ok_message: str) -> int:
-    """argparse + check + print + exit-code wrapper used by both check scripts."""
+    """argparse + check + print + exit-code wrapper (check_task_type.py;
+    check_data_access_level.py grew its own #756 pin-layer main and no
+    longer uses this)."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--path",

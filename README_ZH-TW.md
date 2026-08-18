@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.25-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v0.1.26-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -43,7 +43,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `0.1.25`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `0.1.26`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 獨立追蹤 Codex 套件版本，與內嵌的 ARS 套件版本分開管理。
@@ -51,12 +51,12 @@ skills/academic-research-suite/
 
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-目前內嵌的 ARS 原始碼追蹤至 `v3.20.0` 發行版：
-`Imbad0202/academic-research-skills@3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`
-（2026-08-14）。此版本新增證據綁定的 review／revision 契約、經作者確認的
-review target／criteria binding、明確的 human-subjects authority 邊界，以及
-用途受限且須取得同意的 Codex citation transport。另內嵌選用的 sandbox PDF
-內容分類器；其輸出僅為 advisory，不會取代結構性 PDF preflight。既有的引用、
+目前內嵌的 ARS 原始碼追蹤至已簽署的 `v3.21.0` 發行版：
+`Imbad0202/academic-research-skills@2b639c12ee4e7c694a32336cc59dc2616e0d89fe`
+（2026-08-18）。此版本加入 canonical data-flow map、各通路 control-availability
+matrix、stage-capability matrix、risk register、governance statement，以及有界
+claim-standing probe 的 consent／freshness／transmission 完整 wiring。此 probe
+仍須由使用者要求且只提供 advisory；eligibility 不會授權外部呼叫。既有的引用、
 完整性、最小權限、degradation 與 transport 防護仍完整保留。
 
 ## 安裝 ARS-Codex Plugin
@@ -286,10 +286,20 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.20.0 功能對等
+### ARS v3.21 功能對等
 
-本套件旨在與上游 ARS `v3.20.0`（`3af9f03d5aadb0bca51af1440f20b5cbf97d6dba`）
+本套件旨在與上游 ARS `v3.21.0`（`2b639c12ee4e7c694a32336cc59dc2616e0d89fe`）
 在 Codex 具有對等概念之處，提供相同的使用者面向 workflow 內容。
+
+Codex adapter 對書目網路行為採以下明確邊界：
+
+| 研究路徑 | Codex 預設行為 | 專用 API／client 觸發條件 |
+|---|---|---|
+| 一般主題或候選文獻探索 | 使用 Codex browsing 與權威網頁來源 | 不啟動四個 Python resolver clients |
+| Prompt 層級 ingest、去重或來源驗證 | 使用 Codex browsing 或官方 metadata 頁面 | 內嵌 prompt 的「automatic lookup」文字不會啟動 Python client |
+| Script-backed citation-existence gate | `ars-full` 本身不等於授權；Stage 2.5／4.5 仍以預設 Codex 路徑完成 integrity checkpoint | 使用者明確要求 programmatic verification；之後非 manual reference 會依 cache 行為查 Crossref／OpenAlex／Semantic Scholar，arXiv 僅在有 `arxiv_id` 時執行 |
+| Claim-standing discovery | Stage 2.5／4.5 出現 eligible Claim Registry row 後才可提供 advisory | 另行由使用者要求並完成 plan-bound affirmative consent；使用 v3.21 discovery adapters，而非單篇 resolver clients |
+| Contamination backfill／migration | 不自動執行 | 僅限明確選定的 migration CLI |
 
 | 上游 ARS 功能 | Codex 套件行為 |
 |---|---|
@@ -303,13 +313,16 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 | Canonical cross-model handoff envelope | Dispatcher 驗證 envelope、取得同意後只傳送 payload，並依封閉的結果路由 contract 執行 |
 | 用途受限的 Codex citation transport | 僅在明確設定、要求並取得同意後，用於窄範圍 citation-integrity 檢查 |
 | 證據綁定的 review／revision | 保留持久 evidence row、已確認 criteria、非排序 roadmap、author adjudication 與 revision-evidence bundle |
+| Socratic 研究問題作者權 | 未收斂不會觸發系統代擬候選研究問題；必須由使用者明確要求才能離開 non-generation 模式 |
+| 類別式審稿判斷與 panel provenance | Live package 維持 `NOT_CALIBRATED`；不虛構數值分數、權重、總分、排名或二元 independence 宣稱 |
 | Review criteria 與 human-subjects authority | Venue／criteria 與 ethics／data-protection authority 必須由使用者確認；Codex 不推論或模擬核准 |
 | 選用 PDF 內容分類器 | sandbox classifier 是 opt-in advisory，不能覆蓋結構性 PDF preflight 結果 |
 | Cross-model Reviewer 2 與 re-review judge | 僅在 provider 已設定且取得內容傳輸同意時啟用；保留固定席次、Judge Record、單一模型家族與 fallback 揭露 |
 | 快取過期 advisory 與即時重驗 | 預設使用本地快取；過期列僅為 advisory，`ARS_CACHE_REVALIDATE=1` 才啟用即時書目重驗 |
 | 風險分層主張、範圍與新穎性檢查 | 保留高影響主張優先抽樣，以及不阻擋 gate 的 scope 與 search-bounded novelty advisory |
 | 本機 PDF 讀取完整性 preflight | 結構性 pypdf preflight 與 sidecar contract 維持預設；parser 無法使用或修復警告會明確保留為 `UNAVAILABLE` advisory，上述 v3.20 classifier 仍僅為 opt-in |
-| 人工閱讀範圍聲明 | 保留使用者擁有的可選 `read_scope` 與章節 locator；部分覆蓋不會被視為全文閱讀 |
+| 人工閱讀範圍聲明 | 每個新標記都必須提供使用者擁有的 `read_scope`；舊紀錄缺少 scope 時仍為 unknown，部分覆蓋不會被視為全文閱讀 |
+| Claim coverage 與有界評估基礎設施 | 精確的 registered-claim coverage、drift disposition、claim-standing 工具與盲化 ideation assignment 保留 provenance 與未測量邊界，不證明語意完整性或正確性 |
 | 修訂主張漂移防護 | v3.20 非排序 roadmap 與 author-adjudication contract，搭配主張強度階梯、revision-evidence bundle、deterministic token-conservation checker 及 held-out 測量集 |
 | Panel／degradation／pipeline-boundary 可執行檢查 | 與 hermetic 測試一併內嵌，並由選用的 full-runtime manifest 公開 |
 | SessionStart 和 SubagentStop hooks（含更新提醒） | 僅為可追溯性而保留；Codex 不安裝或執行 Claude hooks |

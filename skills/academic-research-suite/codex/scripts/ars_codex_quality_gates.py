@@ -275,6 +275,7 @@ def check_desktop_plugin_bundle() -> list[str]:
             if path.is_file()
             and not any(part in ignored_names for part in path.relative_to(root).parts)
             and path.suffix != ".pyc"
+            and path.suffix != ".log"
         }
 
     if suite_entry.resolve() != SUITE_ROOT.resolve():

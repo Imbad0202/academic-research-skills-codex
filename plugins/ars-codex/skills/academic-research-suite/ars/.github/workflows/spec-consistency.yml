@@ -135,7 +135,10 @@ jobs:
           PYTHONPATH: .
         run: python3 -m unittest scripts.test_check_collaboration_depth_rubric -v
 
-      - name: Check rubric weight consistency (quality_rubrics / framework / SKILL rule 14)
+      - name: Check criterion-bound reviewer scoring honesty
+        run: python3 scripts/check_reviewer_scoring_honesty.py
+
+      - name: Check retired rubric-weight entrypoint compatibility
         run: python3 scripts/check_rubric_weight_consistency.py
 
       - name: Check citation-verification intake wiring (#392)
@@ -162,6 +165,11 @@ jobs:
         env:
           PYTHONPATH: scripts
         run: python3 scripts/check_version_consistency.py
+
+      - name: Check distribution-surface claim discipline (#753)
+        # The pytest companion `test_check_distribution_surface_claims.py`
+        # runs via the unified manifest.
+        run: python3 scripts/check_distribution_surface_claims.py
 
       - name: Check SETUP cross-model example parity (#491)
         # The pytest companion `test_check_setup_cross_model_parity.py`
@@ -197,14 +205,18 @@ jobs:
             echo "ERROR: could not extract ARS version from CHANGELOG.md (need '## [X.Y.Z]' heading)" >&2
             exit 1
           fi
+          # Contract families may co-locate JSON Schemas; validate only instances.
           for f in shared/contracts/reviewer/*.json; do
+            [[ "$f" == *.schema.json ]] && continue
             python3 scripts/check_sprint_contract.py "$f" --ars-version "v${ARS_VERSION}"
           done
           # v3.6.6: writer + evaluator template validation loops mirror reviewer loop above.
           for f in shared/contracts/writer/*.json; do
+            [[ "$f" == *.schema.json ]] && continue
             python3 scripts/check_sprint_contract.py "$f" --ars-version "v${ARS_VERSION}"
           done
           for f in shared/contracts/evaluator/*.json; do
+            [[ "$f" == *.schema.json ]] && continue
             python3 scripts/check_sprint_contract.py "$f" --ars-version "v${ARS_VERSION}"
           done
 
@@ -221,6 +233,45 @@ jobs:
         # resolved for .py). The registry indexes, it never re-authors —
         # semantics stay in each row's authority file.
         run: python3 scripts/check_degradation_registry.py
+
+      - name: Validate workflow classification table (#755)
+        # Pins docs/ARCHITECTURE.md §7.1's completeness claim: every
+        # .github/workflows/*.yml has exactly one row (both directions,
+        # WC-1) and class cells use the closed four-term vocabulary (WC-2).
+        # Class semantics stay owned by code review.
+        run: python3 scripts/check_workflow_classification.py
+
+      - name: Validate data-flow map coverage (#758)
+        # Pins docs/DATA_FLOWS.md's exhaustiveness claim: every non-test
+        # scripts/*.py with a network-module import (AST scan) and every
+        # curl-invoking shell script must be named on the map (DF-1/DF-2),
+        # and README + SECURITY + THIRD_PARTY keep a rendered inbound link
+        # (DF-3). Row semantics stay owned by code review.
+        run: python3 scripts/check_data_flows.py
+
+      - name: Validate stage capability matrix (#745)
+        # Pins shared/contracts/capability/stage_capability_matrix.json:
+        # frozen task-family vocabulary, non-collapsible evidence statuses
+        # (an unrun eval can never carry numbers), in-repo eval_ref and
+        # verbatim claim anchors, stale-evidence notes, and byte-identity of
+        # the generated docs/STAGE_CAPABILITY_MATRIX.md view.
+        run: python3 scripts/check_stage_capability_matrix.py
+
+      - name: Validate risk register mirroring (#759)
+        # Pins docs/RISK_REGISTER.md's index-not-author posture: cited repo
+        # paths and relative links exist (RR-1), every evidence-status bullet
+        # carries a recognized citation and matrix-tied statuses mirror
+        # shared/contracts/capability/stage_capability_matrix.json verbatim
+        # (RR-2), README keeps a rendered inbound link (RR-3). Risk wording
+        # and control selection stay owned by code review.
+        run: python3 scripts/check_risk_register.py
+
+      - name: Validate control-availability map links (#757)
+        # Pins docs/CONTROL_AVAILABILITY.md's pointer integrity: relative
+        # links + anchors resolve (CA-1), every SETUP `### Method` heading is
+        # reachable from the channel table (CA-2), README + SETUP keep an
+        # inbound link (CA-3). Cell semantics stay owned by code review.
+        run: python3 scripts/check_control_availability.py
 
       - name: Validate corpus consumer protocol (v3.6.5+)
         run: python3 scripts/check_corpus_consumer_protocol.py

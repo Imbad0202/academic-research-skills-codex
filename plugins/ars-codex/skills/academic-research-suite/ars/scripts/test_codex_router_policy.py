@@ -47,3 +47,18 @@ def test_alias_router_defers_to_socratic_override() -> None:
     text = _router_text()
     assert "before the Claude-Style Alias Router" in text
     assert "defer to the Paper Topic Scoping Override" in text
+
+
+def test_bibliographic_clients_are_not_inferred_from_ars_full() -> None:
+    text = _router_text()
+    assert "Bibliographic Network Routing" in text
+    assert "Do not infer this from an `ars-full` request alone" in text
+    assert "explicit request to run `verify_passport.py`" in text
+    assert "Manual references skip all four" in text
+
+
+def test_claim_standing_is_a_separate_consent_bound_path() -> None:
+    text = _router_text()
+    assert "A separate user request plus affirmative, plan-bound consent" in text
+    assert "not the four single-reference resolver clients" in text
+    assert "absent, cancelled, invalidated, or stale consent means no call" in text

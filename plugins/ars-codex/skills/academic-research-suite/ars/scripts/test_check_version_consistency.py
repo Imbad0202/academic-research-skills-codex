@@ -176,6 +176,36 @@ def _write_docs(
         (docs / "PERFORMANCE.zh-TW.md").write_text("# 效能\n\n" + zh_body, encoding="utf-8")
 
 
+def _write_cff(
+    root: Path, version: str, date_released: str = "2026-04-22"
+) -> None:
+    """Fixture CITATION.cff at `version` (invariant 12). The default
+    date-released matches the fixture CHANGELOG's latest-entry date so the
+    ±7-day window passes unless a test drifts it."""
+    (root / "CITATION.cff").write_text(
+        textwrap.dedent(
+            f"""\
+            cff-version: 1.2.0
+            title: fixture
+            type: software
+            version: {version}
+            date-released: {date_released}
+            """
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_positioning(root: Path, version: str) -> None:
+    """Fixture POSITIONING.md citation prose at `version` (invariant 12)."""
+    (root / "POSITIONING.md").write_text(
+        "# Positioning\n\n"
+        "Wu, C.-I. (2026). Fixture Suite "
+        f"(Version {version}) [Computer software]. Zenodo.\n",
+        encoding="utf-8",
+    )
+
+
 def _write_aligned_fixture(
     root: Path,
     last_updated: str | None = "2026-04-22",
@@ -205,6 +235,8 @@ def _write_aligned_fixture(
     _write_changelog(root, latest_version="3.5.0")
     _write_plugin_manifests(root, "3.5.0")
     _write_readme(root, "3.5.0")
+    _write_cff(root, "3.5.0")
+    _write_positioning(root, "3.5.0")
     # en has an extra plain H2 (translation asymmetry is allowed); the
     # version-bearing heading is present in both and at a past version.
     _write_docs(
@@ -229,6 +261,8 @@ def _write_aligned_fixture_v351(root: Path) -> None:
     _write_changelog(root, latest_version="3.5.1")
     _write_plugin_manifests(root, "3.5.1")
     _write_readme(root, "3.5.1")
+    _write_cff(root, "3.5.1")
+    _write_positioning(root, "3.5.1")
     _write_docs(
         root,
         en_h2=["Token usage", "Corpus ingestion (v3.4.0+)"],
@@ -799,32 +833,49 @@ class TestAgentCountClaim(unittest.TestCase):
                 f"# {name}\n", encoding="utf-8"
             )
 
-    def test_agent_claim_drift_fails(self) -> None:
+    def _claim_case(self, description: str) -> "subprocess.CompletedProcess":
+        """Run the lint against a two-agent fixture tree whose plugin.json
+        carries the given description."""
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
             _write_aligned_fixture(root)
-            _write_plugin_manifests(
-                root, "3.5.0", description="fixture, 3-agent ensemble, more"
-            )
+            _write_plugin_manifests(root, "3.5.0", description=description)
             self._write_agents(root, ["alpha", "beta"])
-            result = _run(root)
-            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
-            self.assertIn("3-agent", result.stdout)
-            self.assertIn("2", result.stdout)
+            return _run(root)
+
+    def test_agent_claim_drift_fails(self) -> None:
+        result = self._claim_case("fixture, 3-agent ensemble, more")
+        self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+        self.assertIn("agent count of 3", result.stdout)
+        self.assertIn("2", result.stdout)
+
+    def test_prompt_roles_claim_drift_fails(self) -> None:
+        """#753: the "N prompt roles" spelling binds to the same tree count
+        as the legacy "N-agent" spelling."""
+        result = self._claim_case("fixture, 3 prompt roles, more")
+        self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+        self.assertIn("agent count of 3", result.stdout)
+
+    def test_prompt_roles_claim_matching_passes(self) -> None:
+        result = self._claim_case("fixture, 2 prompt roles, more")
+        self.assertEqual(
+            result.returncode, 0,
+            msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+        )
 
     def test_agent_claim_matching_passes(self) -> None:
-        with TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            _write_aligned_fixture(root)
-            _write_plugin_manifests(
-                root, "3.5.0", description="fixture, 2-agent ensemble, more"
-            )
-            self._write_agents(root, ["alpha", "beta"])
-            result = _run(root)
-            self.assertEqual(
-                result.returncode, 0,
-                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
-            )
+        result = self._claim_case("fixture, 2-agent ensemble, more")
+        self.assertEqual(
+            result.returncode, 0,
+            msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+        )
+
+    def test_every_count_token_checked_not_just_first(self) -> None:
+        """#753: finditer semantics — a correct first token cannot shadow a
+        drifted second one."""
+        result = self._claim_case("fixture, 2-agent core, 5 prompt roles")
+        self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+        self.assertIn("agent count of 5", result.stdout)
 
     def test_agent_claim_symlink_alias_not_double_counted(self) -> None:
         """Legacy/transition pin: a symlink alias in the plugin-root agents/
@@ -1169,6 +1220,242 @@ class TestTagMatch(unittest.TestCase):
             # The tag itself must be named as uncheckable — not just the
             # generic suite-missing error that would fire even without --tag.
             self.assertIn("v9.9.9", result.stdout)
+
+
+class TestCitationSurfaces(unittest.TestCase):
+    """Invariant 12: CITATION.cff (YAML-parsed, absence errors) and
+    POSITIONING.md citation prose (optional) track the release. The aligned
+    baseline is exercised by every pass-case test via _write_aligned_fixture,
+    which writes both surfaces."""
+
+    def test_cff_drift_fails(self) -> None:
+        """CITATION.cff stuck below the suite version — the #754 drift class."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_cff(root, "3.4.0")
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("CITATION.cff", result.stdout)
+            self.assertIn("3.4.0", result.stdout)
+
+    def test_cff_quoted_version_passes(self) -> None:
+        """`version: "3.5.0"` is a legitimate CFF spelling — YAML parsing must
+        not report the quotes as drift (regression: the first regex-based
+        draft of this invariant did exactly that)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "CITATION.cff").write_text(
+                'cff-version: 1.2.0\ntitle: fixture\ntype: software\n'
+                'version: "3.5.0"\ndate-released: 2026-04-22\n',
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 0,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+
+    def test_cff_noncanonical_version_fails_as_noncanonical(self) -> None:
+        """A 2-segment `version: 3.5` must be reported as non-canonical, not
+        as a drift mismatch a maintainer would chase with a version bump."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "CITATION.cff").write_text(
+                "cff-version: 1.2.0\ntitle: fixture\ntype: software\n"
+                "version: 3.5\ndate-released: 2026-04-22\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("canonical", result.stdout)
+
+    def test_cff_missing_version_key_fails(self) -> None:
+        """A present CITATION.cff with no version key is malformed — error,
+        never a silent skip. date-released stays valid so this test fails
+        for the missing-version diagnostic specifically, not the
+        missing-date one (codex round-3 P2: conflated fixtures let a
+        missing-version regression hide behind the date error)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "CITATION.cff").write_text(
+                "cff-version: 1.2.0\ntitle: fixture\ntype: software\n"
+                "date-released: 2026-04-22\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("no 'version' key found", result.stdout)
+
+    def test_cff_absent_fails(self) -> None:
+        """CITATION.cff is outward-facing release metadata like README.md —
+        deleting it must not silently disable the invariant."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "CITATION.cff").unlink()
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("CITATION.cff", result.stdout)
+
+    def test_cff_stale_date_released_fails(self) -> None:
+        """date-released more than 7 days from the CHANGELOG latest-entry date
+        — the second half of the #754 drift (version was bumped by hand while
+        the date sat 6 weeks stale)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_cff(root, "3.5.0", date_released="2026-01-01")
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("date-released", result.stdout)
+
+    def test_cff_missing_date_released_fails(self) -> None:
+        """Omitting (or nulling) date-released must error, not silently skip
+        the freshness check — deleting the field must not disable the
+        invariant (codex review round-2 P2; same posture as file absence)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "CITATION.cff").write_text(
+                "cff-version: 1.2.0\ntitle: fixture\ntype: software\n"
+                "version: 3.5.0\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("date-released", result.stdout)
+
+    def test_cff_impossible_date_fails_cleanly(self) -> None:
+        """`date-released: 2026-02-30` — PyYAML's timestamp constructor raises
+        ValueError, not YAMLError; the lint must emit an error, never crash
+        with a traceback (codex review P2)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_cff(root, "3.5.0", date_released="2026-02-30")
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 1,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("CITATION.cff", result.stdout)
+
+    def test_cff_timestamp_date_fails_as_nonstrict(self) -> None:
+        """An unquoted `2026-04-22T00:00:00Z` parses as datetime — a date
+        SUBCLASS that would TypeError against the date baseline. It must be
+        rejected as not a strict YYYY-MM-DD, never crash (codex review P2)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_cff(root, "3.5.0", date_released="2026-04-22T00:00:00Z")
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 1,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("strict YYYY-MM-DD", result.stdout)
+
+    def test_cff_date_within_window_passes(self) -> None:
+        """A date-released within the ±7-day window of the CHANGELOG date
+        (fixture CHANGELOG: 2026-04-22) passes."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_cff(root, "3.5.0", date_released="2026-04-25")
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 0,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+
+    def test_positioning_drift_fails(self) -> None:
+        """POSITIONING.md citation prose stuck below the suite version."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            _write_positioning(root, "3.4.0")
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("POSITIONING.md", result.stdout)
+            self.assertIn("3.4.0", result.stdout)
+
+    def test_positioning_vprefixed_token_fails_as_noncanonical(self) -> None:
+        """`(Version v3.5.0)` — the likeliest human edit of the citation line —
+        must error as non-canonical, not slip through a filtering regex (the
+        pre-#169 pattern this file's header warns about)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "POSITIONING.md").write_text(
+                "# Positioning\n\nCite: Fixture Suite (Version v3.5.0).\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("canonical", result.stdout)
+
+    def test_positioning_malformed_clause_still_validated(self) -> None:
+        """`(Version 3.4.0 )` — a stray space must not drop the clause out of
+        the capture and silently pass a stale citation (codex round-3 P2):
+        the payload is captured whole, stripped, then validated."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "POSITIONING.md").write_text(
+                "# Positioning\n\nCite: Fixture Suite (Version 3.4.0 ).\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("3.4.0", result.stdout)
+
+    def test_positioning_empty_payload_fails(self) -> None:
+        """`(Version )` — deleting the version mid-edit must reach strict
+        validation and error, not fall out of the capture (codex round-4
+        P2)."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "POSITIONING.md").write_text(
+                "# Positioning\n\nCite: Fixture Suite (Version ).\n",
+                encoding="utf-8",
+            )
+            result = _run(root)
+            self.assertEqual(result.returncode, 1, msg=f"stdout={result.stdout!r}")
+            self.assertIn("canonical", result.stdout)
+
+    def test_positioning_absent_passes(self) -> None:
+        """POSITIONING.md is repo-specific prose — absence is a skip."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "POSITIONING.md").unlink()
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 0,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
+
+    def test_positioning_without_version_token_passes(self) -> None:
+        """A POSITIONING.md with no `(Version X.Y.Z)` token has nothing to
+        check — the token is the claim; no claim, no drift."""
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_aligned_fixture(root)
+            (root / "POSITIONING.md").write_text(
+                "# Positioning\n\nNo citation prose here.\n", encoding="utf-8"
+            )
+            result = _run(root)
+            self.assertEqual(
+                result.returncode, 0,
+                msg=f"stdout={result.stdout!r} stderr={result.stderr!r}",
+            )
 
 
 if __name__ == "__main__":
