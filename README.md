@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.28-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.22.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -9,7 +9,7 @@
 ARS-Codex is the Codex-native sibling of
 [Academic Research Skills (ARS) for Claude Code](https://github.com/Imbad0202/academic-research-skills).
 It is a separate Codex distribution with its own plugin identity, packaging,
-versioning, and runtime adapter.
+and runtime adapter. Its release number follows the vendored ARS suite.
 
 This repository vendors the ARS workflow content as a single Codex skill:
 
@@ -51,28 +51,44 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This ARS-Codex package is version `0.1.28`. The repo-root `VERSION` file,
+This ARS-Codex package is version `3.22.0`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
-Codex package version independently of the vendored ARS suite. Vendored upstream
-versions are recorded by commit in `manifest.source_repositories[]`.
+Codex package version in step with the vendored ARS suite, starting at `3.22.0`.
+Earlier `0.1.x` release numbers remain historical. The exact upstream version,
+tag, and commit are recorded in `manifest.source_repositories[]`.
 
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
-The vendored ARS source currently tracks upstream `main` after the signed
-`v3.21.1` release at
-`Imbad0202/academic-research-skills@94436237913091d4739870159d241660527e8338`
-(2026-09-02; upstream suite metadata remains `3.21.1`). This post-release
-snapshot adds Chinese-aware title matching and balanced CJK wrapper handling,
-declares the Markdown parser dependency used by surface-form checks, makes a
-missing PyYAML dependency fail visibly, and carries the September
-harness-retirement audit plus documentation corrections. The v3.21.1
-research-workflow, inquiry-ledger, promotion-bakeoff, review-criteria, and
-consent boundaries remain unchanged.
+The vendored ARS source tracks **v3.22.0** at
+`Imbad0202/academic-research-skills@3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e`.
+This release adds the output-language-pair contract, Spanish intent routing,
+reviewer-calibration and plugin evaluation fixtures, and Windows file-lock
+repairs. It adopts upstream model-transport and audit-provenance fixes while
+preserving the Codex runtime and consent contracts. The output-language-pair
+registry currently supports only `zh-tw-en`; Spanish triggers do not install a
+Spanish output-locale pack. Claude plugin eval suites are reference material,
+not evidence of measured Codex performance.
 Nested upstream `.github/` workflows and root `agents/` mirrors are preserved
 for traceability and self-tests, but are not repo-level CI or Codex entrypoints;
 Claude/plugin loader files under `.claude/` and `.claude-plugin/` remain
 intentionally excluded.
+
+## Models and execution
+
+This checkout's [project configuration](.codex/config.toml) selects `gpt-6-astra`
+with `xhigh` reasoning for new trusted Codex sessions. Installing the skill does
+not copy that project setting or change an already-running session. The planner
+suggests `medium` for routine work and `xhigh` for complex work; these are
+starting policies, not measured optimal settings. `ultra` is optional in Codex
+for explicitly chosen demanding work and is rejected by the contained citation
+transport.
+
+Native adaptive execution is the default: use bounded subagents for independent
+work when useful and let the lead continue with other work. The fixed
+full-runtime topology and hooks remain opt-in. Read the
+[model runtime policy](skills/academic-research-suite/codex/model-runtime-policy.md)
+and [system-card alignment audit](skills/academic-research-suite/codex/audits/2026-09-06-model-alignment.md).
 
 ## Install ARS-Codex Plugin
 
@@ -318,13 +334,14 @@ ARS was originally written for Claude Code. In this Codex package:
 
 - The vendored `agents/*.md` files are used as role and phase prompts.
 - The Codex-only `codex/` directory contains an optional full-runtime adapter
-  profile. It is disabled by default and does not change normal inline routing.
+  profile. Its fixed topology and hook pack are opt-in; normal execution adapts
+  native subagents to the task.
 - The vendored `commands/ars-*.md` files are prompt recipes only. Codex does not
   register them as slash commands.
 - The vendored `hooks/hooks.json` file is preserved for upstream traceability
   only. Codex does not install Claude Code hooks from this package.
-- Codex does not automatically spawn background agents unless you explicitly ask
-  for delegated or parallel agent work.
+- Codex may delegate bounded independent work through native subagents within
+  the current task and permissions, while the lead continues useful work.
 - Web/source verification uses Codex browsing and must cite sources when current
   or external facts matter.
 - Cross-model verification is disabled by default. When explicitly requested in
@@ -374,12 +391,11 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS post-v3.21.1 Main Parity
+### ARS v3.22.0 Parity
 
-This package aims for the same user-facing workflow content as upstream ARS
-post-`v3.21.1` `main` at
-`94436237913091d4739870159d241660527e8338` where Codex has an equivalent
-concept. Upstream suite metadata remains `3.21.1`.
+This package adapts upstream ARS `v3.22.0` at
+`3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e` wherever Codex has an equivalent
+concept, with documented model/runtime overlays.
 
 Bibliographic network behavior is intentionally explicit at the Codex adapter
 boundary:
@@ -397,7 +413,7 @@ boundary:
 | One installable plugin | Native Codex plugin `ars-codex`, bundling the single `academic-research-suite` skill |
 | `/ars-*` slash commands | Emulated as `ars-*` aliases through the skill router; not native slash commands |
 | Four upstream skills auto-discovered from `skills/` symlinks | Single Codex router skill selects the workflow and reads the vendored workflow `WORKFLOW.md` files |
-| Plugin-shipped agents | Agent files are role/phase prompts; Codex runs them inline unless the user explicitly asks for delegated subagents |
+| Plugin-shipped agents | Role/phase prompts run inline or as bounded native subagents according to task dependencies and runtime permissions |
 | Optional Codex full-runtime profile | Planner, agent-team templates, and hook pack live under `skills/academic-research-suite/codex/`; disabled by default |
 | Heavy commands (`ars-full`, `ars-reviewer`, `ars-revision-coach`) omit `model:`; light modes retain `model: sonnet` | Heavy commands inherit the current Codex session model; light-mode `sonnet` remains upstream Claude metadata and does not override the session model |
 | `ARS_MODEL_TIERING=economy\|quality-boost` | Classification is preserved; routing remains advisory unless Codex exposes per-dispatch model selection |
@@ -425,7 +441,7 @@ boundary:
 | Executable panel/degradation/pipeline-boundary checks | Vendored with their hermetic tests and exposed by the optional full-runtime manifest |
 | SessionStart and SubagentStop hooks, including the update reminder | Vendored for traceability only; Codex does not install or execute Claude hooks |
 | Plugin marketplace update | Refresh with `codex plugin marketplace upgrade ars-codex`, then re-add `ars-codex@ars-codex`; direct skill installs still reinstall or pull |
-| Claude Code Agent Team | Not automatic; Codex subagents require an explicit user request for delegation or parallel agents |
+| Claude Code Agent Team | Native Codex subagents are scheduled adaptively; the separate fixed topology remains opt-in |
 | Cross-model provider dispatch from upstream docs | Disabled by default; available only with explicit provider configuration and explicit user consent |
 
 ### Optional External Cross-Model Reviewer API
@@ -437,8 +453,12 @@ explicitly in the prompt. For example:
 
 ```bash
 export OPENAI_API_KEY="<your-openai-api-key>"
-export ARS_CROSS_MODEL="gpt-5.5"
+export ARS_CROSS_MODEL="gpt-6-astra"
 ```
+
+`gpt-6-astra` remains provisional on both verifier transports. A GPT verifier
+used by a GPT session is a separate run in the same family, not cross-family
+validation. Provider/content/cost consent still applies.
 
 Without both a configured provider and explicit user consent for the content
 class being sent, ARS-Codex falls back to single-runtime review and reports that

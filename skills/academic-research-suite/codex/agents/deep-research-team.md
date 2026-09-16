@@ -1,14 +1,19 @@
 ---
 name: ars-deep-research-team
-runtime: codex-agent-team
-enabled_when: "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1"
+runtime: codex-native-adaptive
+enabled_when: "Matching ARS workflow; native delegation is optional and fixed planner topology is opt-in"
 source_workflow: "ars/deep-research/WORKFLOW.md"
 ---
 
 # ARS Deep Research Team for Codex
 
-Use for `deep-research` modes when full-runtime agent-team mode is explicitly
-enabled. Otherwise, execute the roles inline from the same source prompts.
+Apply [the shared model/runtime policy](../model-runtime-policy.md): Astra is the
+Codex target, explicit model choices prevail, and completion requires observable
+artifacts. Give each delegated task bounded inputs, outputs and authority.
+
+
+Use for `deep-research` modes. Delegate independent searches or evidence checks
+when useful and synthesize against their source material.
 
 ## Dispatch Shape
 

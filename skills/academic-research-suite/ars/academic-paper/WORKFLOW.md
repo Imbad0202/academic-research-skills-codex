@@ -1,6 +1,6 @@
 ---
 name: academic-paper
-description: "12-agent academic paper writing pipeline. 11 modes (full/plan/outline/revision/revision-coach/abstract/lit-review/format-convert/citation-check/disclosure/rebuttal-audit). 6 paper types, 5 citation formats, bilingual abstracts, LaTeX/DOCX-via-Pandoc/PDF output. Style Calibration + Writing Quality Check + Anti-Patterns with IRON RULE markers. Triggers: write paper, academic paper, guide my paper, parse reviews, audit my rebuttal, check my response draft, AI disclosure, 寫論文, 學術論文, 引導我寫論文, 審查意見, 評估回覆, 논문 작성, 초록 작성, 논문 수정, 논문 계획을 도와줘, 심사 의견 반영, 답변서 점검, AI 사용 고지."
+description: "12-agent academic paper writing pipeline. 11 modes (full/plan/outline/revision/revision-coach/abstract/lit-review/format-convert/citation-check/disclosure/rebuttal-audit). 6 paper types, 5 citation formats, bilingual abstracts, LaTeX/DOCX-via-Pandoc/PDF output. Style Calibration + Writing Quality Check + Anti-Patterns with IRON RULE markers. Triggers: write paper, academic paper, guide my paper, parse reviews, I got reviewer comments, revision roadmap, should we push back, conference rebuttal, grant panel response, audit my rebuttal, check my response draft, AI disclosure, 寫論文, 學術論文, 引導我寫論文, 審查意見, 我收到審查意見, 修訂路線圖, 評估回覆, 논문 작성, 초록 작성, 논문 수정, 논문 계획을 도와줘, 심사 의견을 받았어, 심사 의견 반영, 답변서 점검, AI 사용 고지, enmendar mi artículo, redactar artículo, guía mi artículo, analizar reseñas, auditar mi respuesta, verificar borrador de respuesta, verificar citas, divulgación de IA."
 metadata:
   version: "3.3.1"
   last_updated: "2026-08-15"
@@ -19,7 +19,7 @@ A general-purpose academic paper writing tool — 12-agent pipeline covering all
 
 **v2.5** adds two writing quality features:
 - **Style Calibration** (intake Step 10, optional) — Provide 3+ past papers and the pipeline learns your writing voice (sentence rhythm, vocabulary preferences, citation integration style). Applied as a soft guide during drafting; discipline conventions always take priority. See `shared/style_calibration_protocol.md`.
-- **Writing Quality Check** (`references/writing_quality_check.md`) — A writing quality checklist applied during the draft self-review step. Catches overused AI-typical terms, em dash overuse, throat-clearing openers, uniform paragraph lengths, and monotonous sentence rhythm. These are good writing rules, not detection evasion.
+- **Writing Quality Check** (`references/writing_quality_check.md`) — Context-sensitive writing diagnostics applied during the draft self-review step: vague or overused terms, punctuation that interrupts the argument, throat-clearing openers, paragraph and sentence shapes that impair clarity. Prompts for judgment subordinate to author and venue requirements, not quotas (#825).
 
 > **Routing discipline (v3.9.2):** see `.claude/CLAUDE.md` "Routing Discipline (v3.9.2)" + `shared/references/intent_clarification_protocol.md` for cross-skill routing rules. This skill assumes routing has already settled — ambiguous cross-phase materials should have been clarified upstream.
 
@@ -50,7 +50,9 @@ Write a paper on the impact of declining birth rates on private university manag
 
 ### Trigger Keywords
 
-**English**: write paper, academic paper, paper outline, write abstract, revise paper, literature review paper, check citations, convert to LaTeX, convert format, format paper, conference paper, journal article, thesis chapter, research paper, guide my paper, help me plan my paper, step by step paper, draft manuscript, write methodology, write discussion, parse reviews, revision roadmap, help me with my revision, I got reviewer comments, convert citations
+**English**: write paper, academic paper, paper outline, write abstract, revise paper, literature review paper, check citations, convert to LaTeX, convert format, format paper, conference paper, journal article, thesis chapter, research paper, guide my paper, help me plan my paper, step by step paper, draft manuscript, write methodology, write discussion, parse reviews, revision roadmap, help me with my revision, I got reviewer comments, should we push back, conference rebuttal, grant panel response, convert citations
+
+**Español**: redactar artículo, trabajo académico, esquema de artículo, escribir resumen, enmendar mi artículo, artículo de revisión bibliográfica, verificar citas, convertir a LaTeX, convertir formato, artículo de conferencia, artículo de revista, capítulo de tesis, artículo de investigación, guía mi artículo, ayúdame a planificar mi artículo, escribir artículo paso a paso, redactar manuscrito, escribir metodología, escribir discusión, analizar opiniones de revisores, ruta de revisión, ayúdame con mi revisión, recibí comentarios de revisores, convertir formato de citas
 
 **繁體中文**: 寫論文, 學術論文, 論文大綱, 寫摘要, 修改論文, 文獻回顧論文, 檢查引用, 轉 LaTeX, 轉換格式, 研討會論文, 期刊文章, 學位論文, 研究論文, 引導我寫論文, 幫我規劃論文, 逐步寫論文, 寫方法論, 寫討論, 審查意見, 修訂路線圖, 幫我修改, 我收到審查意見, 轉換引用格式
 
@@ -77,7 +79,7 @@ Activate `plan` mode when the user wants guidance, step-by-step planning, or exp
 | Primary output | Publishable paper draft | Research report |
 | Structure | Journal-ready (IMRaD, etc.) | APA 7.0 report |
 | Citation | Multi-format (APA/Chicago/MLA/IEEE/Vancouver) | APA 7.0 only |
-| Abstract | Bilingual (zh-TW + EN) | Single language |
+| Abstract | Pair-dependent bilingual (default zh-TW + EN) — the two abstract languages follow the run's declared `output_language_pair` | Single language |
 | Peer review | Simulated 5-dimension review | Editorial review |
 | Output format | LaTeX/DOCX (via Pandoc)/PDF/Markdown | Markdown only |
 | Revision loop | Max 2 rounds with targeted feedback | Max 2 rounds |
@@ -94,7 +96,7 @@ Activate `plan` mode when the user wants guidance, step-by-step planning, or exp
 | 4 | `argument_builder_agent` | Argument construction, claim-evidence chains, logical flow, counter-argument handling; Plan mode argument stress test | Phase 3 / Plan Step 3 |
 | 5 | `draft_writer_agent` | Section-by-section full draft writing, discipline register adjustment, word count tracking | Phase 4 |
 | 6 | `citation_compliance_agent` | Citation format verification, reference list completeness, DOI checking | Phase 5a |
-| 7 | `abstract_bilingual_agent` | Bilingual abstract (zh-TW + EN), 5-7 keywords each | Phase 5b |
+| 7 | `abstract_bilingual_agent` | Pair-dependent bilingual abstract (default zh-TW + EN), keyword count from the regime table in `references/abstract_writing_guide.md` | Phase 5b |
 | 8 | `peer_reviewer_agent` | Simulated double-blind review, five-perspective categorical assessment, revision suggestions (max 2 rounds) | Phase 6 |
 | 9 | `formatter_agent` | Convert to LaTeX/DOCX (via Pandoc)/PDF/Markdown, journal formatting, cover letter, citation format conversion (APA 7 / Chicago / MLA / IEEE / Vancouver) | Phase 7 |
 | 10 | `socratic_mentor_agent` | Plan mode Socratic mentor: chapter-by-chapter guidance, convergence criteria (4 signals), question taxonomy (4 types), INSIGHT extraction | Plan Step 0-3 |
@@ -452,10 +454,10 @@ Explicit prohibitions to prevent common failure modes:
 
 | # | Anti-Pattern | Why It Fails | Correct Behavior |
 |---|-------------|-------------|-----------------|
-| 1 | **AI-typical overused terms** | "delve into", "crucial", "it is important to note" = instant AI detection | Use discipline-specific vocabulary; see `references/writing_quality_check.md` |
-| 2 | **Em dash abuse** | More than 2 em dashes per page signals AI writing | Use parentheses, commas, or restructure the sentence |
+| 1 | **Vague default vocabulary** | "delve into", "crucial", "it is important to note" are usually less precise than the discipline's own term | Use discipline-specific vocabulary; see `references/writing_quality_check.md` (diagnostic, not a ban) |
+| 2 | **Em dashes that interrupt the argument** | A parenthetical aside that breaks the sentence's logic costs the reader more than it adds | Use parentheses, commas, or restructure the sentence when that reads better |
 | 3 | **Throat-clearing openers** | "In this section, we will discuss..." adds no information | Start with the claim or finding directly |
-| 4 | **Uniform paragraph lengths** | Every paragraph is 4-5 sentences = monotonous AI rhythm | Vary paragraph length naturally (2-8 sentences) |
+| 4 | **Padded or overloaded paragraphs** | A paragraph stretched or split to meet a preset length hides where the argument actually turns | Give each paragraph the space its point needs; do not pad, split, or vary length to satisfy a template |
 | 5 | **⚠️ IRON RULE: Fabricated citations** | Inventing plausible-sounding references that don't exist | Every citation must be verified via DOI or WebSearch; see `academic-pipeline/agents/integrity_verification_agent.md` |
 | 6 | **Sycophantic revision** | Accepting all reviewer feedback without critical evaluation | Use REVIEWER_DISAGREE status when reviewer is wrong; justify with evidence |
 | 7 | **Scope creep during revision** | Adding unrequested sections/analyses to "improve" the paper | Revision addresses reviewer concerns only; new content requires explicit user approval |
@@ -473,10 +475,10 @@ Explicit prohibitions to prevent common failure modes:
 5. **Word count compliance** — within +/-10% of target
 
 ### Bilingual Abstract Quality
-6. **Independent writing** — zh-TW and EN abstracts are independently composed, NOT mechanical translations
+6. **Independent writing** — the two abstracts of the run's declared pair (default zh-TW and EN) are independently composed, NOT mechanical translations
 7. **Structural alignment** — both abstracts cover the same key points in the same order
-8. **Keywords** — 5-7 per language, reflecting the paper's core concepts
-9. **Word count** — EN: 150-300 words; zh-TW: 300-500 characters
+8. **Keywords** — count per language from the regime table in `references/abstract_writing_guide.md`, reflecting the paper's core concepts
+9. **Word count** — per the regime table in `references/abstract_writing_guide.md` for the run's declared pair and paper type (no figure restated here)
 
 ### Citation Quality
 10. **Format compliance** — 100% adherence to selected citation style
@@ -499,7 +501,7 @@ Explicit prohibitions to prevent common failure modes:
 
 ## Output Language
 
-Follows the user's language. Academic terminology is kept in English. Bilingual abstracts are always provided regardless of the main text language.
+Follows the user's language. Academic terminology is kept in English. The bilingual abstract follows the declared output language pair (`output_language_pair`) — nothing more. The pair selects the two abstract languages; it is not a body-language setting and not an abstract-cardinality setting (Bilingual / EN-only / zh-TW-only is a separate intake answer). The default entry `zh-tw-en` is Traditional Chinese (L1) + English (L2) — the pre-#862 pair, so a run that omits the field reproduces the legacy object keys and the legacy heading literals and omits the serialized key. Registry and language roles: [`shared/output_language_pair.md`](../shared/output_language_pair.md). Abstract length and keyword counts: the regime table in [`references/abstract_writing_guide.md`](references/abstract_writing_guide.md).
 
 ---
 

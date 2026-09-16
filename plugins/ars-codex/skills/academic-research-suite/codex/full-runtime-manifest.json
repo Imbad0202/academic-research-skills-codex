@@ -11,7 +11,7 @@
       "hooks": "ARS_CODEX_HOOKS=1",
       "topology_experiment": "ARS_CODEX_TOPOLOGY_EXPERIMENT=1 and ARS_CODEX_TOPOLOGY_ARM=<registered-arm>"
     },
-    "fallback_when_disabled": "Use the root SKILL.md router and run ARS agent prompts inline in the current Codex conversation."
+    "fallback_when_disabled": "Use the root SKILL.md router with native adaptive delegation for useful independent subtasks; run roles inline when delegation is unavailable or adds no value. Fixed topologies and hook installation remain opt-in."
   },
   "paths": {
     "root_skill": "skills/academic-research-suite/SKILL.md",
@@ -24,9 +24,75 @@
     "topology_experiment_runner": "skills/academic-research-suite/codex/scripts/ars_codex_topology_experiment.py"
   },
   "runtime_options": {
+    "model_policy": {
+      "preferred_model": "gpt-6-astra",
+      "project_default_reference": ".codex/config.toml",
+      "model_override_environment": "ARS_CODEX_MODEL",
+      "effort_override_environment": "ARS_CODEX_REASONING_EFFORT",
+      "observation_environment": [
+        "ARS_CODEX_ACTIVE_MODEL",
+        "ARS_CODEX_ACTIVE_REASONING_EFFORT"
+      ],
+      "observation_authority": "caller_reported_only_not_runtime_attestation",
+      "codex_supported_reasoning_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra"
+      ],
+      "codex_catalog_default_reasoning_effort": "medium",
+      "reasoning_defaults": {
+        "routine": "medium",
+        "judgment_or_complex_research": "xhigh"
+      },
+      "routine_agents": [
+        "field_analyst_agent",
+        "state_tracker_agent"
+      ],
+      "reasoning_policy_evidence": "Repository quality policy, not a measured optimum or a system-card prescription. max and ultra require an explicit selection; ultra permits proactive native delegation where supported.",
+      "api_boundary": "Codex effort values do not establish Responses API support. Never forward Codex ultra to a first-party API; validate API settings against that endpoint's current contract.",
+      "routine_modes": {
+        "deep-research": [
+          "quick",
+          "socratic",
+          "three-way-scan",
+          "fact-check"
+        ],
+        "academic-paper": [
+          "plan",
+          "abstract-only",
+          "format-convert",
+          "citation-check",
+          "disclosure"
+        ],
+        "academic-paper-reviewer": [],
+        "academic-pipeline": [
+          "mark-read",
+          "unmark-read",
+          "cache-invalidate"
+        ],
+        "experiment-agent": []
+      },
+      "capability_evidence": {
+        "source": "Codex model catalog and generated app-server schema",
+        "catalog_fetched_at": "2026-09-05T18:17:53.817476Z",
+        "cli_version": "0.153.4",
+        "model_catalog_slug": "gpt-6-astra",
+        "api_catalog_listing": true,
+        "api_live_validation": "not_run",
+        "system_card_behavior_reference": "codex/model-runtime-policy.md"
+      },
+      "selection_contract": "The planner emits argv and role targets without executing them or changing the current conversation. Explicit model selection takes precedence; an unknown model receives no guessed effort or inherited Astra capability claims.",
+      "delegation": "Native adaptive delegation is available without ARS_CODEX flags when the host exposes tools. Dispatch only concrete independent work; preserve reviewer withholding and evidence boundaries. Fixed topology experiments and hooks remain opt-in."
+    },
     "cross_model_transport": {
       "environment": "ARS_CROSS_MODEL_TRANSPORT",
-      "allowed_values": ["api", "codex"],
+      "allowed_values": [
+        "api",
+        "codex"
+      ],
       "variable_may_be_absent": true,
       "normalized_absent_label": "unset",
       "unset_behavior": "Use the existing API transport when ARS_CROSS_MODEL is configured.",
@@ -36,12 +102,20 @@
       "codex_requires_ars_cross_model": true,
       "codex_min_cli_version": "0.147.0",
       "codex_login_attestation": "Logged in using ChatGPT",
-      "codex_login_attestation_streams": ["stdout", "stderr"],
+      "codex_login_attestation_streams": [
+        "stdout",
+        "stderr"
+      ],
       "codex_provider_schema_omits_unique_items": true,
       "codex_local_duplicate_source_refusal": true,
       "codex_code_mode_disabled": true,
       "codex_search_host_available": true,
-      "codex_forbidden_uses": ["devils_advocate", "reviewer_seat", "re_review_judge", "general_judgment"]
+      "codex_forbidden_uses": [
+        "devils_advocate",
+        "reviewer_seat",
+        "re_review_judge",
+        "general_judgment"
+      ]
     },
     "pdf_content_classifier": {
       "mode": "optional_advisory",
@@ -49,7 +123,11 @@
       "dependency_file": "ars/requirements-pdf-content-classifier.txt",
       "auto_install": false,
       "verdict_scope": "STRUCTURE_ONLY",
-      "allowed_advisory_states": ["TEXT_AVAILABLE", "OCR_RECOMMENDED", "unavailable"]
+      "allowed_advisory_states": [
+        "TEXT_AVAILABLE",
+        "OCR_RECOMMENDED",
+        "unavailable"
+      ]
     },
     "research_workflow_profile": {
       "mode": "default_off_deterministic_substrate",
@@ -66,33 +144,191 @@
       "default_enabled": false,
       "execution": "local_offline",
       "publication_threshold": "second_branch",
-      "summary_moments": ["design_freeze", "stage_2_5", "stage_4_5", "recorded_reopen_signal"],
+      "summary_moments": [
+        "design_freeze",
+        "stage_2_5",
+        "stage_4_5",
+        "recorded_reopen_signal"
+      ],
       "external_call_authority": false,
       "outcome_claims": "none"
     }
   },
   "commands": [
-    {"aliases": ["/ars-plan", "ars-plan"], "recipe": "ars/commands/ars-plan.md", "workflow": "academic-paper", "mode": "plan", "model_hint": "sonnet"},
-    {"aliases": ["/ars-outline", "ars-outline"], "recipe": "ars/commands/ars-outline.md", "workflow": "academic-paper", "mode": "outline-only", "model_hint": "sonnet"},
-    {"aliases": ["/ars-abstract", "ars-abstract"], "recipe": "ars/commands/ars-abstract.md", "workflow": "academic-paper", "mode": "abstract-only", "model_hint": "sonnet"},
-    {"aliases": ["/ars-lit-review", "ars-lit-review"], "recipe": "ars/commands/ars-lit-review.md", "workflow": "academic-paper", "mode": "lit-review", "model_hint": "sonnet"},
-    {"aliases": ["/ars-3w", "ars-3w"], "recipe": "ars/commands/ars-3w.md", "workflow": "deep-research", "mode": "three-way-scan", "model_hint": "sonnet"},
-    {"aliases": ["/ars-citation-check", "ars-citation-check"], "recipe": "ars/commands/ars-citation-check.md", "workflow": "academic-paper", "mode": "citation-check", "model_hint": "sonnet"},
-    {"aliases": ["/ars-disclosure", "ars-disclosure"], "recipe": "ars/commands/ars-disclosure.md", "workflow": "academic-paper", "mode": "disclosure", "model_hint": "sonnet"},
-    {"aliases": ["/ars-format-convert", "ars-format-convert"], "recipe": "ars/commands/ars-format-convert.md", "workflow": "academic-paper", "mode": "format-convert", "model_hint": "sonnet"},
-    {"aliases": ["/ars-revision-coach", "ars-revision-coach"], "recipe": "ars/commands/ars-revision-coach.md", "workflow": "academic-paper", "mode": "revision-coach", "model_hint": "inherit"},
-    {"aliases": ["/ars-revision", "ars-revision"], "recipe": "ars/commands/ars-revision.md", "workflow": "academic-paper", "mode": "revision", "model_hint": "sonnet"},
-    {"aliases": ["/ars-rebuttal-audit", "ars-rebuttal-audit"], "recipe": "ars/commands/ars-rebuttal-audit.md", "workflow": "academic-paper", "mode": "rebuttal-audit", "model_hint": "sonnet"},
-    {"aliases": ["/ars-full", "ars-full"], "recipe": "ars/commands/ars-full.md", "workflow": "academic-pipeline", "mode": "pipeline", "model_hint": "inherit"},
-    {"aliases": ["/ars-reviewer", "ars-reviewer"], "recipe": "ars/commands/ars-reviewer.md", "workflow": "academic-paper-reviewer", "mode": "full", "model_hint": "inherit"},
-    {"aliases": ["/ars-mark-read", "ars-mark-read"], "recipe": "ars/commands/ars-mark-read.md", "workflow": "academic-pipeline", "mode": "mark-read", "model_hint": "sonnet"},
-    {"aliases": ["/ars-unmark-read", "ars-unmark-read"], "recipe": "ars/commands/ars-unmark-read.md", "workflow": "academic-pipeline", "mode": "unmark-read", "model_hint": "sonnet"},
-    {"aliases": ["/ars-cache-invalidate", "ars-cache-invalidate"], "recipe": "ars/commands/ars-cache-invalidate.md", "workflow": "academic-pipeline", "mode": "cache-invalidate", "model_hint": "sonnet"}
+    {
+      "aliases": [
+        "/ars-plan",
+        "ars-plan"
+      ],
+      "recipe": "ars/commands/ars-plan.md",
+      "workflow": "academic-paper",
+      "mode": "plan",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-outline",
+        "ars-outline"
+      ],
+      "recipe": "ars/commands/ars-outline.md",
+      "workflow": "academic-paper",
+      "mode": "outline-only",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-abstract",
+        "ars-abstract"
+      ],
+      "recipe": "ars/commands/ars-abstract.md",
+      "workflow": "academic-paper",
+      "mode": "abstract-only",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-lit-review",
+        "ars-lit-review"
+      ],
+      "recipe": "ars/commands/ars-lit-review.md",
+      "workflow": "academic-paper",
+      "mode": "lit-review",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-3w",
+        "ars-3w"
+      ],
+      "recipe": "ars/commands/ars-3w.md",
+      "workflow": "deep-research",
+      "mode": "three-way-scan",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-citation-check",
+        "ars-citation-check"
+      ],
+      "recipe": "ars/commands/ars-citation-check.md",
+      "workflow": "academic-paper",
+      "mode": "citation-check",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-disclosure",
+        "ars-disclosure"
+      ],
+      "recipe": "ars/commands/ars-disclosure.md",
+      "workflow": "academic-paper",
+      "mode": "disclosure",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-format-convert",
+        "ars-format-convert"
+      ],
+      "recipe": "ars/commands/ars-format-convert.md",
+      "workflow": "academic-paper",
+      "mode": "format-convert",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-revision-coach",
+        "ars-revision-coach"
+      ],
+      "recipe": "ars/commands/ars-revision-coach.md",
+      "workflow": "academic-paper",
+      "mode": "revision-coach",
+      "model_hint": "inherit"
+    },
+    {
+      "aliases": [
+        "/ars-revision",
+        "ars-revision"
+      ],
+      "recipe": "ars/commands/ars-revision.md",
+      "workflow": "academic-paper",
+      "mode": "revision",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-rebuttal-audit",
+        "ars-rebuttal-audit"
+      ],
+      "recipe": "ars/commands/ars-rebuttal-audit.md",
+      "workflow": "academic-paper",
+      "mode": "rebuttal-audit",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-full",
+        "ars-full"
+      ],
+      "recipe": "ars/commands/ars-full.md",
+      "workflow": "academic-pipeline",
+      "mode": "pipeline",
+      "model_hint": "inherit"
+    },
+    {
+      "aliases": [
+        "/ars-reviewer",
+        "ars-reviewer"
+      ],
+      "recipe": "ars/commands/ars-reviewer.md",
+      "workflow": "academic-paper-reviewer",
+      "mode": "full",
+      "model_hint": "inherit"
+    },
+    {
+      "aliases": [
+        "/ars-mark-read",
+        "ars-mark-read"
+      ],
+      "recipe": "ars/commands/ars-mark-read.md",
+      "workflow": "academic-pipeline",
+      "mode": "mark-read",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-unmark-read",
+        "ars-unmark-read"
+      ],
+      "recipe": "ars/commands/ars-unmark-read.md",
+      "workflow": "academic-pipeline",
+      "mode": "unmark-read",
+      "model_hint": "sonnet"
+    },
+    {
+      "aliases": [
+        "/ars-cache-invalidate",
+        "ars-cache-invalidate"
+      ],
+      "recipe": "ars/commands/ars-cache-invalidate.md",
+      "workflow": "academic-pipeline",
+      "mode": "cache-invalidate",
+      "model_hint": "sonnet"
+    }
   ],
   "workflows": {
     "deep-research": {
       "workflow_path": "ars/deep-research/WORKFLOW.md",
-      "modes": ["full", "quick", "socratic", "review", "lit-review", "three-way-scan", "fact-check", "systematic-review"],
+      "modes": [
+        "full",
+        "quick",
+        "socratic",
+        "review",
+        "lit-review",
+        "three-way-scan",
+        "fact-check",
+        "systematic-review"
+      ],
       "agent_template": "codex/agents/deep-research-team.md",
       "agent_prompts": [
         "research_question_agent.md",
@@ -113,7 +349,19 @@
     },
     "academic-paper": {
       "workflow_path": "ars/academic-paper/WORKFLOW.md",
-      "modes": ["full", "plan", "outline-only", "revision", "revision-coach", "abstract-only", "lit-review", "format-convert", "citation-check", "disclosure", "rebuttal-audit"],
+      "modes": [
+        "full",
+        "plan",
+        "outline-only",
+        "revision",
+        "revision-coach",
+        "abstract-only",
+        "lit-review",
+        "format-convert",
+        "citation-check",
+        "disclosure",
+        "rebuttal-audit"
+      ],
       "agent_template": "codex/agents/academic-paper-team.md",
       "agent_prompts": [
         "intake_agent.md",
@@ -132,7 +380,14 @@
     },
     "academic-paper-reviewer": {
       "workflow_path": "ars/academic-paper-reviewer/WORKFLOW.md",
-      "modes": ["full", "re-review", "quick", "methodology-focus", "guided", "calibration"],
+      "modes": [
+        "full",
+        "re-review",
+        "quick",
+        "methodology-focus",
+        "guided",
+        "calibration"
+      ],
       "agent_template": "codex/agents/paper-reviewer-panel.md",
       "independent_before_synthesis": true,
       "agent_prompts": [
@@ -147,7 +402,10 @@
     },
     "academic-pipeline": {
       "workflow_path": "ars/academic-pipeline/WORKFLOW.md",
-      "modes": ["pipeline", "resume_from_passport"],
+      "modes": [
+        "pipeline",
+        "resume_from_passport"
+      ],
       "agent_template": "codex/agents/academic-pipeline-orchestrator.md",
       "agent_prompts": [
         "pipeline_orchestrator_agent.md",
@@ -159,23 +417,32 @@
     },
     "experiment-agent": {
       "workflow_path": "ars/experiment-agent/WORKFLOW.md",
-      "modes": ["study-protocol", "code-experiment", "statistical-interpretation", "reproducibility"],
+      "modes": [
+        "study-protocol",
+        "code-experiment",
+        "statistical-interpretation",
+        "reproducibility"
+      ],
       "agent_template": "codex/agents/experiment-team.md",
-      "agent_prompts": ["study_manager_agent.md", "code_runner_agent.md"]
+      "agent_prompts": [
+        "study_manager_agent.md",
+        "code_runner_agent.md"
+      ]
     }
   },
   "agent_team_rules": {
-    "spawn_condition": "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1",
+    "spawn_condition": "Native delegation follows the active runtime's tools and user instructions; use it for concrete independent subtasks when useful.",
+    "fixed_topology_condition": "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1",
     "topology_experiment_condition": "A non-default arm requires ARS_CODEX_TOPOLOGY_EXPERIMENT=1, a registered ARS_CODEX_TOPOLOGY_ARM, and agent-team runtime. An arm variable alone is ignored.",
     "topology_experiment_policy": "The planner records an explicit DAG and edge-level information policy. Experimental reports retain outcome quality, coordination cost, duplicate contributions, and verifier catches separately; they do not update routing or defaults.",
-    "inline_fallback": "When either flag is absent, read the same agent prompt files and execute phases inline.",
+    "inline_fallback": "If delegation is unavailable or offers no useful independent work, execute role prompts inline and disclose limits to reviewer independence.",
     "reviewer_independence": [
       "For academic-paper-reviewer full and methodology-focus modes, create independent reviewer work products before editorial synthesis.",
       "Reviewer prompts may receive the manuscript and public rubric, but not another reviewer's draft output before their own section is complete.",
       "The synthesizer must build a finding matrix and preserve minority, dissenting, devil's advocate, and methodology findings unless explicitly resolved by severity and evidence."
     ],
     "minority_preservation": "Synthesis may prioritize by severity, but must not erase a reviewer-specific concern by majority vote alone.",
-    "model_mapping": "Claude model hints are advisory. Codex uses the active model unless an explicit user/runtime override exists.",
+    "model_mapping": "Use the gpt-6-astra model policy for Codex launch and dispatch recommendations. Explicit user/runtime selections take precedence. Claude frontmatter is upstream metadata. A plan is never evidence that the current session or a worker actually changed models.",
     "model_tiering": "ARS_MODEL_TIERING is surfaced as advisory metadata. Apply the upstream judgment/execution classification only when the runtime provides an explicit per-dispatch model override; otherwise announce a no-op and keep the active model.",
     "cross_model_transport_selector": "ARS_CROSS_MODEL_TRANSPORT is a closed selector: an absent variable or literal api preserves the API route; codex selects only the contained citation-integrity transport. The planner normalizes absence to the display label unset; literal unset and every other value are visible fail-closed configuration errors.",
     "cross_model_handoff": "Only the unset/api transport may carry an explicitly enabled and consented [CROSS-MODEL-HANDOFF v1] reviewer or judgment request. Validate with ars/scripts/cross_model_handoff.py, send only the payload, apply mechanical agreement/divergence routing, and return judgment work to the original owner.",
@@ -206,74 +473,456 @@
     "data_access_metadata": "Workflow and agent data_access_level annotations are declarative dirtiest-input metadata. They do not create a sandbox, runtime permission, declassification, or transport authority."
   },
   "quality_gates": [
-    {"id": "single_root_skill", "kind": "packaging", "runner": "manifest", "parity": "full"},
-    {"id": "alias_coverage", "kind": "routing", "runner": "manifest", "parity": "near"},
-    {"id": "vague_topic_socratic", "kind": "routing", "runner": "router", "parity": "near"},
-    {"id": "phase_boundary", "kind": "routing", "runner": "upstream:ars/scripts/check_v3_9_2_phase_boundary.py", "parity": "near"},
-    {"id": "model_tiering_classification", "kind": "agent-team", "runner": "upstream:ars/scripts/check_model_tiering.py", "parity": "partial"},
-    {"id": "tools_allowlist", "kind": "agent-team", "runner": "upstream:ars/scripts/check_tools_allowlist.py", "parity": "near"},
-    {"id": "cross_model_handoff", "kind": "agent-team", "runner": "upstream:ars/scripts/check_cross_model_handoff_contract.py", "parity": "near"},
-    {"id": "panel_synthesis", "kind": "review", "runner": "upstream:ars/scripts/check_panel_synthesis.py", "parity": "near"},
-    {"id": "pipeline_boundary_semantics", "kind": "routing", "runner": "upstream:ars/scripts/check_pipeline_boundary_semantics.py", "parity": "near"},
-    {"id": "degradation_registry", "kind": "integrity", "runner": "upstream:ars/scripts/check_degradation_registry.py", "parity": "near"},
-    {"id": "citation_transport_fixtures", "kind": "integrity", "runner": "upstream:ars/scripts/test_transport_fixture_citation_gate.py", "parity": "near"},
-    {"id": "v320_codex_subscription_transport_contract", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_630_codex_subscription_transport.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_codex_subscription_transport_runtime", "kind": "integrity", "runner": "upstream:ars/scripts/test_cross_model_codex_transport.py", "parity": "near", "execution": "hermetic"},
-    {"id": "citation_cache_revalidation", "kind": "integrity", "runner": "upstream:ars/scripts/test_verification_cache.py", "parity": "near"},
-    {"id": "pdf_read_integrity", "kind": "integrity", "runner": "upstream:ars/scripts/test_pdf_read_preflight.py", "parity": "near"},
-    {"id": "v320_pdf_content_classifier_isolation", "kind": "integrity", "runner": "upstream:ars/scripts/test_pdf_read_preflight.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_phase_e_evidence_rows", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_evidence_row_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_revision_roadmap_author_adjudication", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_670_revision_roadmap_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_post_terminal_adjudication_activity", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_673_adjudication_activity.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_human_subjects_authority", "kind": "integrity", "runner": "upstream:ars/scripts/test_resolve_human_subjects_authority.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_review_pathway_rule_trace", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_669_review_pathway_rule_trace.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_submission_packet_manifest", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_submission_packet_manifest_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_human_subjects_reference_migration", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_human_subjects_reference_migration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_human_subjects_content_coverage", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_content_coverage_advisory_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_bibliographic_integrity_signals", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_bibliographic_integrity_signals.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_retraction_status", "kind": "integrity", "runner": "upstream:ars/scripts/test_retraction_status.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_tortured_phrase_advisory", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_tortured_phrase_screening_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_preregistration_cross_document_advisory", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_cross_document_consistency_advisory_integration.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_review_target_context", "kind": "integrity", "runner": "upstream:ars/scripts/test_resolve_review_target_context.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_review_criteria_binding", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_684_review_criteria_binding.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v320_committee_correspondence", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_committee_correspondence.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_socratic_rq_non_generation", "kind": "routing", "runner": "upstream:ars/scripts/test_socratic_rq_non_generation_contract.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_reviewer_scoring_honesty", "kind": "review", "runner": "upstream:ars/scripts/test_check_reviewer_scoring_honesty.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_review_panel_provenance", "kind": "review", "runner": "upstream:ars/scripts/test_review_panel_provenance.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_claim_registry_coverage", "kind": "integrity", "runner": "upstream:ars/scripts/test_claim_registry_coverage.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_claim_strength_disposition", "kind": "integrity", "runner": "upstream:ars/scripts/test_claim_strength_drift_disposition.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_human_read_attestation_resolver", "kind": "material-passport", "runner": "upstream:ars/scripts/test_human_read_attestation_resolver.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_claim_standing_stance", "kind": "evaluation", "runner": "upstream:ars/scripts/test_claim_standing_stance_runner.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3201_ideation_assignment_gate", "kind": "evaluation", "runner": "upstream:ars/scripts/test_ideation_diversity_assignment_gate.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v321_claim_standing_query_plan", "kind": "evaluation", "runner": "upstream:ars/scripts/test_build_claim_standing_query_plan.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v321_claim_standing_freshness", "kind": "evaluation", "runner": "upstream:ars/scripts/test_check_claim_standing_freshness.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v321_claim_standing_transmissions", "kind": "evaluation", "runner": "upstream:ars/scripts/test_claim_standing_transmissions.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v321_claim_standing_pipeline_wiring", "kind": "evaluation", "runner": "upstream:ars/scripts/test_claim_standing_pipeline_wiring.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v321_stage_capability_matrix", "kind": "transparency", "runner": "upstream:ars/scripts/check_stage_capability_matrix.py", "parity": "near"},
-    {"id": "v321_control_availability", "kind": "transparency", "runner": "upstream:ars/scripts/check_control_availability.py", "parity": "near"},
-    {"id": "v321_data_flows", "kind": "transparency", "runner": "upstream:ars/scripts/check_data_flows.py", "parity": "near"},
-    {"id": "v321_risk_register", "kind": "transparency", "runner": "upstream:ars/scripts/check_risk_register.py", "parity": "near"},
-    {"id": "v3211_research_workflow_profile", "kind": "transparency", "runner": "upstream:ars/scripts/test_research_workflow_profile.py", "parity": "partial", "execution": "hermetic"},
-    {"id": "v3211_inquiry_branch_ledger", "kind": "integrity", "runner": "upstream:ars/scripts/test_inquiry_branch_ledger.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3211_data_access_level", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_data_access_level.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3211_review_criteria_source_proving_set", "kind": "integrity", "runner": "upstream:ars/scripts/test_review_criteria_binding.py", "parity": "near", "execution": "hermetic"},
-    {"id": "v3211_promotion_bakeoff_preregistration_contract", "kind": "evaluation", "runner": "upstream:ars/scripts/test_check_promotion_bakeoff_preregistration.py", "parity": "partial", "execution": "hermetic"},
-    {"id": "human_read_scope", "kind": "material-passport", "runner": "upstream:ars/scripts/test_ars_mark_read.py", "parity": "near"},
-    {"id": "revision_token_conservation", "kind": "integrity", "runner": "upstream:ars/scripts/test_check_revision_token_conservation.py", "parity": "near"},
-    {"id": "passport_reset_contract", "kind": "material-passport", "runner": "upstream:ars/scripts/check_passport_reset_contract.py", "parity": "near"},
-    {"id": "citation_claim_audit", "kind": "integrity", "runner": "upstream:ars/scripts/claim_audit_pipeline.py", "parity": "partial"},
-    {"id": "temporal_integrity", "kind": "integrity", "runner": "upstream:ars/scripts/temporal_integrity_audit.py", "parity": "near"},
-    {"id": "reviewer_independence", "kind": "agent-team", "runner": "fixture", "parity": "near"},
-    {"id": "topology_experiment", "kind": "agent-team", "runner": "topology-experiment", "parity": "exploratory"},
-    {"id": "hook_safety", "kind": "hooks", "runner": "hook-safety", "parity": "partial"},
-    {"id": "upstream_lock", "kind": "provenance", "runner": "manifest", "parity": "near"}
+    {
+      "id": "single_root_skill",
+      "kind": "packaging",
+      "runner": "manifest",
+      "parity": "full"
+    },
+    {
+      "id": "alias_coverage",
+      "kind": "routing",
+      "runner": "manifest",
+      "parity": "near"
+    },
+    {
+      "id": "vague_topic_socratic",
+      "kind": "routing",
+      "runner": "router",
+      "parity": "near"
+    },
+    {
+      "id": "phase_boundary",
+      "kind": "routing",
+      "runner": "upstream:ars/scripts/check_v3_9_2_phase_boundary.py",
+      "parity": "near"
+    },
+    {
+      "id": "model_tiering_classification",
+      "kind": "agent-team",
+      "runner": "upstream:ars/scripts/check_model_tiering.py",
+      "parity": "partial"
+    },
+    {
+      "id": "tools_allowlist",
+      "kind": "agent-team",
+      "runner": "upstream:ars/scripts/check_tools_allowlist.py",
+      "parity": "near"
+    },
+    {
+      "id": "cross_model_handoff",
+      "kind": "agent-team",
+      "runner": "upstream:ars/scripts/check_cross_model_handoff_contract.py",
+      "parity": "near"
+    },
+    {
+      "id": "panel_synthesis",
+      "kind": "review",
+      "runner": "upstream:ars/scripts/check_panel_synthesis.py",
+      "parity": "near"
+    },
+    {
+      "id": "pipeline_boundary_semantics",
+      "kind": "routing",
+      "runner": "upstream:ars/scripts/check_pipeline_boundary_semantics.py",
+      "parity": "near"
+    },
+    {
+      "id": "degradation_registry",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/check_degradation_registry.py",
+      "parity": "near"
+    },
+    {
+      "id": "citation_transport_fixtures",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_transport_fixture_citation_gate.py",
+      "parity": "near"
+    },
+    {
+      "id": "v320_codex_subscription_transport_contract",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_630_codex_subscription_transport.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_codex_subscription_transport_runtime",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_cross_model_codex_transport.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "citation_cache_revalidation",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_verification_cache.py",
+      "parity": "near"
+    },
+    {
+      "id": "pdf_read_integrity",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_pdf_read_preflight.py",
+      "parity": "near"
+    },
+    {
+      "id": "v320_pdf_content_classifier_isolation",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_pdf_read_preflight.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_phase_e_evidence_rows",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_evidence_row_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_revision_roadmap_author_adjudication",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_670_revision_roadmap_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_post_terminal_adjudication_activity",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_673_adjudication_activity.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_human_subjects_authority",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_resolve_human_subjects_authority.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_review_pathway_rule_trace",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_669_review_pathway_rule_trace.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_submission_packet_manifest",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_submission_packet_manifest_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_human_subjects_reference_migration",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_human_subjects_reference_migration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_human_subjects_content_coverage",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_content_coverage_advisory_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_bibliographic_integrity_signals",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_bibliographic_integrity_signals.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_retraction_status",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_retraction_status.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_tortured_phrase_advisory",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_tortured_phrase_screening_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_preregistration_cross_document_advisory",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_cross_document_consistency_advisory_integration.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_review_target_context",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_resolve_review_target_context.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_review_criteria_binding",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_684_review_criteria_binding.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v320_committee_correspondence",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_committee_correspondence.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_socratic_rq_non_generation",
+      "kind": "routing",
+      "runner": "upstream:ars/scripts/test_socratic_rq_non_generation_contract.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_reviewer_scoring_honesty",
+      "kind": "review",
+      "runner": "upstream:ars/scripts/test_check_reviewer_scoring_honesty.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_review_panel_provenance",
+      "kind": "review",
+      "runner": "upstream:ars/scripts/test_review_panel_provenance.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_claim_registry_coverage",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_claim_registry_coverage.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_claim_strength_disposition",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_claim_strength_drift_disposition.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_human_read_attestation_resolver",
+      "kind": "material-passport",
+      "runner": "upstream:ars/scripts/test_human_read_attestation_resolver.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_claim_standing_stance",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_claim_standing_stance_runner.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3201_ideation_assignment_gate",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_ideation_diversity_assignment_gate.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v321_claim_standing_query_plan",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_build_claim_standing_query_plan.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v321_claim_standing_freshness",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_check_claim_standing_freshness.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v321_claim_standing_transmissions",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_claim_standing_transmissions.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v321_claim_standing_pipeline_wiring",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_claim_standing_pipeline_wiring.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v321_stage_capability_matrix",
+      "kind": "transparency",
+      "runner": "upstream:ars/scripts/check_stage_capability_matrix.py",
+      "parity": "near"
+    },
+    {
+      "id": "v321_control_availability",
+      "kind": "transparency",
+      "runner": "upstream:ars/scripts/check_control_availability.py",
+      "parity": "near"
+    },
+    {
+      "id": "v321_data_flows",
+      "kind": "transparency",
+      "runner": "upstream:ars/scripts/check_data_flows.py",
+      "parity": "near"
+    },
+    {
+      "id": "v321_risk_register",
+      "kind": "transparency",
+      "runner": "upstream:ars/scripts/check_risk_register.py",
+      "parity": "near"
+    },
+    {
+      "id": "v3211_research_workflow_profile",
+      "kind": "transparency",
+      "runner": "upstream:ars/scripts/test_research_workflow_profile.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3211_inquiry_branch_ledger",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_inquiry_branch_ledger.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3211_data_access_level",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_data_access_level.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3211_review_criteria_source_proving_set",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_review_criteria_binding.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3211_promotion_bakeoff_preregistration_contract",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_check_promotion_bakeoff_preregistration.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    },
+    {
+      "id": "human_read_scope",
+      "kind": "material-passport",
+      "runner": "upstream:ars/scripts/test_ars_mark_read.py",
+      "parity": "near"
+    },
+    {
+      "id": "revision_token_conservation",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_revision_token_conservation.py",
+      "parity": "near"
+    },
+    {
+      "id": "passport_reset_contract",
+      "kind": "material-passport",
+      "runner": "upstream:ars/scripts/check_passport_reset_contract.py",
+      "parity": "near"
+    },
+    {
+      "id": "citation_claim_audit",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/claim_audit_pipeline.py",
+      "parity": "partial"
+    },
+    {
+      "id": "temporal_integrity",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/temporal_integrity_audit.py",
+      "parity": "near"
+    },
+    {
+      "id": "reviewer_independence",
+      "kind": "agent-team",
+      "runner": "fixture",
+      "parity": "near"
+    },
+    {
+      "id": "topology_experiment",
+      "kind": "agent-team",
+      "runner": "topology-experiment",
+      "parity": "exploratory"
+    },
+    {
+      "id": "hook_safety",
+      "kind": "hooks",
+      "runner": "hook-safety",
+      "parity": "partial"
+    },
+    {
+      "id": "upstream_lock",
+      "kind": "provenance",
+      "runner": "manifest",
+      "parity": "near"
+    },
+    {
+      "id": "v322_output_language_pair",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_output_language_pair.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v322_shared_file_lock",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_file_lock.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v322_calibration_corpus",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_assemble_calibration_corpus.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v322_calibration_dispatch",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_dispatch_calibration_panel.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v322_calibration_scoring",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_score_calibration_run.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v322_calibration_measurement",
+      "kind": "evaluation",
+      "runner": "upstream:ars/scripts/test_build_calibration_measurement_row.py",
+      "parity": "partial",
+      "execution": "hermetic"
+    }
   ],
   "known_degradations": [
     "Codex does not install Claude Code slash commands. Aliases are parsed by the root skill and full-runtime planner.",
-    "Codex agent-team spawning is opt-in and planner-driven; inline mode remains the default.",
-    "Topology benchmark arms require a separate double opt-in. Experimental evidence never changes the inline default without a documented human go/no-go decision.",
+    "Native adaptive delegation depends on the host runtime's available tools. The deterministic planner's fixed agent-team topology and all hooks remain opt-in; an inline-solo planner fallback does not forbid useful native delegation.",
+    "Topology benchmark arms require a separate double opt-in. Frozen historical cohorts and measured results do not become current model defaults or automatic topology recommendations.",
     "Claude SessionStart and SubagentStop hooks are not installed automatically. The v3.18 upstream update reminder is therefore inactive; the Codex hook pack is local, safe-by-default, and must be explicitly enabled.",
-    "Claude model hints are recorded as metadata. Light modes retain sonnet; ars-full, ars-reviewer, and ars-revision-coach inherit the active Codex model because their upstream commands specify no model.",
+    "Claude model hints remain metadata. The gpt-6-astra launch plan and per-role model selections require host support and never mutate the current session; actual execution provenance must be recorded separately.",
     "ARS model tiering is classification-compatible but remains advisory unless the Codex runtime exposes explicit per-dispatch model selection.",
     "External cross-model reviewers and re-review judges require explicit API configuration plus content consent and are not silently simulated. The Codex subscription transport is citation-only and cannot substitute for them.",
     "The PDF read-integrity preflight depends on pypdf. When it is unavailable, Codex preserves the upstream UNAVAILABLE advisory instead of asserting PASS. The optional content classifier is not auto-installed and cannot alter the structural verdict.",

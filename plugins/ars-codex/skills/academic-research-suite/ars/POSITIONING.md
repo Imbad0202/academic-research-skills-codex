@@ -8,7 +8,7 @@ It is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4
 
 ## What this is not
 
-ARS is not an autonomous paper-writing system. It is not a replacement for the researcher. It does not claim authorship, and its outputs are not submission-ready without human review.
+ARS is not an autonomous paper-writing system. It is not a replacement for the researcher. It does not claim authorship, and its outputs are not submission-ready without human review. On the evaluative-authority ladder that Wang, Li et al. (2026, [arXiv:2609.07713](https://arxiv.org/abs/2609.07713), §4.1) draw for AI in scholarly evaluation, from author-facing feedback through reviewer assistance and official AI reviews to scoring and decision support, ARS's simulated review panel sits on the lowest rung by design: it produces feedback for the author, it carries no publication authority, and its outputs are inputs to human judgment, not substitutes for it.
 
 ## Rejected mechanisms (autonomous-research anti-patterns)
 
@@ -32,6 +32,7 @@ These are not "out of scope" footnotes. They are the load-bearing boundary that 
 - **Autonomous experiment execution / coding** (Kong §3.3). An LLM that runs experiments or code without scholar oversight. Rejected — and distinct from the shipped Experiment Provenance Intake (#260): ARS may ingest scholar-declared external experiment provenance and check manuscript claims against the declared results, but it must not initiate, run, modify, iterate, or treat tool-executed experiment / code outputs as evidence inside the pipeline.
 - **Physical wet-lab automation API** (Kong §7.4.6). An interface that drives liquid handlers or automated labs. Rejected: even with safeguards, this extends beyond a research copilot's scope into laboratory infrastructure, and conflicts with the copilot-not-pilot positioning.
 - **Simulated human-subjects review committee.** LLM lenses named after statutory committee seats, pre-committing a protocol risk level and combining seat judgments into a committee-like result. Rejected: statutory composition rules create an independent, representative, conflict-accountable human body; they are not an epistemic recipe whose legitimacy transfers to model personas ([45 CFR 46.107](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-46/subpart-A/section-46.107); [Taiwan Human Subjects Research Act, Art. 7](https://law.moj.gov.tw/ENG/LawClass/LawAll.aspx?pcode=L0020176)). A risk level cannot be meaningfully pre-committed before protocol facts are seen, determination letters are not ethical ground truth, and the unresolved reviewer severity-band error (#648) is especially consequential when risk language is the output. The ownership boundary is categorical: AI may generate questions or advisory observations, but a judgment that binds an absent person requires an accountable human owner. If this topic returns, the defensible object is an RFC and held-out evaluation of multi-lens *question generation*—concern recall, false reassurance, and abstention—not risk levels, committee verdicts, or a system called a committee.
+- **Volume as an outcome.** Batch-generating manuscripts, fanning one research run out into several submissions, or treating time-to-first-draft as a result to optimize. Rejected: ARS never batch-generates manuscripts, never drives multiple submissions from one run, and books time-to-draft as a resource cost, not an outcome; every run is one scholar's one manuscript, with the scholar confirming each stage transition. The external reason to say this out loud is journal-side: Gartenberg et al. (2026, *Organization Science* 37(3), [10.1287/orsc.2026.ed.v37.n3](https://doi.org/10.1287/orsc.2026.ed.v37.n3)) read one journal's 2021–2026 submission and review corpus as moving toward "more rather than better" research under current AI tools and publication incentives. That evidence is observational, aggregate, and from a single journal; ARS cites it as rationale for this boundary, not as a claim about its own output.
 
 These are first-party scope boundaries and review criteria for future changes, not runtime guarantees. First-party ARS treats each as out of scope; adding one would require changing this recorded boundary, not merely adding a feature.
 
@@ -95,5 +96,5 @@ These reflect our policy intent. See the [CC BY-NC 4.0 license](https://creative
 If you use ARS in your research, please cite it:
 
 ```
-Wu, C.-I. (2026). Academic Research Skills for Claude Code (Version 3.21.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.20696614
+Wu, C.-I. (2026). Academic Research Skills for Claude Code (Version 3.22.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.20696614
 ```

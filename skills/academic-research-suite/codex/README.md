@@ -7,16 +7,18 @@ patch.
 
 ## Runtime Profiles
 
-Default behavior remains inline:
+Default behavior uses native adaptive execution:
 
 ```text
 Use $academic-research-suite: ars-plan ...
 ```
 
 The root router reads the relevant `ars/*/WORKFLOW.md` and agent prompt files,
-then performs the phase in the current Codex conversation.
+then works inline or delegates useful independent work through native collaboration.
+Read [model/runtime policy](model-runtime-policy.md) for Astra selection and
+[the source audit](audits/2026-09-06-model-alignment.md) for the evidence.
 
-Full-runtime behavior is opt-in:
+The fixed full-runtime topology and hooks are opt-in:
 
 ```bash
 export ARS_CODEX_FULL_RUNTIME=1
@@ -31,8 +33,9 @@ export ARS_CODEX_HOOKS=1
 - `ARS_CODEX_HOOKS=1` permits manual installation of the disabled-by-default
   hook pack in `codex/hooks/`.
 
-If a flag is absent, the adapter degrades to inline role-prompt execution and
-must report that degraded behavior.
+Without these flags, native adaptive execution remains available. If the runtime
+lacks collaboration tools, execute inline and disclose that limitation when
+review independence matters. The planner never dispatches agents itself.
 
 Topology experiments require a separate, double opt-in in addition to the
 agent-team flags:
@@ -45,7 +48,7 @@ export ARS_CODEX_TOPOLOGY_ARM=reviewer-five-panel
 Registered arms are `inline-solo`, `reviewer-two-plus-synthesis`,
 `reviewer-five-panel`, `reviewer-full-seven`, and `workflow-current`. An arm
 variable by itself is ignored. Unknown or workflow-inapplicable arms fail
-closed. No experiment changes the inline default or writes routing state.
+closed. No experiment changes the native adaptive policy or writes routing state.
 
 ## Main Files
 
@@ -53,7 +56,9 @@ closed. No experiment changes the inline default or writes routing state.
   workflow mapping, agent-team rules, quality gates, hook pack, and known
   degradations.
 - `scripts/ars_codex_full_runtime.py` turns a request into a deterministic JSON
-  plan. It is read-only and safe to run in tests.
+  plan. It is read-only and safe to run in tests. Its `quality_gates` inventory
+  has scope `package_validation_catalog` and `quality_gates_execute_on_request=false`;
+  ordinary research requests use the checks relevant to their workflow.
 - `scripts/ars_codex_quality_gates.py` validates adapter packaging, hook safety,
   reviewer independence fixtures, and upstream lock provenance.
 - `agents/*.md` are Codex subagent templates. They point back to vendored ARS
@@ -73,11 +78,11 @@ Instead it provides an explicit Codex orchestration contract:
 - synthesis preserves minority and dissenting findings unless resolved by
   evidence and severity;
 - pipeline orchestration stops at requested checkpoints;
-- the heavy `ars-full`, `ars-reviewer`, and `ars-revision-coach` routes inherit
-  the active session model because v3.21.1 gives them no model frontmatter;
-  light-route `sonnet` hints remain upstream metadata and do not force a Codex
-  model;
-- ARS v3.21.1 retains model tiering as advisory metadata; it is applied only
+- new project sessions target `gpt-6-astra` with `xhigh`; the planner recommends
+  `medium` for routine work and `xhigh` for complex judgement, preserves explicit
+  choices, and distinguishes requested settings from observed execution;
+  upstream `sonnet` hints do not select a Codex model;
+- ARS v3.22.0 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - canonical cross-model handoffs are validated and transported by the
   dispatching context, not by least-privilege owner roles;
@@ -140,11 +145,12 @@ Instead it provides an explicit Codex orchestration contract:
 - the v3.21.1 sealed promotion-bakeoff contracts and hermetic tests are
   available, but direct `verify-tree` remains upstream-only because this
   re-rooted snapshot lacks the complete canonical upstream Git history;
-- the panel, 21-row degradation registry, tools-allowlist, and pipeline-boundary
+- the panel, degradation registry, tools-allowlist, and pipeline-boundary
   validators remain available as vendored quality gates;
 - the upstream v3.18 SessionStart update reminder is vendored but not executed
   by the Codex hook pack;
-- inline mode remains available and is the default.
+- inline execution remains available when it fits the task or native delegation
+  is unavailable; fixed reviewer seats remain a coverage contract.
 
 The canonical topology plan records node dependencies and edge-level
 information sharing. Reviewer seats cannot read peer outputs before synthesis;

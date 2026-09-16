@@ -1,8 +1,9 @@
 # Codex Full-Runtime Adapter Guide
 
 This guide documents the optional full-runtime profile for
-`academic-research-suite`. The default ARS-Codex behavior remains inline
-role-prompt execution through `skills/academic-research-suite/SKILL.md`.
+`academic-research-suite`. Default ARS-Codex execution adapts between inline work and native delegation
+through `skills/academic-research-suite/SKILL.md`. This guide covers the separately
+opt-in fixed topology and hooks.
 
 ## What This Adds
 
@@ -57,7 +58,7 @@ that references `skills/academic-research-suite/codex/hooks/hooks.json`.
 
 ## Usage
 
-Default inline usage:
+Default usage:
 
 ```text
 Use $academic-research-suite. ars-plan Research question: How do quality assurance agencies evaluate AI governance in universities?
@@ -71,7 +72,16 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   "ars-reviewer full review for this manuscript."
 ```
 
-## ARS v3.21.1 Runtime Boundaries
+## ARS v3.22.0 Runtime Boundaries
+
+The Phase-1 output-language-pair contract is carried through paper intake and
+abstract generation into Schema 4. Only `zh-tw-en` is registered; omission
+preserves legacy surfaces, and unsupported or malformed values fail visibly.
+Spanish activation phrases are routed by the root skill and planner, with
+revision and reviewer simulation kept distinct; they do not install a Spanish
+output-locale pack. The gate catalog includes hermetic language-pair, file-lock,
+and reviewer-calibration tests, while Claude plugin eval suites remain reference
+material rather than Codex performance evidence.
 
 - `ARS_CROSS_MODEL_TRANSPORT=codex` is an explicit, contained
   ChatGPT-subscription transport for one-reference citation checks at Stage 2.5
@@ -122,6 +132,26 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   snapshot lacks the complete canonical upstream Git history required to prove
   seal/reveal chronology.
 
+## Astra model plan
+
+The [model policy](skills/academic-research-suite/codex/model-runtime-policy.md)
+explains the task-based effort choices. Inspect a plan without executing a model:
+
+```bash
+python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py --pretty \
+  "ars-reviewer full review for this manuscript."
+```
+
+`model_plan.launch_argv` can start a new Codex invocation. `ARS_CODEX_MODEL` and
+`ARS_CODEX_REASONING_EFFORT` override the planner policy. Routine work is planned
+at `medium`; complex judgement at `xhigh`. These are local policy choices, not
+measured ARS optima. `max` and Codex `ultra` remain available explicitly in the
+main runtime; citation-only transport rejects `ultra` before launch because it
+requests delegation. API Astra effort stops at `max`.
+
+The two `ARS_CODEX_ACTIVE_*` fields only record caller-reported observations;
+they neither configure the runtime nor attest that the requested model ran.
+
 ## Verification
 
 Run adapter gates from the repository root:
@@ -146,15 +176,15 @@ python3 -m pytest \
 
 - Codex does not register Claude Code slash commands. ARS aliases are parsed by
   the root skill and optional planner.
-- Codex agent-team behavior is opt-in and runtime-dependent. Inline execution
-  remains the default.
+- Native delegation is adaptive and runtime-dependent. Fixed planner topologies
+  and hooks remain opt-in; their flags do not gate ordinary collaboration.
 - ARS-Codex uses the native Codex plugin marketplace lifecycle; Claude-only
   slash-command registration and hook behavior are not reproduced.
 - Hook installation is manual and disabled by default.
-- The heavy `ars-full`, `ars-reviewer`, and `ars-revision-coach` routes have no
-  v3.21.1 model frontmatter and inherit the active Codex session model. Light
-  routes retain upstream `sonnet` metadata, but the adapter does not force a
-  Codex model unless the user or runtime explicitly overrides it.
+- New trusted project sessions use `gpt-6-astra` / `xhigh` from the project
+  config. Installed skills cannot switch the current model. The planner emits
+  explicit launch arguments and preserves user choices; light-route `sonnet`
+  metadata is not a GPT model pin.
 - External cross-model verification is never silently simulated.
 - The contained Codex citation transport depends on an eligible logged-in
   Codex runtime and explicit consent; it is citation-only and has no automatic

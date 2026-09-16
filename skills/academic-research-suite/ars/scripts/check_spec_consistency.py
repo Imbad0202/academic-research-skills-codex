@@ -13,12 +13,14 @@ if __package__:  # Package import in tests.
     from ._markdown_lint_util import (
         NON_RELATIVE_LINK_PREFIXES,
         extract_link_targets,
+        strip_non_rendering,
     )
     from ._skill_lint import iter_skill_files
 else:  # pragma: no cover - exercised by the CLI smoke path
     from _markdown_lint_util import (
         NON_RELATIVE_LINK_PREFIXES,
         extract_link_targets,
+        strip_non_rendering,
     )
     from _skill_lint import iter_skill_files
 
@@ -202,7 +204,7 @@ def check_relative_markdown_links(rel_path: str) -> None:
 def check_mode_registry() -> None:
     rel_path = "MODE_REGISTRY.md"
     text = read(rel_path)
-    expect_contains(rel_path, "Last updated: v3.21.1 (2026-08-24)")
+    expect_contains(rel_path, "Last updated: v3.22.0 (2026-09-16)")
     for heading in (
         "## deep-research (8 modes)",
         "## academic-paper (11 modes)",
@@ -219,7 +221,7 @@ def check_claude_md() -> None:
         return
     expect_contains(rel_path, "integrity check (Stage 2.5)")
     expect_contains(rel_path, "final integrity check (Stage 4.5)")
-    expect_contains(rel_path, "**Suite version**: 3.21.1")
+    expect_contains(rel_path, "**Suite version**: 3.22.0")
     for forbidden in (
         "6th independent reviewer",
         "Peer review gains 6th independent reviewer",
@@ -438,37 +440,75 @@ def check_architecture_component_version() -> None:
             )
 
 
+# README changelog sections keep only the most recent releases; the full history
+# (including the one-paragraph summaries) lives in CHANGELOG.md, and each
+# translated README additionally points at its frozen docs/changelog-archive/
+# copy. Bump README_CHANGELOG_KEEP at every release (prepend the new release,
+# drop the oldest) — the lint fails on any extra `### v` heading so the section
+# cannot silently regrow (2026-09-15 README slimming).
+README_CHANGELOG_KEEP = (
+    ("3.22.0", "2026-09-16"),
+    ("3.21.2", "2026-09-06"),
+    ("3.21.1", "2026-08-24"),
+)
+README_CHANGELOG_LINK = "CHANGELOG.md"
+_README_RELEASE_HEADING_RE = re.compile(r"^### v[^\n]*$", re.M)
+
+
+def check_readme_changelog_section(
+    rel_path: str, text: str, h2: str, paren: str, archive: str | None = None
+) -> None:
+    """The README changelog section carries exactly README_CHANGELOG_KEEP.
+
+    `paren` is "ascii" (`### v3.22.0 (2026-09-16)`, en / ja / ko / es) or
+    "fullwidth" (`### v3.22.0（2026-09-16）`, zh-TW / zh-CN). The section must
+    link to CHANGELOG.md and, for translated READMEs, to the frozen archive.
+    Fenced code and HTML comments are stripped first, so a commented-out or
+    fenced copy of the section neither satisfies nor trips the checks.
+    """
+    rendered = strip_non_rendering(text)
+    marker = "\n" + h2 + "\n"
+    idx = rendered.find(marker)
+    if idx == -1:
+        fail(f"{rel_path}: missing changelog heading {h2!r}")
+        return
+    section = rendered[idx + 1 :]
+    nxt = re.search(r"^## ", section[len(h2) + 1 :], re.M)
+    if nxt:
+        section = section[: len(h2) + 1 + nxt.start()]
+    if paren == "ascii":
+        expected = [f"### v{v} ({d})" for v, d in README_CHANGELOG_KEEP]
+    else:
+        expected = [f"### v{v}（{d}）" for v, d in README_CHANGELOG_KEEP]
+    found = [m.group(0) for m in _README_RELEASE_HEADING_RE.finditer(section)]
+    for exp in expected:
+        hits = sum(1 for h in found if h.startswith(exp))
+        if hits == 0:
+            fail(f"{rel_path}: changelog section missing {exp!r}")
+        elif hits > 1:
+            fail(f"{rel_path}: changelog section repeats {exp!r} {hits} times")
+    extra = [h for h in found if not any(h.startswith(e) for e in expected)]
+    if extra:
+        fail(
+            f"{rel_path}: changelog section keeps {len(found)} release headings; only the "
+            f"{len(expected)} most recent belong in the README (unexpected: {extra[:3]!r}). "
+            f"Older summaries live in {README_CHANGELOG_LINK}"
+            + (f" and the frozen {archive}" if archive else "")
+            + "."
+        )
+    targets = set(extract_link_targets(section))
+    for link in (README_CHANGELOG_LINK, archive):
+        if link and link not in targets:
+            fail(f"{rel_path}: changelog section must link to {link}")
+
+
 def check_readme_sections() -> None:
     rel_path = "README.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.21.1-blue")
-    expect_contains(rel_path, "releases/tag/v3.21.1")
-    expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
-    expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
-    expect_contains(rel_path, "### v3.11.0 (2026-06-04)")
-    expect_contains(rel_path, "### v3.10.0 (2026-06-01)")
-    expect_contains(rel_path, "### v3.9.4.2 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4.1 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.1 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.0 (2026-05-17)")
-    expect_contains(rel_path, "### v3.8.0 (2026-05-16)")
-    expect_contains(rel_path, "### v3.7.0 (2026-05-05)")
-    expect_contains(rel_path, "### v3.6.8 (2026-05-03)")
-    expect_contains(rel_path, "### v3.6.7 (2026-04-30)")
-    expect_contains(rel_path, "### v3.6.5 (2026-04-27)")
-    expect_contains(rel_path, "### v3.6.4 (2026-04-25)")
-    expect_contains(rel_path, "### v3.6.3 (2026-04-23)")
-    expect_contains(rel_path, "### v3.6.2 (2026-04-23)")
-    expect_contains(rel_path, "### v3.5.1 (2026-04-22)")
-    expect_contains(rel_path, "### v3.5.0 (2026-04-21)")
-    expect_contains(rel_path, "### v3.4.0 (2026-04-20)")
-    expect_contains(rel_path, "### v3.3.6 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.5 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.4 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.3 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.2 (2026-04-15)")
+    expect_contains(rel_path, "version-v3.22.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.22.0")
+    check_readme_changelog_section(rel_path, text, "## Changelog", "ascii")
     for heading in (
         "#### Deep Research (8 modes)",
         "#### Academic Paper (11 modes)",
@@ -476,7 +516,7 @@ def check_readme_sections() -> None:
         "### Deep Research (v2.12.1)",
         "### Academic Paper (v3.3.1)",
         "### Academic Paper Reviewer (v1.11.1)",
-        "### Academic Pipeline (v3.21.1)",
+        "### Academic Pipeline (v3.22.0)",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -525,33 +565,9 @@ def check_readme_ja_sections() -> None:
     rel_path = "README.ja-JP.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.21.1-blue")
-    expect_contains(rel_path, "releases/tag/v3.21.1")
-    expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
-    expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
-    expect_contains(rel_path, "### v3.11.0 (2026-06-04)")
-    expect_contains(rel_path, "### v3.10.0 (2026-06-01)")
-    expect_contains(rel_path, "### v3.9.4.2 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4.1 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.1 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.0 (2026-05-17)")
-    expect_contains(rel_path, "### v3.8.0 (2026-05-16)")
-    expect_contains(rel_path, "### v3.7.0 (2026-05-05)")
-    expect_contains(rel_path, "### v3.6.8 (2026-05-03)")
-    expect_contains(rel_path, "### v3.6.7 (2026-04-30)")
-    expect_contains(rel_path, "### v3.6.5 (2026-04-27)")
-    expect_contains(rel_path, "### v3.6.4 (2026-04-25)")
-    expect_contains(rel_path, "### v3.6.3 (2026-04-23)")
-    expect_contains(rel_path, "### v3.6.2 (2026-04-23)")
-    expect_contains(rel_path, "### v3.5.1 (2026-04-22)")
-    expect_contains(rel_path, "### v3.5.0 (2026-04-21)")
-    expect_contains(rel_path, "### v3.4.0 (2026-04-20)")
-    expect_contains(rel_path, "### v3.3.6 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.5 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.4 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.3 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.2 (2026-04-15)")
+    expect_contains(rel_path, "version-v3.22.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.22.0")
+    check_readme_changelog_section(rel_path, text, "## Changelog", "ascii", archive="docs/changelog-archive/ja-JP.md")
     for heading in (
         "#### Deep Research（8 モード）",
         "#### Academic Paper（11 モード）",
@@ -560,7 +576,7 @@ def check_readme_ja_sections() -> None:
         "### Deep Research（v2.12.1）",
         "### Academic Paper（v3.3.1）",
         "### Academic Paper Reviewer（v1.11.1）",
-        "### Academic Pipeline（v3.21.1）",
+        "### Academic Pipeline（v3.22.0）",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -594,34 +610,9 @@ def check_readme_ko_sections() -> None:
     rel_path = "README.ko-KR.md"
     text = read(rel_path)
 
-    expect_contains(rel_path, "version-v3.21.1-blue")
-    expect_contains(rel_path, "releases/tag/v3.21.1")
-    expect_contains(rel_path, "### v3.18.0 (2026-07-18)")
-    expect_contains(rel_path, "### v3.12.0 (2026-06-08)")
-    expect_contains(rel_path, "### v3.11.1 (2026-06-06)")
-    expect_contains(rel_path, "### v3.11.0 (2026-06-04)")
-    expect_contains(rel_path, "### v3.10.0 (2026-06-01)")
-    expect_contains(rel_path, "### v3.9.4.2 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4.1 (2026-05-19)")
-    expect_contains(rel_path, "### v3.9.4 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.1 (2026-05-18)")
-    expect_contains(rel_path, "### v3.9.0 (2026-05-17)")
-    expect_contains(rel_path, "### v3.8.0 (2026-05-16)")
-    expect_contains(rel_path, "### v3.7.0 (2026-05-05)")
-    expect_contains(rel_path, "### v3.6.8 (2026-05-03)")
-    expect_contains(rel_path, "### v3.6.7 (2026-04-30)")
-    expect_contains(rel_path, "### v3.6.5 (2026-04-27)")
-    expect_contains(rel_path, "### v3.6.4 (2026-04-25)")
-    expect_contains(rel_path, "### v3.6.3 (2026-04-23)")
-    expect_contains(rel_path, "### v3.6.2 (2026-04-23)")
-    expect_contains(rel_path, "### v3.5.1 (2026-04-22)")
-    expect_contains(rel_path, "### v3.5.0 (2026-04-21)")
-    expect_contains(rel_path, "### v3.4.0 (2026-04-20)")
-    expect_contains(rel_path, "### v3.3.6 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.5 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.4 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.3 (2026-04-15)")
-    expect_contains(rel_path, "### v3.3.2 (2026-04-15)")
+    expect_contains(rel_path, "version-v3.22.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.22.0")
+    check_readme_changelog_section(rel_path, text, "## 변경 이력", "ascii", archive="docs/changelog-archive/ko-KR.md")
     for heading in (
         "#### Deep Research (8개 모드)",
         "#### Academic Paper (11개 모드)",
@@ -630,7 +621,7 @@ def check_readme_ko_sections() -> None:
         "### Deep Research (v2.12.1)",
         "### Academic Paper (v3.3.1)",
         "### Academic Paper Reviewer (v1.11.1)",
-        "### Academic Pipeline (v3.21.1)",
+        "### Academic Pipeline (v3.22.0)",
     ):
         if heading not in text:
             fail(f"{rel_path}: missing heading {heading!r}")
@@ -655,13 +646,15 @@ ZH_README_CONFIGS = (
             "### Deep Research (v2.12.1)",
             "### Academic Paper (v3.3.1)",
             "### Academic Paper Reviewer (v1.11.1)",
-            "### Academic Pipeline (v3.21.1)",
+            "### Academic Pipeline (v3.22.0)",
         ),
         "paper_start": "#### Academic Paper（學術論文撰寫，11 種模式）",
         "reviewer_start": "#### Academic Paper Reviewer（論文審查，6 種模式）",
         "pipeline_start": "#### Academic Pipeline（全流程調度器）",
         "deep_start": "#### Deep Research（深度研究，8 種模式）",
         "docx_line": "DOCX（Pandoc 可用時）",
+        "changelog_h2": "## 更新紀錄",
+        "archive": "docs/changelog-archive/zh-TW.md",
     },
     {
         "rel_path": "README.zh-CN.md",
@@ -672,13 +665,15 @@ ZH_README_CONFIGS = (
             "### Deep Research (v2.12.1)",
             "### Academic Paper (v3.3.1)",
             "### Academic Paper Reviewer (v1.11.1)",
-            "### Academic Pipeline (v3.21.1)",
+            "### Academic Pipeline (v3.22.0)",
         ),
         "paper_start": "#### Academic Paper（学术论文撰写，11 种模式）",
         "reviewer_start": "#### Academic Paper Reviewer（论文审查，6 种模式）",
         "pipeline_start": "#### Academic Pipeline（全流程调度器）",
         "deep_start": "#### Deep Research（深度研究，8 种模式）",
         "docx_line": "DOCX（Pandoc 可用时）",
+        "changelog_h2": "## 更新纪录",
+        "archive": "docs/changelog-archive/zh-CN.md",
     },
 )
 
@@ -688,33 +683,11 @@ def check_readme_zh_sections() -> None:
         rel_path = config["rel_path"]
         text = read(rel_path)
 
-        expect_contains(rel_path, "version-v3.21.1-blue")
-        expect_contains(rel_path, "releases/tag/v3.21.1")
-        expect_contains(rel_path, "### v3.12.0（2026-06-08）")
-        expect_contains(rel_path, "### v3.11.1（2026-06-06）")
-        expect_contains(rel_path, "### v3.11.0（2026-06-04）")
-        expect_contains(rel_path, "### v3.10.0（2026-06-01）")
-        expect_contains(rel_path, "### v3.9.4.2（2026-05-19）")
-        expect_contains(rel_path, "### v3.9.4.1（2026-05-19）")
-        expect_contains(rel_path, "### v3.9.4（2026-05-18）")
-        expect_contains(rel_path, "### v3.9.1（2026-05-18）")
-        expect_contains(rel_path, "### v3.9.0（2026-05-17）")
-        expect_contains(rel_path, "### v3.8.0（2026-05-16）")
-        expect_contains(rel_path, "### v3.7.0（2026-05-05）")
-        expect_contains(rel_path, "### v3.6.8（2026-05-03）")
-        expect_contains(rel_path, "### v3.6.7（2026-04-30）")
-        expect_contains(rel_path, "### v3.6.5（2026-04-27）")
-        expect_contains(rel_path, "### v3.6.4（2026-04-25）")
-        expect_contains(rel_path, "### v3.6.3（2026-04-23）")
-        expect_contains(rel_path, "### v3.6.2（2026-04-23）")
-        expect_contains(rel_path, "### v3.5.1（2026-04-22）")
-        expect_contains(rel_path, "### v3.5.0（2026-04-21）")
-        expect_contains(rel_path, "### v3.4.0（2026-04-20）")
-        expect_contains(rel_path, "### v3.3.6 (2026-04-15)")
-        expect_contains(rel_path, "### v3.3.5 (2026-04-15)")
-        expect_contains(rel_path, "### v3.3.4 (2026-04-15)")
-        expect_contains(rel_path, "### v3.3.3 (2026-04-15)")
-        expect_contains(rel_path, "### v3.3.2 (2026-04-15)")
+        expect_contains(rel_path, "version-v3.22.0-blue")
+        expect_contains(rel_path, "releases/tag/v3.22.0")
+        check_readme_changelog_section(
+            rel_path, text, config["changelog_h2"], "fullwidth", archive=config["archive"]
+        )
         for heading in config["headings"]:
             if heading not in text:
                 fail(f"{rel_path}: missing heading {heading!r}")
@@ -759,6 +732,42 @@ def check_readme_zh_sections() -> None:
         check_relative_markdown_links(rel_path)
 
 
+def check_readme_es_sections() -> None:
+    """Symmetric coverage of README.es-ES.md added with es-ES localization.
+
+    es-ES uses ASCII parentheses (like ko-KR / ja-JP), with "modos" instead of
+    "modes" and "(orquestador)" for the pipeline heading. The DOCX contract line
+    is the Spanish-language variant.
+    """
+    rel_path = "README.es-ES.md"
+    text = read(rel_path)
+
+    expect_contains(rel_path, "version-v3.22.0-blue")
+    expect_contains(rel_path, "releases/tag/v3.22.0")
+    check_readme_changelog_section(rel_path, text, "## Registro de cambios", "ascii", archive="docs/changelog-archive/es-ES.md")
+    for heading in (
+        "#### Deep Research (8 modos)",
+        "#### Academic Paper (11 modos)",
+        "#### Academic Paper Reviewer (6 modos)",
+        "#### Academic Pipeline (orquestador)",
+        "### Deep Research (v2.12.1)",
+        "### Academic Paper (v3.3.1)",
+        "### Academic Paper Reviewer (v1.11.1)",
+        "### Academic Pipeline (v3.22.0)",
+    ):
+        if heading not in text:
+            fail(f"{rel_path}: missing heading {heading!r}")
+
+    for forbidden in (
+        "6th independent reviewer",
+        "Peer review gains 6th independent reviewer",
+    ):
+        expect_absent(rel_path, forbidden)
+
+    expect_contains(rel_path, "DOCX (mediante Pandoc cuando está disponible)")
+    check_relative_markdown_links(rel_path)
+
+
 def check_setup_docs() -> None:
     expect_contains("docs/SETUP.md", "Direct `.docx` generation uses [Pandoc]")
     expect_contains(
@@ -772,6 +781,8 @@ def check_setup_docs() -> None:
     )
     check_relative_markdown_links("docs/SETUP.md")
     check_relative_markdown_links("docs/SETUP.zh-TW.md")
+    for locale in ("zh-TW", "zh-CN", "ja-JP", "ko-KR", "es-ES"):
+        check_relative_markdown_links(f"docs/changelog-archive/{locale}.md")
     # #758 data-flow map: its outbound relative links (audit doc, SECURITY,
     # THIRD_PARTY, cross_model_verification) must keep resolving.
     check_relative_markdown_links("docs/DATA_FLOWS.md")
@@ -1371,6 +1382,684 @@ def check_indirect_prompt_injection_no_call_envelope() -> None:
     check_relative_markdown_links(readme)
 
 
+# --- #862 Phase 1: per-run output_language_pair contract --------------------
+
+OUTPUT_LANGUAGE_PAIR_CONTRACT = "shared/output_language_pair.md"
+OUTPUT_LANGUAGE_PAIR_CONTRACT_BASENAME = "output_language_pair.md"
+OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE = "shared/handoff_schemas.md"
+OUTPUT_LANGUAGE_PAIR_TEMPLATE_SURFACE = "academic-paper/templates/bilingual_abstract_template.md"
+OUTPUT_LANGUAGE_PAIR_GUIDE = "academic-paper/references/abstract_writing_guide.md"
+OUTPUT_LANGUAGE_PAIR_GUIDE_BASENAME = "abstract_writing_guide.md"
+OUTPUT_LANGUAGE_PAIR_SCHEMA_SECTION_START = "## Schema 4: Paper Draft"
+LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR = "zh-tw-en"
+
+# The literals Phase 1 holds fixed (design sketch §5), pinned where they are **operative**: the
+# heading lines the two rendering surfaces emit, and the typed Schema-4 rows. A pin that matched
+# the literal anywhere in a file passed while the operative line was renamed, as long as one
+# sentence still quoted the old string (`handoff_schemas.md` keeps quoting
+# `abstract: {english, chinese}`), so each pin now targets the line it claims to hold.
+LEGACY_PAIR_HEADING_BLOCKS = (
+    ("academic-paper/agents/abstract_bilingual_agent.md", ("### English Abstract", "### Chinese Abstract")),
+    ("academic-paper/templates/bilingual_abstract_template.md", ("## English Abstract", "## Chinese Abstract (zh-TW)")),
+)
+# The workflow reference quotes the literals in prose instead of emitting them, so there is no
+# operative line to target and its pin stays a literal-presence check.
+LEGACY_PAIR_QUOTED_LITERALS = (
+    ("academic-paper/references/workflow_phase_details.md", ("### English Abstract", "### Chinese Abstract")),
+)
+# (Schema-4 field name, the exact backticked shape that field's own row must keep in its
+# description cell — the field table is | Field | Type | Description |, so the legacy typed
+# shape is documented in the row, not in the "object" type cell)
+LEGACY_SCHEMA4_TYPED_ROWS = (
+    ("abstract", "{english: string, chinese: string}"),
+    ("keywords", "{en: list[string], zh_tw: list[string]}"),
+)
+LEGACY_SCHEMA4_PAIR_ROW = "output_language_pair"
+# The carrier steps that actually hold and emit the value (design sketch §5 carrier chain;
+# PR body "Carrier chain"). Each step is pinned at its operative location: the intake PCR row
+# binds the omission clause to that row's line (Format Profile carries the same marker on its
+# own row), and the draft-writer serialization section binds omission prose and the present-
+# value bullet within the section body.
+PAIR_CARRIER_STEPS = (
+    (
+        "academic-paper/agents/intake_agent.md",
+        "row",
+        "| **Output Language Pair** |",
+        "ROW OMITTED ENTIRELY",
+        None,
+    ),
+    (
+        "academic-paper/agents/draft_writer_agent.md",
+        "section",
+        "### Schema 4 Serialization (#862 Phase 1)",
+        "omit the serialized key",
+        "serialize it into the Schema 4 handoff under that exact key",
+    ),
+)
+
+# The literal pins read the shipped files, not the synthetic tree the rest of the #862
+# checks run against (`csc.ROOT` is patched to a temp directory by the unit tests), so a
+# Phase-2 consumer edit that renames a legacy literal fails the lint on the real file.
+OUTPUT_LANGUAGE_PAIR_LITERAL_ROOT = Path(__file__).resolve().parents[1]
+
+_PAIR_REGISTRY_START = "<!-- output-language-pair-registry:start -->"
+_PAIR_REGISTRY_END = "<!-- output-language-pair-registry:end -->"
+_PAIR_REGISTRY_REQUIRED_COLUMNS = ("token", "l1_language", "l2_language")
+_PAIR_TOKEN_PATTERN = re.compile(r"^[a-z]{2,3}(?:-[a-z0-9]{2,4}){1,3}$")
+_PAIR_BACKTICK_SPAN = re.compile(r"`([^`\n]+)`")
+
+# The regime table's single home is the guide (design sketch §5; review PR #869 P1-1): the marked
+# block is parsed there, and the contract must not carry a competing copy.
+_REGIME_TABLE_START = "<!-- abstract-regime-table:start -->"
+_REGIME_TABLE_END = "<!-- abstract-regime-table:end -->"
+_REGIME_TABLE_REQUIRED_COLUMNS = (
+    "paper_type",
+    "l1_abstract",
+    "l2_abstract",
+    "keywords_per_language",
+)
+_REGIME_TABLE_REQUIRED_ROWS = ("standard", "conference", "extended_abstract", "dissertation")
+_ATX_HEADING = re.compile(r"^#{1,6}[ \t]+\S")
+
+
+class _OutputLanguagePairFieldAbsent:
+    """Sentinel for a handoff that omits `output_language_pair` entirely."""
+
+    def __repr__(self) -> str:  # pragma: no cover - debug affordance
+        return "PAIR_FIELD_ABSENT"
+
+
+PAIR_FIELD_ABSENT = _OutputLanguagePairFieldAbsent()
+
+
+def _split_markdown_table_row(line: str) -> list[str]:
+    stripped = line.strip()
+    if stripped.startswith("|"):
+        stripped = stripped[1:]
+    if stripped.endswith("|"):
+        stripped = stripped[:-1]
+    return [cell.strip() for cell in stripped.split("|")]
+
+
+def _is_markdown_table_separator(cells: list[str]) -> bool:
+    return bool(cells) and all(cell and set(cell) <= set("-: ") for cell in cells)
+
+
+def parse_output_language_pair_registry(text: str) -> dict[str, dict[str, str]]:
+    """Parse the registry table of shared/output_language_pair.md.
+
+    Returns `{token: {column_key: cell}}`. Raises ValueError when the registry
+    block or its table is unusable: missing markers, no table, no token or L2
+    language column (a unary entry), a malformed token, a duplicate token, an
+    empty L1 or L2 cell, or a row whose L1 and L2 languages are the same string.
+    """
+    start = text.find(_PAIR_REGISTRY_START)
+    end = text.find(_PAIR_REGISTRY_END)
+    if start == -1 or end == -1:
+        raise ValueError("registry block markers are missing")
+    if end < start:
+        raise ValueError("registry block markers are out of order")
+    block = text[start + len(_PAIR_REGISTRY_START):end]
+    rows = [line for line in block.splitlines() if line.strip().startswith("|")]
+    if len(rows) < 2:
+        raise ValueError("registry block carries no table")
+    columns = [
+        cell.strip().lower().replace(" ", "_") for cell in _split_markdown_table_row(rows[0])
+    ]
+    missing = [column for column in _PAIR_REGISTRY_REQUIRED_COLUMNS if column not in columns]
+    if missing:
+        raise ValueError(
+            "registry table must declare token, L1 language, and L2 language columns "
+            f"(missing: {missing!r}); single-language pairs are not supported"
+        )
+    registry: dict[str, dict[str, str]] = {}
+    for row in rows[1:]:
+        cells = _split_markdown_table_row(row)
+        if _is_markdown_table_separator(cells):
+            continue
+        if len(cells) != len(columns):
+            raise ValueError(
+                f"registry row has {len(cells)} cells, expected {len(columns)}: {row.strip()!r}"
+            )
+        entry = dict(zip(columns, cells))
+        token = entry["token"].strip().strip("`").strip()
+        if not _PAIR_TOKEN_PATTERN.match(token):
+            raise ValueError(f"registry token {token!r} is not a lowercase registry token")
+        if token in registry:
+            raise ValueError(f"duplicate registry token {token!r}")
+        # A pair needs two declared, different languages: an empty cell is not a
+        # single-language entry, it is an unusable row, and a row that names the same
+        # language twice declares no pair at all.
+        l1 = entry.get("l1_language", "").strip()
+        l2 = entry.get("l2_language", "").strip()
+        if not l1 or not l2:
+            raise ValueError(
+                f"registry row {token!r} must declare both an L1 and an L2 language "
+                "(an empty language cell is not a registry entry)"
+            )
+        if l1 == l2:
+            raise ValueError(
+                f"registry row {token!r} declares the same language twice "
+                f"(L1 == L2 == {l1!r}); a pair needs two different languages"
+            )
+        entry["token"] = token
+        registry[token] = entry
+    if not registry:
+        raise ValueError("registry block carries no entries")
+    return registry
+
+
+def _output_language_pair_error(detail: str) -> str:
+    return f"output_language_pair: {detail}; registry: {OUTPUT_LANGUAGE_PAIR_CONTRACT}"
+
+
+def validate_output_language_pair(value: object, registry: dict[str, dict[str, str]]) -> list[str]:
+    """Validate one `output_language_pair` value against the registry.
+
+    `PAIR_FIELD_ABSENT` means the key was omitted: that is the legacy behaviour and
+    it is valid. Any other non-empty return means the caller aborts visibly; every
+    error names the registry so the failure is actionable. No silent fallback.
+
+    The token is compared **raw**, with no stripping and no normalization: registry
+    tokens are opaque, so a padded value (" zh-tw-en ") or a newline-terminated one is
+    not the token it resembles. A whitespace-only value is reported as an empty token,
+    never as an unsupported one.
+    """
+    if value is PAIR_FIELD_ABSENT:
+        return []
+    if not isinstance(value, str):
+        return [
+            _output_language_pair_error(
+                f"value must be a string token, got {type(value).__name__}"
+            )
+        ]
+    if not value.strip():
+        return [_output_language_pair_error("value must be a non-empty string token")]
+    if value not in registry:
+        supported = ", ".join(sorted(registry))
+        return [
+            _output_language_pair_error(
+                f"unsupported token {value!r} (registry holds: {supported}); a value must "
+                "match a registry token exactly, with no surrounding whitespace"
+            )
+        ]
+    return []
+
+
+def advertised_output_language_pair_tokens(text: str) -> set[str]:
+    """Collect the pair tokens a consumer surface advertises.
+
+    A token counts only when it is written verbatim in backticks — the spelling rule the
+    contract itself states — and that is the only spelling this scan accepts. The former
+    bare-token branch could not tell an advertised pair from ordinary hyphenated prose
+    ("up-to-date") on any line that mentioned the field, and it silently missed a bare
+    two-subtag pair; the rule is uniform now. A surface that advertises the *default*
+    token without backticks still fails the check that requires the default entry to be
+    advertised.
+    """
+    return {
+        span.strip()
+        for span in _PAIR_BACKTICK_SPAN.findall(text)
+        if _PAIR_TOKEN_PATTERN.match(span.strip())
+    }
+
+
+def _schema4_section(text: str) -> str:
+    start = text.find(OUTPUT_LANGUAGE_PAIR_SCHEMA_SECTION_START)
+    if start == -1:
+        return ""
+    next_section = text.find("\n## ", start + len(OUTPUT_LANGUAGE_PAIR_SCHEMA_SECTION_START))
+    return text[start:] if next_section == -1 else text[start:next_section]
+
+
+def _markdown_headings(text: str) -> list[str]:
+    """The ATX heading lines of a markdown document, in order (no trailing space)."""
+    return [line.rstrip() for line in text.splitlines() if _ATX_HEADING.match(line)]
+
+
+def _schema4_field_name(cell: str) -> str | None:
+    """Normalize a Schema-4 table's first cell into a field name, or None if not a field row."""
+    field = cell.strip().strip("`").strip()
+    if re.match(r"^[a-z][a-z0-9_]*$", field):
+        return field
+    return None
+
+
+def _parse_schema4_table(section: str) -> tuple[dict[str, list[str]], dict[str, int]]:
+    """Map each Schema-4 field name to its first row and count every normalized occurrence.
+
+    Only rows whose first cell is a bare field name are collected, so header and
+    separator rows are skipped and a prose quotation of a row is never mistaken for the
+    row itself.
+    """
+    rows: dict[str, list[str]] = {}
+    counts: dict[str, int] = {}
+    for line in section.splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = _split_markdown_table_row(line)
+        if not cells or _is_markdown_table_separator(cells):
+            continue
+        field = _schema4_field_name(cells[0])
+        if field is None:
+            continue
+        counts[field] = counts.get(field, 0) + 1
+        rows.setdefault(field, cells)
+    return rows, counts
+
+
+def check_output_language_pair_literal_pins(root: Path | None = None) -> None:
+    """Real-tree pins for the literals Phase 1 holds fixed (design sketch §5).
+
+    These assertions target the shipped files, never a fixture tree: the rest of the
+    #862 checks run against a synthetic tree when `csc.ROOT` is patched, so a renamed
+    legacy heading literal, a renamed legacy Schema-4 object key, or a dropped
+    Schema-4 `output_language_pair` row has to fail the lint on the real file.
+
+    Each pin targets the location where its literal is **operative** — a heading line, or
+    a Schema-4 type cell — because matching the literal anywhere in the file let a rename
+    of the operative line pass while one sentence still quoted the old string.
+    """
+    base = OUTPUT_LANGUAGE_PAIR_LITERAL_ROOT if root is None else root
+    for rel_path, headings in LEGACY_PAIR_HEADING_BLOCKS:
+        try:
+            text = (base / rel_path).read_text(encoding="utf-8")
+        except OSError:
+            fail(f"{rel_path}: output-language-pair consumer surface is missing")
+            continue
+        present = _markdown_headings(text)
+        positions: list[int] = []
+        for literal in headings:
+            if literal not in present:
+                fail(
+                    f"{rel_path}: missing legacy pair heading literal {literal!r} "
+                    "(it must be emitted as a heading, not only quoted in prose)"
+                )
+                continue
+            positions.append(present.index(literal))
+        if len(positions) == len(headings) and positions != sorted(positions):
+            fail(f"{rel_path}: legacy heading literals are out of order: {headings!r}")
+    for rel_path, literals in LEGACY_PAIR_QUOTED_LITERALS:
+        try:
+            text = (base / rel_path).read_text(encoding="utf-8")
+        except OSError:
+            fail(f"{rel_path}: output-language-pair consumer surface is missing")
+            continue
+        for literal in literals:
+            if literal not in text:
+                fail(f"{rel_path}: missing quoted legacy pair literal {literal!r}")
+    try:
+        schema = (base / OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE).read_text(encoding="utf-8")
+    except OSError:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: "
+            "output-language-pair consumer surface is missing"
+        )
+        return
+    section = _schema4_section(schema)
+    if not section:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: Schema 4 section "
+            f"({OUTPUT_LANGUAGE_PAIR_SCHEMA_SECTION_START!r}) is missing"
+        )
+        return
+    rows, field_counts = _parse_schema4_table(section)
+    # A duplicate field row would silently shadow the pinned one (the parser is first-wins),
+    # so a second `abstract`/`keywords` row — even with variant backtick/spacing spelling —
+    # is a failure, not a silent override.
+    for field, _ in LEGACY_SCHEMA4_TYPED_ROWS:
+        if field_counts.get(field, 0) > 1:
+            fail(
+                f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: the Schema-4 `{field}` row appears "
+                "more than once, so the pinned row can be shadowed"
+            )
+    for field, expected in LEGACY_SCHEMA4_TYPED_ROWS:
+        cells = rows.get(field)
+        if cells is None:
+            fail(
+                f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: the Schema-4 `{field}` row is "
+                "missing from the same section"
+            )
+            continue
+        description = " | ".join(cells[2:]) if len(cells) > 2 else ""
+        if f"`{expected}`" not in description:
+            fail(
+                f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: the Schema-4 `{field}` row must "
+                f"keep its legacy typed shape `{expected}` in the row itself, found "
+                f"{description.strip()!r}"
+            )
+    if LEGACY_SCHEMA4_PAIR_ROW not in rows:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE}: the Schema-4 "
+            f"`{LEGACY_SCHEMA4_PAIR_ROW}` row is missing from the same section"
+        )
+
+
+def _atx_heading_level(line: str) -> int | None:
+    if not _ATX_HEADING.match(line):
+        return None
+    return len(line) - len(line.lstrip("#"))
+
+
+def _carrier_row_line(text: str, row_marker: str) -> str | None:
+    for line in text.splitlines():
+        if row_marker in line:
+            return line
+    return None
+
+
+def _section_after_heading(text: str, heading: str) -> str | None:
+    lines = text.splitlines()
+    start_idx = None
+    for index, line in enumerate(lines):
+        if line.rstrip() == heading.rstrip():
+            start_idx = index
+            break
+    if start_idx is None:
+        return None
+    heading_level = _atx_heading_level(lines[start_idx])
+    if heading_level is None:
+        return None
+    section_lines: list[str] = []
+    for line in lines[start_idx + 1:]:
+        level = _atx_heading_level(line)
+        if level is not None and level <= heading_level:
+            break
+        section_lines.append(line)
+    return "\n".join(section_lines)
+
+
+def check_output_language_pair_carrier_steps(root: Path | None = None) -> None:
+    """The carrier chain's two operative steps, scoped to where each rule is operative.
+
+    The intake PCR row binds the omission clause to that row's own line (the Format Profile
+    row carries the same omission marker), and the draft-writer serialization section binds
+    its omission clause and present-value bullet to the section body.
+
+    `check_439_format_profile.py` pins the structural PCR `Format Profile` row and its
+    omission clause for the same reason: prose that quotes a rule survives the rule's removal.
+    """
+    base = root if root is not None else OUTPUT_LANGUAGE_PAIR_LITERAL_ROOT
+    for rel_path, scope, marker, omission_marker, present_marker in PAIR_CARRIER_STEPS:
+        try:
+            text = (base / rel_path).read_text(encoding="utf-8")
+        except OSError:
+            fail(f"{rel_path}: output-language-pair carrier surface is missing")
+            continue
+        if scope == "row":
+            row_line = _carrier_row_line(text, marker)
+            if row_line is None:
+                fail(f"{rel_path}: the carrier step {marker!r} is missing from the surface")
+            elif omission_marker not in row_line:
+                fail(
+                    f"{rel_path}: the carrier step {marker!r} must document that the value is "
+                    f"omitted when the field is absent on that row (expected {omission_marker!r})"
+                )
+        elif scope == "section":
+            section = _section_after_heading(text, marker)
+            if section is None:
+                fail(f"{rel_path}: the carrier step {marker!r} is missing from the surface")
+            elif omission_marker not in section:
+                fail(
+                    f"{rel_path}: the carrier step {marker!r} must document that the value is "
+                    f"omitted when the field is absent (expected {omission_marker!r})"
+                )
+            elif present_marker and present_marker not in section:
+                fail(
+                    f"{rel_path}: the carrier step {marker!r} must document the present-value "
+                    f"branch (expected {present_marker!r})"
+                )
+        else:  # pragma: no cover - configuration error
+            fail(f"{rel_path}: unknown carrier step scope {scope!r}")
+
+
+def _regime_cell_key(cell: str) -> str:
+    """Normalize a regime-table cell into a key: "Extended abstract" -> "extended_abstract"."""
+    text = cell.strip().replace("`", "").split("(")[0]
+    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+
+
+def _is_regime_table_header(cells: list[str]) -> bool:
+    columns = [_regime_cell_key(cell) for cell in cells]
+    return all(column in columns for column in _REGIME_TABLE_REQUIRED_COLUMNS)
+
+
+def _contract_has_competing_regime_table(text: str) -> bool:
+    """True when an unmarked markdown table header carries all four regime columns."""
+    for line in text.splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = _split_markdown_table_row(line)
+        if not cells or _is_markdown_table_separator(cells):
+            continue
+        if _is_regime_table_header(cells):
+            return True
+    return False
+
+
+def parse_abstract_regime_table(text: str) -> dict[str, dict[str, str]]:
+    """Parse the abstract length / keyword regime table of the abstract writing guide.
+
+    Returns `{paper_type_key: {column_key: cell}}`. Raises ValueError when the block or
+    its table is unusable: missing markers, no table, a required column or paper-type row
+    missing, a row with an empty L2 abstract cell, or a duplicate paper-type row.
+
+    The table is the single source for both figures (design sketch §5), so it lives on the
+    guide surface and nowhere else: `check_abstract_regime_table` asserts that the
+    contract carries no competing copy.
+    """
+    start = text.find(_REGIME_TABLE_START)
+    end = text.find(_REGIME_TABLE_END)
+    if start == -1 or end == -1:
+        raise ValueError("regime table markers are missing")
+    if end < start:
+        raise ValueError("regime table markers are out of order")
+    block = text[start + len(_REGIME_TABLE_START):end]
+    rows = [line for line in block.splitlines() if line.strip().startswith("|")]
+    if len(rows) < 2:
+        raise ValueError("regime block carries no table")
+    columns = [_regime_cell_key(cell) for cell in _split_markdown_table_row(rows[0])]
+    missing = [column for column in _REGIME_TABLE_REQUIRED_COLUMNS if column not in columns]
+    if missing:
+        raise ValueError(
+            "regime table must declare the paper type, both abstract lengths, and the "
+            f"keyword count (missing: {missing!r})"
+        )
+    table: dict[str, dict[str, str]] = {}
+    for row in rows[1:]:
+        cells = _split_markdown_table_row(row)
+        if _is_markdown_table_separator(cells):
+            continue
+        if len(cells) != len(columns):
+            raise ValueError(
+                f"regime row has {len(cells)} cells, expected {len(columns)}: {row.strip()!r}"
+            )
+        entry = dict(zip(columns, cells))
+        key = _regime_cell_key(entry["paper_type"])
+        if not key:
+            raise ValueError(f"regime row declares no paper type: {row.strip()!r}")
+        if key in table:
+            raise ValueError(f"duplicate regime row {key!r}")
+        if not entry["l2_abstract"].strip():
+            raise ValueError(f"regime row {key!r} declares no L2 abstract length")
+        table[key] = entry
+    for key in _REGIME_TABLE_REQUIRED_ROWS:
+        if key not in table:
+            raise ValueError(f"regime table is missing the {key!r} row")
+    return table
+
+
+def check_abstract_regime_table(root: Path | None = None) -> None:
+    """The regime table lives in the abstract guide, and only there (PR #869 P1-1).
+
+    `root` is the tree to read, so the synthetic-tree tests exercise this through the
+    patched `ROOT` and the literal-pin tests against a copy of the shipped files.
+    """
+    base = ROOT if root is None else root
+    try:
+        guide = (base / OUTPUT_LANGUAGE_PAIR_GUIDE).read_text(encoding="utf-8")
+    except OSError:
+        fail(f"{OUTPUT_LANGUAGE_PAIR_GUIDE}: abstract writing guide is missing")
+        return
+    try:
+        parse_abstract_regime_table(guide)
+    except ValueError as exc:
+        fail(f"{OUTPUT_LANGUAGE_PAIR_GUIDE}: {exc}")
+
+
+def check_output_language_pair_contract() -> None:
+    """#862 Phase 1: parity between the registry and its consumer surfaces.
+
+    (a) the registry entries are referenced consistently by the Schema-4 field
+        documentation and the bilingual template;
+    (b) the default entry matches the legacy hardcoded pair (zh-tw-en);
+    (c) no consumer advertises a pair absent from the registry;
+    (d) malformed values (non-string, null) are rejected by the validator, which
+        names the registry;
+    (e) the abstract length / keyword regime table lives in the abstract guide, not in
+        the contract, and both documents point at each other for their own subject
+        matter (review PR #869 P1-1);
+    (f) the two carrier steps are pinned by their operative lines (see
+        PAIR_CARRIER_STEPS);
+    (g) duplicate Schema-4 field rows fail (first-wins shadowing).
+
+    Every token-carrying consumer surface is scanned for registry membership; the
+    Schema-4 documentation and the bilingual template must also carry the default token
+    (design sketch §5). The check is deliberately structural
+    (per surface) rather than per pack-supplied entry: a pack contributes registry
+    entries as configuration, not new Schema-4 prose.
+    """
+    try:
+        contract = read(OUTPUT_LANGUAGE_PAIR_CONTRACT)
+    except OSError:
+        fail(f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: contract file is missing")
+        return
+    try:
+        registry = parse_output_language_pair_registry(contract)
+    except ValueError as exc:
+        fail(f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: {exc}")
+        return
+
+    # The conflict rule is prose-only, so it is pinned by literal presence, the way #439
+    # pins its omission prose: dropping the heading or the clause has to fail the lint.
+    for literal in (
+        "### Conflicting declarations fail visibly",
+        "names both values",
+    ):
+        if literal not in contract:
+            fail(f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: missing conflict-rule text {literal!r}")
+
+    # the two steps that actually carry and emit the value
+    check_output_language_pair_carrier_steps()
+
+    # (e) the regime table has one home: the guide (review PR #869 P1-1). The guide must
+    # carry the marked block, and this contract must not carry a competing copy — a second
+    # table is how the two figures drifted apart in the first place.
+    check_abstract_regime_table(ROOT)
+    if _REGIME_TABLE_START in contract or _contract_has_competing_regime_table(contract):
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: the abstract length / keyword regime table "
+            f"lives in {OUTPUT_LANGUAGE_PAIR_GUIDE}; the contract must carry no competing copy"
+        )
+    if OUTPUT_LANGUAGE_PAIR_GUIDE_BASENAME not in contract:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: the contract must point at the regime table's "
+            f"home ({OUTPUT_LANGUAGE_PAIR_GUIDE}) instead of carrying the figures"
+        )
+    try:
+        guide_text = read(OUTPUT_LANGUAGE_PAIR_GUIDE)
+    except OSError:
+        guide_text = ""
+    if guide_text and OUTPUT_LANGUAGE_PAIR_CONTRACT_BASENAME not in guide_text:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_GUIDE}: the regime table's home must reference the registry "
+            f"contract ({OUTPUT_LANGUAGE_PAIR_CONTRACT})"
+        )
+
+    # (b) exactly one default entry, and it is the legacy hardcoded pair.
+    defaults = [
+        token
+        for token, entry in registry.items()
+        if entry.get("status", "").strip().strip("`").strip() == "default"
+    ]
+    if defaults != [LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR]:
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: default registry entry must be exactly "
+            f"{LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR!r}, found {defaults!r}"
+        )
+
+    # (a)/(c) the consumer surfaces. Membership is required everywhere; the Schema-4
+    # documentation must also carry the default token and the contract itself.
+    for rel_path, carries_default in (
+        ("academic-paper/WORKFLOW.md", True),
+        ("academic-paper/agents/intake_agent.md", True),
+        ("academic-paper/agents/abstract_bilingual_agent.md", True),
+        ("academic-paper/agents/structure_architect_agent.md", True),
+        ("academic-paper/agents/draft_writer_agent.md", False),   # carries no token
+        ("academic-paper/references/abstract_writing_guide.md", True),
+        ("academic-paper/references/workflow_phase_details.md", True),
+        ("academic-paper/references/mode_selection_guide.md", False),  # "zh-TW + EN" prose, no token
+        ("academic-paper/templates/bilingual_abstract_template.md", True),   # was False — the template now carries the token
+        ("commands/ars-abstract.md", True),
+        ("shared/handoff_schemas.md", True),
+    ):
+        try:
+            surface = read(rel_path)
+        except OSError:
+            fail(f"{rel_path}: output-language-pair consumer surface is missing")
+            continue
+        if rel_path == OUTPUT_LANGUAGE_PAIR_SCHEMA_SURFACE:
+            surface = _schema4_section(surface)
+            if not surface:
+                fail(
+                    f"{rel_path}: Schema 4 section ({OUTPUT_LANGUAGE_PAIR_SCHEMA_SECTION_START!r}) "
+                    "is missing"
+                )
+                continue
+            if OUTPUT_LANGUAGE_PAIR_CONTRACT_BASENAME not in surface:
+                fail(
+                    f"{rel_path}: Schema 4 must reference the output-language-pair contract "
+                    f"({OUTPUT_LANGUAGE_PAIR_CONTRACT})"
+                )
+        advertised = advertised_output_language_pair_tokens(surface)
+        unknown = sorted(token for token in advertised if token not in registry)
+        if unknown:
+            fail(
+                f"{rel_path}: advertises output language pair(s) absent from the registry "
+                f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: {unknown!r}"
+            )
+        if carries_default and LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR not in advertised:
+            fail(
+                f"{rel_path}: does not reference the default registry entry "
+                f"{LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR!r}"
+            )
+
+    # (d) the validator rejects malformed values and names the registry. A
+    # regression here has to fail the lint, not only the unit tests.
+    if validate_output_language_pair(PAIR_FIELD_ABSENT, registry):
+        fail(
+            f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: an omitted field must stay valid "
+            "(legacy behaviour)"
+        )
+    if validate_output_language_pair(LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR, registry):
+        fail(f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: the default entry must validate")
+    for malformed in (None, 42, [LEGACY_DEFAULT_OUTPUT_LANGUAGE_PAIR], ""):
+        errors = validate_output_language_pair(malformed, registry)
+        if not errors:
+            fail(
+                f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: malformed value {malformed!r} must be rejected"
+            )
+        elif any(OUTPUT_LANGUAGE_PAIR_CONTRACT not in error for error in errors):
+            fail(
+                f"{OUTPUT_LANGUAGE_PAIR_CONTRACT}: rejection of {malformed!r} must name the "
+                f"registry: {errors!r}"
+            )
+
+    # (f) the literals Phase 1 holds fixed are pinned on the real tree, never on the
+    # fixture tree the checks above run against, so a rename of a legacy literal fails.
+    check_output_language_pair_literal_pins()
+
+
 def main() -> int:
     check_mode_registry()
     check_claude_md()
@@ -1382,12 +2071,14 @@ def main() -> int:
     check_readme_zh_sections()
     check_readme_ja_sections()
     check_readme_ko_sections()
+    check_readme_es_sections()
     check_setup_docs()
     check_docx_contract()
     check_reference_docs()
     check_rebuttal_audit_guard()
     check_ideation_diversity_no_call_contract()
     check_indirect_prompt_injection_no_call_envelope()
+    check_output_language_pair_contract()
 
     if ERRORS:
         print("Spec consistency check failed:")

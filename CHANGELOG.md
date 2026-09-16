@@ -4,6 +4,60 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.22.0] - 2026-09-16
+
+### What's Changed
+- Aligned the ARS-Codex release number with ARS, replacing the independent
+  `0.1.x` numbering from this release onward. Historical entries keep their
+  original versions; package and upstream suite versions are checked together.
+- Synced the tagged ARS v3.22.0 release at
+  `3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e`, preserving Codex path overlays,
+  runtime policy, and the separately pinned experiment-agent v1.1.0.
+- Added the Phase-1 `output_language_pair` contract and abstract consumer chain.
+  Only `zh-tw-en` is registered; omitted values retain legacy output, while
+  malformed or unsupported values fail visibly. Spanish output packs remain
+  outside this release's supported registry.
+- Propagated Spanish intent triggers into the single Codex router and planner,
+  including separate manuscript-revision and reviewer-simulation routes.
+- Adopted the upstream Windows file-lock helper and canonical API-effort,
+  contained citation-transport, audit-provenance, and writing-diagnostic fixes.
+  Unknown judge identities now isolate cache entries by audit run, retaining
+  deduplication within that run without cross-run reuse.
+- Vendored reviewer-calibration infrastructure, Claude plugin eval source
+  suites, Spanish README, and frozen locale changelog archives. These sources
+  do not establish measured Codex effectiveness or launch live evaluations.
+- Updated four-language release guidance and the materialized Desktop bundle.
+
+## [0.1.29] - 2026-09-06
+
+### What's Changed
+- Synced ARS v3.21.2 at `8fa3d651ad45da9e02762a6ba1fa3d1f231f91b6`,
+  preserving Codex path overlays and the separately pinned experiment-agent.
+- Read the complete Astra (117 pages) and Fable/Mythos 5.1 (212 pages) system
+  cards; recorded source hashes, section coverage and implementation decisions
+  in `codex/audits/2026-09-06-model-alignment.md`.
+- Added project-scoped GPT-6 Astra/xhigh configuration and an explicit planner
+  model policy: routine medium, complex judgement xhigh, supported overrides,
+  launch arguments, and separate requested/caller-observed provenance.
+- Replaced manual-only native delegation with adaptive bounded collaboration;
+  retained opt-in fixed topologies/hooks, blinded review, author authority and
+  integrity gates. Removed stale self-scoring, fixed question counts and generic
+  punctuation/paragraph quotas; unsupported facts cannot be repaired by hedging.
+- Corrected upstream Astra API payloads and effort preflight, rejected
+  delegation-requesting ultra in the citation-only transport, and updated the
+  independent audit launcher to Astra. General Codex research still supports
+  explicit max/ultra; API and contained transport vocabularies remain distinct.
+- Removed the implicit old-model identity from claim-audit cache provenance;
+  unknown model identity bypasses cache instead of mislabelling execution.
+- Fixed natural-language review and format-conversion routing, restored all
+  five reviewer seats in output validation, and clarified that the planner's
+  package gate catalog is not a requirement to execute every gate per request.
+- Opened upstream issues #823–#826 for the confirmed API, transport, writing
+  harness and executable/cache findings.
+- Updated four-language setup guidance and materialized Desktop plugin bundle.
+  Historical model measurements remain unchanged; Astra verifier promotion
+  remains provisional pending a real transport-specific bakeoff.
+
 ## [0.1.28] - 2026-09-02
 
 ### What's Changed

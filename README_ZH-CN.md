@@ -1,13 +1,13 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.28-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.22.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
 ARS-Codex 是
 [Academic Research Skills（ARS）Claude Code 版](https://github.com/Imbad0202/academic-research-skills)
 的 Codex 原生 sibling。它是独立的 Codex 发行版，拥有自己的 plugin 标识、
-打包、版本和 runtime adapter。
+打包和 runtime adapter；发行版本号从 `3.22.0` 起与内嵌 ARS 同步。
 
 本仓库将 ARS workflow 内容作为单个 Codex skill 进行内嵌分发：
 
@@ -46,21 +46,33 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `0.1.28`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 独立追踪 Codex 打包版本，与内嵌的 ARS 套件版本无关。内嵌的上游版本通过 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `3.22.0`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-当前内嵌的 ARS 源码追踪至已签署 `v3.21.1` 发行版之后的上游 `main`：
-`Imbad0202/academic-research-skills@94436237913091d4739870159d241660527e8338`
-（2026-09-02；上游套件 metadata 仍为 `3.21.1`）。此 post-release snapshot
-加入中文感知的标题匹配和平衡 CJK 外层括号处理，明确声明 surface-form
-检查所需的 Markdown parser dependency，使缺少 PyYAML 时明确失败，并纳入
-9 月 harness-retirement audit 与文档修正。v3.21.1 的 research-workflow、
-inquiry-ledger、promotion-bakeoff、review-criteria 与同意边界保持不变。
+当前内嵌的 ARS 源码对齐 **v3.22.0**：
+`Imbad0202/academic-research-skills@3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e`。
+此版本新增输出语言配对契约、西班牙语意图路由、评审校准和插件评估素材，
+并修复 Windows 文件锁、模型传输和审计来源记录。
+语言配对目前仅支持 `zh-tw-en`；西班牙语触发词不代表已提供西班牙语输出语言包。
+Claude 插件评估素材保留供参考，不代表已实测 Codex 性能。
 
 上游嵌套的 `.github/` 工作流和根级 `agents/` 镜像保留用于可追溯性和自测，
 但不是仓库级 CI 或 Codex 入口；`.claude/` 与 `.claude-plugin/` 下的
 Claude/plugin 加载文件按设计排除。
+
+## 模型与执行方式
+
+本 checkout 的 [project 配置](.codex/config.toml) 为新开且信任此项目的
+Codex session 选择 `gpt-6-astra` 和 `xhigh` reasoning。安装 skill 不会复制
+此配置，也无法切换已经运行的 session。Planner 对例行任务建议 `medium`、
+复杂任务建议 `xhigh`；这是初始策略，尚非实测最佳配置。`ultra` 仅供 Codex
+中明确选择的高难度工作使用，contained citation transport 会拒绝此配置。
+
+默认采用原生自适应执行：适合并行的独立工作可交给范围明确的子 agent，
+主 agent 同时继续其他工作。固定 full-runtime topology 和 hooks 仍须选用。
+参见[模型执行策略](skills/academic-research-suite/codex/model-runtime-policy.md)
+及[系统卡对齐审计](skills/academic-research-suite/codex/audits/2026-09-06-model-alignment.md)。
 
 ## 安装 ARS-Codex Plugin
 
@@ -277,10 +289,10 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_quality_gates.py 
 ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 
 - 内嵌的 `agents/*.md` 文件用作角色和阶段提示词。
-- Codex 专属的 `codex/` 目录包含一个可选的 full-runtime adapter profile。它默认关闭，不会改变正常的内联路由。
+- Codex 专属的 `codex/` 目录包含一个可选的 full-runtime adapter profile。它的固定 topology 和 hook pack 须主动启用；通常使用原生自适应执行。
 - 内嵌的 `commands/ars-*.md` 文件仅作为提示词模板。Codex 不会将它们注册为斜杠命令。
 - 内嵌的 `hooks/hooks.json` 文件仅为上游可追溯性而保留。Codex 不会从此包安装 Claude Code hook。
-- Codex 不会自动生成后台 agent，除非你明确要求委派或并行 agent 工作。
+- Codex 可在当前任务和权限范围内，通过原生子 agent 委派独立工作；主 agent 同时继续其他有用工作。
 - Web/源码验证使用 Codex 浏览功能，在涉及当前或外部事实时必须引用来源。
 - 跨模型验证默认禁用。在本 Codex 打包版本中明确请求时，请按 `ars/shared/cross_model_verification.md` 配置 provider，先说明 provider、model 和将发送的内容类别，并在任何外部上传前取得用户明确同意。外部审阅者通过已配置的 provider API 调用，不会用当前 Codex model 模拟。
 - `ARS_MODEL_TIERING` 默认未设置。Codex adapter 保留上游的 judgment/execution 分类，但仅在 runtime 支持显式按次 dispatch 模型覆盖时应用 `economy` 或 `quality-boost`；否则报告 no-op 并保持当前模型。
@@ -295,16 +307,16 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS post-v3.21.1 main 功能对等
+### ARS v3.22.0 功能对等
 
-本包旨在 Codex 具有等效概念的地方，提供与上游 ARS post-`v3.21.1` `main`（`94436237913091d4739870159d241660527e8338`）相同的用户侧 workflow 内容；上游套件 metadata 仍为 `3.21.1`。
+本包在 Codex 具有等效概念之处，适配上游 ARS `v3.22.0`（`3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e`），并记录模型与 runtime overlay。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|
 | 一个可安装的 plugin | 原生 Codex plugin `ars-codex`，内含单个 `academic-research-suite` skill |
 | `/ars-*` 斜杠命令 | 通过 skill router 以 `ars-*` 别名模拟；非原生斜杠命令 |
 | 从 `skills/` 符号链接自动发现的四个上游 skill | 单个 Codex router skill 选择 workflow 并读取内嵌的 workflow `WORKFLOW.md` 文件 |
-| Plugin 附带的 agent | Agent 文件用作角色/阶段提示词；Codex 内联运行，除非用户明确要求委派子 agent |
+| Plugin 附带的 agent | 角色/阶段提示词依任务依赖和 runtime 权限，以内联或范围明确的原生子 agent 运行 |
 | 可选 Codex full-runtime profile | Planner、agent-team 模板和 hook pack 位于 `skills/academic-research-suite/codex/`；默认关闭 |
 | 重型命令（`ars-full`、`ars-reviewer`、`ars-revision-coach`）省略 `model:`，轻量模式保留 `model: sonnet` | 重型命令继承当前 Codex 会话模型；轻量模式的 `sonnet` 作为上游 Claude 元数据保留，不会覆盖会话模型 |
 | `ARS_MODEL_TIERING=economy\|quality-boost` | 保留 judgment/execution 分类；仅在 Codex 支持逐次 dispatch 指定模型时应用，否则保持当前模型 |
@@ -326,7 +338,7 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 | Panel／degradation／pipeline-boundary 可执行检查 | 连同 hermetic 测试一起内嵌，并由可选 full-runtime manifest 暴露 |
 | SessionStart 和 SubagentStop hook（含更新提醒） | 仅为可追溯性而内嵌保留；Codex 不安装或执行 Claude hook |
 | Plugin marketplace 更新 | 执行 `codex plugin marketplace upgrade ars-codex` 后重新添加 `ars-codex@ars-codex`；直接安装的 skill 仍通过重新安装或 pull 更新 |
-| Claude Code Agent Team | 非自动；Codex 子 agent 需要用户明确请求委派或并行 agent |
+| Claude Code Agent Team | 原生 Codex 子 agent 依工作自适应安排；另设的固定 topology 仍须选用 |
 | 上游文档中的跨模型 provider 调度 | 默认禁用；仅在明确配置 provider 并取得用户同意时可用 |
 
 ### 可选的外部跨模型审阅者 API
@@ -336,8 +348,12 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 
 ```bash
 export OPENAI_API_KEY="<your-openai-api-key>"
-export ARS_CROSS_MODEL="gpt-5.5"
+export ARS_CROSS_MODEL="gpt-6-astra"
 ```
+
+`gpt-6-astra` 在两种验证 transport 仍为 provisional。GPT session 使用 GPT
+验证者属于同家族的另一次运行，不代表跨家族验证；provider、内容和费用
+同意仍然适用。
 
 然后在提示词中明确请求跨模型验证。如果未配置 provider 或未取得要发送内容类别的明确同意，ARS-Codex 将回退到单运行时审阅，并报告跨模型验证不可用。
 

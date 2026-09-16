@@ -1,9 +1,9 @@
 ---
 name: academic-pipeline
-description: "Orchestrator for the full academic research pipeline: research -> write -> integrity check -> review -> revise -> re-review -> re-revise -> final integrity check -> finalize. Coordinates deep-research, academic-paper, and academic-paper-reviewer into a seamless 10-stage workflow with mandatory, coverage-bounded integrity checks, two-stage peer review, and auditable quality-assurance artifacts. Triggers on: academic pipeline, research to paper, full paper workflow, paper pipeline, end-to-end paper, research-to-publication, complete paper workflow, 연구부터 논문까지, 연구 주제 설정부터 논문 완성까지, 논문 전체 워크플로."
+description: "Orchestrator for the full academic research pipeline: research -> write -> integrity check -> review -> revise -> re-review -> re-revise -> final integrity check -> finalize. Coordinates deep-research, academic-paper, and academic-paper-reviewer into a seamless 10-stage workflow with mandatory, coverage-bounded integrity checks, two-stage peer review, and auditable quality-assurance artifacts. Triggers on: academic pipeline, research to paper, full paper workflow, paper pipeline, end-to-end paper, research-to-publication, complete paper workflow, 연구부터 논문까지, 연구 주제 설정부터 논문 완성까지, 논문 전체 워크플로, flujo de trabajo académico, investigación a artículo, flujo completo de artículo, pipeline de investigación completa, publicación de investigación, flujo de trabajo completo del artículo."
 metadata:
-  version: "3.21.1"
-  last_updated: "2026-08-24"
+  version: "3.22.0"
+  last_updated: "2026-09-16"
   depends_on: "deep-research, academic-paper, academic-paper-reviewer"
   status: active
   data_access_level: raw
@@ -14,7 +14,7 @@ metadata:
     - academic-paper-reviewer
 ---
 
-# Academic Pipeline v3.21.1 — Full Academic Research Workflow Orchestrator
+# Academic Pipeline v3.22.0 — Full Academic Research Workflow Orchestrator
 
 A lightweight orchestrator that manages the complete academic pipeline from research exploration to final manuscript. It does not perform substantive work — it only detects stages, recommends modes, dispatches skills, manages transitions, and tracks state.
 
@@ -77,6 +77,8 @@ resume_from_passport=<hash> [stage=<n>] [mode=<m>]
 ### Trigger Keywords
 
 **English**: academic pipeline, research to paper, full paper workflow, paper pipeline, end-to-end paper, research-to-publication, complete paper workflow
+
+**Español**: flujo de trabajo académico, investigación a artículo, pipeline de artículo completo, desde tema de investigación hasta artículo terminado, flujo completo de investigación-publicación
 
 **한국어**: 학술 파이프라인, 연구부터 논문까지, 논문 전체 워크플로, 연구 주제 설정부터 논문 완성까지, 연구-논문 전 과정
 
@@ -260,7 +262,7 @@ Explain the differences between modes when recommending, letting the user choose
 Call the corresponding skill (does not do work itself, purely dispatching):
 
 1. Inform the user which Stage is about to begin
-2. Load the corresponding skill's SKILL.md
+2. Load the corresponding skill's WORKFLOW.md
 3. Launch the skill with the recommended mode
 4. Monitor stage completion status
 
@@ -276,7 +278,7 @@ After completion:
 After user confirmation:
 
 1. Pass the previous stage's deliverables as input to the next stage
-2. Trigger handoff protocol (defined in each skill's SKILL.md):
+2. Trigger handoff protocol (defined in each skill's WORKFLOW.md):
    - Stage 1  --> 2: deep-research handoff (RQ Brief + Methodology Blueprint + Bibliography + Synthesis)
    - #672 cargo on every transition: exact builder-produced `preregistration-artifact/1.0` receipt and its named companion when provided; validate and carry byte-for-byte
    - Stage 2  --> 2.5: Pass complete paper to integrity_verification_agent
@@ -723,8 +725,8 @@ When `ARS_MODEL_TIERING` is set, the dispatching session routes this skill's age
 
 | Item | Content |
 |------|---------|
-| Skill Version | 3.21.1 |
-| Last Updated | 2026-08-24 |
+| Skill Version | 3.22.0 |
+| Last Updated | 2026-09-16 |
 | Maintainer | Cheng-I Wu |
 | Dependent Skills | deep-research v2.0+, academic-paper v2.0+, academic-paper-reviewer v1.1+ |
 | Role | Full academic research workflow orchestrator |

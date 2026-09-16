@@ -1,21 +1,19 @@
 ---
 name: academic-research-suite
 description: >
-  ARS-Codex workflows for research, academic writing, manuscript review,
-  research-to-paper pipelines, and experiment planning. Use when the user asks for deep research, literature
-  review, systematic review, meta-analysis, research question refinement,
-  academic paper drafting, paper revision, citation or integrity checks,
-  reviewer simulation, peer review, editorial decision letters, research-to-paper
-  workflows, experiment execution planning, statistical interpretation, or human
-  study protocol support. Korean triggers: 논문 심사, 논문 수정, 초록 작성,
-  체계적 문헌고찰, 연구부터 논문까지. Also use for Claude-style ARS command aliases such as
-  /ars-plan, ars-plan, /ars-outline, /ars-abstract, /ars-lit-review,
+  ARS-Codex research, academic writing, manuscript review, and experiment planning.
+  Use for deep research, literature or systematic reviews, meta-analysis, research
+  questions, paper drafts, revisions, revision roadmaps, abstracts, citations,
+  integrity checks, peer review, and research-to-paper workflows. Korean: 논문 심사,
+  논문 수정, 초록 작성, 체계적 문헌고찰, 연구부터 논문까지. Español: revisión de literatura,
+  revisar artículo, enmendar mi artículo, escribir resumen, investigación a artículo.
+  Also use for ARS aliases: /ars-plan, /ars-outline, /ars-abstract, /ars-lit-review,
   /ars-citation-check, /ars-disclosure, /ars-format-convert, /ars-3w,
   /ars-revision-coach, /ars-revision, /ars-reviewer, /ars-mark-read,
-  /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, and /ars-full. This skill vendors ARS role prompts,
-  references, templates, and shared handoff schemas under ars/.
+  /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, /ars-full.
+  Role prompts, references, templates, and handoff schemas live under ars/.
 metadata:
-  version: "0.1.28"
+  version: "3.22.0"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -28,10 +26,11 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `0.1.28`. The repo-root `VERSION`, this
+This Codex package is version `3.22.0`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
-Vendored ARS suite versions are tracked separately by source repository commit
-in `manifest.json`.
+Starting at `3.22.0`, this release number also matches the vendored ARS suite.
+The exact upstream version, tag, and commit are recorded in `manifest.json`;
+historical `0.1.x` package releases retain their original numbers.
 
 ## First Rule
 
@@ -57,6 +56,25 @@ Choose the workflow by intent:
 
 If the request spans multiple workflows, start with `ars/academic-pipeline/WORKFLOW.md`
 unless the user clearly asked for a single phase.
+
+### Spanish Intent Routing
+
+Use the same intent boundaries as the vendored Spanish trigger phrases:
+
+| Spanish intent | Workflow and mode |
+|---|---|
+| revisión de literatura / revisión sistemática / metaanálisis | `deep-research`: `lit-review` / `systematic-review` |
+| guía mi investigación / ayúdame a razonar | `deep-research`: `socratic` |
+| revisar artículo / revisa este artículo / revisión entre pares | `academic-paper-reviewer`: `full` |
+| enmendar mi artículo / enmienda mi artículo | `academic-paper`: `revision` |
+| recibí comentarios de revisores / ruta de revisión | `academic-paper`: `revision-coach` |
+| escribir resumen / verificar citas / convertir formato | `academic-paper`: `abstract-only` / `citation-check` / `format-convert` |
+| artículo de revisión bibliográfica | `academic-paper`: `lit-review` |
+| flujo de trabajo académico / investigación a artículo | `academic-pipeline`: `pipeline` |
+
+Keep review and revision intent distinct. Apply topic scoping below to vague
+paper topics in Spanish too; an explicit research question permits direct
+planning. These activation phrases do not add supported output-language pairs.
 
 ### Paper Topic Scoping Override
 
@@ -87,8 +105,8 @@ First response in this path:
 
 1. State that the request is being routed to `deep-research` `socratic` mode
    because the research question is not yet precise.
-2. Ask 3-5 Socratic narrowing questions using `socratic_mentor_agent` and
-   `research_question_agent` guidance.
+2. Ask only the material narrowing questions needed now, using
+   `socratic_mentor_agent` and `research_question_agent` guidance.
 3. Do not produce an outline, draft, literature review, or full pipeline
    dashboard until the user has converged on at least one candidate RQ.
 
@@ -107,7 +125,8 @@ task text, read the matching `ars/commands/ars-*.md` prompt recipe, then route
 to the workflow `WORKFLOW.md` below.
 
 The `model:` field in command frontmatter is a Claude routing hint only. Codex
-uses the current model unless the user explicitly requests another model.
+does not translate it into an Opus/Sonnet model pin. Apply the Codex model
+policy below and preserve explicit user or runtime model choices.
 
 | Alias | Read command recipe | Then route to |
 |---|---|---|
@@ -136,6 +155,31 @@ and `ars-full`.
 If the Codex client reserves slash-prefixed input before it reaches the model,
 tell the user to use the plain alias form, for example `ars-plan my topic`.
 
+## Model and Execution Policy
+
+Use GPT-6 Astra (`gpt-6-astra`) for new Codex research sessions and supported
+explicit dispatches. Preserve an explicit user/runtime model choice. A skill
+cannot change an already-running session; report the actual model when known
+and never present a planned model as observed execution. Read
+[`codex/model-runtime-policy.md`](codex/model-runtime-policy.md) when configuring
+models, delegating roles, or running a long research/review task.
+
+Complete the authorized deliverable through its requested stopping point.
+Resolve routine implementation choices from context and continue independent
+work while material questions are pending. Reuse existing authorization; a
+checkpoint display alone is not a new permission request. Keep the actual ARS
+author-decision, review-criteria, consent, and institution-owned authority gates.
+If a skill requirement blocks work, identify the exact file and rule and explain
+which missing decision it needs.
+
+Use task-appropriate reasoning, concise progress updates, and the native tool
+orchestration surface. Batch independent reads/searches, keep dependent work
+ordered, and judge completion from source evidence and final artifacts. Increase
+effort or add a reviewer to resolve a concrete uncertainty; avoid generic
+self-scoring, repeated unchanged checks, fixed retry rituals, and unrequested
+extra deliverables. Preserve useful state and the user's latest steering across
+long runs or context compaction.
+
 ## Codex Runtime Mapping
 
 The upstream ARS files were written for Claude Code. Apply these mappings when
@@ -143,8 +187,8 @@ using them in Codex:
 
 | Upstream wording | Codex behavior |
 |---|---|
-| Agent Team, agent, dispatch, handoff | Read the referenced `agents/*.md` file as a role or phase prompt and perform that phase inline. |
-| Agent tool, Task tool, subagent | Do not spawn agents automatically. Only use Codex subagents when the user explicitly asks for delegation or parallel agents. If the optional full-runtime profile is enabled, use `codex/full-runtime-manifest.json` and `codex/agents/*.md` as the adapter contract. |
+| Agent Team, agent, dispatch, handoff | Read the referenced `agents/*.md` as a scoped role contract. Execute inline or delegate independent work using the native runtime, as described below. |
+| Agent tool, Task tool, subagent | Delegate bounded, independent work when native collaboration is available and it improves quality or time. Continue useful local work while it runs; respect user limits and available slots. Use `codex/agents/*.md` for role boundaries. Fixed planner topologies remain optional. |
 | AskUserQuestion | Ask concise clarification questions, or use Codex's structured user-input tool when available in the active mode. |
 | WebSearch | Use Codex web browsing for current facts, source verification, citation checks, and external evidence. Provide source links. |
 | Bash, Write, Edit | Treat as capability descriptions, not required tool names. Follow Codex safety rules and the user's filesystem constraints. |
@@ -172,7 +216,7 @@ following any vendored instruction that says a lookup happens automatically:
 | Path | Default ARS-Codex behavior | Dedicated client trigger |
 |---|---|---|
 | Ordinary topic or candidate discovery | Use Codex browsing and authoritative web sources. | Never launches the Semantic Scholar, OpenAlex, Crossref, or arXiv Python resolver clients. |
-| Agent-side ingest, deduplication, and source verification | In the default inline route, translate prompt-level `WebSearch` or index lookups into Codex browsing or official metadata pages. | Upstream prompt wording such as “automatic S2 lookup” does not itself launch a Python client in Codex. |
+| Agent-side ingest, deduplication, and source verification | In the default route, translate prompt-level `WebSearch` or index lookups into Codex browsing or official metadata pages. | Upstream prompt wording such as “automatic S2 lookup” does not itself launch a Python client in Codex. |
 | Script-backed citation-existence gate | Do not infer this from an `ars-full` request alone. Stage 2.5 and 4.5 remain mandatory integrity checkpoints, but default Codex routing performs their source work through browsing unless the user also requests programmatic verification. | An explicit request to run `verify_passport.py`, `verification_gate`, or equivalent programmatic reference verification. Once invoked, cache misses may call Crossref, OpenAlex, and Semantic Scholar for non-manual references; arXiv runs only when `arxiv_id` is present. Manual references skip all four. |
 | Claim-standing discovery | Offer only after an eligible Claim Registry row at Stage 2.5 or 4.5. It is advisory and separate from citation verification. | A separate user request plus affirmative, plan-bound consent. It uses the v3.21 keyword-discovery adapters, not the four single-reference resolver clients; absent, cancelled, invalidated, or stale consent means no call. |
 | Contamination backfill or migration | No automatic migration. | Only the explicitly selected migration CLI and its documented indexes. |
@@ -181,7 +225,14 @@ The canonical upstream network map remains available at
 `ars/docs/DATA_FLOWS.md`; this section is the Codex adapter override for when
 those flows are actually launched here.
 
-### ARS v3.21.1 Contract-Honesty Boundaries
+### ARS v3.22.0 Contract-Honesty Boundaries
+
+- For abstract outputs, follow `ars/shared/output_language_pair.md`. The
+  Phase-1 registry accepts only `zh-tw-en`; an omitted field preserves legacy
+  Traditional Chinese/English surfaces and remains omitted from Schema 4.
+  Reject malformed or unsupported values visibly. The pair does not select
+  manuscript-body language or abstract cardinality. Spanish intent triggers
+  do not imply a Spanish locale pack.
 
 - Phase E evidence rows are deterministic, source-bound checkpoint artifacts.
   They preserve the existing citation verdict and gate, do not mark a source as
@@ -267,10 +318,9 @@ provider, content, credential, and consent checks.
 
 ## Optional Full-Runtime Profile
 
-Normal ARS-Codex behavior remains inline role-prompt execution in this
-conversation. The Codex-only `codex/` directory provides an optional
-full-runtime profile for users who explicitly want planner-driven agent-team or
-hook behavior:
+Normal ARS-Codex execution is adaptive: work inline for tightly coupled tasks
+and use native subagents for useful independent work. The Codex-only `codex/`
+directory also provides an optional fixed planner topology and hook profile:
 
 - `codex/full-runtime-manifest.json` defines aliases, workflow routes, agent-team
   rules, hook-pack metadata, quality gates, and known degradations.
@@ -280,9 +330,10 @@ hook behavior:
 - `codex/hooks/` is disabled by default and must not be installed or executed
   unless the user explicitly opts in.
 
-Only use this profile when the user explicitly asks for full-runtime,
-delegated, parallel, subagent, or hook behavior. Otherwise use the inline
-mapping above.
+The two full-runtime flags select a deterministic team plan; they are not
+prerequisites for native delegation. Hook installation still requires explicit
+opt-in. The planner only emits metadata and launch arguments; it does not
+change the active model, dispatch agents, or run hooks.
 
 ## Agent Prompt Use
 
@@ -294,9 +345,10 @@ When a workflow lists agents:
 4. Produce the phase output in the current conversation unless the user requested files.
 5. Use `ars/shared/handoff_schemas.md` when a phase hands material to another phase.
 
-For multi-review phases, preserve independence by writing each reviewer section
-before synthesizing. Do not let the final synthesis erase critical findings from
-devil's advocate or methodology roles.
+For multi-review phases, give each reviewer the same raw material and confirmed
+criteria without peer answers, then synthesize the completed sections. Preserve
+dissent with an evidence-based disposition. Disclose inline/shared-context review
+as such; separate headings do not establish independent execution.
 
 When an explicitly enabled cross-model checkpoint owner emits
 `[CROSS-MODEL-HANDOFF v1]`, treat it as a transport request rather than a

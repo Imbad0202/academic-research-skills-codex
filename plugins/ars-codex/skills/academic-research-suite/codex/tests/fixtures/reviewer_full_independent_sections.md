@@ -1,5 +1,10 @@
 # Reviewer Full-Mode Fixture
 
+## Independent Reviewer: Journal-Fit
+
+Journal-fit concern retained candidate: the contribution needs a clearer link
+to the author-confirmed journal criteria.
+
 ## Independent Reviewer: Methodology
 
 Methodology concern retained candidate: the sampling strategy is underspecified
@@ -21,9 +26,12 @@ incremental if the literature review is not narrowed.
 
 ## Editorial Synthesis
 
+- journal-fit concern retained: show how the contribution addresses the confirmed
+  journal criteria.
 - methodology concern retained: sampling underspecification is a major revision
   item.
 - domain concern retained: transferability claims must be narrowed.
+- interdisciplinary concern retained: state the theoretical boundary conditions.
 - devil's advocate dissent retained: contribution strength remains conditional
   on a tighter literature-positioning section.
 
@@ -33,4 +41,5 @@ Major revision.
 
 ## Revision Roadmap
 
-Prioritize methods, contribution positioning, and transferability claims.
+Proposed remedies cover methods, contribution positioning, journal fit,
+theoretical boundaries, and transferability claims. Author adjudication is pending.

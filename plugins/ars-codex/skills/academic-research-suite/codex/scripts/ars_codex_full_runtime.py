@@ -2,8 +2,9 @@
 """Codex full-runtime planner for the Academic Research Suite adapter.
 
 The planner is intentionally deterministic and side-effect free. It does not
-spawn agents or execute hooks; it converts a user request plus opt-in runtime
-environment into a structured plan that Codex can follow.
+switch models, spawn agents, or execute hooks. It records model recommendations
+and optional fixed-topology plans for a runtime that may delegate useful,
+independent work natively.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ MANIFEST_PATH = CODEX_ROOT / "full-runtime-manifest.json"
 
 ALIAS_RE = re.compile(r"(?<![\w/-])(/?ars-[a-z0-9-]+)(?![\w-])", re.IGNORECASE)
 QUESTION_RE = re.compile(
-    r"\b(research question|rq|hypothesis|hypotheses)\b|研究問題|研究问题|假設|假设|연구 질문|연구 문제|가설",
+    r"\b(research question|rq|hypothesis|hypotheses|pregunta de investigación|hipótesis)\b|研究問題|研究问题|假設|假设|연구 질문|연구 문제|가설",
     re.IGNORECASE,
 )
 UNCLEAR_QUESTION_RE = re.compile(
@@ -31,7 +32,9 @@ UNCLEAR_QUESTION_RE = re.compile(
     r"\bunclear\s+(research question|rq|hypothesis|hypotheses)\b|"
     r"\b(research question|rq|hypothesis|hypotheses)\b\s+.{0,30}\b(still\s+)?unclear\b|"
     r"尚未.{0,20}(研究問題|研究问题)|沒有.{0,20}(研究問題|研究问题)|没有.{0,20}(研究問題|研究问题)|"
-    r"(아직|명확하지|모르겠).{0,30}(연구 질문|연구 문제|무엇을 연구)",
+    r"(아직|명확하지|모르겠).{0,30}(연구 질문|연구 문제|무엇을 연구)|"
+    r"\b(?:sin|no tengo|no hay)\s+.{0,35}\bpregunta de investigación\b|"
+    r"\bpregunta de investigación\b.{0,30}\b(?:no está clara|sin definir)\b",
     re.IGNORECASE,
 )
 
@@ -55,7 +58,10 @@ VAGUE_TOPIC_PATTERNS = (
     "논문을 쓰고 싶",
     "논문 주제",
     "연구 방향",
-    "무엇을 연구할지 모르겠"
+    "무엇을 연구할지 모르겠",
+    "quiero escribir un artículo sobre",
+    "quiero redactar un artículo sobre",
+    "tema de investigación",
 )
 
 ALIAS_SOC_OVERRIDE = {
@@ -106,6 +112,31 @@ CODEX_CITATION_TRANSPORT_FORBIDDEN_USES = [
     "general_judgment",
 ]
 
+# Require an action or a manuscript object: bare "review", "format", and
+# output-format names also occur in research topics and confirmed criteria.
+FORMAT_CONVERSION_REQUEST_RE = re.compile(
+    r"(?:^|[.!?\n]\s*)(?:(?:please|can you|could you|help me(?: to)?|"
+    r"i (?:want|would like) you to)\s+)?"
+    r"(?:format[- ]convert\b|(?:convert|reformat|export)\b"
+    r"(?=[^\n.!?]{0,160}\b(?:to|into|as)\s+(?:docx|pdf|latex|markdown|md|word)\b))|"
+    r"(?:請|请|幫我|帮我|將|将|把)[^\n。！？]{0,80}"
+    r"(?:論文|论文|稿件|文稿|手稿)[^\n。！？]{0,30}"
+    r"(?:轉檔|转档|格式轉換|格式转换|轉換成|转换成|匯出成|导出为)",
+    re.IGNORECASE,
+)
+MANUSCRIPT_REVIEW_REQUEST_RE = re.compile(
+    r"\breview\s+(?:(?:this|the|my|our|attached|existing|submitted)\s+){0,3}"
+    r"(?:paper|manuscript|article|draft)\b|"
+    r"(?:論文|论文|稿件|手稿|文稿)(?:的)?(?:審查|审查|審稿|审稿|審閱|审阅)|"
+    r"(?:審查|审查|審稿|审稿|審閱|审阅)[^\n。！？]{0,12}(?:論文|论文|稿件|手稿|文稿)",
+    re.IGNORECASE,
+)
+REVIEW_COMPLETION_REQUEST_RE = re.compile(
+    r"\b(?:complete|finish|conduct|perform|run|provide)\s+"
+    r"(?:(?:the|a|an|this|my)\s+)?(?:full\s+)?(?:peer\s+)?review\b",
+    re.IGNORECASE,
+)
+
 
 def load_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -155,12 +186,53 @@ def infer_natural_route(request: str) -> tuple[str, str, str]:
     lowered = request.lower()
     if is_vague_paper_topic(request):
         return "deep-research", "socratic", "paper_topic_scoping_override"
+    # Spanish uses intent-specific compounds, preserving the upstream boundary
+    # between editing one's draft and reviewing a submitted manuscript.
+    if re.search(r"\b(?:enmendar|enmienda)\s+mi\s+artículo\b", lowered):
+        return "academic-paper", "revision", "natural_revision_request"
+    if any(signal in lowered for signal in (
+        "analizar opiniones de revisores", "ruta de revisión",
+        "recibí comentarios de revisores", "ayúdame con mi revisión",
+    )):
+        return "academic-paper", "revision-coach", "natural_revision_coach_request"
+    if any(signal in lowered for signal in (
+        "flujo de trabajo académico", "investigación a artículo",
+        "pipeline de artículo completo", "flujo completo de investigación-publicación",
+    )):
+        return "academic-pipeline", "pipeline", "natural_pipeline_request"
+    if any(signal in lowered for signal in ("guía mi investigación", "ayúdame a razonar")):
+        return "deep-research", "socratic", "natural_socratic_request"
+    if any(signal in lowered for signal in ("convertir a latex", "convertir formato")):
+        return "academic-paper", "format-convert", "natural_format_conversion_request"
+    if re.search(r"\b(?:revisar|revisa)\s+(?:este\s+|mi\s+|el\s+)?artículo\b", lowered) or any(
+        signal in lowered for signal in ("revisión entre pares", "revisión de manuscrito", "revisión simulada")
+    ):
+        return "academic-paper-reviewer", "full", "natural_review_request"
+    if "artículo de revisión bibliográfica" in lowered:
+        return "academic-paper", "lit-review", "natural_paper_literature_request"
+    if any(signal in lowered for signal in ("revisión sistemática", "metaanálisis")):
+        return "deep-research", "systematic-review", "natural_research_request"
+    if "revisión de literatura" in lowered:
+        return "deep-research", "lit-review", "natural_research_request"
+    if "verificar citas" in lowered:
+        return "academic-paper", "citation-check", "natural_citation_request"
+    if "escribir resumen" in lowered:
+        return "academic-paper", "abstract-only", "natural_abstract_request"
+    if FORMAT_CONVERSION_REQUEST_RE.search(request):
+        return "academic-paper", "format-convert", "natural_format_conversion_request"
+    if MANUSCRIPT_REVIEW_REQUEST_RE.search(request):
+        return "academic-paper-reviewer", "full", "natural_review_request"
+    # Research-review intents precede generic review completion. An explicit
+    # request to review a manuscript above still wins over its study type.
+    if any(signal in lowered for signal in ("systematic review", "meta-analysis", "體系性文獻回顧", "系統性文獻回顧", "系统性文献综述", "체계적 문헌고찰", "메타분석")):
+        return "deep-research", "systematic-review", "natural_research_request"
+    if any(signal in lowered for signal in ("literature review", "review of the literature", "review of literature", "annotated bibliography", "文獻回顧", "文献综述", "문헌 조사", "문헌 고찰")):
+        return "deep-research", "lit-review", "natural_research_request"
     if any(
         signal in lowered
         for signal in (
             "reviewer",
             "peer review",
-            "review this paper",
             "논문을 심사",
             "논문 심사",
             "동료 심사",
@@ -168,12 +240,8 @@ def infer_natural_route(request: str) -> tuple[str, str, str]:
             "모의 심사",
             "심사자 관점",
         )
-    ):
+    ) or REVIEW_COMPLETION_REQUEST_RE.search(request):
         return "academic-paper-reviewer", "full", "natural_review_request"
-    if any(signal in lowered for signal in ("systematic review", "meta-analysis", "체계적 문헌고찰", "메타분석")):
-        return "deep-research", "systematic-review", "natural_research_request"
-    if any(signal in lowered for signal in ("literature review", "annotated bibliography", "문헌 조사", "문헌 고찰")):
-        return "deep-research", "lit-review", "natural_research_request"
     if any(signal in lowered for signal in ("academic pipeline", "research to paper", "full pipeline", "연구부터 논문까지", "논문 전체 워크플로")):
         return "academic-pipeline", "pipeline", "natural_pipeline_request"
     if any(signal in lowered for signal in ("논문을 수정", "논문 수정", "심사 의견 반영")):
@@ -255,7 +323,10 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
         "full_runtime_enabled": full_runtime,
         "agent_team_enabled": full_runtime and agent_team,
         "hooks_enabled": full_runtime and hooks,
-        "execution_mode": "codex_agent_team" if full_runtime and agent_team else "inline_role_prompts",
+        "execution_mode": "codex_agent_team" if full_runtime and agent_team else "native_adaptive",
+        "native_delegation_policy": "useful_independent_subtasks_when_runtime_available",
+        "native_delegation_fallback": "inline_role_prompts",
+        "fixed_topology_opt_in": full_runtime and agent_team,
         "model_tiering_requested": requested_tiering or None,
         "model_tiering_status": tiering_status,
         "cross_model_configured": requested_cross_model or None,
@@ -289,6 +360,71 @@ def profile_from_env(env: dict[str, str]) -> dict[str, Any]:
             if requested_topology_arm
             else "unset"
         ),
+    }
+
+
+def build_model_plan(
+    manifest: dict[str, Any],
+    workflow: str,
+    mode: str,
+    env: dict[str, str],
+) -> dict[str, Any]:
+    """Plan a future selection; never infer what model actually executed."""
+    policy = manifest["runtime_options"]["model_policy"]
+    requested_model = env.get("ARS_CODEX_MODEL", "").strip() or None
+    requested_effort = env.get("ARS_CODEX_REASONING_EFFORT", "").strip() or None
+    target_model = requested_model or policy["preferred_model"]
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}", target_model):
+        raise ValueError("invalid ARS_CODEX_MODEL: expected a model identifier")
+    known_model = target_model == policy["preferred_model"]
+    supported = policy["codex_supported_reasoning_efforts"] if known_model else []
+    if requested_effort and requested_effort not in policy["codex_supported_reasoning_efforts"]:
+        raise ValueError("unsupported ARS_CODEX_REASONING_EFFORT for this Codex model policy")
+    if requested_effort and not known_model:
+        raise ValueError(
+            "cannot verify ARS_CODEX_REASONING_EFFORT for the overridden model; "
+            "omit the effort and use that runtime's model catalog"
+        )
+
+    routine_modes = policy["routine_modes"].get(workflow, [])
+    complexity = "routine" if mode in routine_modes else "judgment_or_complex_research"
+    effort = requested_effort or (
+        policy["reasoning_defaults"][complexity] if known_model else None
+    )
+    observed_model = env.get("ARS_CODEX_ACTIVE_MODEL", "").strip() or None
+    observed_effort = env.get("ARS_CODEX_ACTIVE_REASONING_EFFORT", "").strip() or None
+    argv = ["codex", "--model", target_model]
+    if effort:
+        argv.extend(["-c", f'model_reasoning_effort="{effort}"'])
+    return {
+        "schema": "ars.codex.model-plan.v1",
+        "preferred_model": policy["preferred_model"],
+        "requested_model": requested_model,
+        "requested_reasoning_effort": requested_effort,
+        "target_model": target_model,
+        "target_reasoning_effort": effort,
+        "selection_source": "explicit_model_override" if requested_model else "repository_quality_policy",
+        "effort_source": (
+            "explicit_effort_override" if requested_effort
+            else "repository_quality_policy" if known_model
+            else "unresolved_model_default"
+        ),
+        "task_class": complexity,
+        "supported_reasoning_efforts": supported,
+        "capability_evidence": policy["capability_evidence"] if known_model else None,
+        "quality_policy_evidence": "repository_policy_not_measured_optimum",
+        "project_default_reference": policy["project_default_reference"],
+        "application_status": "planned_only_current_session_unchanged",
+        "current_runtime_observation": {
+            "model": observed_model,
+            "reasoning_effort": observed_effort,
+            "source": "caller_reported" if observed_model or observed_effort else "unobserved",
+            "independently_verified": False,
+        },
+        "launch_argv": argv,
+        "launch_executed": False,
+        "api_effort_mapping": "none_codex_values_are_not_api_authority",
+        "runtime_selection_required": True,
     }
 
 
@@ -619,6 +755,7 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
         model_hint = None
 
     workflow_config = manifest["workflows"][workflow]
+    model_plan = build_model_plan(manifest, workflow, mode, env)
     checkpoint = detect_checkpoint(request, workflow)
     topology_plan = build_topology_plan(workflow, mode, profile)
     if profile["agent_team_enabled"] or profile["topology_experiment_enabled"]:
@@ -626,6 +763,21 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
     else:
         agent_plan = []
     for item in agent_plan:
+        role_effort = model_plan["target_reasoning_effort"]
+        model_policy = manifest["runtime_options"]["model_policy"]
+        if (
+            model_plan["requested_reasoning_effort"] is None
+            and model_plan["target_model"] == model_policy["preferred_model"]
+            and item["agent"] in model_policy["routine_agents"]
+        ):
+            role_effort = model_policy["reasoning_defaults"]["routine"]
+        item["model_selection"] = {
+            "model": model_plan["target_model"],
+            "reasoning_effort": role_effort,
+            "status": "planned_requires_runtime_model_override",
+            "observed_model": None,
+            "fallback": "inherit_active_model_and_record_actual_execution",
+        }
         if item["agent"] == "domain_reviewer_agent":
             if profile["cross_model_effective_transport"] == "codex":
                 item["cross_model_reviewer_track"] = (
@@ -651,12 +803,15 @@ def plan_request(request: str, env: dict[str, str] | None = None) -> dict[str, A
         "workflow_path": workflow_config["workflow_path"],
         "route_reason": route_reason,
         "model_hint": model_hint,
+        "model_plan": model_plan,
         "stop_at_checkpoint": checkpoint,
         "agent_template": workflow_config.get("agent_template"),
         "agent_team_plan": agent_plan,
         "topology_plan": topology_plan,
         "quality_gates": gates,
-        "degraded_behavior": [] if profile["full_runtime_enabled"] else ["full-runtime disabled; executing inline role prompts only"],
+        "quality_gate_scope": "package_validation_catalog",
+        "quality_gates_execute_on_request": False,
+        "degraded_behavior": [],
     }
 
 

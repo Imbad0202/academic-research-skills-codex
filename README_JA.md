@@ -1,10 +1,10 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v0.1.28-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.22.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
-ARS-Codex は、[Academic Research Skills（ARS）Claude Code 版](https://github.com/Imbad0202/academic-research-skills) の Codex ネイティブな sibling ディストリビューションです。独自の plugin ID、パッケージング、バージョン、および runtime adapter を持ちます。
+ARS-Codex は、[Academic Research Skills（ARS）Claude Code 版](https://github.com/Imbad0202/academic-research-skills) の Codex ネイティブな sibling ディストリビューションです。独自の plugin ID、パッケージング、および runtime adapter を持ち、リリース番号は `3.22.0` から内包する ARS に揃えます。
 
 このリポジトリは、ARS ワークフローの内容を単一の Codex スキルとして同梱（ベンダリング）しています。
 
@@ -36,11 +36,17 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `0.1.28` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、ベンダリングされた ARS スイートとは独立して Codex パッケージのバージョンを管理します。ベンダリングされたアップストリームのバージョンは `manifest.source_repositories[]` にコミット単位で記録されています。
+この ARS-Codex パッケージのバージョンは `3.22.0` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-現在ベンダリングされている ARS ソースは、署名済みリリース `v3.21.1` 後の upstream `main`、`Imbad0202/academic-research-skills@94436237913091d4739870159d241660527e8338`（2026-09-02、upstream suite metadata は引き続き `3.21.1`）を追跡しています。この post-release snapshot では、中国語を考慮したタイトル照合と balanced CJK wrapper 処理、surface-form check が使用する Markdown parser dependency、PyYAML 不在時の明示的 failure、9 月の harness-retirement audit、および文書修正が追加されました。v3.21.1 の research-workflow、inquiry-ledger、promotion-bakeoff、review-criteria、および同意境界は変更されていません。
+ベンダリングした ARS は **v3.22.0**、`Imbad0202/academic-research-skills@3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e` に揃えています。出力言語ペア契約、スペイン語の意図ルーティング、レビュー校正とプラグイン評価の資料、Windows ファイルロックとモデル転送の修正を取り込みます。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude の評価資料は Codex の性能測定ではありません。
+
+## モデルと実行方式
+
+この checkout の [project 設定](.codex/config.toml) は、プロジェクトを信頼した新しい Codex session で `gpt-6-astra` と `xhigh` reasoning を選びます。skill のインストールではこの設定はコピーされず、実行中の session のモデルも変更できません。Planner は通常の作業に `medium`、複雑な作業に `xhigh` を提案します。これは初期方針であり、最適と実測された設定ではありません。`ultra` は Codex で明示的に選ぶ難しい作業向けで、contained citation transport は拒否します。
+
+標準はネイティブの適応的な実行です。独立した作業を必要に応じて範囲の明確な subagent に渡し、lead agent も他の作業を続けます。固定 full-runtime topology と hooks は引き続き opt-in です。[モデル実行方針](skills/academic-research-suite/codex/model-runtime-policy.md)と[システムカード対応監査](skills/academic-research-suite/codex/audits/2026-09-06-model-alignment.md)を参照してください。
 
 ## ARS-Codex Plugin のインストール
 
@@ -241,22 +247,22 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - ベンダリングされた `agents/*.md` ファイルはロールおよびフェーズプロンプトとして使用されます。
 - ベンダリングされた `commands/ars-*.md` ファイルはプロンプトレシピのみとして機能します。Codex はこれらをスラッシュコマンドとして登録しません。
 - ベンダリングされた `hooks/hooks.json` ファイルはアップストリームのトレーサビリティのためのみ保持されています。Codex はこのパッケージから Claude Code hooks をインストールしません。
-- ユーザーが明示的に委譲または並列 agent の作業を要求しない限り、Codex は自動的にバックグラウンド agent を起動しません。
+- Codex は現在のタスクと権限の範囲で独立した作業をネイティブ subagent に委譲でき、lead agent も他の有用な作業を続けます。
 - Web/ソース検証には Codex のブラウジング機能を使用し、現在の事実や外部情報が関係する場合はソースを引用する必要があります。
 - クロスモデル検証はデフォルトで無効です。この Codex パッケージで明示的に要求された場合は、`ars/shared/cross_model_verification.md` に従って provider を設定し、provider、model、送信される内容の種類を示したうえで、外部送信前にユーザーの明示的な同意を得てください。外部レビュアーは設定済み provider API を通じて呼び出され、現在の Codex model で代替実行されることはありません。
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS post-v3.21.1 main パリティ
+### ARS v3.22.0 パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS post-`v3.21.1` `main`（`94436237913091d4739870159d241660527e8338`）と同等のユーザー向けワークフロー内容を目指しています。アップストリームの suite metadata は引き続き `3.21.1` です。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.22.0`（`3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e`）を適合し、モデルと runtime overlay を記録します。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|
 | インストール可能な単一プラグイン | 単一の `academic-research-suite` skill を同梱するネイティブ Codex plugin `ars-codex` |
 | `/ars-*` スラッシュコマンド | スキルルータ経由で `ars-*` エイリアスとしてエミュレート。ネイティブのスラッシュコマンドではありません |
 | `skills/` シンボリックリンクから自動検出される4つのアップストリームスキル | 単一の Codex ルータスキルがワークフローを選択し、ベンダリングされたワークフロー `WORKFLOW.md` ファイルを読み込みます |
-| プラグイン同梱の agent | agent ファイルはロール/フェーズプロンプトです。ユーザーが明示的に委譲サブ agent を要求しない限り、Codex はインラインで実行します |
+| プラグイン同梱の agent | ロール/フェーズプロンプトを、依存関係と runtime 権限に応じてインラインまたは範囲を限定したネイティブ subagent で実行します |
 | 重いコマンド（`ars-full`、`ars-reviewer`、`ars-revision-coach`）は `model:` を省略し、軽量モードは `model: sonnet` を保持 | 重いコマンドは現在の Codex セッションモデルを継承します。軽量モードの `sonnet` はアップストリーム Claude メタデータとして保持され、セッションモデルを上書きしません |
 | 保護対象 agent の `tools:` allowlist | 最小権限のロール境界として保持され、委譲された owner に Bash やネットワーク transport は付与されません |
 | Canonical cross-model handoff envelope | Dispatcher が envelope を検証し、同意後は payload のみを送信して、閉じた結果ルーティング contract に従います |
@@ -276,7 +282,7 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 | Panel／degradation／pipeline-boundary の実行可能チェック | hermetic テストとともにベンダリングされ、オプションの full-runtime manifest から公開されます |
 | SessionStart および SubagentStop hooks（更新通知を含む） | トレーサビリティのためのみベンダリングされています。Codex は Claude hooks をインストールまたは実行しません |
 | Plugin marketplace の更新 | `codex plugin marketplace upgrade ars-codex` の後に `ars-codex@ars-codex` を再追加します。Skill の直接インストールは引き続き再インストールまたは pull で更新します |
-| Claude Code Agent Team | 自動ではありません。Codex サブ agent には委譲または並列 agent の明示的なユーザー要求が必要です |
+| Claude Code Agent Team | ネイティブ Codex subagent は作業に応じて適応的に使います。別の固定 topology は opt-in です |
 | アップストリームドキュメントのクロスモデル provider ディスパッチ | デフォルトでは無効。provider 設定とユーザー同意が明示された場合のみ使用できます |
 
 ### オプション: 外部クロスモデルレビュアー API
@@ -286,8 +292,10 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 
 ```bash
 export OPENAI_API_KEY="<your-openai-api-key>"
-export ARS_CROSS_MODEL="gpt-5.5"
+export ARS_CROSS_MODEL="gpt-6-astra"
 ```
+
+`gpt-6-astra` は両方の検証 transport で provisional です。GPT session が GPT 検証者を使う場合は同じ family の別の実行であり、異なる family による検証ではありません。provider・送信内容・費用への同意は引き続き必要です。
 
 その後、プロンプトでクロスモデル検証を明示的に要求してください。provider が設定されていない場合、または送信内容の種類に対する明示的な同意がない場合、ARS-Codex はシングルランタイムレビューにフォールバックし、クロスモデル検証が利用不可であったことを報告します。
 

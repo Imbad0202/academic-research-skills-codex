@@ -365,15 +365,24 @@ class TransportFailure(RuntimeError):
     """
 
     def __init__(self, label: str, summary: str, stderr: str = "",
-                 stdout: str = "") -> None:
+                 stdout: str = "", raw_stdout: str | bytes = "", diagnostic: str = "") -> None:
         super().__init__(f"{label}: {summary}")
         self.label = label
         self.summary = summary
         self.stderr = stderr
-        # Whatever the model did emit. The contract's no-response carve-out
-        # applies only when there IS no response, so a partial one has to be
-        # preserved and the event has to say so.
+        # Whatever the model did emit -- assistant TEXT only, never the
+        # stream-json framing. The contract's no-response carve-out applies
+        # only when there IS no response, so a partial one has to be
+        # preserved and the event has to say so; framing-only stdout must
+        # not read as a response.
         self.stdout = stdout
+        # The transport's raw stdout (stream-json events), kept as transport
+        # evidence in its own right.
+        self.raw_stdout = raw_stdout
+        # CLI diagnostics are not assistant text, even when both arrive in
+        # the same stream. Consumers classify this field without quoting a
+        # model response as an authentication failure.
+        self.diagnostic = diagnostic
 
 
 class PanelAborted(RuntimeError):
@@ -444,7 +453,7 @@ class Bundle:
         self.claimed_existing = root.is_dir() and any(root.iterdir())
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def write(self, name: str, text: str) -> str:
+    def write(self, name: str, text: str | bytes) -> str:
         path = self.root / name
         try:
             handle = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
@@ -453,8 +462,8 @@ class Bundle:
                 f"{name} already exists; an attempt may not overwrite the "
                 "response it replaces"
             ) from exc
-        with os.fdopen(handle, "w", encoding="utf-8") as stream:
-            stream.write(text)
+        with os.fdopen(handle, "wb") as stream:
+            stream.write(text.encode("utf-8") if isinstance(text, str) else text)
         return name
 
     def journal(self, line: str) -> None:
@@ -465,7 +474,7 @@ class Bundle:
         return (self.root / name).exists()
 
 
-def _try_write(bundle: Bundle, name: str, text: str) -> str | None:
+def _try_write(bundle: Bundle, name: str, text: str | bytes) -> str | None:
     """Best-effort write inside an abort handler.
 
     The abort being recorded may BE the disk failing, and an exception
@@ -541,7 +550,32 @@ class ClaudeCliTransport:
                  "NotebookEdit,Task,Agent,Skill,TodoWrite,SlashCommand")
     FLAGS = ("--bare", "--no-session-persistence", "--strict-mcp-config",
              "--tools", "",
-             "--disallowedTools", TOOL_DENY)
+             "--disallowedTools", TOOL_DENY,
+             # Every assistant message of the turn sequence, not just the
+             # last one: in text mode `claude -p` prints only the final
+             # message, and a deliverable long enough to be continued in a
+             # second message lost its head (2026-09-06 calibration
+             # rehearsal: the synthesis came back starting mid-table, with
+             # the decision line in the missing part).
+             "--output-format", "stream-json", "--verbose")
+    # The subject's environment is built from this allowlist, never
+    # inherited: a harness launched from inside a Claude Code session
+    # otherwise hands the subject that session's CLAUDE_* variables, and
+    # `--bare` does NOT stop the user-level CLAUDE.md, `settings.json`
+    # `language`, or the output style from reaching the prompt (probed
+    # 2026-09-07 on 2.1.260: the whole global CLAUDE.md arrived as a
+    # system-reminder). An empty CLAUDE_CONFIG_DIR is the fence that held.
+    # Network and TLS configuration the CLI documents as inputs stays, or a
+    # proxied / private-CA host loses connectivity behind the fence. An
+    # `apiKeyHelper` that needs other variables is not served by this
+    # allowlist: use ANTHROPIC_API_KEY for a fenced run.
+    ENV_KEEP = (
+        "PATH", "HOME", "LANG", "LC_ALL", "TMPDIR", "TERM", "USER", "SHELL",
+        "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "no_proxy",
+        "NODE_EXTRA_CA_CERTS", "SSL_CERT_FILE", "SSL_CERT_DIR",
+        "CLAUDE_CODE_CLIENT_CERT", "CLAUDE_CODE_CLIENT_KEY", "CLAUDE_CODE_CLIENT_KEY_PASSPHRASE",
+    )
+    ENV_KEEP_PREFIXES = ("ANTHROPIC_",)
 
     @staticmethod
     def auth_flags() -> list[str]:
@@ -598,10 +632,136 @@ class ClaudeCliTransport:
         # fresh copy of the operator's helper command into the temp tree on
         # every call and removed none of them.
         self._auth = self.auth_flags()
+        # One empty config dir per transport (the CLI populates it with its
+        # own state files; nothing of the operator's is ever inside it).
+        self._config_dir = Path(tempfile.mkdtemp(prefix="ars-subject-config-"))
+        atexit.register(shutil.rmtree, self._config_dir, ignore_errors=True)
+        # Raw stream of the most recent SUCCESSFUL call, for a dispatcher
+        # that wants to keep the framing (message count, stop reasons) as
+        # evidence next to the text it returned.
+        self.last_raw_stdout = ""
+
+    @classmethod
+    def subject_environment(cls, source=None, *, config_dir: Path,
+                            thinking_tokens: int) -> dict[str, str]:
+        source = os.environ if source is None else source
+        environment = {
+            key: value for key, value in source.items()
+            if key in cls.ENV_KEEP or key.startswith(cls.ENV_KEEP_PREFIXES)
+        }
+        environment["CLAUDE_CONFIG_DIR"] = str(config_dir)
+        environment["MAX_THINKING_TOKENS"] = str(thinking_tokens)
+        return environment
+
+    @staticmethod
+    def stream_events(stdout: str) -> list[dict]:
+        """Parse NDJSON split on LF only: `str.splitlines` also splits on
+        U+0085 / U+2028 / U+2029, which are legal inside a JSON string."""
+        events: list[dict] = []
+        for line in stdout.split("\n"):
+            line = line.strip("\r").strip()
+            if not line:
+                continue
+            try:
+                event = json.loads(line)
+            except ValueError as exc:
+                raise ValueError(f"non-JSON line in stream-json output: {line[:80]!r}") from exc
+            if not isinstance(event, dict):
+                raise ValueError("stream-json event is not an object")
+            events.append(event)
+        return events
+
+    @staticmethod
+    def assistant_text(events: list[dict]) -> str:
+        """Text of the surviving assistant messages, in wire order.
+
+        Two eviction signals are honoured (CLI 2.1.260 wire schema): an
+        assistant frame's `supersedes` (wire uuids it replaces, refusal
+        fallback) and the end-of-turn system `model_refusal_fallback`
+        notice's `retracted_message_uuids`. A retracted partial must not be
+        concatenated in front of its replacement."""
+        messages: list[tuple[str | None, str]] = []
+        evicted: set[str] = set()
+        for event in events:
+            kind = event.get("type")
+            if kind == "assistant":
+                for gone in event.get("supersedes") or []:
+                    evicted.add(str(gone))
+                parts = [
+                    block.get("text") or ""
+                    for block in (event.get("message") or {}).get("content") or []
+                    if isinstance(block, dict) and block.get("type") == "text"
+                ]
+                messages.append((event.get("uuid"), "".join(parts)))
+            elif kind == "system" and event.get("subtype") == "model_refusal_fallback":
+                for gone in event.get("retracted_message_uuids") or []:
+                    evicted.add(str(gone))
+        return "".join(text for uuid, text in messages if uuid is None or str(uuid) not in evicted)
+
+    @classmethod
+    def partial_events(cls, stdout: str) -> list[dict]:
+        """Recover the complete prefix of an interrupted NDJSON stream.
+
+        Stop at the first invalid frame; never skip corruption and pretend
+        later frames form an intact stream. Success parsing remains strict.
+        """
+        events = []
+        for line in stdout.split("\n"):
+            try:
+                events.extend(cls.stream_events(line))
+            except ValueError:
+                break
+        return events
+
+    @classmethod
+    def partial_text(cls, stdout: str) -> str:
+        return cls.assistant_text(cls.partial_events(stdout))
+
+    @staticmethod
+    def decodable_prefix(stdout: str | bytes | None) -> str:
+        """Decode only bytes preceding the first invalid UTF-8 sequence.
+        The original bytes travel separately as immutable transport evidence."""
+        if stdout is None or isinstance(stdout, str):
+            return stdout or ""
+        try:
+            return stdout.decode("utf-8")
+        except UnicodeDecodeError as failure:
+            return stdout[:failure.start].decode("utf-8")
+
+    @classmethod
+    def result_diagnostic(cls, stdout: str) -> str:
+        return "\n".join(
+            str(event.get("result") or "")
+            for event in cls.partial_events(stdout)
+            if event.get("type") == "result"
+            and (event.get("is_error") or event.get("subtype") != "success")
+        )
+
+    @classmethod
+    def response_text(cls, stdout: str) -> str:
+        """Every surviving assistant text block of a successful run.
+
+        Raises ValueError on a malformed stream or a result event that
+        reports an error; the caller turns that into a TransportFailure
+        carrying both the assistant text seen so far and the raw stream."""
+        events = cls.stream_events(stdout)
+        result = next((e for e in events if e.get("type") == "result"), None)
+        if result is None:
+            raise ValueError("stream-json output carries no result event")
+        if result.get("is_error") or result.get("subtype") != "success":
+            raise ValueError(
+                f"result event reports {result.get('subtype')!r} "
+                f"(is_error={result.get('is_error')!r}): {str(result.get('result') or '')[:200]}"
+            )
+        text = cls.assistant_text(events)
+        if not text.strip() and isinstance(result.get("result"), str):
+            text = result["result"]
+        return text
 
     def __call__(self, call: Call, sandbox: Path) -> str:
-        environment = dict(os.environ)
-        environment["MAX_THINKING_TOKENS"] = str(self.thinking_tokens)
+        environment = self.subject_environment(
+            config_dir=self._config_dir, thinking_tokens=self.thinking_tokens
+        )
         try:
             completed = subprocess.run(
             [
@@ -620,9 +780,11 @@ class ClaudeCliTransport:
                 "--system-prompt", call.system,
                 "--add-dir", str(sandbox),
             ],
-            input=call.user,
+            input=call.user.encode("utf-8"),
             capture_output=True,
-            text=True,
+            # Decode explicitly after capture: text=True can raise before
+            # returning any stdout when a process ends inside a UTF-8 codepoint.
+            text=False,
             cwd=sandbox,
             env=environment,
                 timeout=self.timeout,
@@ -634,11 +796,13 @@ class ClaudeCliTransport:
             # The summary must not carry str(failure): that embeds the whole
             # argv -- system prompt and absolute staged paths -- into a
             # transport log meant for public commit.
+            raw = self.decodable_prefix(failure.stdout)
             raise TransportFailure(
                 call.label,
                 f"[TRANSPORT: TimeoutExpired after {self.timeout}s]",
                 stderr=_as_text(failure.stderr),
-                stdout=_as_text(failure.stdout),
+                stdout=self.partial_text(raw),
+                raw_stdout=failure.stdout or "",
             ) from failure
         except (OSError, subprocess.SubprocessError) as failure:
             # A missing binary must not escape as a traceback: `main` would
@@ -646,12 +810,34 @@ class ClaudeCliTransport:
             raise TransportFailure(
                 call.label, f"[TRANSPORT: {type(failure).__name__}] {failure}"
             ) from failure
+        captured = completed.stdout
+        completed.stderr = _as_text(completed.stderr)
+        if isinstance(captured, bytes):
+            try:
+                completed.stdout = captured.decode("utf-8")
+            except UnicodeDecodeError as failure:
+                prefix = self.decodable_prefix(captured)
+                raise TransportFailure(
+                    call.label,
+                    f"[TRANSPORT: exit {completed.returncode}] invalid UTF-8 output",
+                    stderr=completed.stderr,
+                    stdout=self.partial_text(prefix),
+                    raw_stdout=captured,
+                    diagnostic=self.result_diagnostic(prefix),
+                ) from failure
         if completed.returncode != 0:
+            # A startup diagnostic ("Failed to authenticate ...") is plain
+            # text, not stream-json; it stays readable in `stdout` so a
+            # consumer can classify it, while a JSON stream yields its
+            # assistant text there and its framing in `raw_stdout`.
+            is_stream = completed.stdout.lstrip().startswith("{")
             raise TransportFailure(
                 call.label,
                 f"[TRANSPORT: exit {completed.returncode}]",
                 stderr=completed.stderr,
-                stdout=completed.stdout,
+                stdout=self.partial_text(completed.stdout) if is_stream else completed.stdout,
+                raw_stdout=completed.stdout if is_stream else "",
+                diagnostic=self.result_diagnostic(completed.stdout) if is_stream else "",
             )
         if not completed.stdout.strip():
             # The evidence contract classifies a missing response as a
@@ -662,7 +848,51 @@ class ClaudeCliTransport:
                 "[TRANSPORT: exit 0 with no output]",
                 stderr=completed.stderr,
             )
-        return completed.stdout
+        try:
+            events = self.stream_events(completed.stdout)
+        except ValueError as failure:
+            raise TransportFailure(
+                call.label,
+                f"[TRANSPORT: unreadable stream-json] {failure}",
+                stderr=completed.stderr,
+                stdout=self.partial_text(completed.stdout) if completed.stdout.lstrip().startswith("{") else completed.stdout,
+                raw_stdout=completed.stdout if completed.stdout.lstrip().startswith("{") else "",
+                diagnostic=self.result_diagnostic(completed.stdout),
+            ) from failure
+        result = next((e for e in events if e.get("type") == "result"), None)
+        if result is not None and (result.get("is_error") or result.get("subtype") != "success"):
+            # A structured failure (auth, max turns, execution error): the
+            # CLI's diagnostic rides `result`; assistant text, if any, is
+            # the partial response.
+            partial = self.assistant_text(events)
+            diagnostic = str(result.get("result") or "")
+            raise TransportFailure(
+                call.label,
+                f"[TRANSPORT: result {result.get('subtype') or 'error'}] {diagnostic[:200]}",
+                stderr=completed.stderr,
+                stdout=partial,
+                raw_stdout=completed.stdout,
+                diagnostic=diagnostic,
+            )
+        try:
+            text = self.response_text(completed.stdout)
+        except ValueError as failure:
+            raise TransportFailure(
+                call.label,
+                f"[TRANSPORT: unreadable stream-json] {failure}",
+                stderr=completed.stderr,
+                stdout=self.assistant_text(events),
+                raw_stdout=completed.stdout,
+            ) from failure
+        if not text.strip():
+            raise TransportFailure(
+                call.label,
+                "[TRANSPORT: exit 0 with no assistant text]",
+                stderr=completed.stderr,
+                raw_stdout=completed.stdout,
+            )
+        self.last_raw_stdout = completed.stdout
+        return text
 
 
 def run_checker(argv: list[str], *, cwd: Path) -> tuple[int, str, str]:
@@ -1460,6 +1690,11 @@ def dispatch_panel(*, fixture: str, condition: str, replicate: int,
             form=failure.form)
     except TransportFailure as failure:
         preserved = None
+        if getattr(failure, "raw_stdout", ""):
+            # The stream-json framing is transport evidence, kept apart
+            # from the model's own (partial) text.
+            _try_write(bundle, f"{failure.label}.transport-stream.jsonl",
+                       failure.raw_stdout)
         if failure.stdout:
             # There IS a response. Preserve it as an artifact in its own right
             # so the attempt stays re-adjudicable -- and only CLAIM the

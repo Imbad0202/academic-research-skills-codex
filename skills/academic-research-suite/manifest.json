@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "0.1.28",
+  "adapter_version": "3.22.0",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-09-02",
+  "generated_date": "2026-09-16",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "94436237913091d4739870159d241660527e8338",
+      "commit": "3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -31,7 +31,7 @@
         "pyproject.toml",
         ".gitattributes",
         ".gitleaks.toml",
-        "top-level README, README.zh-TW, README.zh-CN, README.ja-JP, README.ko-KR, QUICKSTART, SECURITY, GOVERNANCE, NOTICE, CONTRIBUTING, MODE_REGISTRY, POSITIONING, CITATION.cff, THIRD_PARTY.md",
+        "top-level README, README.zh-TW, README.zh-CN, README.ja-JP, README.ko-KR, README.es-ES, QUICKSTART, SECURITY, GOVERNANCE, NOTICE, CONTRIBUTING, MODE_REGISTRY, POSITIONING, CITATION.cff, THIRD_PARTY.md",
         "requirements-dev.txt",
         "requirements-pdf-content-classifier.txt",
         ".command-invariants.toml",
@@ -40,8 +40,12 @@
         "LICENSE",
         "pi",
         "package.json",
-        ".gitleaksignore"
-      ]
+        ".gitleaksignore",
+        "plugin-evals",
+        "plugin-evals-citation-check"
+      ],
+      "version": "3.22.0",
+      "tag": "v3.22.0"
     },
     {
       "name": "experiment-agent",
@@ -107,8 +111,8 @@
     "optional_full_runtime_manifest": "skills/academic-research-suite/codex/full-runtime-manifest.json"
   },
   "runtime_notes": [
-    "Claude Code agent-team wording is adapted by SKILL.md into Codex inline role-prompt usage.",
-    "The Codex-only codex/ adapter profile is optional and disabled by default; it provides planner metadata, agent-team templates, hook metadata, and quality gates for explicit full-runtime use.",
+    "Claude Code role contracts are adapted to native Codex inline or useful independent delegated work; fixed planner topology and hooks remain opt-in.",
+    "The Codex-only fixed agent-team topology and hook pack are optional and disabled by default; planner metadata and role templates also support ordinary native adaptive execution.",
     "The maintainer's local ARS checkout was not used as a write target.",
     "Upstream slash commands are vendored as prompt recipes and emulated through the Codex SKILL.md alias router; Codex does not register native slash commands.",
     "Vendored upstream workflow entry files are renamed from SKILL.md to WORKFLOW.md in this Codex package so Codex registers only the root academic-research-suite router skill.",
@@ -120,16 +124,16 @@
     "The spec-consistency validator is patched for the Codex distribution: non-vendored .claude/CLAUDE.md is skipped, excluded showcase PDF links are not treated as broken, and WORKFLOW.md replaces internal SKILL.md entry files.",
     "The shared metadata linter auto-detects this Codex distribution and validates vendored WORKFLOW.md entry files instead of upstream SKILL.md files.",
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
-    "The Codex audit wrapper is patched to run on macOS stock Bash 3.2+ instead of requiring Bash 4+.",
+    "The Codex audit wrapper requires Bash 4+; macOS stock Bash 3.2 fails its version guard, and wrapper e2e tests skip unless Bash 4+ is available on PATH.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "Post-v3.21.1 upstream main content at commit 94436237913091d4739870159d241660527e8338 (2026-09-02; suite metadata remains 3.21.1) is tracked; component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1, and academic-pipeline/suite 3.21.1. Nested upstream .github workflows, release-discipline tools, and root agents mirrors are preserved for traceability and upstream self-tests but are not repo-level CI or Codex entrypoints. Claude/plugin loader files under .claude, .claude-plugin, upstream skills aliases, and runtime log files remain intentionally excluded.",
+    "ARS v3.22.0 at 3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; academic-pipeline/suite is 3.22.0. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its frozen 39-agent ARS classification sweep.",
-    "Korean intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
+    "Korean and Spanish intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
     "The live cross-model smoke test remains manual-only and cross-model verification retains the explicit provider, content, credential, and consent gate.",
     "The v3.17 canonical cross-model handoff envelope is preserved; dispatched owners emit a transport request and the dispatching Codex context validates and routes it without widening owner capabilities.",
     "The v3.17 tools allowlist remains a least-privilege role boundary; Codex inline execution does not reinterpret Claude tool names as additional authority.",
-    "The degradation registry, executable panel checker, pipeline-boundary lock, tools-allowlist lock, and hermetic transport fixtures are vendored with their upstream tests; the pipeline-orchestrator content-lock hash is updated only for the Codex WORKFLOW.md path overlay.",
+    "The degradation registry, executable panel checker, pipeline-boundary lock, tools-allowlist lock, and hermetic transport fixtures are vendored with their upstream tests; the pipeline workflow and orchestrator content-lock hashes are updated only for the Codex WORKFLOW.md path overlay.",
     "The v3.18 fixed-seat cross-model Reviewer 2 track and re-review judge pass remain gated by explicit provider configuration and content consent; dispatch failure or single-family execution is disclosed rather than simulated.",
     "The v3.18 citation-cache staleness advisory, opt-in live re-validation, risk-stratified claim gate, scope and novelty advisories, and held-out pipeline-behavior set are preserved with their upstream tests and schemas.",
     "The upstream SessionStart update reminder is vendored for traceability and testing but is not installed or executed by Codex; plugin users update by refreshing the ars-codex marketplace and re-adding the plugin, while direct skill users reinstall manually.",
@@ -164,6 +168,14 @@
     "The post-v3.21.1 main snapshot adds Chinese-aware title matching and balanced CJK wrapper normalization, declares the Markdown parser dependency used by surface-form checks, makes missing PyYAML fail visibly, and vendors the September harness-retirement audit plus documentation corrections.",
     "The upstream skill-inventory parity checker is preserved with its hermetic mutation tests, but its direct real-tree gate is inactive because this package intentionally replaces four top-level SKILL.md entries and Claude loader surfaces with one Codex router plus WORKFLOW.md files. The Codex-native gate requires exact core-inventory parity among disk workflows, the root router, and the full-runtime manifest; source-path ownership must also remain unambiguous.",
     "Codex bibliographic network routing is defined by the root SKILL.md: ordinary discovery and inline ingest use Codex browsing, the four Python resolver clients require an explicit programmatic-verification request, and invoking ars-full alone does not launch them. This is an intentional adapter boundary, not an upstream runtime claim.",
-    "The separately vendored experiment-agent tree tracks its upstream v1.1.0 (session resume for study_manager_agent, study-state protocol and templates); its .claude/ and .github/ upstream dev files remain excluded and its entry file keeps the WORKFLOW.md rename with the Codex data_access_level/task_type frontmatter overlay."
+    "The separately vendored experiment-agent tree tracks its upstream v1.1.0 (session resume for study_manager_agent, study-state protocol and templates); its .claude/ and .github/ upstream dev files remain excluded and its entry file keeps the WORKFLOW.md rename with the Codex data_access_level/task_type frontmatter overlay.",
+    "The v0.1.29 model alignment reads the complete user-supplied Astra (117 pages) and Fable/Mythos 5.1 (212 pages) system cards. Hashes, section coverage, decisions, limitations and upstream follow-up issues are recorded in codex/audits/2026-09-06-model-alignment.md; source PDFs are not redistributed.",
+    "The repository project config targets gpt-6-astra/xhigh for new trusted sessions. The Codex model plan recommends medium for routine work and xhigh for complex judgement, allows explicit overrides and distinguishes planned settings from caller-reported observations; it does not mutate an active session. These are policy choices rather than measured ARS performance optima.",
+    "Codex model/runtime policy retires manual-only native delegation, fixed Socratic question counts and stale numeric self-scoring. Stage gates, actual author decisions, source verification, least privilege and review blindness remain in force.",
+    "ARS v3.22.0 incorporates the earlier Codex API-effort, contained-transport, audit-provenance, and writing-diagnostic fixes upstream. Use those canonical implementations: unknown judge identity isolates cache entries by audit_run_id while preserving within-run deduplication. General Codex research sessions may still explicitly select ultra; the citation-only transport rejects it.",
+    "Live runner defaults and model-identity cache behavior are aligned separately from frozen historical measurements. Generic punctuation/paragraph quotas and unsupported-fact hedging recovery are retired; actual author/venue constraints and evidence contracts remain.",
+    "Starting at 3.22.0, the Codex package version matches the vendored ARS suite release; VERSION, root router, package manifest, plugin manifest, source version, and academic-pipeline metadata must agree. Historical 0.1.x releases retain their original numbers.",
+    "The Phase-1 output_language_pair contract supports only zh-tw-en, defaults to the legacy Traditional Chinese/English abstract surfaces when omitted, and rejects malformed or unregistered values visibly. Spanish intent routing does not imply a Spanish output-locale pack or a manuscript-body language change.",
+    "Upstream plugin-evals and plugin-evals-citation-check are retained as Claude evaluation source material, not native Codex eval runners or evidence of Codex effectiveness. The reviewer-calibration harness is vendored without launching live provider calls or corpus downloads."
   ]
 }

@@ -1,14 +1,19 @@
 ---
 name: ars-academic-pipeline-orchestrator
-runtime: codex-agent-team
-enabled_when: "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1"
+runtime: codex-native-adaptive
+enabled_when: "Matching ARS workflow; native delegation is optional and fixed planner topology is opt-in"
 source_workflow: "ars/academic-pipeline/WORKFLOW.md"
 ---
 
 # ARS Academic Pipeline Orchestrator for Codex
 
-Use this template for `ars-full` and natural full-pipeline requests when
-full-runtime agent-team mode is explicitly enabled.
+Apply [the shared model/runtime policy](../model-runtime-policy.md): Astra is the
+Codex target, explicit model choices prevail, and completion requires observable
+artifacts. Give each delegated task bounded inputs, outputs and authority.
+
+
+Use this template for `ars-full` and natural full-pipeline requests. Delegate
+independent stage work when useful; retain sequential integrity gates.
 
 ## Dispatch Shape
 
@@ -28,7 +33,10 @@ Optional gate roles:
 
 ## Checkpoint Contract
 
-- Every completed stage ends with a visible checkpoint.
+- Every completed stage ends with a visible checkpoint. Continue through already
+  authorized transitions; pause only for a required unresolved author decision or
+  the user's requested stopping point. Record the decision and evidence that
+  authorize each transition; silence or an automated continuation is not consent.
 - Stage 2.5 and Stage 4.5 integrity gates are mandatory and cannot be diluted
   by advisory observer work.
 - Stage 2.5 claim verification covers every HIGH-IMPACT claim plus the random

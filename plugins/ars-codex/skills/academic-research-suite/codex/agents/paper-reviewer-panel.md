@@ -1,15 +1,19 @@
 ---
 name: ars-paper-reviewer-panel
-runtime: codex-agent-team
-enabled_when: "ARS_CODEX_FULL_RUNTIME=1 and ARS_CODEX_AGENT_TEAM=1"
+runtime: codex-native-adaptive
+enabled_when: "Matching ARS workflow; native delegation is optional and fixed planner topology is opt-in"
 source_workflow: "ars/academic-paper-reviewer/WORKFLOW.md"
 ---
 
 # ARS Paper Reviewer Panel for Codex
 
-Use this template only in opt-in full-runtime agent-team mode. In inline mode,
-read the same source files and produce the same sections in the current
-conversation.
+Apply [the shared model/runtime policy](../model-runtime-policy.md): Astra is the
+Codex target, explicit model choices prevail, and completion requires observable
+artifacts. Give each delegated task bounded inputs, outputs and authority.
+
+
+Use this template for native reviewer delegation or inline role execution.
+Keep the required review coverage and disclose which execution actually occurred.
 
 ## Source Prompts
 
@@ -26,7 +30,7 @@ roles:
 
 ## Independence Contract
 
-- Produce the methodology, domain, interdisciplinary, and devil's advocate
+- Produce the journal-fit, methodology, domain, interdisciplinary, and devil's advocate
   reviewer sections before the editorial synthesis.
 - Do not expose one independent reviewer's draft output to another reviewer
   before both have completed their own section.
@@ -64,13 +68,14 @@ configured or wholly unavailable.
 
 The full-mode output must contain these top-level sections in order:
 
-1. `Independent Reviewer: Methodology`
-2. `Independent Reviewer: Domain`
-3. `Independent Reviewer: Interdisciplinary`
-4. `Independent Reviewer: Devil's Advocate`
-5. `Editorial Synthesis`
-6. `Decision Letter`
-7. `Revision Roadmap`
+1. `Independent Reviewer: Journal-Fit`
+2. `Independent Reviewer: Methodology`
+3. `Independent Reviewer: Domain`
+4. `Independent Reviewer: Interdisciplinary`
+5. `Independent Reviewer: Devil's Advocate`
+6. `Editorial Synthesis`
+7. `Decision Letter`
+8. `Revision Roadmap`
 
 The Decision Letter must include the v3.18 Review Panel Provenance block in
 `full` mode.

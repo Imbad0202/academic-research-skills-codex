@@ -12,6 +12,12 @@ Prerequisites and optional setup for Academic Research Skills. If you only need 
 
 That is enough for Markdown output + DOCX conversion instructions. Everything else in this document is optional.
 
+## Python (optional)
+
+The core skills (research / write / review) need no Python — they are prompt-driven. A **real Python interpreter** is needed only for: the `PreToolUse` write-scope guard (optional subagent hardening — if no real Python is found it cleanly no-ops and the guard is simply inactive; core skills are unaffected), plus a few opt-in features that shell out to Python (revision-patch mode, the submission-package verifier, and the `/ars-cache-invalidate` / `/ars-mark-read` / `/ars-unmark-read` commands). On Windows, note that `python3` is often a non-functional Microsoft Store placeholder rather than real Python; install Python from python.org (or via `winget`) so the launcher can find a real interpreter. The guard launcher is a POSIX shell script and `hooks.json` invokes it through `bash`, so on Windows it needs **Git Bash** (bundled with Git for Windows). With Git Bash present, a missing real Python degrades cleanly (the guard no-ops, silently). Without Git Bash, Claude Code falls back to PowerShell, which cannot run the `.sh` launcher at all: the guard is inactive and the `PreToolUse` hook will log an error per call rather than no-op quietly (accepted degradation — the guard is optional and never blocks your writes, but the hook noise is the trade-off until Git Bash is installed).
+
+---
+
 ---
 
 ## Install Claude Code
@@ -25,6 +31,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 # Windows (PowerShell)
 irm https://claude.ai/install.ps1 | iex
 ```
+
+**Platform support.** macOS and Linux are the tested platforms; CI runs on Ubuntu only. Windows is best-effort: the scripts that lock files share one helper (`scripts/file_lock.py`) with an `msvcrt` backend, no Windows CI job exists, and Windows behaviour rests on contributor verification (#843, #845). On Windows, shared read locks degrade to exclusive locks with a short wait, indefinite lock waits are capped at 30 seconds, and the inquiry branch ledger alpha refuses to run.
 
 <details>
 <summary>Alternative: npm install (deprecated)</summary>
@@ -184,15 +192,17 @@ ARS works with the inherited Claude session model alone. For higher confidence, 
 
 ```bash
 # Step 1: Set your API key (choose one or both)
-export OPENAI_API_KEY="sk-your-key-here"        # For GPT-5.6 Sol / GPT-5.5
+export OPENAI_API_KEY="sk-your-key-here"        # For GPT-6 Astra / GPT-5.6 Sol / GPT-5.5
 export GOOGLE_AI_API_KEY="AIza-your-key-here"    # For Gemini 3.1 Pro
 
 # Step 2: Choose your cross-verification model
-export ARS_CROSS_MODEL="gpt-5.6-sol"            # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
+export ARS_CROSS_MODEL="gpt-6-astra"            # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
 # or: export ARS_CROSS_MODEL="gemini-3.1-pro-preview"  # Current Google flagship — validated, strong at factual verification
-# or: export ARS_CROSS_MODEL="gpt-5.5"          # Previous generation — validated (designated bakeoff baseline)
+# or: export ARS_CROSS_MODEL="gpt-5.6-sol"      # Previous generation — validated on the ChatGPT-subscription citation transport, provisional on this API route
+# or: export ARS_CROSS_MODEL="gpt-5.5"          # Previous generation — validated (designated API-route bakeoff baseline)
 
 # Optional: reasoning effort for OpenAI verifier calls (unset = provider default)
+# GPT-6 Astra API: low|medium|high|xhigh|max (the Codex citation transport rejects ultra)
 # export ARS_CROSS_MODEL_REASONING_EFFORT="medium"
 
 # Step 3: Run Claude Code as normal — cross-verification activates automatically
@@ -225,10 +235,12 @@ Devil's Advocate, Reviewer 2, calibration, re-review, or checkpoint judgments.
 ```bash
 # Citation-integrity calls only. General DA/reviewer/judgment calls remain on API transport.
 export ARS_CROSS_MODEL_TRANSPORT="codex"
+# gpt-6-astra: current OpenAI flagship — provisional on this transport (entry-gate
+# smoke PASS 2026-09-05 on codex-cli 0.153.4; no bakeoff run yet).
+export ARS_CROSS_MODEL="gpt-6-astra"
 # gpt-5.6-sol is validated for THIS transport (2026-08-19 codex-transport bakeoff,
-# superiority on recall + latency — audits/bakeoff-gpt-5-6-sol-codex-2026-08-19.md).
-# gpt-5.5 remains the validated bakeoff baseline alternative.
-export ARS_CROSS_MODEL="gpt-5.6-sol"
+# superiority on recall + latency — audits/bakeoff-gpt-5-6-sol-codex-2026-08-19.md):
+# export ARS_CROSS_MODEL="gpt-5.6-sol"
 
 python3 scripts/cross_model_codex_transport.py detect
 # The producer sends one closed codex_citation_request/1.0 object on stdin:
@@ -246,14 +258,14 @@ capacity and is never run by CI.
 
 ## Installation methods
 
-Claude discovers skills at `<install-root>/<skill-name>/SKILL.md`. This repo contains four separate skills, each with its own `SKILL.md`:
+Claude discovers skills at `<install-root>/<skill-name>/WORKFLOW.md`. This repo contains four separate skills, each with its own `WORKFLOW.md`:
 
 - `deep-research`
 - `academic-paper`
 - `academic-paper-reviewer`
 - `academic-pipeline`
 
-Do not install the whole repository as one nested skill folder under `.claude/skills/academic-research-skills/`; that buries the four `SKILL.md` files one level too deep for discovery. See Anthropic's [Claude Code Skills documentation](https://code.claude.com/docs/en/skills).
+Do not install the whole repository as one nested skill folder under `.claude/skills/academic-research-skills/`; that buries the four `WORKFLOW.md` files one level too deep for discovery. See Anthropic's [Claude Code Skills documentation](https://code.claude.com/docs/en/skills).
 
 The methods below differ in more than convenience: hooks, slash commands, the tools
 allowlist, subagent orchestration, and script-backed checks are each available in some
@@ -360,7 +372,7 @@ Use this when you want the four ARS skills available in [Claude Cowork](https://
 
 #### Step 1: Build one zip per skill
 
-Clone the repo, then zip each of the four skill folders individually so that each zip has its own `SKILL.md` at the top level (not nested under an extra folder). The `-x "*.DS_Store"` flag keeps macOS metadata out of the archive.
+Clone the repo, then zip each of the four skill folders individually so that each zip has its own `WORKFLOW.md` at the top level (not nested under an extra folder). The `-x "*.DS_Store"` flag keeps macOS metadata out of the archive.
 
 ```bash
 git clone https://github.com/Imbad0202/academic-research-skills.git
@@ -374,7 +386,7 @@ done
 This produces four zips in the repo root: `deep-research.zip`, `academic-paper.zip`, `academic-paper-reviewer.zip`, `academic-pipeline.zip`. Each zip's top level looks like:
 
 ```text
-SKILL.md
+WORKFLOW.md
 agents/
 examples/
 references/
@@ -443,7 +455,7 @@ Anthropic's current [Project file limits](https://support.claude.com/en/articles
 
 Method 4a is claude.ai's standard Custom Skill install path: zip each skill folder, upload through Settings → Capabilities → Skills, and Claude treats it as an installed Skill with auto-loading and routing. claude.ai's Custom Skills do support multi-file skill packages including `scripts/` (see Anthropic's [How to create custom Skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) on supporting files and code execution), so Method 4a is mechanically capable of hosting skills with executable assets. The reasons not to recommend it for this specific suite are different and compound:
 
-1. **ARS depends on Claude Code-only orchestration features**. Each ARS skill drives 12-13 specialised agents through Claude Code's Task / subagent tooling and Material Passport file handoffs that resume across sessions. The Anthropic-documented scope of claude.ai's Custom Skill runtime — a containerised code-execution environment per session, with the Skills user guide ([Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude)) describing skill activation but not multi-agent dispatch — does not include Claude Code's Task / subagent control surface. Method 4a is therefore expected to surface ARS as the SKILL.md body's instructions, without the multi-agent dispatch that produces the suite's actual outputs. We have not run a live upload to characterise this in detail; the recommendation is forward-looking based on the Claude Code-specific assumptions baked into the agent orchestration, not on a measured failure.
+1. **ARS depends on Claude Code-only orchestration features**. Each ARS skill drives 12-13 specialised agents through Claude Code's Task / subagent tooling and Material Passport file handoffs that resume across sessions. The Anthropic-documented scope of claude.ai's Custom Skill runtime — a containerised code-execution environment per session, with the Skills user guide ([Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude)) describing skill activation but not multi-agent dispatch — does not include Claude Code's Task / subagent control surface. Method 4a is therefore expected to surface ARS as the WORKFLOW.md body's instructions, without the multi-agent dispatch that produces the suite's actual outputs. We have not run a live upload to characterise this in detail; the recommendation is forward-looking based on the Claude Code-specific assumptions baked into the agent orchestration, not on a measured failure.
 2. **Cost to Claude Code and Cowork routing**. claude.ai limits each skill's `description` field to 200 characters per the [Custom Skills documentation](https://claude.com/docs/skills/how-to), while the [Agent Skills specification](https://agentskills.io/specification) and [Claude Code Skills documentation](https://code.claude.com/docs/en/skills) allow up to 1,024 characters. The four ARS descriptions each exceed the 200-character claude.ai cap while staying under the 1,024-character Claude Code allowance, front-loading routing keywords that Claude Code and Cowork use to discriminate between research, writing, review, and orchestration. Trimming them to fit Method 4a would weaken routing on Claude Code and Cowork — the platforms ARS was built for — in exchange for an unverified partial fit on claude.ai.
 
 **Recommended paths instead:**
@@ -452,7 +464,7 @@ Method 4a is claude.ai's standard Custom Skill install path: zip each skill fold
 - For claude.ai web access to the repo content, use [Method 4b (Project + GitHub integration)](#method-4b-project--github-integration-recommended-for-claudeai). Claude reads the skill bodies, references, and examples, and you can ask questions or draft against them in a normal claude.ai chat.
 - For Claude Code projects, use [Method 1 (project skills)](#method-1-as-project-skills-recommended) or [Method 2 (standalone)](#method-2-as-a-standalone-project).
 
-If you still want to try Method 4a despite the limitations above, zip each skill folder so the archive's top-level entry is `<skill-name>/SKILL.md` (not `<skill-name>/<skill-name>/SKILL.md` — that nesting buries the discovery file one level too deep). The `zip -r` commands below produce that shape correctly:
+If you still want to try Method 4a despite the limitations above, zip each skill folder so the archive's top-level entry is `<skill-name>/WORKFLOW.md` (not `<skill-name>/<skill-name>/WORKFLOW.md` — that nesting buries the discovery file one level too deep). The `zip -r` commands below produce that shape correctly:
 
 ```bash
 git clone https://github.com/Imbad0202/academic-research-skills.git
@@ -493,7 +505,7 @@ Claude Science imports the four ARS skills straight from GitHub:
 
 **Notes:**
 
-- Requires repo state v3.14.0+ — the importer reads the explicit skill paths declared in `.claude-plugin/marketplace.json`. Earlier tags exposed skills only through the symlinked `skills/` directory, which GitHub-API importers cannot traverse (they report "no skills/ dirs with SKILL.md").
+- Requires repo state v3.14.0+ — the importer reads the explicit skill paths declared in `.claude-plugin/marketplace.json`. Earlier tags exposed skills only through the symlinked `skills/` directory, which GitHub-API importers cannot traverse (they report "no skills/ dirs with WORKFLOW.md").
 - Imports are **point-in-time snapshots**: Claude Science does not track the repo. Re-import after an ARS release to pick up changes.
-- **What transfers:** the methodology layer — each skill's `SKILL.md` and its protocols (research / writing / review), which Claude Science's agent reads when relevant.
+- **What transfers:** the methodology layer — each skill's `WORKFLOW.md` and its protocols (research / writing / review), which Claude Science's agent reads when relevant.
 - **What does not transfer:** Claude Code-specific machinery — the `/ars-*` slash commands, hooks (including the write-scope guard), cross-model verification scripts, and Task-tool subagent orchestration. Claude Science runs its own specialist-agent system and a built-in citation-checking reviewer; treat a Claude Science run as "ARS methodology + Claude Science's own machinery", not a 1:1 pipeline port.

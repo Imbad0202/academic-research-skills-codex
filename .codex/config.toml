@@ -1,0 +1,3 @@
+# ARS-Codex research default. Explicit CLI/session choices take precedence.
+model = "gpt-6-astra"
+model_reasoning_effort = "xhigh"

@@ -216,6 +216,23 @@ def check_manifest() -> list[str]:
 
     package = _json(PACKAGE_MANIFEST)
     adapter_version = package.get("adapter_version")
+    suite_match = re.search(
+        r'(?m)^\s+version:\s*"([^"]+)"\s*$',
+        (ARS_ROOT / "academic-pipeline" / "WORKFLOW.md").read_text(encoding="utf-8"),
+    )
+    _require(bool(suite_match), "academic-pipeline suite version is missing")
+    _require(
+        suite_match.group(1) == adapter_version,
+        f"upstream suite version {suite_match.group(1)!r} != adapter version {adapter_version!r}",
+    )
+    sources = [source for source in package.get("source_repositories", [])
+               if source.get("name") == "academic-research-skills"]
+    _require(len(sources) == 1, "package requires exactly one ARS source lock")
+    _require(
+        sources[0].get("version") == adapter_version
+        and sources[0].get("tag") == f"v{adapter_version}",
+        "ARS source version/tag must match the adapter release",
+    )
     skill_match = re.search(
         r'(?m)^\s+version:\s*"([^"]+)"\s*$',
         (SUITE_ROOT / "SKILL.md").read_text(encoding="utf-8"),
@@ -237,7 +254,7 @@ def check_manifest() -> list[str]:
             repo_version == adapter_version,
             f"repo VERSION {repo_version!r} != adapter version {adapter_version!r}",
         )
-    messages.append(f"package version {adapter_version} is aligned across skill, manifest, plugin, and VERSION")
+    messages.append(f"package version {adapter_version} is aligned across upstream suite, source tag, skill, manifest, plugin, and VERSION")
 
     for key, value in manifest["paths"].items():
         if key in {"adapter_root"}:
@@ -415,6 +432,7 @@ def check_reviewer_fixture(fixture: Path | None = None) -> list[str]:
     fixture = fixture or CODEX_ROOT / "tests" / "fixtures" / "reviewer_full_independent_sections.md"
     text = fixture.read_text(encoding="utf-8")
     required = [
+        "## Independent Reviewer: Journal-Fit",
         "## Independent Reviewer: Methodology",
         "## Independent Reviewer: Domain",
         "## Independent Reviewer: Interdisciplinary",
@@ -423,12 +441,16 @@ def check_reviewer_fixture(fixture: Path | None = None) -> list[str]:
     ]
     positions = []
     for heading in required:
-        position = text.find(heading)
-        _require(position >= 0, f"reviewer fixture missing heading: {heading}")
-        positions.append(position)
+        matches = list(re.finditer(r"^" + re.escape(heading) + r"\s*$", text, re.MULTILINE))
+        _require(len(matches) == 1, f"reviewer fixture requires one heading: {heading}")
+        positions.append(matches[0].start())
     _require(positions == sorted(positions), "editorial synthesis must appear after independent reviewer sections")
     synthesis = text[positions[-1]:]
-    for marker in ("methodology concern retained", "domain concern retained", "devil's advocate dissent retained"):
+    for marker in (
+        "journal-fit concern retained", "methodology concern retained",
+        "domain concern retained", "interdisciplinary concern retained",
+        "devil's advocate dissent retained",
+    ):
         _require(marker in synthesis, f"synthesis dropped minority marker: {marker}")
     return ["paper-reviewer full-mode fixture preserves independent reviewer sections before synthesis"]
 

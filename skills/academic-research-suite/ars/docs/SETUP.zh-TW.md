@@ -12,6 +12,14 @@ Academic Research Skills 的前置需求與選用設定。只需要 Markdown 輸
 
 這樣就夠了。可得到 Markdown 輸出與 DOCX 轉換說明。以下其他內容都是選用。
 
+## Python（選用）
+
+核心 skill（研究、寫作、審查）不需要 Python，它們由 prompt 驅動。只有下列情況需要一個**真正的 Python 直譯器**：`PreToolUse` 寫入範圍 guard（選用的 subagent 強化；找不到真正的 Python 時它會安靜地不作用，核心 skill 不受影響），以及少數會呼叫 Python 的選用功能：revision-patch 模式、submission-package 驗證器、`/ars-cache-invalidate`、`/ars-mark-read`、`/ars-unmark-read` 三個指令。
+
+Windows 使用者請注意：`python3` 常常是 Microsoft Store 的無功能占位程式，不是真正的 Python。請從 python.org 或用 `winget` 安裝，啟動器才找得到可用的直譯器。guard 啟動器是 POSIX shell script，`hooks.json` 透過 `bash` 呼叫它，所以 Windows 需要 **Git Bash**（Git for Windows 內含）。有 Git Bash 而沒有真正的 Python 時，guard 會安靜地不作用。沒有 Git Bash 時，Claude Code 會退回 PowerShell，而 PowerShell 跑不了 `.sh` 啟動器：guard 不作用，且 `PreToolUse` hook 每次呼叫都會記一筆錯誤，不會安靜略過（這是接受的降級：guard 是選用的，永遠不會擋你的寫入，代價是裝好 Git Bash 之前 hook 會有雜訊）。
+
+---
+
 ---
 
 ## 安裝 Claude Code
@@ -25,6 +33,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 # Windows (PowerShell)
 irm https://claude.ai/install.ps1 | iex
 ```
+
+**平台支援。** macOS 與 Linux 是經過測試的平台，CI 只在 Ubuntu 上執行。Windows 屬盡力支援：會鎖檔的 script 共用一個 helper（`scripts/file_lock.py`），內含 `msvcrt` 後端；沒有 Windows CI job，Windows 行為仰賴貢獻者驗證（#843、#845）。在 Windows 上，共享讀取鎖會降級為獨占鎖並短暫等待，無限期的鎖等待上限為 30 秒，探究分支帳本（alpha）會拒絕執行。
 
 <details>
 <summary>替代方案：npm 安裝（已棄用）</summary>
@@ -180,15 +190,17 @@ ARS 使用繼承的 Claude session 模型即可完整運作。想要更高信心
 
 ```bash
 # Step 1: Set your API key (choose one or both)
-export OPENAI_API_KEY="sk-your-key-here"        # For GPT-5.6 Sol / GPT-5.5
+export OPENAI_API_KEY="sk-your-key-here"        # For GPT-6 Astra / GPT-5.6 Sol / GPT-5.5
 export GOOGLE_AI_API_KEY="AIza-your-key-here"    # For Gemini 3.1 Pro
 
 # Step 2: Choose your cross-verification model
-export ARS_CROSS_MODEL="gpt-5.6-sol"            # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
+export ARS_CROSS_MODEL="gpt-6-astra"            # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
 # or: export ARS_CROSS_MODEL="gemini-3.1-pro-preview"  # Current Google flagship — validated, strong at factual verification
-# or: export ARS_CROSS_MODEL="gpt-5.5"          # Previous generation — validated (designated bakeoff baseline)
+# or: export ARS_CROSS_MODEL="gpt-5.6-sol"      # Previous generation — validated on the ChatGPT-subscription citation transport, provisional on this API route
+# or: export ARS_CROSS_MODEL="gpt-5.5"          # Previous generation — validated (designated API-route bakeoff baseline)
 
 # Optional: reasoning effort for OpenAI verifier calls (unset = provider default)
+# GPT-6 Astra API: low|medium|high|xhigh|max (the Codex citation transport rejects ultra)
 # export ARS_CROSS_MODEL_REASONING_EFFORT="medium"
 
 # Step 3: Run Claude Code as normal — cross-verification activates automatically
@@ -221,10 +233,12 @@ OpenAI API key 而改走該訂閱。這不涵蓋魔鬼代言人、Reviewer 2、�
 ```bash
 # Citation-integrity calls only. General DA/reviewer/judgment calls remain on API transport.
 export ARS_CROSS_MODEL_TRANSPORT="codex"
+# gpt-6-astra: current OpenAI flagship — provisional on this transport (entry-gate
+# smoke PASS 2026-09-05 on codex-cli 0.153.4; no bakeoff run yet).
+export ARS_CROSS_MODEL="gpt-6-astra"
 # gpt-5.6-sol is validated for THIS transport (2026-08-19 codex-transport bakeoff,
-# superiority on recall + latency — audits/bakeoff-gpt-5-6-sol-codex-2026-08-19.md).
-# gpt-5.5 remains the validated bakeoff baseline alternative.
-export ARS_CROSS_MODEL="gpt-5.6-sol"
+# superiority on recall + latency — audits/bakeoff-gpt-5-6-sol-codex-2026-08-19.md):
+# export ARS_CROSS_MODEL="gpt-5.6-sol"
 
 python3 scripts/cross_model_codex_transport.py detect
 # The producer sends one closed codex_citation_request/1.0 object on stdin:
@@ -241,14 +255,14 @@ printf '%s' "$CITATION_REQUEST_JSON" | scripts/cross_model_codex_verify.sh
 
 ## 安裝方式
 
-Claude 會在 `<install-root>/<skill-name>/SKILL.md` 尋找 skills。這個 repo 包含四個獨立 skills，每個都有自己的 `SKILL.md`：
+Claude 會在 `<install-root>/<skill-name>/WORKFLOW.md` 尋找 skills。這個 repo 包含四個獨立 skills，每個都有自己的 `WORKFLOW.md`：
 
 - `deep-research`
 - `academic-paper`
 - `academic-paper-reviewer`
 - `academic-pipeline`
 
-不要把整個 repository 當成單一巢狀 skill 資料夾安裝到 `.claude/skills/academic-research-skills/`。那會讓四個 `SKILL.md` 比 Claude 可發現的位置多埋一層。請參考 Anthropic 的 [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)。
+不要把整個 repository 當成單一巢狀 skill 資料夾安裝到 `.claude/skills/academic-research-skills/`。那會讓四個 `WORKFLOW.md` 比 Claude 可發現的位置多埋一層。請參考 Anthropic 的 [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)。
 
 以下各安裝方式的差異不只是方便程度：hooks、slash commands、tools allowlist、subagent
 編排、以及需要 Python 的檢查功能，在某些管道可用、在其他管道會降級或不存在。倚賴任何
@@ -354,7 +368,7 @@ claude
 
 #### 步驟 1：每個 skill 各打一個 zip
 
-clone repo 後，把四個 skill 資料夾各自打包成 zip，讓每個 zip 的頂層都是它自己的 `SKILL.md`（不要多包一層資料夾）。`-x "*.DS_Store"` 用來排除 macOS metadata。
+clone repo 後，把四個 skill 資料夾各自打包成 zip，讓每個 zip 的頂層都是它自己的 `WORKFLOW.md`（不要多包一層資料夾）。`-x "*.DS_Store"` 用來排除 macOS metadata。
 
 ```bash
 git clone https://github.com/Imbad0202/academic-research-skills.git
@@ -368,7 +382,7 @@ done
 這會在 repo 根目錄產生四個 zip：`deep-research.zip`、`academic-paper.zip`、`academic-paper-reviewer.zip`、`academic-pipeline.zip`。每個 zip 的頂層結構如下：
 
 ```text
-SKILL.md
+WORKFLOW.md
 agents/
 examples/
 references/
@@ -437,7 +451,7 @@ Anthropic 目前的 [Project file limits](https://support.claude.com/en/articles
 
 方法 4a 是 claude.ai 標準的 Custom Skill 安裝路徑：把每個 skill 資料夾壓成 zip、透過 Settings → Capabilities → Skills 上傳，Claude 會把它當成已安裝的 Skill，提供自動載入與 routing。claude.ai Custom Skills 確實支援多檔 skill 套件，包含 `scripts/`（請見 Anthropic 的 [How to create custom Skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) 對 supporting files 與 code execution 的說明），所以方法 4a 在機制上是可以 host 帶可執行檔的 skill 的。但**不推薦給本 suite 使用**，原因如下，且兩者疊加：
 
-1. **ARS 仰賴 Claude Code 專屬的編排功能**。每個 ARS skill 透過 Claude Code 的 Task / subagent 工具驅動 12-13 個專責 agent，並透過 Material Passport 在跨 session 之間交接檔案。Anthropic 文件描述的 claude.ai Custom Skill runtime（每個 session 一個 containerised code-execution 環境，[Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) 說明 skill 啟動，但沒提到 multi-agent dispatch）並不包含 Claude Code 的 Task / subagent 控制面。可預期方法 4a 會把 ARS 呈現為 SKILL.md body 的 instructions，但缺少實際產出 suite 結果的 multi-agent dispatch。我們未實際 live upload 量測這項；本建議是基於 ARS agent 編排對 Claude Code 的依賴推論而成，並非實測失敗。
+1. **ARS 仰賴 Claude Code 專屬的編排功能**。每個 ARS skill 透過 Claude Code 的 Task / subagent 工具驅動 12-13 個專責 agent，並透過 Material Passport 在跨 session 之間交接檔案。Anthropic 文件描述的 claude.ai Custom Skill runtime（每個 session 一個 containerised code-execution 環境，[Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) 說明 skill 啟動，但沒提到 multi-agent dispatch）並不包含 Claude Code 的 Task / subagent 控制面。可預期方法 4a 會把 ARS 呈現為 WORKFLOW.md body 的 instructions，但缺少實際產出 suite 結果的 multi-agent dispatch。我們未實際 live upload 量測這項；本建議是基於 ARS agent 編排對 Claude Code 的依賴推論而成，並非實測失敗。
 2. **會降低 Claude Code 與 Cowork 的 routing 精度**。claude.ai 在 [Custom Skills 文件](https://claude.com/docs/skills/how-to) 把每個 skill 的 `description` 限制在 200 字元，但 [Agent Skills specification](https://agentskills.io/specification) 與 [Claude Code Skills 文件](https://code.claude.com/docs/en/skills) 都允許到 1,024 字元。本 suite 四個 description 都超過 claude.ai 的 200 字元上限、但仍在 Claude Code 允許的 1,024 字元內，前段 front-load 了 Claude Code 與 Cowork 用來區分研究、寫作、審查、orchestration 的 routing 關鍵字。為了 fit 方法 4a 而砍 description，會削弱 ARS 實際運作平台（Claude Code 與 Cowork）上的 routing，換到的只是 claude.ai 上未經實測的部分相容。
 
 **建議的替代路徑：**
@@ -446,7 +460,7 @@ Anthropic 目前的 [Project file limits](https://support.claude.com/en/articles
 - claude.ai 網頁端要存取 repo 內容，請用方法 4b（Project + GitHub integration，本節稍前說明）。Claude 可以讀取 skill 主體、references 與範例，你可以在 claude.ai 一般對話中提問或起草。
 - Claude Code 專案請用方法 1（project skills）或方法 2（standalone）。
 
-如果你看完上述限制後仍想試方法 4a，每個 zip 都必須把 skill 資料夾放在最上層，所以 zip 內容應包含 `<skill-name>/SKILL.md`，而不是 `<skill-name>/<skill-name>/SKILL.md`（多包一層會把 discovery 檔案藏到下一層）。下面的 `zip -r` 指令會產出正確的 zip 結構：
+如果你看完上述限制後仍想試方法 4a，每個 zip 都必須把 skill 資料夾放在最上層，所以 zip 內容應包含 `<skill-name>/WORKFLOW.md`，而不是 `<skill-name>/<skill-name>/WORKFLOW.md`（多包一層會把 discovery 檔案藏到下一層）。下面的 `zip -r` 指令會產出正確的 zip 結構：
 
 ```bash
 git clone https://github.com/Imbad0202/academic-research-skills.git
@@ -487,7 +501,7 @@ Claude Science 可直接從 GitHub 匯入四個 ARS skill：
 
 **注意事項：**
 
-- 需要 repo 狀態為 v3.14.0+——匯入器讀取 `.claude-plugin/marketplace.json` 中明列的 skill 路徑。更早的 tag 只透過 symlink 的 `skills/` 目錄暴露 skill，GitHub-API 匯入器無法穿越（會回報「no skills/ dirs with SKILL.md」）。
+- 需要 repo 狀態為 v3.14.0+——匯入器讀取 `.claude-plugin/marketplace.json` 中明列的 skill 路徑。更早的 tag 只透過 symlink 的 `skills/` 目錄暴露 skill，GitHub-API 匯入器無法穿越（會回報「no skills/ dirs with WORKFLOW.md」）。
 - 匯入是**單次快照**：Claude Science 不會追蹤 repo。ARS 發版後需重新匯入才能取得更新。
-- **會轉移的**：方法論層——各 skill 的 `SKILL.md` 與其協定（研究／寫作／審查），Claude Science 的 agent 會在相關時讀取。
+- **會轉移的**：方法論層——各 skill 的 `WORKFLOW.md` 與其協定（研究／寫作／審查），Claude Science 的 agent 會在相關時讀取。
 - **不會轉移的**：Claude Code 專屬機制——`/ars-*` slash commands、hooks（含 write-scope guard）、跨模型驗證 scripts、Task-tool subagent 編排。Claude Science 有自己的 specialist agent 系統與內建引用查核 reviewer；把 Claude Science 上的執行視為「ARS 方法論 + Claude Science 自家機制」，而非 1:1 的 pipeline 移植。
