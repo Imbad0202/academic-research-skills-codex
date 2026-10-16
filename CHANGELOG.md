@@ -4,6 +4,39 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.23.1] - 2026-10-16
+
+### What's Changed
+
+- Synced the tagged ARS v3.23.1 release at
+  `4c5449017f46eb64d112a301d4817d22c7c9f3d9`, preserving Codex runtime/path
+  overlays and the separately pinned experiment-agent v1.1.0. No new workflow.
+- Released directly after v3.22.2. The v3.23.0 sync remains in main history at
+  `52228e8280dd1770e18ecfc3b1fdf16b13b58104`; no v3.23.0 tag or GitHub Release
+  was published. This release includes that sync without backfilling a release.
+- Adopted the sr-screener CSV repair: detect only the delimiter and retain
+  RFC 4180 double-quote escaping, including quoted fields beyond the sample,
+  apostrophes, leading spaces, and single-column exports. Added Codex import
+  regression coverage alongside the six upstream cases.
+- Vendored the write-scope guard's own-plugin prefix normalization, compatible
+  timeout probe, captured payload fixtures, and coverage documentation.
+  These are inactive Claude-hook references in Codex; its optional hook pack
+  only announces metadata and provides no PreToolUse write fence. Even the
+  upstream fence requires a named Bucket A agent type and excludes inline roles.
+- Carried the upstream `gemini-4-argon` Google verifier recommendation as
+  provisional; `gemini-3.1-pro-preview` retains its upstream validated status.
+  Gemini notices no longer direct users to the OpenAI-only smoke script.
+  No Gemini smoke, bakeoff, or Codex provider validation is claimed, and the
+  native Codex model policy and explicit provider/content/cost consent remain.
+- Propagated the mid-message `[direct-mode]` rule into the single Codex router
+  and core workflows. The planner strips residual tokens before forwarding a
+  request, without granting mid-message or later-turn escape-hatch authority.
+  Upstream #892 remains open after its Claude smoke failed
+  acceptance; deterministic Codex tests do not establish live model compliance.
+- Preserved upstream lint and Windows path repairs and the md-to-word
+  third-party listing. Updated four-language version guidance, source locks,
+  runtime boundaries, and the materialized Desktop bundle.
+
 ## [3.23.0] - 2026-10-04
 
 ### What's Changed

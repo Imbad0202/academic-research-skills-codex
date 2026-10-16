@@ -66,7 +66,10 @@ runtime graceful-degradation mechanisms is
    launcher; missing either produces a *defined degraded state*, never a block — see
    the [environment degradations](#environment-degradations-within-a-channel) table.
    The guard is optional subagent hardening; core skills are unaffected when it is
-   inactive (README Requirements).
+   inactive (README Requirements). It fences a Bucket A role only when that role runs as
+   a subagent dispatched under its own agent type, which today means the plugin agents
+   `synthesis_agent` and `research_architect_agent`; roles that run inline in the main
+   session, the default for most, are not fenced (#973).
 3. Hooks and plugin agents are wired by the **plugin manifest** (`hooks/hooks.json`,
    `agents/`, resolved via `CLAUDE_PLUGIN_ROOT`). A skills-copy or repo-clone install
    does not wire them: the `PreToolUse` write-scope guard and the SessionStart announce
@@ -123,9 +126,10 @@ runtime graceful-degradation mechanisms is
    request that no skill picks up gets no routing guard, and a clarifying question can
    come only after a skill call. As with note 7, these are prompt-level instructions, not
    runtime enforcement. The #133 routing fixtures were run with the plugin loaded, in
-   sessions started inside and outside the checkout; outside it, Claude Fable 5.1 still
-   failed one fixture (a mid-message `[direct-mode]` token), and fixture 05 passed on both
-   models only under two scoring readings
+   sessions started inside and outside the checkout. Outside it, Claude Fable 5.1 still
+   honored a mid-message `[direct-mode]` token in some sessions after the routing core
+   gained a sentence against it (#892), single cells of other fixtures failed (#960), and
+   fixture 05 passed on both models only under two scoring readings
    ([`CALIBRATION_LOG.md`](../tests/fixtures/issue_133_routing/CALIBRATION_LOG.md)). The
    other channels are covered only by the copy check (`scripts/check_routing_core_sync.py`).
 10. sr-screener's dual review needs subagents plus its own Python scripts, which live
@@ -144,7 +148,7 @@ runtime graceful-degradation mechanisms is
 
 Independent of install channel, the write-scope guard has documented degraded states.
 None of them *introduces* a block: launcher failure paths resolve to **pass-through**,
-and a missing `timeout` binary is a bounding-mechanism swap under which the guard keeps
+and a missing or unusable `timeout` binary is a bounding-mechanism swap under which the guard keeps
 operating normally — its real decisions (including deny) still apply, with only an
 overrun resolving to pass-through. The guard is an optional
 hardening layer, and a broken guard must not lock a user out of their own files
@@ -161,4 +165,4 @@ accepted, untested case with no pinned outcome):
 |---|---|
 | No real Python found (Git Bash / POSIX shell present) | Guard silently no-ops (pass-through); core skills unaffected. On Windows, the 0-byte Microsoft Store `python3` stub is rejected, not mistaken for Python. |
 | Windows without Git Bash | Claude Code falls back to PowerShell, which cannot run the `.sh` launcher: guard inactive, and the `PreToolUse` hook logs an error per call (accepted degradation — noisy, never blocking). |
-| No `timeout` binary | Portable background-watchdog fallback with the same wall-clock bound and the same pass-through-on-overrun posture. |
+| No usable `timeout` binary (none on PATH, or one that rejects the GNU `timeout <N>s cmd` form, such as the Windows built-in `timeout.exe` under Git for Windows) | Portable background-watchdog fallback with the same wall-clock bound and the same pass-through-on-overrun posture. Before #970 a foreign `timeout` was trusted, and the guard passed every write through. |

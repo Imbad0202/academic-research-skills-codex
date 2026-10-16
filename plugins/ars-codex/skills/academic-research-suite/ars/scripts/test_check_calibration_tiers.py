@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from tests.test_helpers import run_script
+from scripts._skill_lint import _uses_codex_workflow_overlay
 
 
 SCRIPT = Path(__file__).resolve().parent / "check_calibration_tiers.py"
@@ -50,6 +51,10 @@ def _replace(root: Path, rel: Path, old: str, new: str) -> None:
     path.write_text(text.replace(old, new), encoding="utf-8")
 
 
+@unittest.skipIf(
+    _uses_codex_workflow_overlay(REPO_ROOT),
+    "Inactive in the Codex manifest: calibration-tier witnesses require upstream SKILL.md loaders.",
+)
 class TestCalibrationTiers(unittest.TestCase):
     def test_real_repo_passes(self) -> None:
         result = _run(REPO_ROOT)

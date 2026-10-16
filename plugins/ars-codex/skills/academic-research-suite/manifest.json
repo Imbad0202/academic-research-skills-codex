@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "3.23.0",
+  "adapter_version": "3.23.1",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-10-04",
+  "generated_date": "2026-10-16",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "6ab4b03bf70a118a1b3ee7f3263ed9f19031061b",
+      "commit": "4c5449017f46eb64d112a301d4817d22c7c9f3d9",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -46,8 +46,8 @@
         "plugin-evals-citation-check",
         "plugin-evals-citation-locale"
       ],
-      "version": "3.23.0",
-      "tag": "v3.23.0"
+      "version": "3.23.1",
+      "tag": "v3.23.1"
     },
     {
       "name": "experiment-agent",
@@ -80,7 +80,7 @@
     },
     {
       "path": "skills/academic-research-suite/ars/scripts/check_calibration_tiers.py",
-      "reason": "Requires upstream .claude/CLAUDE.md calibration-tier witnesses, which are intentionally not vendored in the Codex package. Its companion test copies the same non-vendored file, so the 611-calibration-tiers entry is removed from the vendored local pytest manifest."
+      "reason": "Requires upstream top-level SKILL.md calibration-tier witnesses, which are intentionally renamed to WORKFLOW.md in the Codex package. Its companion tests copy the original loader paths; the 611-calibration-tiers entry remains absent from the vendored pytest manifest and the companion class explicitly skips in Codex full-tree pytest discovery."
     },
     {
       "path": "skills/academic-research-suite/ars/scripts/check_distribution_surface_claims.py",
@@ -93,6 +93,14 @@
     {
       "path": "skills/academic-research-suite/ars/scripts/check_promotion_bakeoff_preregistration.py",
       "reason": "The direct verify-tree command requires the original upstream Git top-level, complete non-shallow history, and root-relative evals/bakeoff ancestry to prove seal/reveal chronology. A re-rooted Codex vendor snapshot cannot independently re-prove that history; the script is retained for traceability while its hermetic contract tests remain active."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/scripts/ars_write_scope_guard.py",
+      "reason": "Claude PreToolUse write-scope enforcement is not installed or executed by Codex. Preserved with hermetic regression tests for upstream traceability; the Codex hook pack only announces adapter metadata."
+    },
+    {
+      "path": "skills/academic-research-suite/ars/hooks/run_guard.sh",
+      "reason": "Claude PreToolUse write-scope enforcement is not installed or executed by Codex. Preserved with hermetic regression tests for upstream traceability; the Codex hook pack only announces adapter metadata."
     }
   ],
   "historical_artifacts": [
@@ -128,7 +136,7 @@
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper requires Bash 4+; macOS stock Bash 3.2 fails its version guard, and wrapper e2e tests skip unless Bash 4+ is available on PATH.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "ARS v3.23.0 at 6ab4b03bf70a118a1b3ee7f3263ed9f19031061b is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.23.0. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
+    "ARS v3.23.1 at 4c5449017f46eb64d112a301d4817d22c7c9f3d9 is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.23.1. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its 43-agent ARS classification sweep.",
     "Korean and Spanish intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
@@ -179,12 +187,17 @@
     "Starting at 3.22.0, the Codex package version matches the vendored ARS suite release; VERSION, root router, package manifest, plugin manifest, source version, and academic-pipeline metadata must agree. Historical 0.1.x releases retain their original numbers.",
     "The Phase-1 output_language_pair contract supports only zh-tw-en, defaults to the legacy Traditional Chinese/English abstract surfaces when omitted, and rejects malformed or unregistered values visibly. Spanish intent routing does not imply a Spanish output-locale pack or a manuscript-body language change.",
     "Upstream plugin-evals and plugin-evals-citation-check are retained as Claude evaluation source material, not native Codex eval runners or evidence of Codex effectiveness. The reviewer-calibration harness is vendored without launching live provider calls or corpus downloads.",
-    "The v3.23.0 routing core is preserved across the five core WORKFLOW.md entries and adapted at the single Codex router: explicit modes retain their intent with missing inputs, cross-phase ambiguity is clarified before dispatch, and direct-mode is recognized only at the first non-whitespace position of the first request. Claude command Skill-tool calls and CLAUDE_PLUGIN_ROOT paths resolve to local vendored workflow recipes in Codex, with required load failures reported rather than silently bypassed.",
+    "The v3.23.1 routing core is preserved across the five core WORKFLOW.md entries and adapted at the single Codex router: explicit modes retain their intent with missing inputs, cross-phase ambiguity is clarified before dispatch, and direct-mode is recognized only at the first non-whitespace position of the first request. Claude command Skill-tool calls and CLAUDE_PLUGIN_ROOT paths resolve to local vendored workflow recipes in Codex, with required load failures reported rather than silently bypassed.",
     "The v3.22.2 local run ledger records exact initial instructions and checkpoint answers, completed-step receipts, counters, and named-file hashes. The caller checks it after compaction, resume, subagent returns, and stage close; missing or changed provenance prevents relying on the affected decision or step and is rendered visibly. Completeness remains caller-dependent, exact author words remain local, and the hash chain detects accidental damage rather than deliberate edits, rollback, or a lost tail. Ledger entries never create user authorization.",
     "The v3.22.2 acronym scan is an advisory writing diagnostic for drafts, abstracts, and revision, with a post-decision review attachment kept outside editorial decisions, revision roadmaps, re-review criteria, and integrity gates. Missing or partial coverage is visible and never becomes a clean result. Instruction/data boundary text covers pasted, retrieved, and tool-returned content across the updated agents and core workflows.",
     "The v3.22.1 and v3.22.2 Chinese APA rules preserve disambiguation exceptions and full reference-list authors, distinguish visible syntax faults from unresolved source checks, and require evidence before alleging stroke-order inversions. Additional citation-locale plugin evals remain upstream Claude measurement inputs, not measured Codex performance.",
     "ARS v3.23.0 adds sr-screener 1.0.0 as an explicit-only workflow with eight modes. The Codex adapter uses prompt exports and native isolated reviewer dispatches, preserving protocol confirmation, pilot reference labels, adjudication and senior exclusion QC. Generated Claude Workflow templates and Sonnet labels remain upstream reference surfaces; screening accuracy and Codex prompt adherence are not measured by synthetic tests.",
     "The v3.23.0 pipeline keeps confirmed standing_constraints in the author's own words, carries integrity-excluded sources forward, replays evidence rows only from the orchestrator-named local source folder, and asks which final files to deliver. Integrity, experiment-declaration, declined-only re-review, opt-in pre-check and run-ledger parse-error repairs are preserved. Local evidence text is not sent with unrelated dispatches.",
-    "The v3.23.0 review-form note appears only at its specified author-selected checkpoints, without ranking or automatic screening handoff. Reading outputs distinguish author-acknowledged method weaknesses from reader-inferred ones; the citation-check command now inherits the session model. These prompt changes have no measured effectiveness claim."
+    "The v3.23.0 review-form note appears only at its specified author-selected checkpoints, without ranking or automatic screening handoff. Reading outputs distinguish author-acknowledged method weaknesses from reader-inferred ones; the citation-check command now inherits the session model. These prompt changes have no measured effectiveness claim.",
+    "The v3.23.1 CSV importer detects only the delimiter and preserves RFC 4180 double-quote escaping, including quotes after the sniff sample. Codex uses this same vendored importer; synthetic import tests do not measure screening accuracy.",
+    "The v3.23.1 upstream write-scope repair recognizes only the academic-research-skills plugin prefix and probes timeout compatibility. Its Claude PreToolUse payloads, launcher and regression fixtures are reference material; the Codex hook pack has no PreToolUse write fence. Even upstream, inline roles without a named Bucket A agent type are not fenced.",
+    "Gemini 4 Argon (gemini-4-argon) is the upstream provisional Google verifier recommendation; gemini-3.1-pro-preview retains its upstream validated status. No Gemini smoke script or Codex provider validation is claimed. Provider calls still require explicit configuration and content/cost consent; this does not change the native Codex model policy.",
+    "The v3.23.1 routing core explicitly rejects a mid-message direct-mode escape hatch. Upstream issue #892 remains open after its Claude smoke failed acceptance; deterministic Codex router tests do not establish live model compliance.",
+    "The v3.23.1 guard namespace test uses the pinned ARS source name when the intentionally excluded Claude plugin manifest is unavailable in this Codex distribution; all guard behavior and captured-payload tests remain active. The already inactive calibration-tier class reports explicit skips during full-tree pytest discovery."
   ]
 }

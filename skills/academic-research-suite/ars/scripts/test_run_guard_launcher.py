@@ -32,6 +32,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -230,6 +231,44 @@ class LauncherRealPythonForwardsTest(unittest.TestCase):
             self.assertEqual(code, 0)
             decision = json.loads(out)
             self.assertEqual(decision["hookSpecificOutput"].get("permissionDecision"), "deny")
+
+
+class LauncherForeignTimeoutTest(unittest.TestCase):
+    """#970: a `timeout` on PATH that rejects the GNU form (the Windows built-in timeout.exe
+    under Git for Windows) must route to the watchdog fallback, not fail every bounded call
+    and leave the guard passing everything through."""
+
+    def test_foreign_timeout_still_forwards_deny(self):
+        with tempfile.TemporaryDirectory() as bin_dir, tempfile.TemporaryDirectory() as ws:
+            _fake_real_python(os.path.join(bin_dir, "python3"))
+            # Mimics timeout.exe given `1s true` / `30s python3 ...`: error text, exit 1.
+            _write_exec(os.path.join(bin_dir, "timeout"),
+                        "#!/bin/sh\necho 'ERROR: Invalid syntax.' >&2\nexit 1\n")
+            payload = _bucket_a_payload(ws, os.path.join(ws, "totally_out_of_scope_dir", "x.md"))
+            code, out, err = _run_launcher(bin_dir, payload, extra_env={"CLAUDE_PROJECT_DIR": ws})
+            self.assertEqual(code, 0, f"launcher always exits 0; got {code} err={err!r}")
+            decision = json.loads(out)
+            self.assertEqual(decision["hookSpecificOutput"].get("permissionDecision"), "deny",
+                             f"a foreign timeout must not disable the guard; got {out!r}")
+
+    def test_hanging_true_does_not_stall_timeout_probe(self):
+        """The usability probe runs the `true` on PATH; one that hangs and ignores SIGTERM
+        must not stall the launcher (`-k` bounds the probe), and the guard still decides."""
+        real_timeout = shutil.which("timeout")
+        if not real_timeout:
+            self.skipTest("no `timeout` binary on this host")
+        with tempfile.TemporaryDirectory() as bin_dir, tempfile.TemporaryDirectory() as ws:
+            _fake_real_python(os.path.join(bin_dir, "python3"))
+            os.symlink(real_timeout, os.path.join(bin_dir, "timeout"))
+            _write_exec(os.path.join(bin_dir, "true"), "#!/bin/sh\ntrap '' TERM\nsleep 30\n")
+            payload = _bucket_a_payload(ws, os.path.join(ws, "totally_out_of_scope_dir", "x.md"))
+            start = time.monotonic()
+            code, out, err = _run_launcher(bin_dir, payload, extra_env={"CLAUDE_PROJECT_DIR": ws})
+            elapsed = time.monotonic() - start
+            self.assertLess(elapsed, 15, f"a hanging `true` stalled the probe for {elapsed:.1f}s")
+            self.assertEqual(code, 0)
+            self.assertEqual(json.loads(out)["hookSpecificOutput"].get("permissionDecision"), "deny",
+                             f"guard must still decide after the probe; got {out!r}")
 
 
 class LauncherStubSkipOrderingTest(unittest.TestCase):

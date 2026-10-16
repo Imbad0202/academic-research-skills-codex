@@ -640,12 +640,18 @@ def _hkey(h):
 
 
 def parse_csv(text):
-    sample = text[:5000]
+    # Sniff only the delimiter. Quote rules guessed from a 5,000-character sample
+    # misread later rows (#979): quotes follow RFC 4180, and a space before a
+    # quoted field is allowed.
+    fmt = {"quotechar": '"', "doublequote": True, "skipinitialspace": True}
     try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+        delimiter = csv.Sniffer().sniff(text[:5000], delimiters=",;\t").delimiter
     except csv.Error:
-        dialect = csv.excel
-    rows = list(csv.DictReader(io.StringIO(text), dialect=dialect))
+        delimiter = ","
+    header = next(csv.reader(io.StringIO(text), delimiter=delimiter, **fmt), [])
+    if len(header) < 2:
+        delimiter = ","  # a one-field header is a single-column export
+    rows = list(csv.DictReader(io.StringIO(text), delimiter=delimiter, **fmt))
     recs = []
     for row in rows:
         keyed = {_hkey(k): (v or "").strip() for k, v in row.items() if k}

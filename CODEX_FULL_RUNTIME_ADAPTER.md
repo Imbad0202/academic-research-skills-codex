@@ -72,16 +72,29 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   "ars-reviewer full review for this manuscript."
 ```
 
-## ARS v3.23.0 Runtime Boundaries
+## ARS v3.23.1 Runtime Boundaries
 
-The package tracks the ARS v3.23.0 tag at
-`6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`. Five ARS workflows and the separately
+The package tracks the ARS v3.23.1 tag at
+`4c5449017f46eb64d112a301d4817d22c7c9f3d9`. Five ARS workflows and the separately
 pinned experiment-agent are exposed through one Codex router. Deterministic
 tools have synthetic tests; screening accuracy and whether a model follows the
 caller instructions remain unmeasured. Upstream Claude audits and
 routing/evaluation runs do not measure Codex effectiveness or change the Codex
 model policy. Claude startup hooks remain inactive.
 
+- The v3.23.1 CSV importer detects only the delimiter and reads double quotes
+  using RFC 4180 rules, including escaped quotes beyond the sniff sample.
+- The upstream plugin-prefix and Windows timeout repairs apply to Claude's
+  `PreToolUse` write-scope guard. Codex does not install that guard, and its
+  optional hook pack only announces metadata. Even upstream, the fence needs
+  a named Bucket A agent type; inline roles without that field are not fenced.
+- `gemini-4-argon` is the upstream provisional Google verifier recommendation;
+  `gemini-3.1-pro-preview` retains its upstream validated status. There is no
+  Gemini smoke script or new Codex provider validation. Provider/content/cost
+  consent remains required, and native Codex model selection is unchanged.
+- The routing core rejects a mid-message `[direct-mode]` escape hatch.
+  Upstream #892 remains open after its Claude smoke failed acceptance;
+  deterministic Codex tests are not evidence of live model compliance.
 - `sr-screener` is an explicitly requested workflow with eight modes:
   `protocol`, `quick`, `pilot`, `ta-screen`, `ft-screen`, `adjudicate`, `audit`,
   and `report`. A request for `deep-research` `systematic-review` does not

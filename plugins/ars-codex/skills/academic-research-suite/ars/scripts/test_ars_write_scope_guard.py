@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # scripts/ -> repo root
 
 import ars_write_scope_guard as guard  # noqa: E402
+from _skill_lint import _uses_codex_workflow_overlay  # noqa: E402
 
 
 # A minimal in-test manifest mirroring the real shape (keys = frontmatter name).
@@ -316,6 +317,114 @@ class WriteScopeGuardTest(unittest.TestCase):
                     {"file_path": "phase7_format/paper.md", "content": "x"},
                     cwd=self.ws, agent_type="formatter_agent")
         self.assertEqual(self.decide(p)["decision"], "allow")
+
+
+class PluginScopedAgentTypeTest(unittest.TestCase):
+    """#971: Claude Code reports a plugin-shipped agent as "<plugin>:<agent>". The fence must
+    engage for this plugin's scoped identifier exactly as it does for the bare name."""
+
+    SCOPED = guard.PLUGIN_AGENT_NAMESPACE + "synthesis_agent"
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.ws = os.path.realpath(self._tmp.name)
+        os.makedirs(os.path.join(self.ws, "phase3_analysis"))
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def decide(self, p):
+        return guard.evaluate_decision(p, TEST_MANIFEST, self.ws)
+
+    def test_namespace_matches_plugin_manifest_name(self):
+        if _uses_codex_workflow_overlay(Path(REPO_ROOT)):
+            # The Claude loader is deliberately absent in this distribution.
+            # Bind the retained guard namespace to the pinned ARS source, not
+            # the unrelated ars-codex Desktop plugin name.
+            package = json.loads((Path(REPO_ROOT).parent / "manifest.json").read_text())
+            sources = [source for source in package["source_repositories"]
+                       if source["name"] == "academic-research-skills"]
+            self.assertEqual(len(sources), 1)
+            name = sources[0]["name"]
+        else:
+            with open(os.path.join(REPO_ROOT, ".claude-plugin", "plugin.json"), encoding="utf-8") as fh:
+                name = json.load(fh)["name"]
+        self.assertEqual(guard.PLUGIN_AGENT_NAMESPACE, name + ":")
+
+    def test_scoped_out_of_scope_write_denied(self):
+        p = payload("Write", {"file_path": os.path.join(self.ws, "probe.txt"), "content": "x"},
+                    cwd=self.ws, agent_type=self.SCOPED)
+        d = self.decide(p)
+        self.assertEqual(d["decision"], "deny")
+        self.assertIn(self.SCOPED, d["reason"])
+
+    def test_scoped_in_scope_write_allowed(self):
+        p = payload("Write",
+                    {"file_path": os.path.join(self.ws, "phase3_analysis/synthesis.md"), "content": "x"},
+                    cwd=self.ws, agent_type=self.SCOPED)
+        self.assertEqual(self.decide(p)["decision"], "allow")
+
+    def test_scoped_bash_denied(self):
+        p = payload("Bash", {"command": "echo x > probe.txt"}, cwd=self.ws, agent_type=self.SCOPED)
+        self.assertEqual(self.decide(p)["decision"], "deny")
+
+    def test_scoped_escape_denied(self):
+        outside = os.path.join(os.path.dirname(self.ws), "sibling", "x.md")
+        p = payload("Write", {"file_path": outside, "content": "x"},
+                    cwd=self.ws, agent_type=self.SCOPED)
+        self.assertEqual(self.decide(p)["decision"], "deny")
+
+    def test_other_plugin_namespace_not_fenced(self):
+        # Another plugin's agent sharing a manifest name is not an ARS agent.
+        p = payload("Write", {"file_path": os.path.join(self.ws, "probe.txt"), "content": "x"},
+                    cwd=self.ws, agent_type="other-plugin:synthesis_agent")
+        self.assertEqual(self.decide(p)["decision"], "allow")
+
+    def test_bare_namespace_only_not_fenced(self):
+        p = payload("Write", {"file_path": os.path.join(self.ws, "probe.txt"), "content": "x"},
+                    cwd=self.ws, agent_type=guard.PLUGIN_AGENT_NAMESPACE)
+        self.assertEqual(self.decide(p)["decision"], "allow")
+
+
+class CapturedPayloadTest(unittest.TestCase):
+    """#973: payloads captured from a real Claude Code session, run against the shipped
+    manifest. The other tests synthesize payloads from what we assume the runtime sends;
+    these pin what it did send (scripts/fixtures/write_scope_guard/captured_payloads.json)."""
+
+    FIXTURE = os.path.join(REPO_ROOT, "scripts", "fixtures", "write_scope_guard",
+                           "captured_payloads.json")
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.ws = os.path.realpath(self._tmp.name)
+        os.makedirs(os.path.join(self.ws, "phase3_analysis"))
+        with open(self.FIXTURE, encoding="utf-8") as fh:
+            self.cases = json.load(fh)["cases"]
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def _payload(self, case):
+        text = json.dumps(case["payload"]).replace("{WORKSPACE}", self.ws.replace("\\", "/"))
+        return json.loads(text)
+
+    def test_captured_payloads_decide_as_expected(self):
+        manifest = guard._load_manifest()
+        self.assertEqual(len(self.cases), 3)
+        for case in self.cases:
+            with self.subTest(case=case["label"]):
+                d = guard.evaluate_decision(self._payload(case), manifest, self.ws)
+                self.assertEqual(d["decision"], case["expected_decision"])
+
+    def test_main_session_write_carries_no_agent_type(self):
+        # Why inline roles are never fenced: the main session's payload has no agent_type.
+        main = next(c for c in self.cases if c["label"] == "main_session_write")
+        self.assertNotIn("agent_type", main["payload"])
+
+    def test_plugin_subagent_agent_type_is_plugin_scoped(self):
+        for case in self.cases:
+            if case["label"].startswith("plugin_subagent"):
+                self.assertTrue(case["payload"]["agent_type"].startswith(guard.PLUGIN_AGENT_NAMESPACE))
 
 
 class GlobMatchBoundaryTest(unittest.TestCase):

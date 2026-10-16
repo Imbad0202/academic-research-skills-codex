@@ -43,10 +43,11 @@ def test_router_blocks_outline_before_rq_convergence() -> None:
     assert "until the user has converged" in text
 
 
-def test_alias_router_defers_to_socratic_override() -> None:
+def test_explicit_alias_is_not_redirected_by_socratic_scoping() -> None:
     text = _router_text()
-    assert "before the Claude-Style Alias Router" in text
-    assert "defer to the Paper Topic Scoping Override" in text
+    assert "only after explicit aliases and unambiguous mode intent" in text
+    assert "have been ruled out and cross-phase ambiguity has been resolved" in text
+    assert "An `ars-*` alias is never redirected by this override" in text
 
 
 def test_bibliographic_clients_are_not_inferred_from_ars_full() -> None:

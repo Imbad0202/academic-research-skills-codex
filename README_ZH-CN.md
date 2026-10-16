@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.23.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -47,18 +47,20 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `3.23.0`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `3.23.1`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-当前内嵌的 ARS 源码对齐 **v3.23.0**：
-`Imbad0202/academic-research-skills@6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`。
-此版本新增须明确要求才启动的 `sr-screener` 文献筛选 workflow，并修复 pipeline 的
-实验数据询问、已确认的全程限制、完整性证据重放、最终输出文件选择与 ledger 读取。
-外部 Audit Artifact Gate 改为可选；Stage 2.5 与 4.5 的完整性检查仍保留。
-阅读产出会标明各来源的方法弱点及其依据；固定时点的综述形式提示由作者决定。
-上游 `ars-citation-check` 改为继承 session 模型。确定性工具有合成测试，
-筛选准确率、prompt 是否被遵循及 Codex 模型成效尚未实测。
+当前内嵌的 ARS 源码对齐 **v3.23.1**：
+`Imbad0202/academic-research-skills@4c5449017f46eb64d112a301d4817d22c7c9f3d9`。
+此补丁版修复 `sr-screener` 的 RFC 4180 CSV 导入，保留上游 write-scope guard
+与 Windows launcher 修复作为未启用的 Claude hook 参考，并明确消息中段的
+`[direct-mode]` 不是 escape hatch。上游 Google 验证模型改为推荐
+`gemini-4-argon`（provisional）；`gemini-3.1-pro-preview` 保留上游 validated 标记。
+目前没有 Gemini smoke script，也未宣称通过 Codex provider 实测。
+Codex 没有 `PreToolUse` 写入围栏，原生模型策略保持不变。本版没有新增 workflow。
+确定性工具有合成测试；筛选准确率、prompt 遵循及 Codex 模型效果尚未实测。
+上游 #892 的 Claude smoke 未达到验收标准，issue 仍然开放。
 语言配对目前仅支持 `zh-tw-en`；西班牙语触发词不代表已提供西班牙语输出语言包。
 Claude 模型审计和插件评估素材保留供参考，不会改变 Codex 模型策略，也不代表已实测 Codex 性能。
 
@@ -322,9 +324,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.23.0 功能对等
+### ARS v3.23.1 功能对等
 
-本包在 Codex 具有等效概念之处，适配上游 ARS `v3.23.0`（`6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`），并记录模型与 runtime overlay。
+本包在 Codex 具有等效概念之处，适配上游 ARS `v3.23.1`（`4c5449017f46eb64d112a301d4817d22c7c9f3d9`），并记录模型与 runtime overlay。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|

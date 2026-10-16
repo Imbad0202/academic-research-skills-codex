@@ -201,7 +201,7 @@ def test_direct_mode_only_applies_to_the_first_user_message():
     )
     assert plan["direct_mode_honored"] is False
     assert plan["routing_status"] == "clarification_required"
-    assert plan["dispatch_request"].startswith("[direct-mode]")
+    assert plan["dispatch_request"] == "run bibliography_agent"
 
 
 def test_cli_can_disable_first_message_direct_mode():

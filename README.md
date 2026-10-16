@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.23.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -52,7 +52,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This ARS-Codex package is version `3.23.0`. The repo-root `VERSION` file,
+This ARS-Codex package is version `3.23.1`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version in step with the vendored ARS suite, starting at `3.22.0`.
@@ -61,17 +61,19 @@ tag, and commit are recorded in `manifest.source_repositories[]`.
 
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
-The vendored ARS source tracks **v3.23.0** at
-`Imbad0202/academic-research-skills@6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`.
-This release adds explicit, protocol-driven study screening with `sr-screener`
-and repairs the pipeline's experiment intake, confirmed run-wide constraints,
-integrity evidence replay, final-file selection, and ledger reads. The external
-Audit Artifact Gate is now opt-in; the Stage 2.5 and 4.5 integrity gates remain.
-Reading outputs label each source's method weaknesses and their provenance;
-a fixed-point review-form note leaves the choice with the author.
-`ars-citation-check` now inherits the session model upstream. Synthetic tests
-cover deterministic tools; screening accuracy, prompt-following, and Codex
-model effectiveness remain unmeasured.
+The vendored ARS source tracks **v3.23.1** at
+`Imbad0202/academic-research-skills@4c5449017f46eb64d112a301d4817d22c7c9f3d9`.
+This patch repairs RFC 4180 CSV imports in `sr-screener`, preserves upstream
+write-scope guard and Windows launcher fixes as inactive Claude-hook references,
+and states that a mid-message `[direct-mode]` token is not an escape hatch.
+The upstream Google verifier recommendation is now `gemini-4-argon`
+(provisional); `gemini-3.1-pro-preview` retains its upstream validated status.
+No Gemini smoke script ships, and no live Codex-provider validation is claimed.
+Codex has no `PreToolUse` write fence; its native model policy is unchanged.
+There is no new workflow. Synthetic tests cover deterministic tools;
+screening accuracy, prompt-following, and Codex model effectiveness remain
+unmeasured. Upstream routing issue #892 remains open after its Claude smoke
+test failed acceptance.
 The output-language-pair registry still supports only `zh-tw-en`; Spanish
 triggers do not install a Spanish output-locale pack. Claude model audits and
 plugin eval suites are reference material and do not change the Codex model
@@ -410,10 +412,10 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS v3.23.0 Parity
+### ARS v3.23.1 Parity
 
-This package adapts upstream ARS `v3.23.0` at
-`6ab4b03bf70a118a1b3ee7f3263ed9f19031061b` wherever Codex has an equivalent
+This package adapts upstream ARS `v3.23.1` at
+`4c5449017f46eb64d112a301d4817d22c7c9f3d9` wherever Codex has an equivalent
 concept, with documented model/runtime overlays.
 
 Bibliographic network behavior is intentionally explicit at the Codex adapter

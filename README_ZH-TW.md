@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.23.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
@@ -44,7 +44,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `3.23.0`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `3.23.1`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 自 `3.22.0` 起與內嵌 ARS 套件使用相同版號；舊有 `0.1.x` 紀錄保留原版號。
@@ -52,14 +52,16 @@ skills/academic-research-suite/
 
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-目前內嵌的 ARS 原始碼對齊 **v3.23.0**：
-`Imbad0202/academic-research-skills@6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`。
-此版本新增須明確要求才啟動的 `sr-screener` 文獻篩選 workflow，並修正 pipeline 的
-實驗資料詢問、已確認的全程限制、完整性證據重播、最終輸出檔案選擇與 ledger 讀取。
-外部 Audit Artifact Gate 改為選用；Stage 2.5 與 4.5 的完整性閘門仍保留。
-閱讀產出會標示各來源的方法弱點及其依據；固定時點的回顧形式提示由作者決定。
-上游 `ars-citation-check` 改為繼承 session 模型。確定性工具有合成測試，
-篩選準確率、prompt 是否被遵循及 Codex 模型成效尚未實測。
+目前內嵌的 ARS 原始碼對齊 **v3.23.1**：
+`Imbad0202/academic-research-skills@4c5449017f46eb64d112a301d4817d22c7c9f3d9`。
+此修補版修正 `sr-screener` 的 RFC 4180 CSV 匯入，保留上游 write-scope guard
+與 Windows launcher 修補作為未啟用的 Claude hook 參考，並明定訊息中段的
+`[direct-mode]` 不是 escape hatch。上游 Google 驗證模型改推薦
+`gemini-4-argon`（provisional）；`gemini-3.1-pro-preview` 保留上游 validated 標示。
+目前沒有 Gemini smoke script，也未宣稱通過 Codex provider 實測。
+Codex 沒有 `PreToolUse` 寫入圍欄，原生模型策略維持不變。本版沒有新增 workflow。
+確定性工具有合成測試；篩選準確率、prompt 遵循及 Codex 模型成效尚未實測。
+上游 #892 的 Claude smoke 未達驗收，issue 仍開啟。
 語言配對目前僅支援 `zh-tw-en`；西班牙文觸發詞不代表已提供西班牙文輸出語系包。
 Claude 模型稽核與插件評估素材保留供參考，不會改變 Codex 模型策略，也不代表已實測 Codex 效能。
 
@@ -313,10 +315,10 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.23.0 功能對等
+### ARS v3.23.1 功能對等
 
-本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.23.0`
-（`6ab4b03bf70a118a1b3ee7f3263ed9f19031061b`），並記錄模型與 runtime overlay。
+本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.23.1`
+（`4c5449017f46eb64d112a301d4817d22c7c9f3d9`），並記錄模型與 runtime overlay。
 
 Codex adapter 對書目網路行為採以下明確邊界：
 

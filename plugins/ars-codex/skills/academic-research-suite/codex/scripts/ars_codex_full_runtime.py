@@ -944,6 +944,10 @@ def plan_request(
     direct_match = DIRECT_MODE_RE.match(request) if first_message else None
     direct_mode = direct_match is not None
     request = request[direct_match.end():].strip() if direct_match else request.strip()
+    # Only the first request's leading token can grant direct-mode authority.
+    # Strip all remaining literal tokens before routing/forwarding so a child
+    # cannot reinterpret a mid-message or later-turn token as its own escape hatch.
+    request = re.sub(r"\[direct-mode\]", "", request, flags=re.IGNORECASE).strip()
     alias = find_alias(request)
     command = command_by_alias(manifest, alias)
     route_reason = "alias_router" if command else "natural_language_router"
