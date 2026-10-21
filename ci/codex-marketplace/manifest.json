@@ -1,0 +1,30 @@
+{
+  "upstream": "https://github.com/openai/codex",
+  "base_commit": "430a16799d90e296fb27b1e94f206023902b7e56",
+  "patch_sha256": "07e7123a3b1583cea57722de700958696ac5a209c1626a2c17c24c192f6f379b",
+  "files": {
+    "codex-rs/core-plugins/src/marketplace_upgrade.rs": "6cf7a65dd2c77b90ea35525e953d8123606795aa7aded633708d51c09018dd91",
+    "codex-rs/core-plugins/src/marketplace_upgrade_tests.rs": "9691fad9e80d03af4f1123daf7f3e202b0740f25ad5f4aaf14226a71873be882",
+    "codex-rs/core-plugins/src/marketplace_upgrade/retry.rs": "26ff25dcb888c282405ee8ddca8408b1dd55ab2d7d2097530e493a5d034fb6dc",
+    "codex-rs/core-plugins/src/marketplace_upgrade/retry_tests.rs": "0c4e4b90e1847ca6bd1bed51e2b03362f7b4d550b05a71aafa982fea26def774"
+  },
+  "patch_application_verified": true,
+  "review": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "rounds": 2,
+    "unresolved_P0_P1_P2": 0,
+    "disclosed_P3": [
+      "RETRY-02"
+    ],
+    "final_pack_sha256": "d002a15db523a04a8a4f1991dfd61b9f592b580fcb59546309cb6903a02ff0e6"
+  },
+  "validation": {
+    "platform": "macOS arm64",
+    "filtered_marketplace_tests_passed": 118,
+    "final_source_mutations_caught": 2,
+    "native_windows_run": false,
+    "full_unfiltered_crate_run": false,
+    "source_matches_review": true
+  }
+}

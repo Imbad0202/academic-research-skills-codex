@@ -1,0 +1,615 @@
+diff --git a/codex-rs/core-plugins/src/marketplace_upgrade.rs b/codex-rs/core-plugins/src/marketplace_upgrade.rs
+--- a/codex-rs/core-plugins/src/marketplace_upgrade.rs
++++ b/codex-rs/core-plugins/src/marketplace_upgrade.rs
+@@ -1,5 +1,6 @@
+ mod activation;
+ mod git;
++mod retry;
+ 
+ use self::activation::activate_marketplace_root;
+ use self::activation::installed_marketplace_metadata_matches;
+@@ -7,6 +8,7 @@
+ use self::activation::write_installed_marketplace_metadata;
+ use self::git::clone_git_source;
+ use self::git::git_remote_revision;
++use self::retry::UpgradeAttempt;
+ use crate::PluginGitMode;
+ use crate::installed_marketplaces::marketplace_install_root;
+ use crate::marketplace::validate_marketplace_root;
+@@ -136,14 +138,29 @@
+                     continue;
+                 }
+             };
+-        match upgrade_configured_git_marketplace(
++        let attempt = match UpgradeAttempt::begin(&install_root, &marketplace, mode) {
++            Ok(Some(attempt)) => attempt,
++            Ok(None) => continue,
++            Err(message) => {
++                errors.push(ConfiguredMarketplaceUpgradeError {
++                    marketplace_name: marketplace.name,
++                    message,
++                });
++                continue;
++            }
++        };
++        let result = upgrade_configured_git_marketplace(
+             codex_home,
+             &install_root,
+             &marketplace,
+             reload_config,
+             normalized_source.as_ref(),
+             mode,
+-        ) {
++        );
++        if let Err(err) = attempt.finish(result.is_ok()) {
++            tracing::warn!(marketplace = marketplace.name, error = %err, "failed to complete marketplace upgrade retry state");
++        }
++        match result {
+             Ok(Some(upgraded_root)) => upgraded_roots.push(upgraded_root),
+             Ok(None) => {}
+             Err(err) => {
+diff --git a/codex-rs/core-plugins/src/marketplace_upgrade_tests.rs b/codex-rs/core-plugins/src/marketplace_upgrade_tests.rs
+--- a/codex-rs/core-plugins/src/marketplace_upgrade_tests.rs
++++ b/codex-rs/core-plugins/src/marketplace_upgrade_tests.rs
+@@ -396,6 +396,156 @@
+             .count(),
+         0
+     );
++}
++
++#[test]
++fn failed_automatic_upgrade_cleans_staging_and_refreshes_do_not_retry() {
++    let codex_home = TempDir::new().unwrap();
++    let remote = TempDir::new().unwrap();
++    init_marketplace_repo(remote.path(), "renamed-upstream");
++    let source = url::Url::from_directory_path(remote.path())
++        .unwrap()
++        .to_string();
++    let config = format!("[marketplaces.demo]\nsource_type = \"git\"\nsource = {source:?}\n");
++    std::fs::write(codex_home.path().join(CONFIG_TOML_FILE), config).unwrap();
++    let reload_config = config_reloader(codex_home.path());
++    let stack = reload_config().unwrap();
++    let install_root = marketplace_install_root(codex_home.path());
++    let upgrade = |mode| {
++        upgrade_configured_git_marketplaces_with_mode(
++            codex_home.path(),
++            &stack,
++            None,
++            mode,
++            &reload_config,
++        )
++    };
++
++    let first = upgrade(PluginGitMode::Automatic);
++    assert_eq!(first.errors.len(), 1);
++    assert!(
++        first.errors[0]
++            .message
++            .contains("does not match configured marketplace")
++    );
++    // Cleanup still runs while this marketplace is in backoff.
++    let abandoned = install_root
++        .join(".staging")
++        .join(format!("marketplace-{}-abandoned", std::env::consts::OS));
++    std::fs::create_dir_all(&abandoned).unwrap();
++    std::fs::write(abandoned.join("payload"), "interrupted clone").unwrap();
++    for _ in 0..100 {
++        let next = upgrade(PluginGitMode::Automatic);
++        assert!(next.errors.is_empty());
++        assert!(next.upgraded_roots.is_empty());
++        assert_eq!(
++            std::fs::read_dir(install_root.join(".staging"))
++                .unwrap()
++                .count(),
++            0
++        );
++    }
++    assert_eq!(
++        std::fs::read_dir(codex_home.path().join(".tmp"))
++            .unwrap()
++            .filter_map(Result::ok)
++            .filter(|entry| entry.file_name().to_string_lossy().starts_with("git-"))
++            .count(),
++        0
++    );
++
++    // Explicit attempts bypass the delay, but must still clean failed clones.
++    for _ in 0..3 {
++        assert_eq!(upgrade(PluginGitMode::Manual).errors.len(), 1);
++        assert_eq!(
++            std::fs::read_dir(install_root.join(".staging"))
++                .unwrap()
++                .count(),
++            0
++        );
++    }
++    assert!(
++        upgrade(PluginGitMode::Automatic).errors[0]
++            .message
++            .contains("paused after 3")
++    );
++    std::fs::write(
++        remote.path().join(".agents/plugins/marketplace.json"),
++        r#"{"name":"demo","plugins":[]}"#,
++    )
++    .unwrap();
++    run_git(remote.path(), &["add", "."]);
++    run_git(remote.path(), &["commit", "-m", "restore marketplace name"]);
++    let recovered = upgrade(PluginGitMode::Manual);
++    assert!(recovered.errors.is_empty());
++    assert_eq!(recovered.upgraded_roots.len(), 1);
++    assert!(upgrade(PluginGitMode::Automatic).errors.is_empty());
++}
++
++#[cfg(windows)]
++#[test]
++fn locked_destination_failure_cleans_checkout_and_throttles_next_upgrade() {
++    use std::os::windows::fs::OpenOptionsExt;
++    let codex_home = TempDir::new().unwrap();
++    let remote = TempDir::new().unwrap();
++    init_marketplace_repo(remote.path(), "demo");
++    let source = url::Url::from_directory_path(remote.path())
++        .unwrap()
++        .to_string();
++    std::fs::write(
++        codex_home.path().join(CONFIG_TOML_FILE),
++        format!("[marketplaces.demo]\nsource_type = \"git\"\nsource = {source:?}\n"),
++    )
++    .unwrap();
++    let reload_config = config_reloader(codex_home.path());
++    let stack = reload_config().unwrap();
++    let install_root = marketplace_install_root(codex_home.path());
++    let destination = install_root.join("demo");
++    std::fs::create_dir_all(&destination).unwrap();
++    std::fs::write(destination.join("keep"), "installed version").unwrap();
++    let locked = std::fs::OpenOptions::new()
++        .read(true)
++        .share_mode(0)
++        .custom_flags(0x02000000) // FILE_FLAG_BACKUP_SEMANTICS: open a directory.
++        .open(&destination)
++        .unwrap();
++    let outcome = upgrade_configured_git_marketplaces_with_mode(
++        codex_home.path(),
++        &stack,
++        None,
++        PluginGitMode::Automatic,
++        &reload_config,
++    );
++    assert_eq!(outcome.errors.len(), 1);
++    assert!(
++        outcome.errors[0]
++            .message
++            .contains("failed to move previous marketplace root")
++    );
++    assert_eq!(
++        std::fs::read_to_string(destination.join("keep")).unwrap(),
++        "installed version"
++    );
++    assert_eq!(
++        std::fs::read_dir(install_root.join(".staging"))
++            .unwrap()
++            .count(),
++        0
++    );
++    let next = upgrade_configured_git_marketplaces_with_mode(
++        codex_home.path(),
++        &stack,
++        None,
++        PluginGitMode::Automatic,
++        &reload_config,
++    );
++    assert!(next.errors.is_empty());
++    assert!(next.upgraded_roots.is_empty());
++    drop(locked);
++    let repaired =
++        upgrade_configured_git_marketplaces(codex_home.path(), &stack, None, &reload_config);
++    assert!(repaired.errors.is_empty());
++    assert_eq!(repaired.upgraded_roots.len(), 1);
+ }
+ 
+ fn config_reloader(codex_home: &Path) -> ConfigLayerReload {
+diff --git a/codex-rs/core-plugins/src/marketplace_upgrade/retry.rs b/codex-rs/core-plugins/src/marketplace_upgrade/retry.rs
+new file mode 100644
+--- /dev/null
++++ b/codex-rs/core-plugins/src/marketplace_upgrade/retry.rs
+@@ -0,0 +1,177 @@
++//! Bounds failed automatic upgrades across refreshes and process restarts.
++//! The lock is held through activation; the attempt is recorded before any Git
++//! work so process exit cannot turn a failed clone into an immediate retry.
++
++use super::ConfiguredGitMarketplace;
++use crate::PluginGitMode;
++use serde::Deserialize;
++use serde::Serialize;
++use sha2::Digest;
++use sha2::Sha256;
++use std::fs;
++use std::fs::File;
++use std::io;
++use std::io::Write;
++use std::path::Path;
++use std::path::PathBuf;
++use std::time::Duration;
++use std::time::SystemTime;
++
++const RETRY_DELAY: Duration = Duration::from_secs(5 * 60);
++const MAX_AUTOMATIC_ATTEMPTS: u32 = 3;
++
++#[derive(Default, Deserialize, Serialize)]
++struct RetryState {
++    configuration: String,
++    attempts: u32,
++    retry_after: u64,
++}
++
++pub(super) struct UpgradeAttempt {
++    _lock: File,
++    state_path: PathBuf,
++    state: RetryState,
++}
++
++impl UpgradeAttempt {
++    pub(super) fn begin(
++        install_root: &Path,
++        marketplace: &ConfiguredGitMarketplace,
++        mode: PluginGitMode,
++    ) -> Result<Option<Self>, String> {
++        Self::begin_at(install_root, marketplace, mode, SystemTime::now())
++    }
++
++    fn begin_at(
++        install_root: &Path,
++        marketplace: &ConfiguredGitMarketplace,
++        mode: PluginGitMode,
++        now: SystemTime,
++    ) -> Result<Option<Self>, String> {
++        let state_root = install_root.join(".upgrade-state");
++        fs::create_dir_all(&state_root).map_err(state_error)?;
++        // Hash names as well as configurations: no URLs or platform-sensitive
++        // marketplace names appear in the state file names or contents.
++        let key = format!(
++            "{}-{:x}",
++            std::env::consts::OS,
++            Sha256::digest(marketplace.name.as_bytes())
++        );
++        let lock = File::options()
++            .read(true)
++            .write(true)
++            .create(true)
++            .truncate(false)
++            .open(state_root.join(format!("{key}.lock")))
++            .map_err(state_error)?;
++        match lock.try_lock() {
++            Ok(()) => {}
++            Err(fs::TryLockError::WouldBlock) if mode == PluginGitMode::Automatic => {
++                return Ok(None);
++            }
++            Err(fs::TryLockError::WouldBlock) => {
++                return Err("another upgrade of this marketplace is in progress".to_string());
++            }
++            Err(fs::TryLockError::Error(err)) => return Err(state_error(err)),
++        }
++        let state_path = state_root.join(format!("{key}.json"));
++        let configuration = format!(
++            "{:x}",
++            Sha256::digest(
++                serde_json::to_vec(&(
++                    &marketplace.source,
++                    &marketplace.ref_name,
++                    &marketplace.sparse_paths,
++                ))
++                .map_err(state_error)?
++            )
++        );
++        let mut state = match fs::read(&state_path) {
++            Ok(contents) => match serde_json::from_slice::<RetryState>(&contents) {
++                Ok(state) => state,
++                // An explicit upgrade is also the recovery path for damaged state.
++                Err(_) if mode == PluginGitMode::Manual => RetryState::default(),
++                Err(err) => return Err(state_error(err)),
++            },
++            Err(err) if err.kind() == io::ErrorKind::NotFound => RetryState::default(),
++            Err(err) => return Err(state_error(err)),
++        };
++        if state.configuration != configuration {
++            state = RetryState {
++                configuration,
++                ..RetryState::default()
++            };
++        }
++        if mode == PluginGitMode::Automatic {
++            if state.attempts >= MAX_AUTOMATIC_ATTEMPTS {
++                return Err(format!(
++                    "automatic marketplace upgrades paused after {MAX_AUTOMATIC_ATTEMPTS} unsuccessful attempts; run `codex plugin marketplace upgrade {}` to retry, or change its source configuration",
++                    marketplace.name
++                ));
++            }
++            // A corrected clock must not defer automatic work indefinitely.
++            // Re-arm one bounded delay rather than bypassing failure backoff.
++            if state.retry_after > seconds(now)?.saturating_add(RETRY_DELAY.as_secs() * 4) {
++                state.retry_after = retry_after(now, state.attempts)?;
++                save_state(&state_path, &state).map_err(state_error)?;
++            }
++            if seconds(now)? < state.retry_after {
++                return Ok(None);
++            }
++        }
++        state.attempts = state.attempts.saturating_add(1).min(MAX_AUTOMATIC_ATTEMPTS);
++        state.retry_after = retry_after(now, state.attempts)?;
++        let attempt = Self {
++            _lock: lock,
++            state_path,
++            state,
++        };
++        // Fail closed if the attempt cannot be recorded (including a full disk).
++        attempt.save().map_err(state_error)?;
++        Ok(Some(attempt))
++    }
++
++    pub(super) fn finish(mut self, succeeded: bool) -> Result<(), String> {
++        if succeeded {
++            self.state.attempts = 0;
++            self.state.retry_after = 0;
++        } else {
++            self.state.retry_after = retry_after(SystemTime::now(), self.state.attempts)?;
++        }
++        self.save().map_err(state_error)
++    }
++
++    fn save(&self) -> io::Result<()> {
++        save_state(&self.state_path, &self.state)
++    }
++}
++
++fn save_state(path: &Path, state: &RetryState) -> io::Result<()> {
++    let mut file = tempfile::NamedTempFile::new_in(path.parent().unwrap())?;
++    serde_json::to_writer(&mut file, state)?;
++    file.flush()?;
++    file.as_file().sync_all()?;
++    file.persist(path).map_err(|err| err.error)?;
++    Ok(())
++}
++
++fn seconds(now: SystemTime) -> Result<u64, String> {
++    now.duration_since(SystemTime::UNIX_EPOCH)
++        .map(|duration| duration.as_secs())
++        .map_err(state_error)
++}
++
++fn retry_after(now: SystemTime, attempts: u32) -> Result<u64, String> {
++    let delay = RETRY_DELAY.as_secs() * (1 << attempts.saturating_sub(1).min(2));
++    Ok(seconds(now)?.saturating_add(delay))
++}
++
++fn state_error(err: impl std::fmt::Display) -> String {
++    format!(
++        "failed to persist marketplace upgrade retry state: {err}; automatic upgrades require writable, valid retry state"
++    )
++}
++
++#[cfg(test)]
++#[path = "retry_tests.rs"]
++mod tests;
+diff --git a/codex-rs/core-plugins/src/marketplace_upgrade/retry_tests.rs b/codex-rs/core-plugins/src/marketplace_upgrade/retry_tests.rs
+new file mode 100644
+--- /dev/null
++++ b/codex-rs/core-plugins/src/marketplace_upgrade/retry_tests.rs
+@@ -0,0 +1,218 @@
++use super::*;
++use anyhow::Result;
++use pretty_assertions::assert_eq;
++use std::io::BufRead;
++use std::io::Read;
++use std::process::Stdio;
++
++fn marketplace() -> ConfiguredGitMarketplace {
++    ConfiguredGitMarketplace {
++        name: "demo".to_string(),
++        source: "https://example.com/marketplace.git".to_string(),
++        ref_name: None,
++        sparse_paths: Vec::new(),
++    }
++}
++
++fn start(
++    root: &Path,
++    marketplace: &ConfiguredGitMarketplace,
++    now: SystemTime,
++) -> Option<UpgradeAttempt> {
++    UpgradeAttempt::begin_at(root, marketplace, PluginGitMode::Automatic, now).unwrap()
++}
++
++#[test]
++fn repeated_failures_back_off_and_stop_across_reopened_state() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    let mut now = SystemTime::now();
++    for delay in [300, 600, 1200] {
++        let attempt = start(root.path(), &marketplace, now).unwrap();
++        // Dropping without finish models a process that exits during Git work.
++        drop(attempt);
++        if delay != 1200 {
++            assert!(
++                start(
++                    root.path(),
++                    &marketplace,
++                    now + Duration::from_secs(delay - 1)
++                )
++                .is_none()
++            );
++        }
++        now += Duration::from_secs(delay);
++    }
++    let result = UpgradeAttempt::begin_at(
++        root.path(),
++        &marketplace,
++        PluginGitMode::Automatic,
++        now + Duration::from_secs(86400),
++    );
++    assert!(
++        matches!(result, Err(message) if message.contains("paused after 3 unsuccessful attempts"))
++    );
++    Ok(())
++}
++
++#[test]
++fn manual_upgrade_bypasses_pause_and_success_resets_failures() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    for _ in 0..4 {
++        UpgradeAttempt::begin(root.path(), &marketplace, PluginGitMode::Manual)
++            .unwrap()
++            .unwrap()
++            .finish(false)
++            .unwrap();
++    }
++    assert!(UpgradeAttempt::begin(root.path(), &marketplace, PluginGitMode::Automatic).is_err());
++    UpgradeAttempt::begin(root.path(), &marketplace, PluginGitMode::Manual)
++        .unwrap()
++        .unwrap()
++        .finish(true)
++        .unwrap();
++    let next = start(root.path(), &marketplace, SystemTime::now()).unwrap();
++    assert_eq!(next.state.attempts, 1);
++    Ok(())
++}
++
++#[test]
++fn configuration_changes_reset_only_the_affected_marketplace() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let mut marketplace = marketplace();
++    let now = SystemTime::now();
++    drop(start(root.path(), &marketplace, now).unwrap());
++    let mut other = marketplace.clone();
++    other.name = "other".to_string();
++    drop(start(root.path(), &other, now).unwrap());
++    marketplace.ref_name = Some("fixed".to_string());
++    drop(start(root.path(), &marketplace, now).unwrap());
++    assert!(start(root.path(), &other, now).is_none());
++    marketplace.source.push_str("/changed");
++    drop(start(root.path(), &marketplace, now).unwrap());
++    marketplace.sparse_paths.push("plugins".to_string());
++    drop(start(root.path(), &marketplace, now).unwrap());
++    Ok(())
++}
++
++#[test]
++fn failure_records_delay_from_completion() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    let past = SystemTime::now() - Duration::from_secs(3600);
++    start(root.path(), &marketplace, past)
++        .unwrap()
++        .finish(false)
++        .unwrap();
++    assert!(start(root.path(), &marketplace, SystemTime::now()).is_none());
++    Ok(())
++}
++
++#[test]
++fn damaged_state_blocks_automatic_work_but_manual_upgrade_can_repair_it() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    let attempt = start(root.path(), &marketplace, SystemTime::now()).unwrap();
++    let state_path = attempt.state_path.clone();
++    drop(attempt);
++    fs::write(&state_path, "truncated JSON")?;
++    assert!(UpgradeAttempt::begin(root.path(), &marketplace, PluginGitMode::Automatic).is_err());
++    UpgradeAttempt::begin(root.path(), &marketplace, PluginGitMode::Manual)
++        .unwrap()
++        .unwrap()
++        .finish(true)
++        .unwrap();
++    assert!(start(root.path(), &marketplace, SystemTime::now()).is_some());
++    Ok(())
++}
++
++#[test]
++fn unwritable_state_fails_before_an_attempt_is_returned() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    fs::write(root.path().join(".upgrade-state"), "not a directory")?;
++    assert!(UpgradeAttempt::begin(root.path(), &marketplace(), PluginGitMode::Automatic).is_err());
++    Ok(())
++}
++
++#[test]
++fn clock_rollback_cannot_bypass_backoff() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    let now = SystemTime::now();
++    drop(start(root.path(), &marketplace, now).unwrap());
++    assert!(start(root.path(), &marketplace, now - Duration::from_secs(3600)).is_none());
++    Ok(())
++}
++
++#[test]
++fn corrected_clock_rearms_only_one_bounded_delay() -> Result<()> {
++    let root = tempfile::tempdir()?;
++    let marketplace = marketplace();
++    let now = SystemTime::now();
++    drop(
++        start(
++            root.path(),
++            &marketplace,
++            now + Duration::from_secs(30 * 86400),
++        )
++        .unwrap(),
++    );
++    assert!(start(root.path(), &marketplace, now).is_none());
++    assert!(
++        start(
++            root.path(),
++            &marketplace,
++            now + RETRY_DELAY - Duration::from_secs(1)
++        )
++        .is_none()
++    );
++    let attempt = start(root.path(), &marketplace, now + RETRY_DELAY).unwrap();
++    assert_eq!(attempt.state.attempts, 2);
++    Ok(())
++}
++
++#[test]
++fn live_process_is_exclusive_and_abandoned_attempt_survives_exit() -> Result<()> {
++    const CHILD_ROOT: &str = "CODEX_MARKETPLACE_RETRY_CHILD_ROOT";
++    if let Some(root) = std::env::var_os(CHILD_ROOT) {
++        let _attempt =
++            UpgradeAttempt::begin(Path::new(&root), &marketplace(), PluginGitMode::Automatic)
++                .unwrap()
++                .unwrap();
++        println!("retry-ready");
++        std::io::stdout().flush()?;
++        std::io::stdin().read_exact(&mut [0])?;
++        std::process::exit(0);
++    }
++    let root = tempfile::tempdir()?;
++    let mut child = codex_utils_process::background_command(std::env::current_exe()?)
++        .args(["--exact", "marketplace_upgrade::retry::tests::live_process_is_exclusive_and_abandoned_attempt_survives_exit", "--nocapture"])
++        .env(CHILD_ROOT, root.path())
++        .stdin(Stdio::piped()).stdout(Stdio::piped()).spawn()?;
++    let stdout = std::io::BufReader::new(child.stdout.take().unwrap());
++    let mut ready = false;
++    for line in stdout.lines() {
++        if line?.contains("retry-ready") {
++            ready = true;
++            break;
++        }
++    }
++    assert!(ready);
++    assert!(start(root.path(), &marketplace(), SystemTime::now()).is_none());
++    assert!(
++        matches!(UpgradeAttempt::begin(root.path(), &marketplace(), PluginGitMode::Manual), Err(message) if message.contains("in progress"))
++    );
++    child.stdin.take().unwrap().write_all(b"x")?;
++    assert!(child.wait()?.success());
++    assert!(start(root.path(), &marketplace(), SystemTime::now()).is_none());
++    assert!(
++        start(
++            root.path(),
++            &marketplace(),
++            SystemTime::now() + RETRY_DELAY + Duration::from_secs(1)
++        )
++        .is_some()
++    );
++    Ok(())
++}
