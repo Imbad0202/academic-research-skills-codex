@@ -2,6 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-v3.23.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
 ARS-Codex は、[Academic Research Skills（ARS）Claude Code 版](https://github.com/Imbad0202/academic-research-skills) の Codex ネイティブな sibling ディストリビューションです。独自の plugin ID、パッケージング、および runtime adapter を持ち、リリース番号は `3.22.0` から内包する ARS に揃えます。

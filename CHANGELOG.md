@@ -4,6 +4,11 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+- Added `CITATION.cff` and a DOI badge in all four READMEs for the Zenodo
+  concept DOI [10.5281/zenodo.20784820](https://doi.org/10.5281/zenodo.20784820).
+  Zenodo reads the citation file for later releases, so their creators follow its
+  author list instead of the GitHub contributor list.
+
 ## [3.23.1] - 2026-10-16
 
 ### What's Changed
