@@ -1,0 +1,35 @@
+# This CITATION.cff describes how to cite this specific version of the software.
+# Zenodo reads it when a GitHub release is archived, so the authors listed here
+# become the creators of each new Zenodo version.
+# See https://citation-file-format.github.io/ for the schema.
+cff-version: 1.2.0
+title: "ARS-Codex: Academic Research Skills for Codex"
+message: >-
+  If you use this software in your research, please cite it
+  using the metadata from this file.
+type: software
+authors:
+  - family-names: Wu
+    given-names: Cheng-I
+repository-code: https://github.com/Imbad0202/academic-research-skills-codex
+url: https://github.com/Imbad0202/academic-research-skills-codex
+abstract: >-
+  ARS-Codex is the Codex-native sibling of Academic Research Skills
+  (ARS) for Claude Code. It packages the ARS workflows as one Codex
+  skill for research scoping, literature and systematic reviews,
+  study screening, paper writing, manuscript review, citation and
+  integrity checks, and experiment planning, for noncommercial
+  scholarly use.
+keywords:
+  - academic-research
+  - codex
+  - research-workflow
+  - literature-review
+  - citation-verification
+  - peer-review
+  - scholarly-writing
+license: CC-BY-NC-4.0
+version: 3.23.1
+date-released: 2026-10-16
+# Zenodo concept DOI: it covers all versions and resolves to the latest one.
+doi: 10.5281/zenodo.20784820
