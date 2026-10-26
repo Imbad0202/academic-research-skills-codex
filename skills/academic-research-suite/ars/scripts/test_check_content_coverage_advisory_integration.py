@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 import json
 import shutil
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -306,3 +306,13 @@ def test_guard_cli_success_and_unknown_flag(tmp_path: Path) -> None:
     root = _tree(tmp_path)
     assert guard.main(["--root", str(root)]) == 0
     assert guard.main(["--root", str(root), "--unknown"]) == 2
+
+
+def test_required_pointers_match_windows_posix_paths(tmp_path, monkeypatch) -> None:
+    root = _tree(tmp_path)
+    pointers = guard._required_pointers(**{
+        name.lower(): PureWindowsPath(*getattr(guard, name).parts)
+        for name in ("EVIDENCE_SCHEMA", "ADVISORY_SCHEMA", "ADVISORY_RUNTIME", "ADVISORY_PROTOCOL")
+    })
+    monkeypatch.setattr(guard, "REQUIRED_POINTERS", pointers)
+    assert guard._documentation_errors(root) == []

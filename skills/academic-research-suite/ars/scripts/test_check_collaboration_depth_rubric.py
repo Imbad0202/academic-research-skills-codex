@@ -1,6 +1,7 @@
 """Unit tests for check_collaboration_depth_rubric.py (ARS v3.5)."""
 from __future__ import annotations
 
+import sys
 import textwrap
 import unittest
 from pathlib import Path
@@ -223,6 +224,20 @@ class TestCollaborationDepthRubric(unittest.TestCase):
             r = _run(root)
             self.assertEqual(r.returncode, 1)
             self.assertIn("dispatch anchor", r.stdout.lower())
+
+    def test_windows_rubric_path_matches_frontmatter_ref(self) -> None:
+        from pathlib import PureWindowsPath
+        from unittest.mock import patch
+
+        # Match direct script execution when unittest imports this test alone.
+        with patch.object(sys, "path", [str(SCRIPT.parent), *sys.path]):
+            import scripts.check_collaboration_depth_rubric as lint
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _make_repo(root)
+            with patch.object(lint, "RUBRIC_PATH", PureWindowsPath(*lint.RUBRIC_PATH.parts)):
+                self.assertEqual(lint._check_agent_files(root), [])
 
     def test_skill_md_without_nonblocking_phrase_fails(self) -> None:
         with TemporaryDirectory() as tmp:

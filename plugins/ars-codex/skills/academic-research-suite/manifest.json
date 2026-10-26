@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "3.23.1",
+  "adapter_version": "3.23.2",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-10-16",
+  "generated_date": "2026-10-26",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "4c5449017f46eb64d112a301d4817d22c7c9f3d9",
+      "commit": "863e1c754f0e97062d271dcb42a9483c9ef34aa9",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -46,8 +46,8 @@
         "plugin-evals-citation-check",
         "plugin-evals-citation-locale"
       ],
-      "version": "3.23.1",
-      "tag": "v3.23.1"
+      "version": "3.23.2",
+      "tag": "v3.23.2"
     },
     {
       "name": "experiment-agent",
@@ -136,7 +136,7 @@
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper requires Bash 4+; macOS stock Bash 3.2 fails its version guard, and wrapper e2e tests skip unless Bash 4+ is available on PATH.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "ARS v3.23.1 at 4c5449017f46eb64d112a301d4817d22c7c9f3d9 is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.23.1. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
+    "ARS v3.23.2 at 863e1c754f0e97062d271dcb42a9483c9ef34aa9 is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.23.2. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its 43-agent ARS classification sweep.",
     "Korean and Spanish intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
@@ -198,6 +198,7 @@
     "The v3.23.1 upstream write-scope repair recognizes only the academic-research-skills plugin prefix and probes timeout compatibility. Its Claude PreToolUse payloads, launcher and regression fixtures are reference material; the Codex hook pack has no PreToolUse write fence. Even upstream, inline roles without a named Bucket A agent type are not fenced.",
     "Gemini 4 Argon (gemini-4-argon) is the upstream provisional Google verifier recommendation; gemini-3.1-pro-preview retains its upstream validated status. No Gemini smoke script or Codex provider validation is claimed. Provider calls still require explicit configuration and content/cost consent; this does not change the native Codex model policy.",
     "The v3.23.1 routing core explicitly rejects a mid-message direct-mode escape hatch. Upstream issue #892 remains open after its Claude smoke failed acceptance; deterministic Codex router tests do not establish live model compliance.",
-    "The v3.23.1 guard namespace test uses the pinned ARS source name when the intentionally excluded Claude plugin manifest is unavailable in this Codex distribution; all guard behavior and captured-payload tests remain active. The already inactive calibration-tier class reports explicit skips during full-tree pytest discovery."
+    "The v3.23.1 guard namespace test uses the pinned ARS source name when the intentionally excluded Claude plugin manifest is unavailable in this Codex distribution; all guard behavior and captured-payload tests remain active. The already inactive calibration-tier class reports explicit skips during full-tree pytest discovery.",
+    "ARS v3.23.2 requires Phase E to use only the cited version of each work, retain access outcomes when it is unreadable or version-ambiguous, and request that version's PDF. Stage 2.5 runs before Stage 3 even with a prior integrity report; missing required inputs block handoff. The Obsidian and POSIX-path lint repairs are preserved. SessionStart systemMessage and Pi structured-prompt changes remain inactive reference integrations in Codex; upstream Claude fixture results are not Codex behavior measurements."
   ]
 }

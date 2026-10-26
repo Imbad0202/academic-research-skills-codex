@@ -14,7 +14,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, /ars-full.
   Prompts, references, templates, and contracts live under ars/.
 metadata:
-  version: "3.23.1"
+  version: "3.23.2"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -27,7 +27,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `3.23.1`. The repo-root `VERSION`, this
+This Codex package is version `3.23.2`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Starting at `3.22.0`, this release number also matches the vendored ARS suite.
 The exact upstream version, tag, and commit are recorded in `manifest.json`;
@@ -539,7 +539,16 @@ Use `ars/shared/` for cross-workflow contracts and quality gates:
 - `ars/academic-pipeline/references/claim_verification_protocol.md` defines the
   v3.18 high-impact-first sampling gate plus advisory-only scope-conformance
   and search-bounded novelty classifications, and the v3.19 revision-round
-  claim-strength drift audit.
+  claim-strength drift audit. Its v3.23.2 Phase E rule permits only the version
+  cited by the manuscript: unreadable or ambiguous versions produce
+  `UNVERIFIABLE_ACCESS` and a request for that version's PDF, with
+  `VERSION_INCONSISTENT_CITATION` for an ambiguous reference. Never substitute
+  a different version; identify the version in `source.display_label` and keep
+  a source's access limitation separate from distortion found in another.
+- Stage 2.5 always runs before Stage 3, including mid-entry. A fresh, current,
+  `VERIFIED` prior report is context for that check, never a replacement.
+  Missing required inputs return `HANDOFF_INCOMPLETE` and block transition
+  until backfilled; missing recommended inputs are disclosed without blocking.
 - `ars/shared/references/claim_strength_ladder.md` and
   `ars/scripts/check_revision_token_conservation.py` define the v3.19 semantic
   and deterministic revision-drift guards.

@@ -15,7 +15,7 @@ import argparse
 import ast
 import json
 import sys
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -163,74 +163,85 @@ FORBIDDEN_PURE_CALLS = FORBIDDEN_SCAN_CALLS | {
     "write_text",
 }
 
-REQUIRED_POINTERS = {
-    CONTRACT_README: (
-        str(EVIDENCE_SCHEMA),
-        str(ADVISORY_SCHEMA),
-        str(ADVISORY_RUNTIME),
-    ),
-    EVIDENCE_PROTOCOL: (
-        "evidence-row/1.1",
-        "authority_profile_content_coverage",
-        str(EVIDENCE_SCHEMA),
-    ),
-    PACKET_PROTOCOL: (
-        "#681",
-        "LLM-ADVISORY",
-        "advisory_coverage_status",
-    ),
-    ADVISORY_PROTOCOL: (
-        str(EVIDENCE_SCHEMA),
-        str(ADVISORY_SCHEMA),
-        str(ADVISORY_RUNTIME),
-        "validate_submission_packet_manifest",
-        "evaluation_status=UNMEASURED",
-        "never synthesize an \"unmeasured\" measurement JSON file",
-    ),
-    DESIGN_SPEC: (
-        "evidence-row/1.1",
-        "content-coverage-advisory/1.0",
-        "LLM-ADVISORY",
-        "evaluation_status = UNMEASURED",
-        "There is no scored held-out row for #681",
-    ),
-    HELDOUT_STATUS: (
-        "UNMEASURED — no scored held-out measurement row exists",
-        "no `measurement-*.json`",
-        "Passing them cannot create a score",
-    ),
-    DEEP_SKILL: (
-        str(ADVISORY_PROTOCOL),
-        str(ADVISORY_SCHEMA),
-        str(EVIDENCE_SCHEMA),
-        "LLM-ADVISORY",
-        "UNMEASURED",
-    ),
-    ETHICS_AGENT: (
-        str(ADVISORY_PROTOCOL),
-        str(ADVISORY_SCHEMA),
-        str(ADVISORY_RUNTIME),
-        "validate_advisory(...)" ,
-        "LLM-ADVISORY",
-        "evaluation_status=UNMEASURED",
-    ),
-    ARCHITECT: (
-        str(ADVISORY_PROTOCOL),
-        str(ADVISORY_SCHEMA),
-        str(ADVISORY_RUNTIME),
-        "validate_advisory(...)" ,
-        "LLM-ADVISORY",
-        "evaluation_status=UNMEASURED",
-    ),
-    ARCHITECT_MIRROR: (
-        str(ADVISORY_PROTOCOL),
-        str(ADVISORY_SCHEMA),
-        str(ADVISORY_RUNTIME),
-        "validate_advisory(...)" ,
-        "LLM-ADVISORY",
-        "evaluation_status=UNMEASURED",
-    ),
-}
+
+def _required_pointers(
+    evidence_schema: PurePath = EVIDENCE_SCHEMA,
+    advisory_schema: PurePath = ADVISORY_SCHEMA,
+    advisory_runtime: PurePath = ADVISORY_RUNTIME,
+    advisory_protocol: PurePath = ADVISORY_PROTOCOL,
+) -> dict[Path, tuple[str, ...]]:
+    """Build Markdown tokens from repository paths using portable separators."""
+    return {
+        CONTRACT_README: (
+            evidence_schema.as_posix(),
+            advisory_schema.as_posix(),
+            advisory_runtime.as_posix(),
+        ),
+        EVIDENCE_PROTOCOL: (
+            "evidence-row/1.1",
+            "authority_profile_content_coverage",
+            evidence_schema.as_posix(),
+        ),
+        PACKET_PROTOCOL: (
+            "#681",
+            "LLM-ADVISORY",
+            "advisory_coverage_status",
+        ),
+        ADVISORY_PROTOCOL: (
+            evidence_schema.as_posix(),
+            advisory_schema.as_posix(),
+            advisory_runtime.as_posix(),
+            "validate_submission_packet_manifest",
+            "evaluation_status=UNMEASURED",
+            "never synthesize an \"unmeasured\" measurement JSON file",
+        ),
+        DESIGN_SPEC: (
+            "evidence-row/1.1",
+            "content-coverage-advisory/1.0",
+            "LLM-ADVISORY",
+            "evaluation_status = UNMEASURED",
+            "There is no scored held-out row for #681",
+        ),
+        HELDOUT_STATUS: (
+            "UNMEASURED — no scored held-out measurement row exists",
+            "no `measurement-*.json`",
+            "Passing them cannot create a score",
+        ),
+        DEEP_SKILL: (
+            advisory_protocol.as_posix(),
+            advisory_schema.as_posix(),
+            evidence_schema.as_posix(),
+            "LLM-ADVISORY",
+            "UNMEASURED",
+        ),
+        ETHICS_AGENT: (
+            advisory_protocol.as_posix(),
+            advisory_schema.as_posix(),
+            advisory_runtime.as_posix(),
+            "validate_advisory(...)" ,
+            "LLM-ADVISORY",
+            "evaluation_status=UNMEASURED",
+        ),
+        ARCHITECT: (
+            advisory_protocol.as_posix(),
+            advisory_schema.as_posix(),
+            advisory_runtime.as_posix(),
+            "validate_advisory(...)" ,
+            "LLM-ADVISORY",
+            "evaluation_status=UNMEASURED",
+        ),
+        ARCHITECT_MIRROR: (
+            advisory_protocol.as_posix(),
+            advisory_schema.as_posix(),
+            advisory_runtime.as_posix(),
+            "validate_advisory(...)" ,
+            "LLM-ADVISORY",
+            "evaluation_status=UNMEASURED",
+        ),
+    }
+
+
+REQUIRED_POINTERS = _required_pointers()
 
 
 class DuplicateKeyError(ValueError):

@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.1-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.23.2-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -38,11 +38,11 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `3.23.1` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
+この ARS-Codex パッケージのバージョンは `3.23.2` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-ベンダリングした ARS は **v3.23.1**、`Imbad0202/academic-research-skills@4c5449017f46eb64d112a301d4817d22c7c9f3d9` に揃えています。このパッチは `sr-screener` の RFC 4180 CSV 読み込みを修正し、上流の write-scope guard と Windows launcher の修正を無効な Claude hook の参照資料として保持します。メッセージ途中の `[direct-mode]` は escape hatch ではありません。上流の Google 検証モデルの推奨は `gemini-4-argon`（provisional）となり、`gemini-3.1-pro-preview` は上流の validated 表記を維持します。Gemini smoke script はなく、Codex provider の実測検証も主張しません。Codex には `PreToolUse` の書き込み制限 hook はなく、ネイティブモデル方針は変わりません。新しい workflow はありません。決定的なツールには合成テストがありますが、スクリーニング精度、プロンプトの遵守、Codex モデルの有効性は未測定です。上流 #892 は Claude smoke が受入基準を満たさず、未解決のままです。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
+ベンダリングした ARS は **v3.23.2**、`Imbad0202/academic-research-skills@863e1c754f0e97062d271dcb42a9483c9ef34aa9` に揃えています。このパッチでは、主張を原稿が引用した版だけで検証します。その版を読めない場合や版を特定できない場合は、アクセス上の制約を記録し、引用された版の PDF を求めます。Stage 3 の前には必ず Stage 2.5 を実行し、条件を満たす以前の検証報告は参考情報として添付します。必須入力の不足は段階の移行を阻止します。Obsidian の日付・年処理、六つの Windows パス検査を修正し、ソクラテス式メンターがユーザーの研究案を順位付けする例も除去しました。上流の SessionStart 通知と Pi の構造化プロンプト修正は、Codex では無効な参考実装です。新しい workflow はなく、ネイティブモデル方針は変わりません。オフラインテストと上流の六回の Claude テストは、Codex の実際のプロンプト遵守を検証したものではありません。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
 
 ## モデルと実行方式
 
@@ -258,9 +258,9 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS v3.23.1 パリティ
+### ARS v3.23.2 パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.23.1`（`4c5449017f46eb64d112a301d4817d22c7c9f3d9`）を適合し、モデルと runtime overlay を記録します。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.23.2`（`863e1c754f0e97062d271dcb42a9483c9ef34aa9`）を適合し、モデルと runtime overlay を記録します。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|

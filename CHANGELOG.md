@@ -4,10 +4,35 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.23.2] - 2026-10-26
+
+### What's Changed
+
 - Added `CITATION.cff` and a DOI badge in all four READMEs for the Zenodo
   concept DOI [10.5281/zenodo.20784820](https://doi.org/10.5281/zenodo.20784820).
   Zenodo reads the citation file for later releases, so their creators follow its
   author list instead of the GitHub contributor list.
+
+- Synced the tagged ARS v3.23.2 release at
+  `863e1c754f0e97062d271dcb42a9483c9ef34aa9`, preserving Codex WORKFLOW
+  overlays, the single registered router, and the separately pinned
+  experiment-agent. No new workflow.
+- Claim checks at Stage 2.5 and 4.5 use only the manuscript's cited version.
+  Unreadable versions produce `UNVERIFIABLE_ACCESS` and a request for that
+  version's PDF; ambiguous citations also record `VERSION_INCONSISTENT_CITATION`.
+  Evidence rows identify the version, and one source's access limitation does
+  not hide distortion found in another source.
+- Stage 2.5 always runs before Stage 3. A prior verified, fresh report on the
+  current version is context, never a replacement. Missing required inputs
+  block handoff with `HANDOFF_INCOMPLETE`; recommended inputs remain advisory.
+- Adopted Obsidian ISO-date support, rejection of boolean and superscript-digit
+  years, six POSIX-path lint repairs, and the Socratic mentor example that
+  preserves the user's authorship of research questions.
+- Preserved upstream SessionStart user-notice and Pi structured-prompt repairs
+  as inactive reference integrations. Hermetic tests and upstream Claude
+  fixture results do not establish live Codex compliance or Windows execution.
+- Updated source/version metadata, four-language guidance, runtime contracts,
+  boundary content locks, citation metadata, and the materialized plugin mirror.
 
 ## [3.23.1] - 2026-10-16
 

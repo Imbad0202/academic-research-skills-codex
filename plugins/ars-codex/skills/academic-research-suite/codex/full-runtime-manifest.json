@@ -497,7 +497,7 @@
     "re_review_judge_track": "After primary Priority-1 re-review verdicts are committed, an explicitly configured and consented API cross-model pass records agree/diverges/unavailable per item and emits the Judge Record. The codex transport is excluded. Divergence triggers synthesis review; it is never a vote or overwrite.",
     "local_pdf_read_integrity": "Run ars/scripts/pdf_read_preflight.py once per locally read corpus PDF during Stage 1 intake, carry the sidecar by ref_slug, and preserve FAIL versus UNAVAILABLE semantics. --classify-content is an explicit, process-isolated advisory whose TEXT_AVAILABLE/OCR_RECOMMENDED/unavailable result never changes the STRUCTURE_ONLY verdict, starts OCR, or establishes page-anchor trust. Its optional dependency is never installed automatically.",
     "human_read_scope": "Require an explicit user-owned read_scope for every new human-read mark and never infer it. Explicit unknown and legacy missing scope remain coverage_unknown; abstract-only, TOC-only, and out-of-range section coverage remain visibly partial, and malformed ledger state fails visibly through the deterministic resolver.",
-    "phase_e_evidence_rows": "Persist one evidence-row/1.0 per selected claim_id/ref_slug/anchor tuple from exact session-held source text. Dispatcher-owned builders and renderers never dereference URLs or paths, infer human-read status, or omit an anchorless/access-failure row.",
+    "phase_e_evidence_rows": "Persist one evidence-row/1.0 per selected claim_id/ref_slug/anchor tuple from exact session-held source text. Dispatcher-owned builders and renderers never dereference URLs or paths, infer human-read status, or omit an anchorless/access-failure row. Check only the version identified by the manuscript reference and version_records.yaml when present; never substitute a working paper, preprint, or author-accepted manuscript unless it is the cited version. If that version cannot be read, record UNVERIFIABLE_ACCESS and request its PDF; if the reference does not identify exactly one version, also record VERSION_INCONSISTENT_CITATION. Name the version in source.display_label. An access note for one source must not hide distortion found in another.",
     "revision_authority": "Keep revision-roadmap/1.0 immutable and non-ranking. Only author-adjudication/1.0 may authorize address decisions, exact targets, operations, or claim-strength replacements; dispatcher-owned deterministic builders apply and replay the resulting current-version artifacts.",
     "post_terminal_adjudication_activity": "The optional adjudication-activity side channel runs only after the terminal artifact is written and only against an explicitly selected local store plus sealed inventory. It never scans, infers, reads a clock, calls a network/model, feeds prompts or gates, changes passports, or alters terminal state when capture fails.",
     "revision_claim_drift": "Carry the Revision-Evidence Bundle for every revision round and apply both the claim-strength ladder audit and deterministic token-conservation checker as advisory-first guards.",
@@ -517,7 +517,8 @@
     "research_workflow_profile": "The v3.21.1 profile substrate is default-off and manuscript-blind. Record only an explicit selection or the visible field_general fallback; no planner or pipeline hook is implied, and corrections append receipts plus stale marks without rewriting scholar-owned artifacts. Behavioral evidence remains NOT_RUN.",
     "inquiry_branch_ledger": "ARS_INQUIRY_LEDGER=1 enables only the local opt-in alpha. Preserve author-owned append events, second-branch publication, bounded checkpoint summaries, path/lock/recovery guards, and individually visible stale causes. The flag grants no external call authority and no novelty, correctness, value, recovery-benefit, or usability claim.",
     "data_access_metadata": "Workflow and agent data_access_level annotations are declarative dirtiest-input metadata. They do not create a sandbox, runtime permission, declassification, or transport authority.",
-    "screening_independence": "Explicit-only sr-screener work uses the emitted-prompt path and fresh blinded workers without inherited history. Preserve Read/Grep-only reviewer scope, user-confirmed protocol, human pilot, concrete model/cost approval, required QC and final human verification. Never simulate dual review inline or execute the generated Claude Workflow script in Codex."
+    "screening_independence": "Explicit-only sr-screener work uses the emitted-prompt path and fresh blinded workers without inherited history. Preserve Read/Grep-only reviewer scope, user-confirmed protocol, human pilot, concrete model/cost approval, required QC and final human verification. Never simulate dual review inline or execute the generated Claude Workflow script in Codex.",
+    "pipeline_required_inputs": "Missing required input returns HANDOFF_INCOMPLETE and blocks the next stage until backfilled; missing recommended input is reported but does not block. Stage 2.5 always runs before Stage 3, including mid-entry. A VERIFIED, fresh, current-version prior report is attached as context and never replaces the check."
   },
   "quality_gates": [
     {
@@ -1053,6 +1054,19 @@
       "kind": "integrity",
       "runner": "upstream:ars/scripts/check_method_weaknesses_sync.py",
       "parity": "near"
+    },
+    {
+      "id": "v3232_phase_e_cited_version",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_phase_e_cited_version.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3232_evidence_row_integration",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/check_evidence_row_integration.py",
+      "parity": "near"
     }
   ],
   "known_degradations": [
@@ -1073,6 +1087,7 @@
     "The v3.22.2 acronym checker reports advisory coverage over saved drafts and abstracts. Its final review attachment is outside editorial decisions, revision roadmaps, re-review criteria, and integrity gates; unavailable or partial output is not a clean result.",
     "The v3.23 sr-screener scripts and hermetic fixtures do not establish screening accuracy or live Codex reviewer independence. Codex uses emitted prompts with fresh native workers; generated Claude workflows and Sonnet/Opus config defaults are not Codex execution. Without isolated workers only disclosed quick single-reviewer triage is supported.",
     "The v3.23.1 upstream write-scope guard and timeout launcher remain inactive Claude-hook references. Codex has no PreToolUse write fence; plugin-prefixed agent normalization does not provide native Codex enforcement.",
-    "gemini-4-argon is provisional in the upstream verifier catalog; gemini-3.1-pro-preview retains its upstream validated label. No Gemini smoke script ships and no live Codex-provider validation is claimed; native Codex model selection is unchanged."
+    "gemini-4-argon is provisional in the upstream verifier catalog; gemini-3.1-pro-preview retains its upstream validated label. No Gemini smoke script ships and no live Codex-provider validation is claimed; native Codex model selection is unchanged.",
+    "The v3.23.2 cited-version rule and mandatory Stage 2.5 rerun are prompt-level contracts. Hermetic row-carrier and content checks do not establish live Codex compliance; the upstream six-session Claude fixture is not a Codex measurement. The SessionStart systemMessage and Pi structured-prompt changes are preserved only as inactive reference integrations."
   ]
 }

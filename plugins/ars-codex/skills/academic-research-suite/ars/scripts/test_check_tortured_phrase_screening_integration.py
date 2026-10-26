@@ -6,7 +6,7 @@ import hashlib
 import json
 import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any, Callable
 
 import pytest
@@ -1304,3 +1304,16 @@ def test_cli_main_reports_success_and_invocation_error(
     assert integration.main(["--root", str(root)]) == 0
     assert "integration: ok" in capsys.readouterr().out
     assert integration.main(["--unknown"]) == 2
+
+
+def test_frozen_and_ci_paths_match_windows_posix_form(tmp_path, monkeypatch) -> None:
+    root = _copy_repo(tmp_path)
+    report = json.loads((root / integration.MEASUREMENT_REPORT).read_text(encoding="utf-8"))
+    for name in (
+        "RUNTIME_TEST", "MEASUREMENT_PLAN", "MEASUREMENT_EXECUTION_MANIFEST", "MEASUREMENT_TRANSCRIPT",
+    ):
+        monkeypatch.setattr(integration, name, PureWindowsPath(*getattr(integration, name).parts))
+    expected = integration._expected_measurement_report(report["execution_manifest"]["sha256"])
+    for section in ("preregistration", "execution_manifest", "raw_outputs"):
+        assert expected[section] == report[section]
+    assert integration._ci_errors(root) == []

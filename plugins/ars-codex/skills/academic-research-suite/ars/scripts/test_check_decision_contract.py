@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import shutil
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -384,4 +384,16 @@ def test_re_review_sanctioned_literals_alone_pass(tmp_path):
     text = (root / lint.RE_REVIEW_PROTOCOL).read_text(encoding="utf-8")
     for literal in lint.RE_REVIEW_SANCTIONED_LITERALS:
         assert literal in text, f"sanctioned literal missing from protocol: {literal!r}"
+    assert lint.check(root) == []
+
+
+def test_re_review_protocol_matches_windows_relative_path(tmp_path, monkeypatch):
+    root = mirror(tmp_path)
+    path_type = type(root)
+    relative_to = path_type.relative_to
+
+    def windows_relative_to(path, *args, **kwargs):
+        return PureWindowsPath(*relative_to(path, *args, **kwargs).parts)
+
+    monkeypatch.setattr(path_type, "relative_to", windows_relative_to)
     assert lint.check(root) == []

@@ -76,6 +76,71 @@ def test_each_surface_requires_explicit_legacy_compatibility_gate(
     )
 
 
+@pytest.mark.parametrize(
+    ("rel", "token"),
+    [
+        (rel, token)
+        for rel, tokens in guard.CITED_VERSION_RULES.items()
+        for token in tokens
+    ],
+)
+def test_each_cited_version_rule_is_required(
+    tmp_path: Path, rel: str, token: str
+) -> None:
+    root = _tree(tmp_path)
+    _replace_all(root, rel, token, "removed-1006-rule")
+    errors = guard.run_checks(root)
+    assert any(
+        rel in error and f"missing #1006 cited-version rule {token!r}" in error
+        for error in errors
+    )
+
+
+@pytest.mark.parametrize("rel", tuple(guard.RETIRED_ACCESS_RULES))
+def test_retired_paywall_only_rule_cannot_return(tmp_path: Path, rel: str) -> None:
+    root = _tree(tmp_path)
+    retired = guard.RETIRED_ACCESS_RULES[rel][0]
+    path = root / rel
+    path.write_text(
+        path.read_text(encoding="utf-8") + f"\n- {retired}\n", encoding="utf-8"
+    )
+    errors = guard.run_checks(root)
+    assert any(
+        rel in error and "retired paywall-only access rule returned" in error
+        for error in errors
+    )
+
+
+@pytest.mark.parametrize("rel", tuple(guard.RETIRED_ACCESS_RULES))
+def test_reordered_multi_source_verdict_order_is_rejected(
+    tmp_path: Path, rel: str
+) -> None:
+    root = _tree(tmp_path)
+    _replace_all(
+        root,
+        rel,
+        "MAJOR_DISTORTION, UNVERIFIABLE, MINOR_DISTORTION, UNVERIFIABLE_ACCESS, VERIFIED",
+        "MAJOR_DISTORTION, UNVERIFIABLE, UNVERIFIABLE_ACCESS, MINOR_DISTORTION, VERIFIED",
+    )
+    errors = guard.run_checks(root)
+    assert any(rel in error and "missing #1006 cited-version rule" in error for error in errors)
+
+
+@pytest.mark.parametrize("rel", tuple(guard.RETIRED_ACCESS_RULES))
+def test_access_failure_cannot_become_a_blocking_verdict(
+    tmp_path: Path, rel: str
+) -> None:
+    root = _tree(tmp_path)
+    _replace_all(
+        root,
+        rel,
+        "record UNVERIFIABLE_ACCESS for that source",
+        "record UNVERIFIABLE for that source",
+    )
+    errors = guard.run_checks(root)
+    assert any(rel in error and "missing #1006 cited-version rule" in error for error in errors)
+
+
 def test_schema_state_synonym_is_rejected(tmp_path: Path) -> None:
     root = _tree(tmp_path)
     path = root / guard.SCHEMA_REL

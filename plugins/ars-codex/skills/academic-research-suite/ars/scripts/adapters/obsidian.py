@@ -15,6 +15,7 @@ Usage:
 """
 from __future__ import annotations
 import argparse
+import datetime
 import re
 import sys
 import urllib.parse
@@ -120,12 +121,19 @@ def _coerce_year(raw: Any) -> tuple[int | None, str | None]:
     Accepts int directly, or a string whose first 4 characters parse as a
     4-digit year (e.g. "2024", "2024-01", "2024-01-15" all yield 2024).
     """
-    if isinstance(raw, int):
+    # bool is a subclass of int; `year: true` is not a year.
+    if isinstance(raw, int) and not isinstance(raw, bool):
         return raw, None
+    if isinstance(raw, datetime.date):
+        # yaml.safe_load turns an unquoted ISO date (year: 2024-01-15) into a
+        # date/datetime (datetime subclasses date) before it reaches us.
+        return raw.year, None
     if isinstance(raw, str):
         # Accept leading-year patterns: "2024", "2024-01", "2024-01-15" → 2024
         candidate = raw.strip()[:4]
-        if len(candidate) == 4 and candidate.isdigit():
+        # isdecimal, not isdigit: isdigit also accepts superscript digits,
+        # which int() rejects with ValueError.
+        if len(candidate) == 4 and candidate.isdecimal():
             return int(candidate), None
     return None, f"cannot parse year from {raw!r}"
 

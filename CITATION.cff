@@ -30,7 +30,7 @@ keywords:
   - peer-review
   - scholarly-writing
 license: CC-BY-NC-4.0
-version: 3.23.1
-date-released: 2026-10-16
+version: 3.23.2
+date-released: 2026-10-26
 # Zenodo concept DOI: it covers all versions and resolves to the latest one.
 doi: 10.5281/zenodo.20784820
