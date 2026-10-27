@@ -4,6 +4,14 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+- Added Windows marketplace recovery guidance for
+  [#43](https://github.com/Imbad0202/academic-research-skills-codex/issues/43),
+  linked from all four READMEs: preserve a working snapshot, replace the ARS Git
+  source with a local marketplace, verify installation, and update or roll back
+  manually. Codex CLI 0.164.0 ships upstream staging-cleanup fixes, so the
+  guide asks users to check the bundled CLI version first. The Windows
+  `os error 5` failure in #43 has not been retested on 0.164.0.
+
 ## [3.24.0] - 2026-10-27
 
 ### What's Changed

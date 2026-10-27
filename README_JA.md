@@ -66,6 +66,20 @@ codex plugin marketplace upgrade ars-codex
 codex plugin add ars-codex@ars-codex
 ```
 
+**Windows の更新障害：** 更新失敗後に `marketplace-upgrade-*` ディレクトリが
+増え続けたり、システムドライブがいっぱいになったりする場合は、再試行を止めて
+[ローカル marketplace の復旧手順（英語）](docs/windows-marketplace-recovery.md)
+を開いてください。ドライブがいっぱいの場合は、まず手順 1 に従って Codex を終了し、
+安全に空き容量を確保します。Codex CLI 0.164.0 には残った一時ディレクトリを削除する
+上流の修正が含まれているため、次に Codex Desktop に同梱された CLI のバージョンを確認し、
+古ければ更新してください。0.164.0 以降でも残ったディレクトリが増え続ける場合は、
+手順の続きに従ってください。使用中のコピーの保存、ARS のソースのみをローカルに切り替える方法、
+確認と手動更新を説明しています。切り替え後は `marketplace upgrade` ではなく、その手順で
+手動更新してください。plugin を無効にするだけでは不十分です。設定済みの plugin が無効でも
+Codex がファイルを更新する場合があります。
+この手順は [#43](https://github.com/Imbad0202/academic-research-skills-codex/issues/43) の回避策です。
+そこで報告された Windows の `os error 5` は、0.164.0 ではまだ再テストされていません。
+
 Codex Desktop では、**Plugins** からこのリポジトリを追加し、
 **ARS-Codex** をインストールすることもできます。
 

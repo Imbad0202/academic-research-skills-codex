@@ -117,6 +117,20 @@ codex plugin marketplace upgrade ars-codex
 codex plugin add ars-codex@ars-codex
 ```
 
+**Windows update recovery:** if failed updates repeatedly create
+`marketplace-upgrade-*` directories or fill the system drive, stop retrying and
+open the [local marketplace recovery guide](docs/windows-marketplace-recovery.md).
+If the drive is full, first follow its step 1 to stop Codex and free space
+safely. Codex CLI 0.164.0 includes upstream fixes that clean up leftover staging
+directories, so then check the CLI version bundled with Codex Desktop and update
+if it is older. If leftover directories still accumulate on 0.164.0 or later,
+continue with the guide: it covers preserving a working copy, switching only ARS
+to a local source, verification, and manual updates. After switching to a local source, use that
+guide's manual update procedure instead of `marketplace upgrade`. Disabling the
+plugin alone is insufficient: Codex can still refresh files for disabled
+configured plugins. The guide is a workaround for [#43](https://github.com/Imbad0202/academic-research-skills-codex/issues/43);
+the Windows `os error 5` failure reported there has not been retested on 0.164.0.
+
 In Codex Desktop, you can alternatively add the repository from **Plugins** and
 then install **ARS-Codex**:
 

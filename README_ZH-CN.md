@@ -97,6 +97,18 @@ codex plugin marketplace upgrade ars-codex
 codex plugin add ars-codex@ars-codex
 ```
 
+**Windows 更新故障处理：** 如果更新失败后持续生成 `marketplace-upgrade-*`
+目录，或系统磁盘空间被占满，请停止重试并打开
+[本地 marketplace 恢复指南（英文）](docs/windows-marketplace-recovery.md)。
+磁盘已满时，先按指南步骤 1 关闭 Codex 并安全释放空间。Codex CLI 0.164.0 已包含
+清理残留暂存目录的上游修复，接着确认 Codex Desktop 内置的 CLI 版本，较旧则先更新。
+如果在 0.164.0 及以上版本残留目录仍持续累积，再按指南保留可用副本、仅将 ARS 来源切换为
+本地目录、验证安装。切换后请按该指南手动更新，
+不使用 `marketplace upgrade`。仅禁用 plugin 并不足够：Codex 仍可能刷新已配置但禁用的
+plugin 文件。此指南是
+[#43](https://github.com/Imbad0202/academic-research-skills-codex/issues/43)
+的临时替代方案；该 issue 报告的 Windows `os error 5` 尚未在 0.164.0 上重新测试。
+
 在 Codex Desktop 中，也可以从 **Plugins** 添加此 repo，然后安装
 **ARS-Codex**：
 
