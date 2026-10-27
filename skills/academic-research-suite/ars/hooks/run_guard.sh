@@ -1,5 +1,5 @@
 #!/bin/sh
-# version: 1.0.2
+# version: 1.1.0
 #
 # ARS write-scope guard LAUNCHER — PreToolUse hook (#454 Windows portability fix).
 #
@@ -52,12 +52,15 @@ GUARD="$SELF_DIR/../scripts/ars_write_scope_guard.py"
 # documented degradation rather than fixed speculatively.
 PAYLOAD=$(cat)
 
-# --- Marker probe: does this candidate run real Python? ----------------------------------
-# A candidate is "real" iff the probe exits 0 AND prints the exact marker on stdout. A 0-byte
-# Store stub fails to execute / prints nothing, so it is skipped. We bound each probe so a
-# broken-but-hanging interpreter can't wedge the hot path (spec §3.3): prefer `timeout` when
-# present, else a portable process-group watchdog.
+# --- Marker: did this candidate start real Python? ---------------------------------------
+# Each candidate runs one Python process (#1015, below) whose first output is the marker line.
+# A 0-byte Store stub fails to execute / prints nothing, so it is skipped. We bound each run
+# so a broken-but-hanging interpreter can't wedge the hot path (spec §3.3): prefer `timeout`
+# when present, else a portable process-group watchdog.
 MARKER=ARS_PY_OK
+END_MARKER=ARS_PY_END
+NL='
+'
 # Per-candidate (and guard) wall-clock bound, seconds. A small ops knob; validated to be a
 # bare integer so it can't smuggle anything into the `timeout`/`sleep` args. Default 3.
 PROBE_BOUND=${ARS_PROBE_BOUND:-3}
@@ -98,7 +101,7 @@ TIMEOUT_STATUS=124
 run_bounded() {
     if have_timeout; then
         # GNU timeout exits 124 on timeout — normalize to our sentinel for a uniform caller.
-        timeout "${PROBE_BOUND}s" "$@"
+        timeout -k 1s "${PROBE_BOUND}s" "$@"
         _st=$?
         [ "$_st" -eq 124 ] && return "$TIMEOUT_STATUS"
         return "$_st"
@@ -183,54 +186,69 @@ run_bounded() {
     return "$_st"
 }
 
-# Echo the first candidate ("cmd args") that verifies as REAL Python, or nothing.
-# A candidate qualifies ONLY if the probe exits 0 AND prints exactly the marker on stdout
-# (P1-a: a stub that prints the marker but exits non-zero must be rejected). Candidates in
-# order; `py -3` first (the Windows launcher).
-find_real_python() {
-    for cand in "py -3" "python3" "python"; do
-        # shellcheck disable=SC2086  # intentional word-split: "py -3" -> py with arg -3
-        set -- $cand
-        cmd=$1
-        command -v "$cmd" >/dev/null 2>&1 || continue
-        probe_out=$(run_bounded "$@" -c "import sys; sys.stdout.write('$MARKER')" </dev/null 2>/dev/null)
-        probe_status=$?
-        if [ "$probe_status" -eq 0 ] && [ "$probe_out" = "$MARKER" ]; then
-            printf '%s' "$cand"
-            return 0
-        fi
-    done
-    return 1
-}
-
-REAL_PY=$(find_real_python) || emit_passthrough_and_exit
-[ -n "$REAL_PY" ] || emit_passthrough_and_exit
-
-# is_valid_hook_json: true iff $1 parses as a JSON object containing a top-level
-# "hookSpecificOutput" key. Uses the REAL Python we already found (no jq dependency, P1-c:
-# substring grep false-accepts e.g. `not json "hookSpecificOutput"`). Reads candidate on stdin.
-is_valid_hook_json() {
-    # shellcheck disable=SC2086  # $REAL_PY is "py -3" or "python3" — intentional split
-    set -- $REAL_PY
-    printf '%s' "$GUARD_OUT" | "$@" -c '
-import sys, json
+# --- Run the guard: one Python process per tool call (#1015) -----------------------------
+# On Windows with the Python Install Manager, `py` is an App Execution Alias, and each launch
+# through an alias makes AppXSvc run an update check that leaks memory (python/pymanager#396).
+# So each candidate runs ONE process that does what a probe, the guard run, and a JSON check
+# did before: GUARD_RUNNER below writes the marker line straight to fd 1, runs the guard in the
+# same process with its stdout captured (fd 1 points at the null device meanwhile, so a write
+# that goes around sys.stdout is lost, not mixed into the output), and writes the guard's
+# decision only if the guard exited 0 and printed a JSON object with "hookSpecificOutput".
+# It re-encodes that object as ASCII JSON on one line followed by an end line, flushes
+# stderr, then ends with os._exit so no exit handler can print after it. The guard reads
+# stdin as UTF-8, the encoding Claude Code sends; -I would otherwise drop a PYTHONUTF8 or
+# PYTHONIOENCODING setting and leave the locale encoding. A SystemExit code maps to the
+# exit status Python would give it; an integer outside the C int range counts as a failure. -I keeps PYTHON* variables, the user site, and the working
+# directory out of the process. Python 3.4 syntax only: older versions, and Python 2, which
+# has no -I, fail before the marker and the next candidate runs.
+# shellcheck disable=SC2016  # Python source, not shell: nothing in it is expanded
+GUARD_RUNNER='import io, json, os, runpy, sys
+def emit(data):
+    while data:
+        data = data[os.write(1, data):]
+emit(b"ARS_PY_OK\n")
+guard = sys.argv[1]
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
+captured = io.BytesIO()
+out = io.TextIOWrapper(captured, encoding="utf-8", write_through=True)
+saved_fd = os.dup(1)
+null_fd = os.open(os.devnull, os.O_WRONLY)
+os.dup2(null_fd, 1)
+real_stdout = sys.stdout
+sys.stdout = out
+status = 0
 try:
-    d = json.load(sys.stdin)
+    sys.argv = [guard]
+    runpy.run_path(guard, run_name="__main__")
+except SystemExit as exc:
+    if exc.code is None:
+        status = 0
+    elif isinstance(exc.code, int) and -2 ** 31 <= exc.code < 2 ** 31:
+        status = exc.code if os.name == "nt" else exc.code & 255
+    else:
+        status = 1
+except BaseException:
+    status = 1
+finally:
+    sys.stdout = real_stdout
+    os.dup2(saved_fd, 1)
+try:
+    sys.stderr.flush()
 except Exception:
-    sys.exit(1)
-sys.exit(0 if isinstance(d, dict) and "hookSpecificOutput" in d else 1)
-' >/dev/null 2>&1
-}
+    pass
+if status != 0:
+    os._exit(1)
+try:
+    out.flush()
+    decision = json.loads(captured.getvalue().decode("utf-8"))
+except Exception:
+    os._exit(1)
+if not (isinstance(decision, dict) and "hookSpecificOutput" in decision):
+    os._exit(1)
+emit(json.dumps(decision, ensure_ascii=True).encode("ascii") + b"\nARS_PY_END")
+os._exit(0)
+'
 
-# --- Supervise the guard subprocess (P1-b: time-bound it too; P1-c: validate JSON) --------
-# Run the guard with the found interpreter, replaying the captured payload on its stdin,
-# under the SAME wall-clock bound as the probes so a hung guard can't wedge the hot path.
-# Decide what to emit:
-#   * guard exits 0 AND stdout is a JSON object with hookSpecificOutput -> forward verbatim.
-#   * anything else (non-zero, timeout, empty, non-JSON, missing key) -> guard is BROKEN;
-#     per the maintainer decision (§3.2.1) degrade to pass-through + exit 0, never block.
-# shellcheck disable=SC2086  # $REAL_PY is "py -3" or "python3" — intentional split
-set -- $REAL_PY
 # Capture the guard's stderr to a temp so we can RELAY it on the success path (P2-h: the guard
 # has its own no-silent advisories — absent agent_type / schema drift / unreadable manifest —
 # that must surface; the launcher only suppresses stderr on its OWN degraded paths). On the
@@ -239,17 +257,48 @@ set -- $REAL_PY
 # onto an attacker-owned symlink fails -> we'd read that as a broken guard and fail OPEN
 # (gemini round-6 P1). If mktemp can't give us a private file, degrade safely to pass-through.
 GUARD_ERR=$(mktemp 2>/dev/null) || emit_passthrough_and_exit
-GUARD_OUT=$(printf '%s' "$PAYLOAD" | run_bounded "$@" "$GUARD" 2>"$GUARD_ERR")
-GUARD_STATUS=$?
 
-if [ "$GUARD_STATUS" -eq 0 ] && is_valid_hook_json; then
-    # Healthy guard decision: relay its stderr advisories, then forward its JSON verbatim.
-    [ -s "$GUARD_ERR" ] && cat "$GUARD_ERR" >&2
-    rm -f "$GUARD_ERR" 2>/dev/null
-    printf '%s\n' "$GUARD_OUT"
-    exit 0
-fi
+# Candidates in order; `py -3` first (the Windows launcher). For each one:
+#   * no marker line first (stub, missing interpreter, hang before start) -> next candidate;
+#   * marker, exit 0, one line of JSON object, and the end line -> forward that decision;
+#   * marker, exit 0, and anything else after it -> the runner always ends with os._exit, so
+#     the extra text came from the candidate itself (a wrapper that prints after Python, say);
+#     the next candidate runs, as a probe that printed more than the marker was skipped before;
+#   * marker and a non-zero exit, a timeout, or nothing after it (the guard ended the process
+#     itself) -> the guard is BROKEN; per the maintainer
+#     decision (§3.2.1) degrade to pass-through + exit 0, never block, and do not run the
+#     guard again under another candidate.
+for cand in "py -3" "python3" "python"; do
+    # shellcheck disable=SC2086  # intentional word-split: "py -3" -> py with arg -3
+    set -- $cand
+    command -v "$1" >/dev/null 2>&1 || continue
+    GUARD_OUT=$(printf '%s' "$PAYLOAD" | run_bounded "$@" -I -c "$GUARD_RUNNER" "$GUARD" 2>"$GUARD_ERR")
+    GUARD_STATUS=$?
+    case $GUARD_OUT in
+        "$MARKER" | "$MARKER$NL"*) ;;
+        *) continue ;;
+    esac
+    [ "$GUARD_STATUS" -eq 0 ] || break
+    [ "$GUARD_OUT" = "$MARKER" ] && break
+    case $GUARD_OUT in
+        "$MARKER$NL"*"$NL$END_MARKER") ;;
+        *) continue ;;
+    esac
+    DECISION=${GUARD_OUT#"$MARKER$NL"}
+    DECISION=${DECISION%"$NL$END_MARKER"}
+    case $DECISION in
+        *"$NL"*) ;;
+        "{"*"}")
+            # Healthy guard decision: relay its stderr advisories, then forward it.
+            [ -s "$GUARD_ERR" ] && cat "$GUARD_ERR" >&2
+            rm -f "$GUARD_ERR" 2>/dev/null
+            printf '%s\n' "$DECISION"
+            exit 0
+            ;;
+    esac
+done
 
 # Guard broke / timed out / produced invalid output. Degrade, don't block, don't spam.
+# The same holds when no candidate started Python.
 rm -f "$GUARD_ERR" 2>/dev/null
 emit_passthrough_and_exit

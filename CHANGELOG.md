@@ -4,6 +4,38 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.24.0] - 2026-10-27
+
+### What's Changed
+
+- Synced the tagged ARS v3.24.0 release at
+  `b34c63f828b3535f403079a4f42bc7955da2f64b`, preserving Codex WORKFLOW
+  overlays, the single registered router, and the separately pinned
+  experiment-agent. No new workflow.
+- Review letters gain two advisory attachments before the acronym check.
+  The suggested-reference check looks up the works Reviewer 2 and Reviewer 3
+  recommend. In Codex it runs only on an explicit request, because it calls the
+  four bibliographic resolver clients; otherwise its section says the check did
+  not run. A found record does not show that a work supports the recommendation.
+- The reviewer claim check sends the seat-blind panel findings and the
+  manuscript to one fresh, tool-less native worker of the active Codex model,
+  and lists a contradiction only when the judge's quotation matches the
+  manuscript. It is on by default; `ARS_PANEL_CLAIM_CHECK=0` turns it off.
+  Without an isolated worker it does not run and is never judged inline. The
+  upstream contrast gate passed `gpt-6-astra`, Gemini 4 Argon, and two Claude
+  models; `gpt-6-astra` is the only Codex model it measured.
+  Neither attachment feeds the decision, roadmap, or re-review criteria.
+- Adopted the integrity-rule repairs: a prior report is fresh only under 24
+  hours, also within one session; a revised paper entering at Stage 5 runs
+  Stage 4.5 first; Stage 4' follows Stage 3' only after a Major decision.
+- The held-out #1002 audit dispatcher, the one-process guard launcher, the
+  guard's tool-name notes, and the update-only startup notice are preserved as
+  inactive references. Hermetic tests do not establish live Codex compliance or
+  the checks' accuracy on real reviews.
+- Updated source/version metadata, four-language guidance, runtime contracts,
+  quality gates, boundary content locks, citation metadata, and the
+  materialized plugin mirror.
+
 ## [3.23.2] - 2026-10-26
 
 ### What's Changed

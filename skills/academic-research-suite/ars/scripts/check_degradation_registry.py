@@ -95,6 +95,14 @@ _EXPECTED_MECHANISMS = frozenset({
     # a degraded report is never a clean result and never blocks.
     "acronym_check_not_checked",
     "acronym_check_partial_coverage",
+    # #1001: suggested-reference check (scripts/verify_panel_recommendations.py).
+    # Advisory; a degraded report is never a clean result and never blocks.
+    "panel_reference_check_not_checked",
+    "panel_reference_check_partial",
+    # #1002: reviewer claim check (scripts/audit_panel_claims.py).
+    # Advisory; a degraded report is never a clean result and never blocks.
+    "panel_claim_check_not_run",
+    "panel_claim_check_partial",
 })
 
 

@@ -216,6 +216,18 @@ After careful consideration, we are unable to accept your manuscript for publica
 
 ---
 
+## Attachment: Suggested-Reference Check (advisory, #1001)
+
+[Leave this section out. The dispatching session appends it after the decision is final (`WORKFLOW.md` § Suggested-reference check attachment).]
+
+---
+
+## Attachment: Reviewer Claim Check (advisory, #1002)
+
+[Leave this section out. The dispatching session appends it after the decision is final (`WORKFLOW.md` § Reviewer claim check attachment).]
+
+---
+
 ## Attachment: Acronym Check (advisory, #849)
 
 [Leave this section out. The dispatching session appends it after the decision is final (`WORKFLOW.md` § Acronym check attachment).]

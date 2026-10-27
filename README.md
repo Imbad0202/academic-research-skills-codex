@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.2-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -53,7 +53,7 @@ Use this repo when you want the Codex-native single-suite skill.
 
 ## Versioning
 
-This ARS-Codex package is version `3.23.2`. The repo-root `VERSION` file,
+This ARS-Codex package is version `3.24.0`. The repo-root `VERSION` file,
 `skills/academic-research-suite/SKILL.md` metadata version, and
 `skills/academic-research-suite/manifest.json` `adapter_version` track the
 Codex package version in step with the vendored ARS suite, starting at `3.22.0`.
@@ -62,18 +62,20 @@ tag, and commit are recorded in `manifest.source_repositories[]`.
 
 Package-level changes are summarized in [`CHANGELOG.md`](CHANGELOG.md).
 
-The vendored ARS source tracks **v3.23.2** at
-`Imbad0202/academic-research-skills@863e1c754f0e97062d271dcb42a9483c9ef34aa9`.
-This patch checks claims only against the version cited in the manuscript;
-when that version is unreadable or ambiguous, it records the access limitation
-and requests the cited version's PDF. Stage 2.5 always runs before Stage 3,
-with any eligible prior integrity report attached as context. Missing required
-inputs block handoff. It also repairs Obsidian date/year handling and six
-Windows path checks, and removes a ranking example from the Socratic mentor.
-The upstream SessionStart notice and Pi structured-prompt repairs remain
-inactive reference integrations in Codex. There is no new workflow, and the
-native Codex model policy is unchanged. Hermetic tests and the upstream
-six-session Claude fixture do not establish live Codex prompt compliance.
+The vendored ARS source tracks **v3.24.0** at
+`Imbad0202/academic-research-skills@b34c63f828b3535f403079a4f42bc7955da2f64b`.
+This release adds two advisory attachments to the Editorial Decision Letter.
+The suggested-reference check looks up the works that Reviewer 2 and Reviewer 3
+recommend; in Codex it runs only when you ask for it, because it queries four
+bibliographic indexes. The reviewer claim check asks one isolated worker of the
+active Codex model whether the manuscript contradicts each panel finding. It is
+on by default, and `ARS_PANEL_CLAIM_CHECK=0` turns it off. Neither attachment
+changes the decision or the revision roadmap, and their accuracy on real
+reviews is unmeasured. Integrity-rule repairs treat a prior report as fresh
+only when it is under 24 hours old, and a revised paper entering at Stage 5
+runs Stage 4.5 first. The guard-launcher and startup-notice fixes remain
+inactive Claude references in Codex. There is no new workflow, and the native
+Codex model policy is unchanged.
 The output-language-pair registry still supports only `zh-tw-en`; Spanish
 triggers do not install a Spanish output-locale pack. Claude model audits and
 plugin eval suites are reference material and do not change the Codex model
@@ -412,10 +414,10 @@ ARS was originally written for Claude Code. In this Codex package:
 - If a citation, source, statistic, or journal policy cannot be verified, Codex
   should mark it as unverified rather than invent support.
 
-### ARS v3.23.2 Parity
+### ARS v3.24.0 Parity
 
-This package adapts upstream ARS `v3.23.2` at
-`863e1c754f0e97062d271dcb42a9483c9ef34aa9` wherever Codex has an equivalent
+This package adapts upstream ARS `v3.24.0` at
+`b34c63f828b3535f403079a4f42bc7955da2f64b` wherever Codex has an equivalent
 concept, with documented model/runtime overlays.
 
 Bibliographic network behavior is intentionally explicit at the Codex adapter
@@ -428,6 +430,7 @@ boundary:
 | Script-backed citation-existence gate | Not implied by `ars-full`; Stage 2.5/4.5 still run as integrity checkpoints through the default Codex route | Explicit programmatic-verification request; then Crossref/OpenAlex/Semantic Scholar run for non-manual references and arXiv only when `arxiv_id` exists, subject to cache behavior |
 | Claim-standing discovery | Advisory offer after an eligible Stage 2.5/4.5 Claim Registry row | Separate user request plus affirmative plan-bound consent; uses v3.21 discovery adapters, not the single-reference resolver clients |
 | Contamination backfill or migration | Never automatic | Explicit migration CLI only |
+| Suggested-reference check in review letters | Not run; the attachment says the check did not run | Explicit request; then the four clients run live for the suggested titles and identifiers only |
 
 | Upstream ARS feature | Codex package behavior |
 |---|---|
@@ -443,6 +446,7 @@ boundary:
 | Contained Codex citation transport | Opt-in, consent-gated transport is limited to narrow citation-integrity checks; it is inactive unless explicitly configured and requested |
 | Run ledger and handoff check | With a passport file, pipeline prompts direct the caller to keep a local ledger of exact user words, step receipts, and file hashes; deterministic reports check handoffs after compaction, resume, and subagent returns, without establishing new authorization |
 | Deterministic acronym check | The caller checks saved drafts and abstracts locally; partial coverage is explicit, and a review attachment remains advisory and outside decision, roadmap, and re-review criteria |
+| Review-letter attachments | The suggested-reference check runs only on explicit request; the reviewer claim check uses one isolated, tool-less worker and is never judged inline; neither feeds the decision, roadmap, or re-review criteria |
 | Instruction/data boundary and routing | Third-party text remains data across workflow intake, dispatches, and tool reads; explicit requests stay in their selected mode when inputs are missing, and Claude startup hooks remain inactive |
 | Chinese APA 7 citation checks | Preserve author-abbreviation exceptions and reference-list authors, require evidence before proposing a stroke-order change, and distinguish visible syntax errors from unverified source claims |
 | Evidence-bound review and revision | Durable evidence rows, confirmed review criteria, non-ranking roadmaps, author adjudication, and revision-evidence bundles are preserved |

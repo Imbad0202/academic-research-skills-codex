@@ -473,6 +473,91 @@
         "scripts/test_check_acronyms.py::test_unread_abstract_section_makes_coverage_partial",
         "scripts/test_check_acronyms.py::test_requested_scope_absent_from_the_input"
       ]
+    },
+    {
+      "mechanism": "panel_reference_check_not_checked",
+      "failure_class": "The suggested-reference check can read none of the reviewer report files it is given (missing, unreadable, or not UTF-8 text), or the script cannot run at all (for example, no Python interpreter)",
+      "degraded_state": "not_checked: the script exits 2 and its report states the reason; no reference is looked up. When the script cannot run, the dispatching session writes one line saying the suggested-reference check did not run",
+      "diagnostic_marker": "JSON status not_checked with reason no_readable_report; Markdown report line 'Not checked: no reviewer report file could be read.' ('未檢查：沒有任何一份審稿報告檔可以讀取。' in zh-TW)",
+      "downstream_consumer": "The dispatching session that runs scripts/verify_panel_recommendations.py after a review, the Editorial Decision Letter that carries the report as an advisory attachment, and the user, who is shown it",
+      "terminal_policy_effect": "none: the suggested-reference check is advisory; findings and degraded states never change a decision, a roadmap entry, or a re-review verdict",
+      "authority": [
+        {
+          "file": "scripts/verify_panel_recommendations.py",
+          "anchor": "return 2 if report[\"status\"] == \"not_checked\" else 0"
+        },
+        {
+          "file": "academic-paper-reviewer/WORKFLOW.md",
+          "anchor": "When neither seat ran, or the script cannot run, the section is one line saying the suggested-reference check did not run."
+        }
+      ],
+      "pinned_by": [
+        "scripts/test_verify_panel_recommendations.py::test_unreadable_reports_are_not_checked",
+        "scripts/test_verify_panel_recommendations.py::test_cli_exit_codes_and_json"
+      ]
+    },
+    {
+      "mechanism": "panel_reference_check_partial",
+      "failure_class": "The suggested-reference check reads the panel's suggestions only in part: a report file cannot be read while another can, a seat's report has no yaml suggested-references block, a block is empty, not valid YAML, or not a list, an item is not a key-value entry or has no title, or an item's result is no_answer (no index matches, none reports no record for its DOI or arXiv ID, and either the item has such an identifier or no index answered for its title) or its lookup fails",
+      "degraded_state": "partial: the script exits 0, its coverage line says partial, and the report lists each part it did not read; an item whose deciding indexes did not answer is shown as not checked, never as not found; with no item read, the report says no suggested reference could be read, never that no seat recommends one",
+      "diagnostic_marker": "JSON status partial, with a non-empty problems list on a report record, a non-empty item_problems list, or an item whose result is no_answer; Markdown report coverage line ending '(partial).', with a 'Not read:' list, an item whose result is 'Not checked: an index that could settle it did not answer', or both ('（部分）。', '未讀取：', and '未檢查：能判定此筆的索引沒有回應' in zh-TW)",
+      "downstream_consumer": "The dispatching session that runs scripts/verify_panel_recommendations.py after a review, the Editorial Decision Letter that carries the report as an advisory attachment, and the user, who is shown it",
+      "terminal_policy_effect": "none: the suggested-reference check is advisory; a partial report is not a clean result and blocks nothing",
+      "authority": [
+        {
+          "file": "scripts/verify_panel_recommendations.py",
+          "anchor": "report[\"status\"] = \"partial\" if incomplete else \"checked\""
+        }
+      ],
+      "pinned_by": [
+        "scripts/test_verify_panel_recommendations.py::test_missing_block_and_bad_yaml_make_the_report_partial",
+        "scripts/test_verify_panel_recommendations.py::test_one_unreadable_report_of_two_is_partial",
+        "scripts/test_verify_panel_recommendations.py::test_no_index_answering_is_no_answer_and_partial"
+      ]
+    },
+    {
+      "mechanism": "panel_claim_check_not_run",
+      "failure_class": "The reviewer claim check cannot complete: no manuscript file, the judge subagent does not return, the key or the reply cannot be read, or the manuscript differs from the one the prompt was built from",
+      "degraded_state": "not run: the script exits 2 with a STOP line, and the Editorial Decision Letter attachment is one line saying the reviewer claim check did not run",
+      "diagnostic_marker": "stderr line starting 'STOP: ' and exit code 2; the one-line attachment under '## Attachment: Reviewer Claim Check (advisory, #1002)'",
+      "downstream_consumer": "The dispatching session that writes the attachment, the reader of the Editorial Decision Letter, and the user, who is shown it",
+      "terminal_policy_effect": "none: the reviewer claim check is advisory; a check that did not run is not a clean result and blocks nothing",
+      "authority": [
+        {
+          "file": "scripts/audit_panel_claims.py",
+          "anchor": "raise Stop(\"the manuscript is not the one the prompt was built from\")"
+        },
+        {
+          "file": "academic-paper-reviewer/WORKFLOW.md",
+          "anchor": "the section is one line saying the reviewer claim check did not run"
+        }
+      ],
+      "pinned_by": [
+        "scripts/test_audit_panel_claims.py::test_a_changed_manuscript_stops_the_render",
+        "scripts/test_audit_panel_claims.py::test_the_cli_refuses_an_unknown_seat_and_a_repeated_seat",
+        "scripts/test_audit_panel_claims.py::test_a_malformed_key_stops_with_exit_2",
+        "scripts/test_audit_panel_claims.py::test_an_unwritable_out_dir_stops_with_exit_2"
+      ]
+    },
+    {
+      "mechanism": "panel_claim_check_partial",
+      "failure_class": "The reviewer claim check reads the panel only in part: a seat's report cannot be read, or the judge's reply gives no usable verdict for some findings (none, an invalid one, or more than one)",
+      "degraded_state": "partial: the script exits 0, and the report names each unread seat and counts the findings with no usable verdict; those findings are neither contradicted nor cleared",
+      "diagnostic_marker": "Markdown report line 'Coverage: partial. Not read: <seats>.' or 'Coverage: partial. <n> findings have no usable verdict.' ('涵蓋範圍：部分。' in zh-TW); with no report read, 'No report could be read, so no finding was checked.'",
+      "downstream_consumer": "The reader of the Editorial Decision Letter that carries the report as an advisory attachment, and the user, who is shown it",
+      "terminal_policy_effect": "none: the reviewer claim check is advisory; a partial report is not a clean result and blocks nothing",
+      "authority": [
+        {
+          "file": "scripts/audit_panel_claims.py",
+          "anchor": "if report[\"answered\"] < report[\"findings\"]:"
+        }
+      ],
+      "pinned_by": [
+        "scripts/test_audit_panel_claims.py::test_missing_verdicts_make_the_coverage_partial",
+        "scripts/test_audit_panel_claims.py::test_an_unreadable_report_is_listed",
+        "scripts/test_audit_panel_claims.py::test_an_id_answered_twice_has_no_usable_verdict",
+        "scripts/test_audit_panel_claims.py::test_an_unread_seat_makes_the_coverage_partial_and_none_read_is_not_none"
+      ]
     }
   ]
 }

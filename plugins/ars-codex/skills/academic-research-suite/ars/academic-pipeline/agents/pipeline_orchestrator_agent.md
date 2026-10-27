@@ -948,9 +948,9 @@ Mid-Entry Material Passport Check:
          (UNVERIFIED or STALE both require re-verification)
    YES -> Continue to step 3
 
-3. Is integrity_pass_date within current session or < 24 hours?
+3. Is integrity_pass_date < 24 hours old? (rule 10; within one session too)
    NO  -> Mark passport as STALE, require re-verification
-         "Your integrity verification from [date] is more than 24 hours old.
+         "Your integrity verification from [date] is 24 hours old or older.
           Re-verification is required."
    YES -> Continue to step 4
 

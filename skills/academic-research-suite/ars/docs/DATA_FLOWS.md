@@ -26,7 +26,11 @@ boundaries around that scope:
   also sends the operator's own `ANTHROPIC_API_KEY` to the Anthropic API's
   `GET /v1/models` as a zero-cost credential preflight before the first billed
   call — `scripts/run_review_criteria_constructive_value.py` through
-  the Codex CLI, `scripts/check_ranking_lift.py` through `gh api`). They send
+  the Codex CLI, `scripts/check_ranking_lift.py` through `gh api`,
+  `scripts/dispatch_panel_claim_audit.py` (#1002) through the Codex CLI, the
+  agy CLI, the Gemini API with the operator's own `GEMINI_API_KEY`, which
+  goes only into the request header, and the Claude CLI with the operator's
+  own subscription token, which goes only into that call's environment). They send
   content through locally authenticated CLIs when a maintainer invokes them, are
   never triggered by any user-facing feature, and are deliberately excluded from
   the touchpoint tables below.
@@ -49,6 +53,12 @@ used locally for matching, not transmitted — and all four work
 without any account or key; keeping the gate key-free is a deliberate reproducibility
 choice. Off switch: don't run script-backed verification; prompt-only modes make no
 calls.
+
+After a review, `scripts/verify_panel_recommendations.py` (#1001) sends the same
+payload class for the works that Reviewer 2 and Reviewer 3 suggest: titles and any DOI or
+arXiv ID they give, through the same four clients. It runs live and does not read or write
+the verification cache. Off switch: don't run it; the letter's attachment then says the
+check did not run.
 
 | Resolver | Endpoint | Credentials (optional) | Per-index note |
 |---|---|---|---|

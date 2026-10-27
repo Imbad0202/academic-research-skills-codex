@@ -518,7 +518,8 @@
     "inquiry_branch_ledger": "ARS_INQUIRY_LEDGER=1 enables only the local opt-in alpha. Preserve author-owned append events, second-branch publication, bounded checkpoint summaries, path/lock/recovery guards, and individually visible stale causes. The flag grants no external call authority and no novelty, correctness, value, recovery-benefit, or usability claim.",
     "data_access_metadata": "Workflow and agent data_access_level annotations are declarative dirtiest-input metadata. They do not create a sandbox, runtime permission, declassification, or transport authority.",
     "screening_independence": "Explicit-only sr-screener work uses the emitted-prompt path and fresh blinded workers without inherited history. Preserve Read/Grep-only reviewer scope, user-confirmed protocol, human pilot, concrete model/cost approval, required QC and final human verification. Never simulate dual review inline or execute the generated Claude Workflow script in Codex.",
-    "pipeline_required_inputs": "Missing required input returns HANDOFF_INCOMPLETE and blocks the next stage until backfilled; missing recommended input is reported but does not block. Stage 2.5 always runs before Stage 3, including mid-entry. A VERIFIED, fresh, current-version prior report is attached as context and never replaces the check."
+    "pipeline_required_inputs": "Missing required input returns HANDOFF_INCOMPLETE and blocks the next stage until backfilled; missing recommended input is reported but does not block. Stage 2.5 always runs before Stage 3, including mid-entry. A VERIFIED, fresh, current-version prior report is attached as context and never replaces the check.",
+    "review_letter_attachments": "After panel-synthesis validation, and after any consented cross-model decision check has written to the letter, the dispatching session appends the suggested-reference check, then the reviewer claim check, before the final acronym check. The suggested-reference check runs its four live resolver clients only on an explicit user request; otherwise its section says it did not run. The reviewer claim check is on unless ARS_PANEL_CLAIM_CHECK=0 and sends the unchanged prompt to one fresh, tool-less native worker of the active model; without that isolation it does not run and is never judged inline. Neither attachment feeds the decision, roadmap, response requirements, or re-review criteria."
   },
   "quality_gates": [
     {
@@ -1067,6 +1068,27 @@
       "kind": "integrity",
       "runner": "upstream:ars/scripts/check_evidence_row_integration.py",
       "parity": "near"
+    },
+    {
+      "id": "v3240_panel_suggested_references",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_verify_panel_recommendations.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3240_panel_claim_check",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_audit_panel_claims.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3240_extract_panel_claims",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_extract_panel_claims.py",
+      "parity": "near",
+      "execution": "hermetic"
     }
   ],
   "known_degradations": [
@@ -1088,6 +1110,7 @@
     "The v3.23 sr-screener scripts and hermetic fixtures do not establish screening accuracy or live Codex reviewer independence. Codex uses emitted prompts with fresh native workers; generated Claude workflows and Sonnet/Opus config defaults are not Codex execution. Without isolated workers only disclosed quick single-reviewer triage is supported.",
     "The v3.23.1 upstream write-scope guard and timeout launcher remain inactive Claude-hook references. Codex has no PreToolUse write fence; plugin-prefixed agent normalization does not provide native Codex enforcement.",
     "gemini-4-argon is provisional in the upstream verifier catalog; gemini-3.1-pro-preview retains its upstream validated label. No Gemini smoke script ships and no live Codex-provider validation is claimed; native Codex model selection is unchanged.",
-    "The v3.23.2 cited-version rule and mandatory Stage 2.5 rerun are prompt-level contracts. Hermetic row-carrier and content checks do not establish live Codex compliance; the upstream six-session Claude fixture is not a Codex measurement. The SessionStart systemMessage and Pi structured-prompt changes are preserved only as inactive reference integrations."
+    "The v3.23.2 cited-version rule and mandatory Stage 2.5 rerun are prompt-level contracts. Hermetic row-carrier and content checks do not establish live Codex compliance; the upstream six-session Claude fixture is not a Codex measurement. The SessionStart systemMessage and Pi structured-prompt changes are preserved only as inactive reference integrations.",
+    "The v3.24.0 review-letter attachments are advisory and unmeasured on real reviews. The suggested-reference check reports only whether an index record exists, and runs in Codex only on explicit request. The reviewer claim check's contrast gate passed gpt-6-astra through Codex, Gemini 4 Argon, and two Claude models; no other Codex model was measured; its quotation check reads only the quotation's words. The held-out panel-claim dispatcher, guard launcher, and SessionStart notice changes are inactive references in Codex."
   ]
 }

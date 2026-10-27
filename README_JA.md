@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.23.2-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.0-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -38,11 +38,11 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `3.23.2` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
+この ARS-Codex パッケージのバージョンは `3.24.0` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-ベンダリングした ARS は **v3.23.2**、`Imbad0202/academic-research-skills@863e1c754f0e97062d271dcb42a9483c9ef34aa9` に揃えています。このパッチでは、主張を原稿が引用した版だけで検証します。その版を読めない場合や版を特定できない場合は、アクセス上の制約を記録し、引用された版の PDF を求めます。Stage 3 の前には必ず Stage 2.5 を実行し、条件を満たす以前の検証報告は参考情報として添付します。必須入力の不足は段階の移行を阻止します。Obsidian の日付・年処理、六つの Windows パス検査を修正し、ソクラテス式メンターがユーザーの研究案を順位付けする例も除去しました。上流の SessionStart 通知と Pi の構造化プロンプト修正は、Codex では無効な参考実装です。新しい workflow はなく、ネイティブモデル方針は変わりません。オフラインテストと上流の六回の Claude テストは、Codex の実際のプロンプト遵守を検証したものではありません。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
+ベンダリングした ARS は **v3.24.0**、`Imbad0202/academic-research-skills@b34c63f828b3535f403079a4f42bc7955da2f64b` に揃えています。このリリースでは、編集判定書に助言用の添付を二つ追加します。推奨文献チェックは Reviewer 2 と Reviewer 3 が推奨する文献を検索します。四つの書誌インデックスに接続するため、Codex では依頼があった場合にのみ実行します。レビュー指摘チェックは、隔離した Codex の subagent に、原稿が各指摘と矛盾するかを判定させます。既定で有効で、`ARS_PANEL_CLAIM_CHECK=0` で無効にできます。どちらの添付も判定と改訂ロードマップには影響せず、実際の査読での精度は未測定です。検証規則の修正により、以前の検証報告は 24 時間未満の場合のみ有効となり、改訂稿が Stage 5 から入る場合は先に Stage 4.5 を実行します。上流の guard 起動処理と起動通知の修正は、Codex では無効な参考実装です。新しい workflow はなく、ネイティブモデル方針は変わりません。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
 
 ## モデルと実行方式
 
@@ -258,9 +258,9 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS v3.23.2 パリティ
+### ARS v3.24.0 パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.23.2`（`863e1c754f0e97062d271dcb42a9483c9ef34aa9`）を適合し、モデルと runtime overlay を記録します。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.24.0`（`b34c63f828b3535f403079a4f42bc7955da2f64b`）を適合し、モデルと runtime overlay を記録します。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|
@@ -274,6 +274,7 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 | 用途を限定した Codex citation transport | 明示的に設定・要求され、同意が得られた場合のみ、狭い citation-integrity チェックに使用されます |
 | Run ledger と引き継ぎ確認 | passport ファイルがある場合、pipeline prompt はユーザーの原文、ステップの実行記録、ファイルハッシュをローカルに記録するよう呼び出し元に指示します。決定的なレポートが圧縮、再開、subagent の返却後の引き継ぎを確認しますが、新しい承認の根拠にはなりません |
 | 決定的な略語チェック | 呼び出し元が保存済みの草稿と要旨をローカルで検査し、部分的な検査範囲を明示します。レビュー添付は助言に限定し、判定、改訂ロードマップ、再レビュー基準の根拠にしません |
+| 編集判定書の添付 | 推奨文献チェックは明示的な依頼があった場合のみ実行します。レビュー指摘チェックは隔離されたツールなしの subagent が行い、呼び出し元で判定しません。どちらも判定、改訂ロードマップ、再レビュー基準の根拠にしません |
 | 指示とデータの境界およびルーティング | Workflow intake、dispatch、ツールで読む第三者の文章をデータとして扱い、明示的な要求は入力不足でも選択したモードに留めます。Claude の起動 hooks は有効化しません |
 | 中国語 APA 7 引用チェック | 著者省略の例外と参考文献の著者欄を保持し、画数順の逆転に証拠がある場合のみ並べ替えを提案します。目に見える構文エラーと未検証の出典主張を区別します |
 | 証拠に結び付いた review／revision | 永続的な evidence row、確認済み criteria、非ランキング roadmap、author adjudication、revision-evidence bundle を保持します |

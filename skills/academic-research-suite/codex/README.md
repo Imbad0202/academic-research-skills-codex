@@ -97,7 +97,11 @@ Instead it provides an explicit Codex orchestration contract:
   missing required inputs block handoff with `HANDOFF_INCOMPLETE`;
 - upstream SessionStart user notices and Pi structured prompts remain inactive
   reference integrations; Claude fixture results are not Codex measurements;
-- ARS v3.23.2 retains model tiering as advisory metadata; it is applied only
+- review letters append the suggested-reference check only on explicit request
+  (otherwise a did-not-run line) and the reviewer claim check through one fresh,
+  tool-less native worker unless `ARS_PANEL_CLAIM_CHECK=0`; neither feeds the
+  decision or roadmap, and the held-out #1002 dispatcher is inactive;
+- ARS v3.24.0 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - the upstream write-scope guard's plugin-prefix and Windows timeout repairs
   remain inactive Claude-hook references; Codex has no `PreToolUse` write
