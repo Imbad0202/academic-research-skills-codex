@@ -101,7 +101,12 @@ Instead it provides an explicit Codex orchestration contract:
   (otherwise a did-not-run line) and the reviewer claim check through one fresh,
   tool-less native worker unless `ARS_PANEL_CLAIM_CHECK=0`; neither feeds the
   decision or roadmap, and the held-out #1002 dispatcher is inactive;
-- ARS v3.24.0 retains model tiering as advisory metadata; it is applied only
+- the reviewer stops after Phase 0 and starts no seat until the user accepts the
+  Reviewer Configuration Cards in their own turn; whether sessions stop there is
+  unmeasured;
+- upstream plugin-marketplace, hyphenated agent-name, and legacy-name guard
+  changes are inactive Claude references; Codex loads prompts by file path;
+- ARS v3.24.1 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - the upstream write-scope guard's plugin-prefix and Windows timeout repairs
   remain inactive Claude-hook references; Codex has no `PreToolUse` write

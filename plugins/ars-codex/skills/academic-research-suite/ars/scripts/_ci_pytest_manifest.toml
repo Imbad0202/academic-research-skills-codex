@@ -513,6 +513,10 @@ id = "611-reviewer-role-label"
 path = "scripts/test_check_reviewer_role_label.py"
 
 [[pytest]]
+id = "1030-reviewer-card-confirmation"
+path = "scripts/test_check_reviewer_card_confirmation.py"
+
+[[pytest]]
 id = "619-disclosure-closeout"
 path = "scripts/test_check_619_disclosure_closeout.py"
 

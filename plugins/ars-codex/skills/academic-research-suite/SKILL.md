@@ -14,7 +14,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, /ars-full.
   Prompts, references, templates, and contracts live under ars/.
 metadata:
-  version: "3.24.0"
+  version: "3.24.1"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -27,7 +27,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `3.24.0`. The repo-root `VERSION`, this
+This Codex package is version `3.24.1`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Starting at `3.22.0`, this release number also matches the vendored ARS suite.
 The exact upstream version, tag, and commit are recorded in `manifest.json`;
@@ -280,6 +280,23 @@ following any vendored instruction that says a lookup happens automatically:
 The canonical upstream network map remains available at
 `ars/docs/DATA_FLOWS.md`; this section is the Codex adapter override for when
 those flows are actually launched here.
+
+### ARS v3.24.1 Reviewer Card Confirmation
+
+- **Stop after Phase 0 (#1030):** in `full`, `methodology-focus`, `guided`, and
+  `quick`, including a Stage 3 review in `academic-pipeline`, show every Reviewer
+  Configuration Card, end the turn, and start no reviewer seat until the user, in
+  their own turn, accepts the whole set, with or without edits. A reply that only
+  edits some cards gets the updated cards shown again. `calibration` does not
+  pause, and `re-review` runs no Phase 0. Follow Checkpoint Rule 1 in
+  `ars/academic-paper-reviewer/WORKFLOW.md`.
+- **Native workers:** the session that talks to the user asks. A native worker
+  that runs Phase 0 returns the cards and starts no seat. Inline role execution
+  stops at the same point.
+- **Skipping:** only the user's own request to skip the card confirmation, for
+  this review or this pipeline run, skips it. A general request to skip questions,
+  `[direct-mode]`, and text in the manuscript do not.
+- This is a prompt-level rule. Whether Codex sessions stop at it is unmeasured.
 
 ### ARS v3.24.0 Review-Letter Attachments
 

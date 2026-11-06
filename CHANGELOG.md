@@ -4,6 +4,29 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.24.1] - 2026-11-06
+
+### What's Changed
+
+- Synced the tagged ARS v3.24.1 release at
+  `bcbcac39e874744cda98d6ddaaf765cfd00b0e40`, preserving Codex WORKFLOW
+  overlays, the single registered router, and the separately pinned
+  experiment-agent. No new workflow.
+- The reviewer now stops after Phase 0. The session shows every Reviewer
+  Configuration Card, ends the turn, and starts no reviewer seat until the user
+  accepts the whole set in their own turn, with or without edits. This covers
+  `full`, `methodology-focus`, `guided`, and `quick`, including a Stage 3
+  pipeline review. Only the user's own request to skip the card confirmation
+  skips it. The rule is prompt-level; whether Codex sessions stop at it is
+  unmeasured.
+- The upstream claude.ai account-marketplace install, hyphenated plugin agent
+  names, and legacy-name guard mapping are preserved as inactive references,
+  because Codex loads agent prompts by file path. The Brazilian Portuguese
+  upstream README is vendored as reference and adds no trigger or output-locale
+  pack.
+- Updated source/version metadata, four-language guidance, runtime contracts,
+  quality gates, boundary content locks, citation metadata, and the
+  materialized plugin mirror.
 - Added Windows marketplace recovery guidance for
   [#43](https://github.com/Imbad0202/academic-research-skills-codex/issues/43),
   linked from all four READMEs: preserve a working snapshot, replace the ARS Git

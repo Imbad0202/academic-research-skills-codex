@@ -1,11 +1,11 @@
 # Academic Research Skills for Claude Code
 
-[![Version](https://img.shields.io/badge/version-v3.24.0-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.24.0)
+[![Version](https://img.shields.io/badge/version-v3.24.1-blue)](https://github.com/Imbad0202/academic-research-skills/releases/tag/v3.24.1)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20696614-blue)](https://doi.org/10.5281/zenodo.20696614)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
 
-[简体中文版](README.zh-CN.md) | [繁體中文版](README.zh-TW.md) | [日本語版](README.ja-JP.md) | [한국어](README.ko-KR.md) | [Español](README.es-ES.md)
+[简体中文版](README.zh-CN.md) | [繁體中文版](README.zh-TW.md) | [日本語版](README.ja-JP.md) | [한국어](README.ko-KR.md) | [Español](README.es-ES.md) | [Português](README.pt-BR.md)
 
 A comprehensive suite of Claude Code skills for academic research, covering the full pipeline from research to publication.
 
@@ -17,6 +17,8 @@ A comprehensive suite of Claude Code skills for academic research, covering the 
 ```
 
 Then try `/ars-plan` to walk through your paper structure via Socratic dialogue, or jump to [Quick install](#quick-install) for prerequisites and the traditional symlink flow.
+
+On claude.ai or Claude Desktop (paid plans), add the same repository under **Customize → Plugins → Add → Add marketplace → Add from a repository**, then install `academic-research-skills`. Hooks and plugin agents do not run in plain chat there; see [SETUP Method 0](docs/SETUP.md#install-from-claudeai-or-claude-desktop-account-marketplace).
 
 > **AI is your copilot, not the pilot.** It can draft text, including a whole paper in full mode, but the decisions stay yours, and the pipeline stops for your confirmation at every stage. It handles the grunt work (hunting down references, formatting citations, verifying data, checking logical consistency) so you can focus on the parts that actually require your brain: defining the question, choosing the method, interpreting what the data means, and deciding what comes after "I argue that." You remain the author, and you answer for every claim you submit.
 >
@@ -70,7 +72,7 @@ The architecture doc supersedes the sprawling pipeline description that used to 
 
 **Verify it works:** run `/ars-plan` and describe a paper you're working on — ARS will start a Socratic dialogue to map out chapter structure. For a single-shot test instead, try `/ars-lit-review "your topic"`.
 
-**👉 [docs/SETUP.md](docs/SETUP.md)** — full guide: install Claude Code, set up API keys, optional Pandoc/tectonic for DOCX/PDF, cross-model verification (`ARS_CROSS_MODEL`), and six installation methods (Plugin, project skills, global skills, claude.ai Project, repo-cloned, Claude Science import).
+**👉 [docs/SETUP.md](docs/SETUP.md)** — full guide: install Claude Code, set up API keys, optional Pandoc/tectonic for DOCX/PDF, cross-model verification (`ARS_CROSS_MODEL`), and six installation methods (Plugin for Claude Code / claude.ai / Claude Desktop, project skills, global skills, claude.ai Project, repo-cloned, Claude Science import).
 
 **👉 [docs/DATA_FLOWS.md](docs/DATA_FLOWS.md)** — what leaves your machine (bibliographic resolvers, optional consent-gated cross-model calls, the plugin update check), what is cached locally, for how long, and how to turn each path off.
 
@@ -291,7 +293,7 @@ Per-agent responsibilities and per-stage artifacts now live in [`docs/ARCHITECTU
 
 7-agent multi-perspective review with **criterion-bound narrative judgements**. Modes: full, re-review, quick, methodology-focus, guided, calibration. Current live reviews and Schema 6 packages remain `NOT_CALIBRATED`; full calibration can produce a bounded candidate profile, but application to a live review is not wired. No numerical total is mapped to Accept, Minor Revision, Major Revision, or Reject. First-round review panel vs. contract-governed re-review dispatch boundary: see ARCHITECTURE.md §3 Stage 3 / Stage 3'.
 
-### Academic Pipeline (v3.24.0)
+### Academic Pipeline (v3.24.1)
 
 10-stage orchestrator with integrity verification, two-stage review, Socratic coaching, and collaboration evaluation. Pipeline rules (protocol the agents follow, not runtime guarantees): every stage requires user confirmation checkpoint; integrity verification (Stage 2.5 + 4.5) is MANDATORY with no unrecorded bypass (every override requires user reasoning recorded for Stage 6); R&R Traceability Matrix (Schema 11) maps each reviewer concern to the author's revision claim and records whether the re-review verified it. v3.4 added the Compliance Agent (PRISMA-trAIce + RAISE) at Stage 2.5 / 4.5. v3.5 adds the **Collaboration Depth Observer** (`collaboration_depth_agent`, advisory only — never blocks) at every FULL/SLIM checkpoint and at pipeline completion. MANDATORY integrity gates (2.5 / 4.5) explicitly skip the observer so compliance checks are not diluted. Based on Wang & Zhang (2026), IJETHE 23:11. Stage-by-stage matrix with agents, artifacts, and gates: see ARCHITECTURE.md §3.
 
@@ -382,11 +384,17 @@ https://github.com/Imbad0202/academic-research-skills
 
 **[didacrios](https://github.com/didacrios)** — Contributor. Translated the Spanish README ([`README.es-ES.md`](README.es-ES.md)).
 
+**[laqueiroz](https://github.com/laqueiroz)** (Laís Queiróz) — Contributor. Translated the Brazilian Portuguese README ([`README.pt-BR.md`](README.pt-BR.md)).
+
 ---
 
 ## Changelog
 
 Only the three most recent releases are summarized here. The full release history, including the one-paragraph summaries that used to live on this page, is in [CHANGELOG.md](CHANGELOG.md).
+
+### v3.24.1 (2026-11-02) — Plugin installs from a claude.ai account marketplace, reviewer card confirmation, and a Brazilian Portuguese README
+
+> **Install repairs for claude.ai and Claude Desktop; no new skill or mode:** ARS now installs from a claude.ai account marketplace. Before this release, that install loaded none of the five core skills (#1035), and claude.ai left out the four plugin agents because their names had underscores (#1037). On Claude Desktop, a skill and `/ars-lit-review` ran in plain chat, a project session dispatched the `synthesis-agent` plugin agent, and the SessionStart announce appeared in folder work. The write-scope guard, the tools allowlist, and a full pipeline run are untested on claude.ai and Claude Desktop. The reviewer now waits for the user to confirm the Reviewer Configuration Cards (#1030), and the README has a Brazilian Portuguese translation (#1032).
 
 ### v3.24.0 (2026-10-27) — Advisory checks of the panel's suggested references and findings, a one-process guard launcher, and integrity-rule repairs
 
@@ -395,7 +403,3 @@ Only the three most recent releases are summarized here. The full release histor
 ### v3.23.2 (2026-10-24) — Integrity checks read only the cited version, Stage 2.5 always runs, and adapter, announce, and Windows repairs
 
 > **Repairs; no new skill. One prompt-level change has a small behaviour check, and the others are unmeasured:** v3.23.2 makes the Stage 2.5 and 4.5 claim checks compare a claim only with the version of a work that the manuscript cites (#1006). When that version cannot be read, the check records an access note and asks for its PDF instead of reading a working paper or preprint. In one synthetic fixture run six times (three sessions each on Claude Opus 5.5 and Claude Fable 5.1, web tools off), every session followed the rule. A prior integrity report no longer lets a pipeline run skip Stage 2.5; the run attaches it as context (#995). A missing required input blocks the stage transition on every surface (#990), and the Socratic mentor's example no longer ranks the user's ideas (#992). The SessionStart announce shows the update reminder to the user, and the model-facing announce is about 2.1 KB shorter (#999). The Obsidian adapter accepts unquoted ISO dates and rejects boolean and superscript-digit years (#988, #989); six lints compare paths in POSIX form on Windows (#964, #978); the Pi wrapper composes with Pi's structured prompt sections (#985); and `CITATION.cff` gives the author's ORCID iD (#1007). Outside contributors wrote #978, #985, and #988.
-
-### v3.23.1 (2026-10-16) — Write-scope guard repairs, RFC 4180 CSV reading in sr-screener, and Gemini 4 Argon as a provisional verifier
-
-> **Repairs and model currency; no new skill, and no accuracy or performance claim:** v3.23.1 closes two write-scope guard paths that let writes through without a check, one for plugin-dispatched agents and one for Windows `timeout.exe` (#972), and the docs now state where the fence engages (#974). `sr-screener` reads CSV exports by RFC 4180 quoting instead of quote rules guessed from a sample (#979). Gemini 4 Argon is listed as a provisional Google verifier and the recommended Google id; `gemini-3.1-pro-preview` stays validated (#980). The routing core states that a mid-message `[direct-mode]` token is not the escape hatch (#892); in a smoke test on a plugin install, Claude Fable 5.1 still honored the token in 3 of 6 sessions (6 of 6 before), so the acceptance rule is not met and #892 stays open. Smaller lint and Windows repairs come from outside contributors (#956, #963, #965, #977), and `THIRD_PARTY.md` lists md-to-word (#969).

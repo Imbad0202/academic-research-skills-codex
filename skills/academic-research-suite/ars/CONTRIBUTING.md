@@ -46,7 +46,7 @@ Open an issue first before submitting a PR for these:
 
 This repository is the reference distribution of ARS, built for Claude Code. Ports to other agent platforms (Opencode, Cursor, Continue, Aider, etc.) are accepted as community-maintained contributions. Two structural shapes are acceptable — both keep core ARS content as the source of truth:
 
-- **In-tree wrapper.** Add a top-level `<platform>/` directory in this repo (e.g. `opencode/`) containing the manifest, plugin entry, and dispatch shims. Core ARS files (`skills/*/WORKFLOW.md`, `agents/*.md`, `shared/`, `scripts/`) remain unmodified.
+- **In-tree wrapper.** Add a top-level `<platform>/` directory in this repo (e.g. `opencode/`) containing the manifest, plugin entry, and dispatch shims. Core ARS files (`<skill>/WORKFLOW.md`, `agents/*.md`, `shared/`, `scripts/`) remain unmodified.
 - **Sibling distribution.** A separate repository that vendors ARS workflow content with: (1) upstream commit hash pinned (e.g. in a `manifest.json`); (2) a written update / sync policy; (3) vendored content unmodified — only the outer routing / adapter layer is platform-specific.
 
 Either shape is accepted under the same maintainer-facing conditions:
@@ -82,7 +82,7 @@ Third-party directory listings in `THIRD_PARTY.md` remain a separate, non-endors
 - **Describe what and why** — explain the motivation, not just the change
 - **Reference issues** — if your PR addresses an open issue, link it
 - **Test your changes** — if you're modifying agent definitions, try running the skill to confirm it works as expected
-- **Keep READMEs in sync** — if your change affects user-facing documentation, update `README.md`, `README.zh-CN.md`, `README.zh-TW.md`, `README.ja-JP.md`, `README.ko-KR.md`, and `README.es-ES.md` when applicable
+- **Keep READMEs in sync** — if your change affects user-facing documentation, update `README.md`, `README.zh-CN.md`, `README.zh-TW.md`, `README.ja-JP.md`, `README.ko-KR.md`, `README.es-ES.md`, and `README.pt-BR.md` when applicable
 
 ---
 

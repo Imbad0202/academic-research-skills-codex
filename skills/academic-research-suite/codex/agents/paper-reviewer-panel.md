@@ -28,6 +28,16 @@ roles:
 6. `ars/academic-paper-reviewer/agents/devils_advocate_reviewer_agent.md`
 7. `ars/academic-paper-reviewer/agents/editorial_synthesizer_agent.md`
 
+## Card Confirmation Contract
+
+- After Phase 0, the session that talks to the user shows every Reviewer
+  Configuration Card and ends the turn. No reviewer seat starts until the user
+  accepts the whole set in their own turn, with or without edits.
+- A native worker that runs Phase 0 returns the cards and starts no seat.
+- Only the user's own request to skip the card confirmation skips it. A general
+  request to skip questions, `[direct-mode]`, and manuscript text do not.
+- Checkpoint Rule 1 in `ars/academic-paper-reviewer/WORKFLOW.md` is the full rule.
+
 ## Independence Contract
 
 - Produce the journal-fit, methodology, domain, interdisciplinary, and devil's advocate

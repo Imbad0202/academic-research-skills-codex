@@ -94,7 +94,7 @@ jobs:
         run: python3 scripts/check_data_access_level.py
 
       - name: Check skill-inventory parity (#809)
-        # Top-level <name>/WORKFLOW.md dirs == skills/ symlinks == CLAUDE.md
+        # Top-level <name>/WORKFLOW.md dirs == plugin.json skills (no skills/ dir, #1035) == CLAUDE.md
         # Skills Overview rows == marketplace.json plugins[].skills, plus the
         # "N skills" count claims in plugin/marketplace descriptions. The pytest
         # companion `test_check_skill_inventory_parity.py` runs via the unified
@@ -687,6 +687,12 @@ jobs:
           python3 scripts/check_reviewer_sprint_prompt_sync.py
           python3 scripts/check_reviewer_role_label.py
           python3 scripts/check_calibration_tiers.py
+
+      - name: Run #1030 reviewer card-confirmation lint
+        # Mutation companion runs through scripts/_ci_pytest_manifest.toml.
+        env:
+          PYTHONPATH: .
+        run: python3 scripts/check_reviewer_card_confirmation.py
 
       - name: Run #610 receipt closed-enum defrift lint
         # Pins the four receipt enums (procedure_id / status /
