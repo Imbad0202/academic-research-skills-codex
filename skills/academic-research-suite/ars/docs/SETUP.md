@@ -264,7 +264,7 @@ capacity and is never run by CI.
 
 ## Installation methods
 
-Claude discovers skills at `<install-root>/<skill-name>/WORKFLOW.md`. This repo contains five separate skills, each with its own `WORKFLOW.md`:
+Claude discovers skills at `<install-root>/<skill-name>/SKILL.md`. This repo contains five separate skills, each with its own `SKILL.md`:
 
 - `deep-research`
 - `academic-paper`
@@ -272,7 +272,7 @@ Claude discovers skills at `<install-root>/<skill-name>/WORKFLOW.md`. This repo 
 - `academic-pipeline`
 - `sr-screener`
 
-Do not install the whole repository as one nested skill folder under `.claude/skills/academic-research-skills/`; that buries the five `WORKFLOW.md` files one level too deep for discovery. See Anthropic's [Claude Code Skills documentation](https://code.claude.com/docs/en/skills).
+Do not install the whole repository as one nested skill folder under `.claude/skills/academic-research-skills/`; that buries the five `SKILL.md` files one level too deep for discovery. See Anthropic's [Claude Code Skills documentation](https://code.claude.com/docs/en/skills).
 
 The methods below differ in more than convenience: hooks, slash commands, the tools
 allowlist, subagent orchestration, and script-backed checks are each available in some
@@ -346,11 +346,11 @@ cp -R ~/academic-research-skills/sr-screener .claude/skills/sr-screener
 Expected path shape:
 
 ```text
-/path/to/your/project/.claude/skills/deep-research/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-paper/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-paper-reviewer/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-pipeline/WORKFLOW.md
-/path/to/your/project/.claude/skills/sr-screener/WORKFLOW.md
+/path/to/your/project/.claude/skills/deep-research/SKILL.md
+/path/to/your/project/.claude/skills/academic-paper/SKILL.md
+/path/to/your/project/.claude/skills/academic-paper-reviewer/SKILL.md
+/path/to/your/project/.claude/skills/academic-pipeline/SKILL.md
+/path/to/your/project/.claude/skills/sr-screener/SKILL.md
 ```
 
 `sr-screener` runs its screening reviewers as a subagent. For a project-skills install, also copy `sr-screener/agents/screening_reviewer_agent.md` into `.claude/agents/` (details: `sr-screener/references/orchestration.md` § 1).
@@ -417,7 +417,7 @@ This fallback uploads the five ARS skills to [Claude Cowork](https://support.cla
 
 #### Step 1: Build one zip per skill
 
-Clone the repo, then zip each of the five skill folders on its own. Anthropic's [Create custom skills](https://claude.com/docs/skills/how-to) asks for the skill folder at the top of the zip, so the archive holds `<skill-name>/WORKFLOW.md`, and for a folder name that matches the `name` field in `WORKFLOW.md`. The `-x "*.DS_Store"` flag keeps macOS metadata out of the archive.
+Clone the repo, then zip each of the five skill folders on its own. Anthropic's [Create custom skills](https://claude.com/docs/skills/how-to) asks for the skill folder at the top of the zip, so the archive holds `<skill-name>/SKILL.md`, and for a folder name that matches the `name` field in `SKILL.md`. The `-x "*.DS_Store"` flag keeps macOS metadata out of the archive.
 
 Anthropic provides a skill named `deep-research`. On Claude Desktop on 2026-11-02 it was already in the Skills list, and an upload with the same name was refused ("This skill name is already in use"). The commands below therefore zip a copy of `deep-research` named `ars-deep-research`, with its `name` field changed to match. The clone itself does not change.
 
@@ -431,12 +431,12 @@ done
 
 # deep-research is uploaded as ars-deep-research
 rm -rf ars-deep-research && cp -R deep-research ars-deep-research
-perl -pi -e 's/^name: deep-research(\r?)$/name: ars-deep-research$1/' ars-deep-research/WORKFLOW.md
+perl -pi -e 's/^name: deep-research(\r?)$/name: ars-deep-research$1/' ars-deep-research/SKILL.md
 zip -r ars-deep-research.zip ars-deep-research -x "*.DS_Store"
 rm -rf ars-deep-research
 ```
 
-This produces five zips in the repo root: `ars-deep-research.zip`, `academic-paper.zip`, `academic-paper-reviewer.zip`, `academic-pipeline.zip`, `sr-screener.zip`. Run `unzip -l <zip>` to check one: every entry starts with the skill folder, for example `ars-deep-research/WORKFLOW.md`, `ars-deep-research/agents/` and `ars-deep-research/references/` (`sr-screener` also carries `sr-screener/scripts/`).
+This produces five zips in the repo root: `ars-deep-research.zip`, `academic-paper.zip`, `academic-paper-reviewer.zip`, `academic-pipeline.zip`, `sr-screener.zip`. Run `unzip -l <zip>` to check one: every entry starts with the skill folder, for example `ars-deep-research/SKILL.md`, `ars-deep-research/agents/` and `ars-deep-research/references/` (`sr-screener` also carries `sr-screener/scripts/`).
 
 The other ARS skills refer to `deep-research` by name. In an upload install, whether such a reference reaches the uploaded `ars-deep-research` or Anthropic's `deep-research` has not been tested.
 
@@ -446,7 +446,7 @@ The other ARS skills refer to `deep-research` by name. In an upload install, whe
 2. Use the **+** in the Skills panel to upload a skill, and select one of the five zips. Repeat for all five, one at a time.
 3. Each skill then appears under **Personal skills**, already enabled, with **Trigger: Slash command + auto**. Re-uploading a skill with the same name replaces the existing one (useful when updating to a new ARS release).
 
-Checked on Claude Desktop in June 2026: `deep-research.zip` installed, the full skill description was kept, and `/deep-research` appeared in the Cowork command palette. That was before the name clash above. On 2026-11-02, two `ars-deep-research.zip` files were checked: one built with the commands above, and one with `WORKFLOW.md` at its top level, the layout earlier versions of this page gave. Both uploaded with the 1,021-character description and ran in a conversation (see the trade-off below).
+Checked on Claude Desktop in June 2026: `deep-research.zip` installed, the full skill description was kept, and `/deep-research` appeared in the Cowork command palette. That was before the name clash above. On 2026-11-02, two `ars-deep-research.zip` files were checked: one built with the commands above, and one with `SKILL.md` at its top level, the layout earlier versions of this page gave. Both uploaded with the 1,021-character description and ran in a conversation (see the trade-off below).
 
 #### Step 3: Use the skills in a Cowork Task
 
@@ -535,7 +535,7 @@ Claude Science imports the five ARS skills straight from GitHub:
 
 **Notes:**
 
-- Requires repo state v3.14.0+ — the importer reads the explicit skill paths declared in `.claude-plugin/marketplace.json`. Earlier tags exposed skills only through the symlinked `skills/` directory, which GitHub-API importers cannot traverse (they report "no skills/ dirs with WORKFLOW.md").
+- Requires repo state v3.14.0+ — the importer reads the explicit skill paths declared in `.claude-plugin/marketplace.json`. Earlier tags exposed skills only through the symlinked `skills/` directory, which GitHub-API importers cannot traverse (they report "no skills/ dirs with SKILL.md").
 - Imports are **point-in-time snapshots**: Claude Science does not track the repo. Re-import after an ARS release to pick up changes.
-- **What transfers:** the methodology layer — each skill's `WORKFLOW.md` and its protocols (research / writing / review), which Claude Science's agent reads when relevant.
+- **What transfers:** the methodology layer — each skill's `SKILL.md` and its protocols (research / writing / review), which Claude Science's agent reads when relevant.
 - **What does not transfer:** Claude Code-specific machinery — the `/ars-*` slash commands, hooks (including the write-scope guard), cross-model verification scripts, and Task-tool subagent orchestration. Claude Science runs its own specialist-agent system and a built-in citation-checking reviewer; treat a Claude Science run as "ARS methodology + Claude Science's own machinery", not a 1:1 pipeline port.

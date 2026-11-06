@@ -32,10 +32,12 @@ def test_router_states_the_compatibility_breaks():
 
 def test_methods_text_states_what_the_tool_list_enforces():
     source = (ARS / "sr-screener/scripts/build_outputs.py").read_text(encoding="utf-8")
-    assert "could only read" not in source
-    assert "had read-only file tools and no web access" in " ".join(
-        re.sub(r'"\\s*"', "", source).split()
-    )
+    joined = " ".join(re.sub(r'"\s*"', "", source).split())
+    assert "could only read" not in joined
+    assert (
+        "The reviewer agents had read-only file tools and no web access; "
+        "each was instructed to read only the file it was given."
+    ) in joined
 
 
 def test_gates_register_the_hermetic_lock_tests():
@@ -51,6 +53,17 @@ def test_gates_register_the_hermetic_lock_tests():
         assert (ARS / "scripts" / script).is_file()
 
 
-def test_vendored_docs_keep_the_workflow_overlay():
-    for rel in ("docs/SETUP.md", "docs/SETUP.zh-TW.md", "docs/CONTROL_AVAILABILITY.md", "CHANGELOG.md"):
-        assert "SKILL.md" not in (ARS / rel).read_text(encoding="utf-8"), rel
+def test_claude_channel_docs_keep_the_upstream_entry_name():
+    setup = (ARS / "docs/SETUP.md").read_text(encoding="utf-8")
+    setup_zh = (ARS / "docs/SETUP.zh-TW.md").read_text(encoding="utf-8")
+    control = (ARS / "docs/CONTROL_AVAILABILITY.md").read_text(encoding="utf-8")
+    for text in (setup, setup_zh):
+        assert "ars-deep-research/SKILL.md" in text
+        assert "ars-deep-research/WORKFLOW.md" not in text
+    assert "a zip with `SKILL.md` at the top" in " ".join(control.split())
+    for text in (setup, setup_zh, control):
+        assert "WORKFLOW.md" not in text
+
+
+def test_new_changelog_text_keeps_the_workflow_overlay():
+    assert "SKILL.md" not in (ARS / "CHANGELOG.md").read_text(encoding="utf-8")

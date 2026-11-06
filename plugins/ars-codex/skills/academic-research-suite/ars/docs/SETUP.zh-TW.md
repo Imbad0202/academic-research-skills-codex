@@ -261,7 +261,7 @@ printf '%s' "$CITATION_REQUEST_JSON" | scripts/cross_model_codex_verify.sh
 
 ## 安裝方式
 
-Claude 會在 `<install-root>/<skill-name>/WORKFLOW.md` 尋找 skills。這個 repo 包含五個獨立 skills，每個都有自己的 `WORKFLOW.md`：
+Claude 會在 `<install-root>/<skill-name>/SKILL.md` 尋找 skills。這個 repo 包含五個獨立 skills，每個都有自己的 `SKILL.md`：
 
 - `deep-research`
 - `academic-paper`
@@ -269,7 +269,7 @@ Claude 會在 `<install-root>/<skill-name>/WORKFLOW.md` 尋找 skills。這個 r
 - `academic-pipeline`
 - `sr-screener`
 
-不要把整個 repository 當成單一巢狀 skill 資料夾安裝到 `.claude/skills/academic-research-skills/`。那會讓五個 `WORKFLOW.md` 比 Claude 可發現的位置多埋一層。請參考 Anthropic 的 [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)。
+不要把整個 repository 當成單一巢狀 skill 資料夾安裝到 `.claude/skills/academic-research-skills/`。那會讓五個 `SKILL.md` 比 Claude 可發現的位置多埋一層。請參考 Anthropic 的 [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)。
 
 以下各安裝方式的差異不只是方便程度：hooks、slash commands、tools allowlist、subagent
 編排、以及需要 Python 的檢查功能，在某些管道可用、在其他管道會降級或不存在。倚賴任何
@@ -342,11 +342,11 @@ cp -R ~/academic-research-skills/sr-screener .claude/skills/sr-screener
 預期路徑形狀：
 
 ```text
-/path/to/your/project/.claude/skills/deep-research/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-paper/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-paper-reviewer/WORKFLOW.md
-/path/to/your/project/.claude/skills/academic-pipeline/WORKFLOW.md
-/path/to/your/project/.claude/skills/sr-screener/WORKFLOW.md
+/path/to/your/project/.claude/skills/deep-research/SKILL.md
+/path/to/your/project/.claude/skills/academic-paper/SKILL.md
+/path/to/your/project/.claude/skills/academic-paper-reviewer/SKILL.md
+/path/to/your/project/.claude/skills/academic-pipeline/SKILL.md
+/path/to/your/project/.claude/skills/sr-screener/SKILL.md
 ```
 
 `sr-screener` 以 subagent 執行篩選審查者。以 project skills 方式安裝時，請另外把 `sr-screener/agents/screening_reviewer_agent.md` 複製到 `.claude/agents/`（細節見 `sr-screener/references/orchestration.md` § 1）。
@@ -413,7 +413,7 @@ claude
 
 #### 步驟 1：每個 skill 各打一個 zip
 
-clone repo 後，把五個 skill 資料夾各自打包成 zip。Anthropic 的 [Create custom skills](https://claude.com/docs/skills/how-to) 要求 zip 最上層是 skill 資料夾，也就是 zip 內含 `<skill-name>/WORKFLOW.md`，而且資料夾名稱要和 `WORKFLOW.md` 的 `name` 欄位相同。`-x "*.DS_Store"` 用來排除 macOS metadata。
+clone repo 後，把五個 skill 資料夾各自打包成 zip。Anthropic 的 [Create custom skills](https://claude.com/docs/skills/how-to) 要求 zip 最上層是 skill 資料夾，也就是 zip 內含 `<skill-name>/SKILL.md`，而且資料夾名稱要和 `SKILL.md` 的 `name` 欄位相同。`-x "*.DS_Store"` 用來排除 macOS metadata。
 
 Anthropic 提供一個名為 `deep-research` 的 skill。2026-11-02 在 Claude Desktop 上，Skills 清單裡已經有它，同名的上傳被拒絕（"This skill name is already in use"）。所以下面的指令把 `deep-research` 複製成 `ars-deep-research` 再打包，並把 `name` 欄位改成相同的名稱。clone 下來的 repo 本身不會改動。
 
@@ -427,12 +427,12 @@ done
 
 # deep-research 以 ars-deep-research 的名稱上傳
 rm -rf ars-deep-research && cp -R deep-research ars-deep-research
-perl -pi -e 's/^name: deep-research(\r?)$/name: ars-deep-research$1/' ars-deep-research/WORKFLOW.md
+perl -pi -e 's/^name: deep-research(\r?)$/name: ars-deep-research$1/' ars-deep-research/SKILL.md
 zip -r ars-deep-research.zip ars-deep-research -x "*.DS_Store"
 rm -rf ars-deep-research
 ```
 
-這會在 repo 根目錄產生五個 zip：`ars-deep-research.zip`、`academic-paper.zip`、`academic-paper-reviewer.zip`、`academic-pipeline.zip`、`sr-screener.zip`。可用 `unzip -l <zip>` 檢查：每個項目都以 skill 資料夾開頭，例如 `ars-deep-research/WORKFLOW.md`、`ars-deep-research/agents/`、`ars-deep-research/references/`（`sr-screener` 另含 `sr-screener/scripts/`）。
+這會在 repo 根目錄產生五個 zip：`ars-deep-research.zip`、`academic-paper.zip`、`academic-paper-reviewer.zip`、`academic-pipeline.zip`、`sr-screener.zip`。可用 `unzip -l <zip>` 檢查：每個項目都以 skill 資料夾開頭，例如 `ars-deep-research/SKILL.md`、`ars-deep-research/agents/`、`ars-deep-research/references/`（`sr-screener` 另含 `sr-screener/scripts/`）。
 
 其他 ARS skill 會用名稱提到 `deep-research`。用上傳方式安裝時，這些提及會叫到上傳的 `ars-deep-research` 還是 Anthropic 的 `deep-research`，目前還沒測過。
 
@@ -442,7 +442,7 @@ rm -rf ars-deep-research
 2. 用 Skills 面板的 **+** 上傳 skill，選擇其中一個 zip。五個 zip 各上傳一次，一次一個。
 3. 每個 skill 上傳後會出現在 **Personal skills** 下，已自動啟用，**Trigger 為 Slash command + auto**。以相同名稱重新上傳會覆蓋既有的 skill（更新到新版 ARS 時很方便）。
 
-2026 年 6 月在 Claude Desktop 檢查過：`deep-research.zip` 可以安裝，完整 skill description 有保留，`/deep-research` 也出現在 Cowork command palette。那是在上述撞名出現之前。2026-11-02 檢查了兩個 `ars-deep-research.zip`：一個用上方指令打包，另一個最上層直接是 `WORKFLOW.md`，也就是本頁舊版的打包方式。兩個都帶著 1,021 字元的 description 上傳成功，並在對話中執行（見下方的取捨）。
+2026 年 6 月在 Claude Desktop 檢查過：`deep-research.zip` 可以安裝，完整 skill description 有保留，`/deep-research` 也出現在 Cowork command palette。那是在上述撞名出現之前。2026-11-02 檢查了兩個 `ars-deep-research.zip`：一個用上方指令打包，另一個最上層直接是 `SKILL.md`，也就是本頁舊版的打包方式。兩個都帶著 1,021 字元的 description 上傳成功，並在對話中執行（見下方的取捨）。
 
 #### 步驟 3：在 Cowork Task 中使用
 
@@ -531,7 +531,7 @@ Claude Science 可直接從 GitHub 匯入五個 ARS skill：
 
 **注意事項：**
 
-- 需要 repo 狀態為 v3.14.0+，因為匯入器讀取 `.claude-plugin/marketplace.json` 中明列的 skill 路徑。更早的 tag 只透過 symlink 的 `skills/` 目錄暴露 skill，GitHub-API 匯入器無法穿越（會回報「no skills/ dirs with WORKFLOW.md」）。
+- 需要 repo 狀態為 v3.14.0+，因為匯入器讀取 `.claude-plugin/marketplace.json` 中明列的 skill 路徑。更早的 tag 只透過 symlink 的 `skills/` 目錄暴露 skill，GitHub-API 匯入器無法穿越（會回報「no skills/ dirs with SKILL.md」）。
 - 匯入是**單次快照**：Claude Science 不會追蹤 repo。ARS 發版後需重新匯入才能取得更新。
-- **會轉移的**：方法論層，即各 skill 的 `WORKFLOW.md` 與其協定（研究／寫作／審查），Claude Science 的 agent 會在相關時讀取。
+- **會轉移的**：方法論層，即各 skill 的 `SKILL.md` 與其協定（研究／寫作／審查），Claude Science 的 agent 會在相關時讀取。
 - **不會轉移的**：Claude Code 專屬機制，包括 `/ars-*` slash commands、hooks（含 write-scope guard）、跨模型驗證 scripts、Task-tool subagent 編排。Claude Science 有自己的 specialist agent 系統與內建引用查核 reviewer；把 Claude Science 上的執行視為「ARS 方法論 + Claude Science 自家機制」，而非 1:1 的 pipeline 移植。

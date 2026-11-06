@@ -35,7 +35,7 @@ applying your channel's channel-wide limitation above.
 
 | Mechanism | Plugin | Plain chat | Desktop project/folder | Skills copy | Repo clone | Cowork | claude.ai Project | Claude Science | Pi port |
 |---|---|---|---|---|---|---|---|---|---|
-| Methodology layer (the five skills' `WORKFLOW.md` protocols) | Active | Active | Active | Active | Active | Active | Conditional | Active | Active ⁽¹⁰⁾ |
+| Methodology layer (the five skills' `SKILL.md` protocols) | Active | Active | Active | Active | Active | Active | Conditional | Active | Active ⁽¹⁰⁾ |
 | Skill auto-routing (trigger keywords → skill activation) | Active | Active | Active | Active | Active | Active | Absent | Conditional | Conditional |
 | Cross-skill routing discipline (routing core: route directly or ask which workflow, #133 / #892) | Conditional ⁽⁸⁾ ⁽⁹⁾ | Conditional ⁽⁹⁾ | Conditional ⁽⁸⁾ ⁽⁹⁾ | Conditional ⁽⁹⁾ | Active ⁽⁹⁾ | Conditional ⁽⁹⁾ | Absent | Conditional ⁽⁹⁾ | Conditional ⁽⁹⁾ |
 | `/ars-*` slash commands | Active ⁽¹⁾ | Active ⁽¹⁾ | Active ⁽¹⁾ | Absent | Absent | Absent | Absent | Absent | Conditional |
@@ -117,13 +117,13 @@ runtime graceful-degradation mechanisms is
    decides whether a request goes straight to a skill or the user is first asked which
    workflow they want. Claude Code loads this repository's `.claude/CLAUDE.md` only for
    sessions started inside the checkout, so the core also rides in the SessionStart
-   announce and in each skill's `WORKFLOW.md` (#892). **Plugin:** before any skill loads,
+   announce and in each skill's `SKILL.md` (#892). **Plugin:** before any skill loads,
    through the announce (note-8 conditions), and again once a skill loads. **Repo clone:**
-   from `.claude/CLAUDE.md` at session start, and from `WORKFLOW.md`. **Skills copy:** at
+   from `.claude/CLAUDE.md` at session start, and from `SKILL.md`. **Skills copy:** at
    session start from the project's `.claude/CLAUDE.md` when it carries the merged ARS
    text, as SETUP Method 1 instructs for a project install (a merged copy does not update
    with ARS). **Skills copy without that text (a global install, or the step skipped),
-   Cowork, Claude Science, Pi port:** only after a skill has loaded, from its `WORKFLOW.md`: a
+   Cowork, Claude Science, Pi port:** only after a skill has loaded, from its `SKILL.md`: a
    request that no skill picks up gets no routing guard, and a clarifying question can
    come only after a skill call. As with note 7, these are prompt-level instructions, not
    runtime enforcement. The #133 routing fixtures were run with the plugin loaded, in
@@ -171,7 +171,7 @@ runtime graceful-degradation mechanisms is
    an upload named `deep-research` because Anthropic already provides a skill with that
    name, so the skill was uploaded as `ars-deep-research`, the name SETUP Method 3 now
    uses. One check used a zip built with SETUP's commands (the skill folder at the top),
-   the other a zip with `WORKFLOW.md` at the top. In both, the skill dispatched a built-in
+   the other a zip with `SKILL.md` at the top. In both, the skill dispatched a built-in
    `Explore` sub-agent in a conversation, which read `agents/synthesis_agent.md` from the
    uploaded skill and returned its first heading; each time the first dispatch did not
    run and a retry did. The upload registers no ARS agent; these checks used the built-in
