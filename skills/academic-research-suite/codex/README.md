@@ -60,7 +60,7 @@ closed. No experiment changes the native adaptive policy or writes routing state
   has scope `package_validation_catalog` and `quality_gates_execute_on_request=false`;
   ordinary research requests use the checks relevant to their workflow.
 - `scripts/ars_codex_quality_gates.py` validates adapter packaging, hook safety,
-  reviewer independence fixtures, and upstream lock provenance.
+  reviewer seat fixtures, and upstream lock provenance.
 - `agents/*.md` are Codex subagent templates. They point back to vendored ARS
   source prompts rather than duplicating upstream prompt bodies.
 - `compatibility-matrix.md` records Claude Code parity, remaining gaps, and
@@ -80,7 +80,8 @@ Instead it provides an explicit Codex orchestration contract:
   confirmed protocol, human pilot, concrete cost approval, QC, and human final
   verification gates; native execution uses emitted prompts and fresh blinded
   workers, with disclosed quick triage when isolation is unavailable;
-- reviewer panels produce independent reviewer sections before synthesis;
+- reviewer panels produce role-separated seat sections before synthesis; separate
+  headings do not establish independent execution;
 - synthesis preserves minority and dissenting findings unless resolved by
   evidence and severity;
 - pipeline orchestration stops at requested checkpoints;

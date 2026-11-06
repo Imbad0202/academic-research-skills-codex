@@ -485,14 +485,14 @@ def check_hook_safety() -> list[str]:
 
 
 def check_reviewer_fixture(fixture: Path | None = None) -> list[str]:
-    fixture = fixture or CODEX_ROOT / "tests" / "fixtures" / "reviewer_full_independent_sections.md"
+    fixture = fixture or CODEX_ROOT / "tests" / "fixtures" / "reviewer_full_seat_sections.md"
     text = fixture.read_text(encoding="utf-8")
     required = [
-        "## Independent Reviewer: Journal-Fit",
-        "## Independent Reviewer: Methodology",
-        "## Independent Reviewer: Domain",
-        "## Independent Reviewer: Interdisciplinary",
-        "## Independent Reviewer: Devil's Advocate",
+        "## Reviewer Seat: Journal-Fit",
+        "## Reviewer Seat: Methodology",
+        "## Reviewer Seat: Domain",
+        "## Reviewer Seat: Interdisciplinary",
+        "## Reviewer Seat: Devil's Advocate",
         "## Editorial Synthesis",
     ]
     positions = []
@@ -500,7 +500,7 @@ def check_reviewer_fixture(fixture: Path | None = None) -> list[str]:
         matches = list(re.finditer(r"^" + re.escape(heading) + r"\s*$", text, re.MULTILINE))
         _require(len(matches) == 1, f"reviewer fixture requires one heading: {heading}")
         positions.append(matches[0].start())
-    _require(positions == sorted(positions), "editorial synthesis must appear after independent reviewer sections")
+    _require(positions == sorted(positions), "editorial synthesis must appear after reviewer seat sections")
     synthesis = text[positions[-1]:]
     for marker in (
         "journal-fit concern retained", "methodology concern retained",
@@ -508,7 +508,7 @@ def check_reviewer_fixture(fixture: Path | None = None) -> list[str]:
         "devil's advocate dissent retained",
     ):
         _require(marker in synthesis, f"synthesis dropped minority marker: {marker}")
-    return ["paper-reviewer full-mode fixture preserves independent reviewer sections before synthesis"]
+    return ["paper-reviewer full-mode fixture preserves reviewer seat sections before synthesis"]
 
 
 def check_upstream_lock() -> list[str]:

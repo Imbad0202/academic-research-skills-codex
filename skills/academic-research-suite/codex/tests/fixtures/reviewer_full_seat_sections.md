@@ -1,25 +1,25 @@
 # Reviewer Full-Mode Fixture
 
-## Independent Reviewer: Journal-Fit
+## Reviewer Seat: Journal-Fit
 
 Journal-fit concern retained candidate: the contribution needs a clearer link
 to the author-confirmed journal criteria.
 
-## Independent Reviewer: Methodology
+## Reviewer Seat: Methodology
 
 Methodology concern retained candidate: the sampling strategy is underspecified
 and should remain visible to synthesis.
 
-## Independent Reviewer: Domain
+## Reviewer Seat: Domain
 
 Domain concern retained candidate: the paper overstates policy transferability
 across higher-education systems.
 
-## Independent Reviewer: Interdisciplinary
+## Reviewer Seat: Interdisciplinary
 
 The theoretical bridge is plausible but needs clearer boundary conditions.
 
-## Independent Reviewer: Devil's Advocate
+## Reviewer Seat: Devil's Advocate
 
 Devil's advocate dissent retained candidate: the central contribution may be
 incremental if the literature review is not narrowed.

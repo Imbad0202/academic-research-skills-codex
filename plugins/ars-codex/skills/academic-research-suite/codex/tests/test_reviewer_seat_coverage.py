@@ -12,7 +12,7 @@ SPEC = importlib.util.spec_from_file_location(
 )
 GATES = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(GATES)
-FIXTURE = ROOT / "tests" / "fixtures" / "reviewer_full_independent_sections.md"
+FIXTURE = ROOT / "tests" / "fixtures" / "reviewer_full_seat_sections.md"
 
 
 @pytest.mark.parametrize("seat", [
@@ -20,7 +20,7 @@ FIXTURE = ROOT / "tests" / "fixtures" / "reviewer_full_independent_sections.md"
 ])
 def test_each_seat_is_required_before_synthesis(tmp_path, seat):
     text = FIXTURE.read_text()
-    start = text.index(f"## Independent Reviewer: {seat}")
+    start = text.index(f"## Reviewer Seat: {seat}")
     end = text.index("\n## ", start)
     path = tmp_path / "review.md"
     path.write_text(text[:start] + text[end:])
@@ -30,8 +30,8 @@ def test_each_seat_is_required_before_synthesis(tmp_path, seat):
 
 def test_synthesis_cannot_precede_journal_fit(tmp_path):
     text = FIXTURE.read_text()
-    start = text.index("## Independent Reviewer: Journal-Fit")
-    end = text.index("## Independent Reviewer: Methodology")
+    start = text.index("## Reviewer Seat: Journal-Fit")
+    end = text.index("## Reviewer Seat: Methodology")
     journal_fit = text[start:end]
     text = text[:start] + text[end:] + "\n" + journal_fit
     path = tmp_path / "review.md"

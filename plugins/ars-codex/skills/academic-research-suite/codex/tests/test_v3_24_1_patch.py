@@ -74,3 +74,13 @@ def test_agent_prompt_files_keep_their_underscore_names_for_file_path_loading():
         "sr-screener/agents/screening_reviewer_agent.md",
     ):
         assert (ARS / rel).is_file(), rel
+
+
+def test_reviewer_output_labels_do_not_claim_independence():
+    panel = (SUITE / "codex/agents/paper-reviewer-panel.md").read_text(encoding="utf-8")
+    fixture = (SUITE / "codex/tests/fixtures/reviewer_full_seat_sections.md").read_text(encoding="utf-8")
+    assert "Independent Reviewer" not in panel
+    assert "Independent Reviewer" not in fixture
+    assert "## Independence Contract" not in panel
+    assert "`Reviewer Seat: Journal-Fit`" in panel
+    assert "do not describe them as independent reviews" in panel.replace("\n", " ")

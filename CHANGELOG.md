@@ -19,6 +19,11 @@ All notable changes to the Codex package are documented here.
   pipeline review. Only the user's own request to skip the card confirmation
   skips it. The rule is prompt-level; whether Codex sessions stop at it is
   unmeasured.
+- The Codex reviewer output template now labels its five sections
+  `Reviewer Seat: ...` instead of `Independent Reviewer: ...`. Upstream forbids
+  calling persona separation independence, and inline seats share one
+  conversation, so the template now says not to describe them as independent
+  reviews.
 - The upstream claude.ai account-marketplace install, hyphenated plugin agent
   names, and legacy-name guard mapping are preserved as inactive references,
   because Codex loads agent prompts by file path. The Brazilian Portuguese
