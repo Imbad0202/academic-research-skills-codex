@@ -72,7 +72,9 @@ repro_lock:
 
 The block lives as an optional child of the Material Passport (Schema 9 in
 `shared/handoff_schemas.md`). A missing key fails the lint. A null value passes with a
-warning. A populated block with all required sub-fields passes silently.
+warning. A populated block with all required sub-fields passes silently. A required value
+that is null or the wrong type fails; only `cross_model.secondary_model_id` may be null. A
+field with no honest value is a reason to set the whole block to `null`, not to leave it blank.
 
 ## Field-by-field rationale
 
@@ -85,9 +87,8 @@ tooling or audit the change manually.
 
 ### ars_version
 
-Suite version from CHANGELOG. This couples the prompt hashes to the release: changing
-`ars_version` will change the bundle hash even if individual prompt files didn't change.
-That coupling is intentional — version boundaries mark coordinated changes.
+Suite version from CHANGELOG. It records which release ran. It is not part of the prompt
+hashes, so they stay the same across releases when the prompt files did not change.
 
 ### model.weight_stable
 
@@ -122,26 +123,35 @@ reproducible.
   `repro_lock: null` passes with a warning (explicit opt-out).
 - Existing passports with `repro_lock` absent fail the new lint. Existing passports with
   `repro_lock: null` pass with a warning. Populated blocks pass silently.
-- The integrity gate (Stage 2.5, Stage 4.5 in the academic pipeline) does NOT read
-  `repro_lock`. The lock is for post-hoc reproducibility investigation, not runtime
-  validation. Adding it does not change pipeline behavior.
+- The integrity gate (Stage 2.5, Stage 4.5 in the academic pipeline) reads `repro_lock` for
+  two things only: the passport-level `ars_version` for the D7 legacy boundary, and the shape
+  of each entry's nested lock. It does not judge the settings. The lock is for post-hoc
+  reproducibility investigation, not runtime validation.
+- An `experiment_provenance[]` entry nests its own lock, and its key is always required. When any
+  field has no honest value for the experiment, the entry carries `repro_lock: null` with a
+  `repro_lock_reason` instead of placeholders (see the entry schema, #1049).
 - `check_repro_lock.py` can be run standalone on any passport file. It is not wired into
-  the CI lint suite by default — it validates on-demand against specific passport files.
+  the CI lint suite by default — it validates on-demand against specific passport files. A
+  CI test runs it on the shipped `examples/passport_with_experiment_provenance.yaml`.
+- `check_repro_lock.py` uses `scripts/repro_lock_validation.py`, and entries use the JSON
+  entry schema. The two agree on required keys and value rules, checked by a drift test over
+  a fixed set of values. They differ on extra keys: only the entry schema rejects them.
 
 ## Red flags when reading a populated repro_lock
 
 - `model.weight_stable: true` — this value is not implemented yet; if you see it, the
   passport author is claiming something the infrastructure cannot verify. Treat as
-  suspicious until a signed attestation mechanism exists.
+  suspicious until a signed attestation mechanism exists. No validator rejects this value;
+  it is for the reader to catch.
 - `prompts.hash_timing` anything other than `"skill-load"` — this is an unknown variant
-  that the current tooling does not understand. The lint will not flag it as invalid, but
-  the semantics are undefined.
+  with undefined semantics. `check_repro_lock.py` and the entry schema both reject it, so
+  seeing one means the passport skipped those checks.
 - Empty or stub hashes (`"sha256:"` prefix with no content, or a short placeholder string
   like `"sha256:abc123"`) — the generator was broken or the author filled in a placeholder.
   Hashes should be 64-character hex strings for SHA-256.
 - `stochasticity_declaration` modified from the verbatim required string — the author is
   signalling they believe the lock is stronger than it is. Read the entire passport twice
-  before trusting any claims about reproducibility.
+  before trusting any claims about reproducibility. No validator compares this wording.
 
 ## How to generate a lock (for agent authors)
 

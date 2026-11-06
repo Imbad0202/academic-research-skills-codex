@@ -107,7 +107,9 @@ Instead it provides an explicit Codex orchestration contract:
   unmeasured;
 - upstream plugin-marketplace, hyphenated agent-name, and legacy-name guard
   changes are inactive Claude references; Codex loads prompts by file path;
-- ARS v3.24.1 retains model tiering as advisory metadata; it is applied only
+- an `experiment_provenance[]` entry may use `repro_lock: null` with a reason, and
+  `check_repro_lock.py` now fails required values that break their field rule;
+- ARS v3.24.2 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - the upstream write-scope guard's plugin-prefix and Windows timeout repairs
   remain inactive Claude-hook references; Codex has no `PreToolUse` write

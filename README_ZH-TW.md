@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.1-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.2-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -45,7 +45,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `3.24.1`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `3.24.2`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 自 `3.22.0` 起與內嵌 ARS 套件使用相同版號；舊有 `0.1.x` 紀錄保留原版號。
@@ -53,11 +53,14 @@ skills/academic-research-suite/
 
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-目前內嵌的 ARS 原始碼對齊 **v3.24.1**：
-`Imbad0202/academic-research-skills@bcbcac39e874744cda98d6ddaaf765cfd00b0e40`。
-本版讓審查在 Phase 0 之後暫停：先顯示每一張 Reviewer Configuration Card，
+目前內嵌的 ARS 原始碼對齊 **v3.24.2**：
+`Imbad0202/academic-research-skills@fd5ff1b858374219b4d342e38587b66e18f61cbd`。
+本版包含上游 v3.24.1 與 v3.24.2。審查會在 Phase 0 之後暫停：先顯示每一張 Reviewer Configuration Card，
 使用者在自己的回合接受整組（可附修改）之前，不啟動任何審查席位。只有使用者本人要求略過
 卡片確認時才會略過。這是 prompt 層級的規則，Codex 工作階段是否確實停下尚未量測。
+沒有可如實填寫鎖定值的實驗，可用 `repro_lock: null` 並附理由；較早版本不接受這種寫法。
+`check_repro_lock.py` 變得更嚴格，部分原本通過的 passport 現在會失敗。
+sr-screener 研究方法段落的句子已修正；較早版本產生的文字仍是舊句，請自行更正。
 上游的 claude.ai 安裝、插件 agent 名稱與舊名稱 guard 修改，在 Codex 中仍是未啟用的參考整合。
 本版沒有新增 workflow，原生模型策略維持不變。
 語言配對目前僅支援 `zh-tw-en`；西班牙文觸發詞不代表已提供西班牙文輸出語系包。
@@ -325,10 +328,10 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.24.1 功能對等
+### ARS v3.24.2 功能對等
 
-本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.24.1`
-（`bcbcac39e874744cda98d6ddaaf765cfd00b0e40`），並記錄模型與 runtime overlay。
+本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.24.2`
+（`fd5ff1b858374219b4d342e38587b66e18f61cbd`），並記錄模型與 runtime overlay。
 
 Codex adapter 對書目網路行為採以下明確邊界：
 
@@ -353,6 +356,7 @@ Codex adapter 對書目網路行為採以下明確邊界：
 | Canonical cross-model handoff envelope | Dispatcher 驗證 envelope、取得同意後只傳送 payload，並依封閉的結果路由 contract 執行 |
 | Run ledger 與交接檢查 | 有 passport 檔案時，pipeline prompt 指示呼叫端在本機記錄使用者原話、步驟回條與檔案雜湊；確定性報告檢查壓縮、續跑及子 agent 回傳後的交接，不構成新的授權 |
 | 確定性縮寫檢查 | 呼叫端在本機檢查已儲存的草稿與摘要，明示不完整覆蓋；審查附件僅供參考，不作為決定、修訂路線圖或再審標準的依據 |
+| 實驗鎖定值驗證 | 項目可用 `repro_lock: null` 並附理由，較早版本不接受；必填鎖定值須符合欄位規則，部分原本通過的 passport 現在會失敗 |
 | 審查設定卡確認 | Phase 0 之後顯示每一張卡片，使用者在自己的回合接受整組前不啟動審查席位；只有使用者本人要求才略過；是否確實遵循尚未量測 |
 | 審查決定信附件 | 建議文獻查核只在明確要求時執行；審查意見查核交給一個隔離、無工具的子 agent，不在主對話中自行判斷；兩者都不作為決定、修訂路線圖或再審標準的依據 |
 | 指令與資料邊界及路由 | Workflow intake、dispatch 與工具讀取的第三方文字均視為資料；明確請求即使缺少輸入仍留在所選模式，Claude 啟動 hooks 維持不啟用 |

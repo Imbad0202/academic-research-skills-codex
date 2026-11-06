@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.1-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.2-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -48,15 +48,18 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `3.24.1`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `3.24.2`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-当前内嵌的 ARS 源码对齐 **v3.24.1**：
-`Imbad0202/academic-research-skills@bcbcac39e874744cda98d6ddaaf765cfd00b0e40`。
-本版让评审在 Phase 0 之后暂停：先显示每一张 Reviewer Configuration Card，
+当前内嵌的 ARS 源码对齐 **v3.24.2**：
+`Imbad0202/academic-research-skills@fd5ff1b858374219b4d342e38587b66e18f61cbd`。
+本版包含上游 v3.24.1 与 v3.24.2。评审会在 Phase 0 之后暂停：先显示每一张 Reviewer Configuration Card，
 用户在自己的回合接受整组（可附修改）之前，不启动任何评审席位。只有用户本人要求跳过
 卡片确认时才会跳过。这是 prompt 层级的规则，Codex 会话是否确实停下尚未测量。
+没有可如实填写锁定值的实验，可用 `repro_lock: null` 并附理由；较早版本不接受这种写法。
+`check_repro_lock.py` 变得更严格，部分原本通过的 passport 现在会失败。
+sr-screener 研究方法段落的句子已修正；较早版本生成的文字仍是旧句，请自行更正。
 上游的 claude.ai 安装、插件 agent 名称与旧名称 guard 修改，在 Codex 中仍是未启用的参考集成。
 本版没有新增 workflow，原生模型策略保持不变。
 语言配对目前仅支持 `zh-tw-en`；西班牙语触发词不代表已提供西班牙语输出语言包。
@@ -334,9 +337,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.24.1 功能对等
+### ARS v3.24.2 功能对等
 
-本包在 Codex 具有等效概念之处，适配上游 ARS `v3.24.1`（`bcbcac39e874744cda98d6ddaaf765cfd00b0e40`），并记录模型与 runtime overlay。
+本包在 Codex 具有等效概念之处，适配上游 ARS `v3.24.2`（`fd5ff1b858374219b4d342e38587b66e18f61cbd`），并记录模型与 runtime overlay。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|
@@ -352,6 +355,7 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 | 用途受限的 Codex citation transport | 仅在明确配置、请求并取得同意后用于窄范围 citation-integrity 检查 |
 | Run ledger 与交接检查 | 有 passport 文件时，pipeline prompt 指示调用端在本地记录用户原话、步骤回执和文件哈希；确定性报告检查压缩、续跑及子 agent 返回后的交接，不构成新的授权 |
 | 确定性缩写检查 | 调用端在本地检查已保存的草稿和摘要，明确标示不完整覆盖；评审附件仅供参考，不作为决定、修订路线图或复审标准的依据 |
+| 实验锁定值验证 | 条目可用 `repro_lock: null` 并附理由，较早版本不接受；必填锁定值须符合字段规则，部分原本通过的 passport 现在会失败 |
 | 评审配置卡确认 | Phase 0 之后显示每一张卡片，用户在自己的回合接受整组前不启动评审席位；只有用户本人要求才跳过；是否确实遵循尚未测量 |
 | 编辑决定信附件 | 建议文献查核只在明确要求时执行；评审意见查核交给一个隔离、无工具的子 agent，不在主对话中自行判断；两者都不作为决定、修订路线图或复审标准的依据 |
 | 指令与数据边界及路由 | Workflow intake、dispatch 和工具读取的第三方文本均视为数据；明确请求即使缺少输入仍留在所选模式，Claude 启动 hooks 保持不启用 |

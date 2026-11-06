@@ -1,6 +1,6 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "3.24.1",
+  "adapter_version": "3.24.2",
   "version_file": "VERSION",
   "generated_for": "codex",
   "generated_date": "2026-11-06",
@@ -8,7 +8,7 @@
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "bcbcac39e874744cda98d6ddaaf765cfd00b0e40",
+      "commit": "fd5ff1b858374219b4d342e38587b66e18f61cbd",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -46,8 +46,8 @@
         "plugin-evals-citation-check",
         "plugin-evals-citation-locale"
       ],
-      "version": "3.24.1",
-      "tag": "v3.24.1"
+      "version": "3.24.2",
+      "tag": "v3.24.2"
     },
     {
       "name": "experiment-agent",
@@ -140,7 +140,7 @@
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper requires Bash 4+; macOS stock Bash 3.2 fails its version guard, and wrapper e2e tests skip unless Bash 4+ is available on PATH.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "ARS v3.24.1 at bcbcac39e874744cda98d6ddaaf765cfd00b0e40 is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.24.1. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
+    "ARS v3.24.2 at fd5ff1b858374219b4d342e38587b66e18f61cbd is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.24.2. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its 43-agent ARS classification sweep.",
     "Korean and Spanish intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
@@ -205,6 +205,7 @@
     "The v3.23.1 guard namespace test uses the pinned ARS source name when the intentionally excluded Claude plugin manifest is unavailable in this Codex distribution; all guard behavior and captured-payload tests remain active. The already inactive calibration-tier class reports explicit skips during full-tree pytest discovery.",
     "ARS v3.23.2 requires Phase E to use only the cited version of each work, retain access outcomes when it is unreadable or version-ambiguous, and request that version's PDF. Stage 2.5 runs before Stage 3 even with a prior integrity report; missing required inputs block handoff. The Obsidian and POSIX-path lint repairs are preserved. SessionStart systemMessage and Pi structured-prompt changes remain inactive reference integrations in Codex; upstream Claude fixture results are not Codex behavior measurements.",
     "ARS v3.24.0 adds two advisory Editorial Decision Letter attachments. In Codex the suggested-reference check (#1001) launches its live resolver clients only on explicit request; the reviewer claim check (#1002) is on unless ARS_PANEL_CLAIM_CHECK=0 and requires a fresh, tool-less native worker, never an inline judge. Integrity freshness is under 24 hours even within one session, and entering Stage 5 with a revised paper runs Stage 4.5 first. The held-out #1002 dispatcher, the one-process guard launcher, and the SessionStart notice change are inactive references in Codex.",
-    "ARS v3.24.1 makes the reviewer stop after Phase 0 until the user accepts the Reviewer Configuration Cards in their own turn (#1030); this is a prompt-level rule and live Codex compliance is unmeasured. The claude.ai account-marketplace install (#1035, #1037, #1041), hyphenated plugin agent names, and legacy-name guard mapping are inactive Claude references: Codex loads agent prompts by file path. The vendored skill-inventory parity lint needs the intentionally excluded Claude plugin manifests and is not a Codex gate. README.pt-BR is vendored as reference and adds no trigger or output-locale pack."
+    "ARS v3.24.1 makes the reviewer stop after Phase 0 until the user accepts the Reviewer Configuration Cards in their own turn (#1030); this is a prompt-level rule and live Codex compliance is unmeasured. The claude.ai account-marketplace install (#1035, #1037, #1041), hyphenated plugin agent names, and legacy-name guard mapping are inactive Claude references: Codex loads agent prompts by file path. The vendored skill-inventory parity lint needs the intentionally excluded Claude plugin manifests and is not a Codex gate. README.pt-BR is vendored as reference and adds no trigger or output-locale pack.",
+    "ARS v3.24.2 lets an experiment_provenance entry use repro_lock: null with a repro_lock_reason (#1049), makes check_repro_lock.py fail required values that break their field rule (#1050), and corrects the sr-screener methods sentence (#1039). Earlier ARS-Codex releases reject the null form. The upstream SETUP changes for uploaded skills (#1040) are inactive Claude references. ARS-Codex did not publish a separate 3.24.1; this release carries both upstream patches."
   ]
 }

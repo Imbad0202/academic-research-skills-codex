@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.1-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.2-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -38,11 +38,11 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `3.24.1` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
+この ARS-Codex パッケージのバージョンは `3.24.2` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 
-ベンダリングした ARS は **v3.24.1**、`Imbad0202/academic-research-skills@bcbcac39e874744cda98d6ddaaf765cfd00b0e40` に揃えています。このリリースでは、査読は Phase 0 の後で停止します。すべての Reviewer Configuration Card を表示し、利用者が自分のターンで全体を承認するまで（修正を添えても構いません）、査読席を開始しません。カード確認を省略するのは、利用者本人が省略を依頼した場合のみです。これは prompt レベルの規則であり、Codex のセッションが実際に停止するかは未測定です。上流の claude.ai インストール、プラグイン agent 名、旧名称の guard の変更は、Codex では無効な参考実装です。新しい workflow はなく、ネイティブモデル方針は変わりません。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
+ベンダリングした ARS は **v3.24.2**、`Imbad0202/academic-research-skills@fd5ff1b858374219b4d342e38587b66e18f61cbd` に揃えています。このリリースには上流の v3.24.1 と v3.24.2 が含まれます。査読は Phase 0 の後で停止します。すべての Reviewer Configuration Card を表示し、利用者が自分のターンで全体を承認するまで（修正を添えても構いません）、査読席を開始しません。カード確認を省略するのは、利用者本人が省略を依頼した場合のみです。これは prompt レベルの規則であり、Codex のセッションが実際に停止するかは未測定です。正直に記入できるロック値がない実験は、理由を添えて `repro_lock: null` を使えます。以前のリリースはこの形式を受け付けません。`check_repro_lock.py` は厳しくなり、これまで通っていた passport の一部は失敗するようになります。sr-screener の方法記述の文は修正されました。以前のリリースが生成した文は古いままなので、手作業で修正してください。上流の claude.ai インストール、プラグイン agent 名、旧名称の guard の変更は、Codex では無効な参考実装です。新しい workflow はなく、ネイティブモデル方針は変わりません。言語ペアは現在 `zh-tw-en` のみで、スペイン語のトリガーは出力ロケールパックの提供を意味しません。Claude のモデル監査と評価資料は参考用であり、Codex のモデル方針を変更せず、Codex の性能測定でもありません。
 
 ## モデルと実行方式
 
@@ -272,9 +272,9 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 - アップストリームの「fresh Claude Code session」という記述は、このパッケージでは新しい Codex セッションを意味します。Material Passport のリセットセマンティクスは引き続き適用されます。
 - 引用、ソース、統計、またはジャーナルポリシーが検証できない場合、Codex は根拠を捏生するのではなく、未検証としてマークする必要があります。
 
-### ARS v3.24.1 パリティ
+### ARS v3.24.2 パリティ
 
-このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.24.1`（`bcbcac39e874744cda98d6ddaaf765cfd00b0e40`）を適合し、モデルと runtime overlay を記録します。
+このパッケージは、Codex に同等の概念が存在する範囲で、アップストリーム ARS `v3.24.2`（`fd5ff1b858374219b4d342e38587b66e18f61cbd`）を適合し、モデルと runtime overlay を記録します。
 
 | アップストリーム ARS 機能 | Codex パッケージの動作 |
 |---|---|
@@ -288,6 +288,7 @@ ARS は元々 Claude Code 向けに作成されました。この Codex パッ�
 | 用途を限定した Codex citation transport | 明示的に設定・要求され、同意が得られた場合のみ、狭い citation-integrity チェックに使用されます |
 | Run ledger と引き継ぎ確認 | passport ファイルがある場合、pipeline prompt はユーザーの原文、ステップの実行記録、ファイルハッシュをローカルに記録するよう呼び出し元に指示します。決定的なレポートが圧縮、再開、subagent の返却後の引き継ぎを確認しますが、新しい承認の根拠にはなりません |
 | 決定的な略語チェック | 呼び出し元が保存済みの草稿と要旨をローカルで検査し、部分的な検査範囲を明示します。レビュー添付は助言に限定し、判定、改訂ロードマップ、再レビュー基準の根拠にしません |
+| 実験ロック値の検証 | 項目は理由を添えて `repro_lock: null` を使える（以前のリリースは受け付けない）。必須のロック値はフィールド規則に従う必要があり、これまで通っていた passport の一部は失敗する |
 | 査読設定カードの確認 | Phase 0 の後ですべてのカードを表示し、利用者が自分のターンで全体を承認するまで査読席を開始しない。利用者本人の依頼でのみ省略。遵守は未測定 |
 | 編集判定書の添付 | 推奨文献チェックは明示的な依頼があった場合のみ実行します。レビュー指摘チェックは隔離されたツールなしの subagent が行い、呼び出し元で判定しません。どちらも判定、改訂ロードマップ、再レビュー基準の根拠にしません |
 | 指示とデータの境界およびルーティング | Workflow intake、dispatch、ツールで読む第三者の文章をデータとして扱い、明示的な要求は入力不足でも選択したモードに留めます。Claude の起動 hooks は有効化しません |
