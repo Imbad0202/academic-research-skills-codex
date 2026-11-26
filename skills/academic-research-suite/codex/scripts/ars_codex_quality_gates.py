@@ -223,17 +223,20 @@ def check_manifest() -> list[str]:
         (ARS_ROOT / "academic-pipeline" / "WORKFLOW.md").read_text(encoding="utf-8"),
     )
     _require(bool(suite_match), "academic-pipeline suite version is missing")
+    suite_version = suite_match.group(1)
     _require(
-        suite_match.group(1) == adapter_version,
-        f"upstream suite version {suite_match.group(1)!r} != adapter version {adapter_version!r}",
+        isinstance(adapter_version, str)
+        and re.fullmatch(re.escape(suite_version) + r"(?:\+codex\.[1-9][0-9]*)?", adapter_version),
+        f"adapter version {adapter_version!r} must use upstream suite version {suite_version!r} "
+        "with an optional +codex.N build suffix",
     )
     sources = [source for source in package.get("source_repositories", [])
                if source.get("name") == "academic-research-skills"]
     _require(len(sources) == 1, "package requires exactly one ARS source lock")
     _require(
-        sources[0].get("version") == adapter_version
-        and sources[0].get("tag") == f"v{adapter_version}",
-        "ARS source version/tag must match the adapter release",
+        sources[0].get("version") == suite_version
+        and sources[0].get("tag") == f"v{suite_version}",
+        "ARS source version/tag must match the upstream suite version",
     )
     skill_match = re.search(
         r'(?m)^\s+version:\s*"([^"]+)"\s*$',
@@ -256,7 +259,7 @@ def check_manifest() -> list[str]:
             repo_version == adapter_version,
             f"repo VERSION {repo_version!r} != adapter version {adapter_version!r}",
         )
-    messages.append(f"package version {adapter_version} is aligned across upstream suite, source tag, skill, manifest, plugin, and VERSION")
+    messages.append(f"package version {adapter_version} matches skill, manifest, plugin and VERSION; upstream suite and source tag match {suite_version}")
 
     for key, value in manifest["paths"].items():
         if key in {"adapter_root"}:

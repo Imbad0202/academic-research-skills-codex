@@ -4,6 +4,18 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.24.5+codex.1] - 2026-11-26
+
+- The E4 methodology reviewer now receives the evidence-anchor grammar inside
+  its numeric extraction prompt. Each of the five reviewers also carries its
+  criteria disclosure from blind planning into the report used for synthesis.
+- On three public synthetic manuscripts reviewed twice each, the corrected
+  dispatcher delivered six complete reports. The previous release delivered
+  none in the same setup. All six successful runs used one synthesis retry to
+  produce the required decision-letter and revision-roadmap headings.
+- The Codex package remains based on upstream ARS v3.24.5 at `74453f8`.
+  [Fix and test results](https://github.com/Imbad0202/academic-research-skills-codex/pull/53)
+
 ## [3.24.5] - 2026-11-26
 
 ### What's Changed

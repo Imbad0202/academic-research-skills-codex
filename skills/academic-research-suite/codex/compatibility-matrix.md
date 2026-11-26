@@ -10,7 +10,7 @@ Audit date: 2026-11-26
 | Upstream Claude Code repo | Tracked in `skills/academic-research-suite/manifest.json` |
 | Upstream suite version | `v3.24.5` |
 | Upstream component versions | deep-research `2.12.1`; academic-paper `3.3.1`; academic-paper-reviewer `1.11.1`; academic-pipeline `3.24.5`; sr-screener `1.0.0` |
-| Codex package version | `3.24.5` |
+| Codex package version | `3.24.5+codex.1` |
 | License | CC BY-NC 4.0 in upstream and Codex package |
 | Upstream sync status | Vendored `ars/` synced to `v3.24.5` at `74453f859a4625954e5d2a7dd30c5d716842d060`, with documented Codex overlays |
 | Codex-only adapter location | `skills/academic-research-suite/codex/` |

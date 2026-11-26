@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.5-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.5%2Bcodex.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -38,7 +38,7 @@ Claude Code ネイティブのスキルレイアウト、Claude 固有の agent-
 
 ## バージョニング
 
-この ARS-Codex パッケージのバージョンは `3.24.5` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、`3.22.0` から内包する ARS スイートと同じバージョン番号を使います。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
+この ARS-Codex パッケージのバージョンは `3.24.5+codex.1` です。リポジトリルートの `VERSION` ファイル、`skills/academic-research-suite/SKILL.md` のメタデータバージョン、および `skills/academic-research-suite/manifest.json` の `adapter_version` は、完全なパッケージバージョンを示します。`3.22.0` 以降、基本バージョンは上流に合わせ、Codex 固有の修正版には `+codex.N` を付けます。過去の `0.1.x` 番号は履歴として保持します。上流のバージョン、tag、完全な commit は `manifest.source_repositories[]` に記録します。
 
 パッケージレベルの変更内容は [`CHANGELOG.md`](CHANGELOG.md) にまとめられています。
 

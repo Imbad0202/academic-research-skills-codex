@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.5-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.5%2Bcodex.1-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -48,7 +48,7 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `3.24.5`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `3.24.5+codex.1`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 均记录完整包版本号。自 `3.22.0` 起，基础版本号跟随上游，Codex 专属修订版加上 `+codex.N`。原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 

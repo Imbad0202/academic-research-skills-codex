@@ -1,6 +1,6 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "3.24.5",
+  "adapter_version": "3.24.5+codex.1",
   "version_file": "VERSION",
   "generated_for": "codex",
   "generated_date": "2026-11-26",
@@ -188,7 +188,7 @@
     "Codex model/runtime policy retires manual-only native delegation, fixed Socratic question counts and stale numeric self-scoring. Stage gates, actual author decisions, source verification, least privilege and review blindness remain in force.",
     "ARS v3.22.0 incorporates the earlier Codex API-effort, contained-transport, audit-provenance, and writing-diagnostic fixes upstream. Use those canonical implementations: unknown judge identity isolates cache entries by audit_run_id while preserving within-run deduplication. General Codex research sessions may still explicitly select ultra; the citation-only transport rejects it.",
     "Live runner defaults and model-identity cache behavior are aligned separately from frozen historical measurements. Generic punctuation/paragraph quotas and unsupported-fact hedging recovery are retired; actual author/venue constraints and evidence contracts remain.",
-    "Starting at 3.22.0, the Codex package version matches the vendored ARS suite release; VERSION, root router, package manifest, plugin manifest, source version, and academic-pipeline metadata must agree. Historical 0.1.x releases retain their original numbers.",
+    "Starting at 3.22.0, the Codex package version uses the vendored ARS suite version, with an optional +codex.N build for distribution-specific fixes. VERSION, the router, the package manifest and the plugin manifest carry the full package version. The source tag and academic-pipeline metadata identify the upstream version.",
     "The Phase-1 output_language_pair contract supports only zh-tw-en, defaults to the legacy Traditional Chinese/English abstract surfaces when omitted, and rejects malformed or unregistered values visibly. Spanish intent routing does not imply a Spanish output-locale pack or a manuscript-body language change.",
     "Upstream plugin-evals and plugin-evals-citation-check are retained as Claude evaluation source material, not native Codex eval runners or evidence of Codex effectiveness. The reviewer-calibration harness is vendored without launching live provider calls or corpus downloads.",
     "The v3.23.1 routing core is preserved across the five core WORKFLOW.md entries and adapted at the single Codex router: explicit modes retain their intent with missing inputs, cross-phase ambiguity is clarified before dispatch, and direct-mode is recognized only at the first non-whitespace position of the first request. Claude command Skill-tool calls and CLAUDE_PLUGIN_ROOT paths resolve to local vendored workflow recipes in Codex, with required load failures reported rather than silently bypassed.",

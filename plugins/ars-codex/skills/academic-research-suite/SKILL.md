@@ -14,7 +14,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, /ars-full.
   Prompts, references, templates, and contracts live under ars/.
 metadata:
-  version: "3.24.5"
+  version: "3.24.5+codex.1"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -27,9 +27,9 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `3.24.5`. The repo-root `VERSION`, this
+This Codex package is version `3.24.5+codex.1`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
-Starting at `3.22.0`, this release number also matches the vendored ARS suite.
+The base version matches the vendored ARS suite. A `+codex.N` suffix identifies a Codex-specific build.
 The exact upstream version, tag, and commit are recorded in `manifest.json`;
 historical `0.1.x` package releases retain their original numbers.
 

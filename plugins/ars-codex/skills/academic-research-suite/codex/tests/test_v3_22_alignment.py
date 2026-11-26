@@ -65,6 +65,19 @@ def test_package_gate_rejects_drifted_upstream_suite(tmp_path, monkeypatch):
         gates.check_manifest()
 
 
+@pytest.mark.parametrize("suffix", ["+codex.0", "+codex.01", "+other.1", "-codex.1"])
+def test_package_gate_rejects_malformed_codex_build(tmp_path, monkeypatch, suffix):
+    gates = load_script("ars_codex_quality_gates")
+    package = json.loads(gates.PACKAGE_MANIFEST.read_text())
+    source = next(s for s in package["source_repositories"] if s["name"] == "academic-research-skills")
+    package["adapter_version"] = source["version"] + suffix
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(package))
+    monkeypatch.setattr(gates, "PACKAGE_MANIFEST", path)
+    with pytest.raises(gates.GateFailure, match="upstream suite version"):
+        gates.check_manifest()
+
+
 @pytest.mark.parametrize("field", ["version", "tag"])
 def test_package_gate_rejects_drifted_source_release(tmp_path, monkeypatch, field):
     gates = load_script("ars_codex_quality_gates")
