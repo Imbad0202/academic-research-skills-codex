@@ -1,14 +1,14 @@
 {
   "name": "academic-research-suite",
-  "adapter_version": "3.24.2",
+  "adapter_version": "3.24.5",
   "version_file": "VERSION",
   "generated_for": "codex",
-  "generated_date": "2026-11-06",
+  "generated_date": "2026-11-26",
   "source_repositories": [
     {
       "name": "academic-research-skills",
       "url": "https://github.com/Imbad0202/academic-research-skills.git",
-      "commit": "fd5ff1b858374219b4d342e38587b66e18f61cbd",
+      "commit": "74453f859a4625954e5d2a7dd30c5d716842d060",
       "included_paths": [
         "deep-research",
         "academic-paper",
@@ -46,8 +46,8 @@
         "plugin-evals-citation-check",
         "plugin-evals-citation-locale"
       ],
-      "version": "3.24.2",
-      "tag": "v3.24.2"
+      "version": "3.24.5",
+      "tag": "v3.24.5"
     },
     {
       "name": "experiment-agent",
@@ -140,7 +140,7 @@
     "The Codex package carries scripts/codex_v3_6_7_block_baseline.json so first-time vendored trees can enforce v3.6.7 block byte-equivalence before Git history contains the upstream manifest.",
     "The Codex audit wrapper requires Bash 4+; macOS stock Bash 3.2 fails its version guard, and wrapper e2e tests skip unless Bash 4+ is available on PATH.",
     "Vendored test utilities keep macOS stock Python 3.9 compatibility where Codex local validation depends on it.",
-    "ARS v3.24.2 at fd5ff1b858374219b4d342e38587b66e18f61cbd is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.24.2. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
+    "ARS v3.24.5 at 74453f859a4625954e5d2a7dd30c5d716842d060 is the upstream source lock. Component versions remain deep-research 2.12.1, academic-paper 3.3.1, academic-paper-reviewer 1.11.1; sr-screener is 1.0.0 and academic-pipeline/suite is 3.24.5. Claude loader files remain excluded and nested .github workflows remain inactive traceability inputs.",
     "ARS_MODEL_TIERING is classification-compatible but remains advisory in Codex unless the runtime exposes explicit per-dispatch model selection; unset and unsupported cases keep the active model.",
     "The upstream model-tiering validator excludes the separately vendored experiment-agent tree from its 43-agent ARS classification sweep.",
     "Korean and Spanish intent triggers are propagated into the root Codex router and optional full-runtime planner because vendored WORKFLOW.md frontmatter is not independently registered.",
@@ -206,6 +206,13 @@
     "ARS v3.23.2 requires Phase E to use only the cited version of each work, retain access outcomes when it is unreadable or version-ambiguous, and request that version's PDF. Stage 2.5 runs before Stage 3 even with a prior integrity report; missing required inputs block handoff. The Obsidian and POSIX-path lint repairs are preserved. SessionStart systemMessage and Pi structured-prompt changes remain inactive reference integrations in Codex; upstream Claude fixture results are not Codex behavior measurements.",
     "ARS v3.24.0 adds two advisory Editorial Decision Letter attachments. In Codex the suggested-reference check (#1001) launches its live resolver clients only on explicit request; the reviewer claim check (#1002) is on unless ARS_PANEL_CLAIM_CHECK=0 and requires a fresh, tool-less native worker, never an inline judge. Integrity freshness is under 24 hours even within one session, and entering Stage 5 with a revised paper runs Stage 4.5 first. The held-out #1002 dispatcher, the one-process guard launcher, and the SessionStart notice change are inactive references in Codex.",
     "ARS v3.24.1 makes the reviewer stop after Phase 0 until the user accepts the Reviewer Configuration Cards in their own turn (#1030); this is a prompt-level rule and live Codex compliance is unmeasured. The claude.ai account-marketplace install (#1035, #1037, #1041), hyphenated plugin agent names, and legacy-name guard mapping are inactive Claude references: Codex loads agent prompts by file path. The vendored skill-inventory parity lint needs the intentionally excluded Claude plugin manifests and is not a Codex gate. README.pt-BR is vendored as reference and adds no trigger or output-locale pack.",
-    "ARS v3.24.2 lets an experiment_provenance entry use repro_lock: null with a repro_lock_reason (#1049), makes check_repro_lock.py fail required values that break their field rule (#1050), and corrects the sr-screener methods sentence (#1039). Earlier ARS-Codex releases reject the null form. The upstream SETUP changes for uploaded skills (#1040) are inactive Claude references. Vendored docs/SETUP.md, docs/SETUP.zh-TW.md, and docs/CONTROL_AVAILABILITY.md keep the upstream SKILL.md name because they describe Claude channels, where that is the real file name. ARS-Codex did not publish a separate 3.24.1; this release carries both upstream patches."
+    "ARS v3.24.2 lets an experiment_provenance entry use repro_lock: null with a repro_lock_reason (#1049), makes check_repro_lock.py fail required values that break their field rule (#1050), and corrects the sr-screener methods sentence (#1039). Earlier ARS-Codex releases reject the null form. The upstream SETUP changes for uploaded skills (#1040) are inactive Claude references. Vendored docs/SETUP.md, docs/SETUP.zh-TW.md, and docs/CONTROL_AVAILABILITY.md keep the upstream SKILL.md name because they describe Claude channels, where that is the real file name. ARS-Codex did not publish a separate 3.24.1; this release carries both upstream patches.",
+    "ARS v3.24.3 adds a user-language author letter beside the machine-readable decision package, explicit field-analyst coverage and confirmed-venue boundaries, Han/kana-aware Phase 1 checks, and validated Zotero/Obsidian imports. Standalone citation-check and revision report findings without rewriting the draft.",
+    "ARS v3.24.4 preserves CORROBORATED and SINGLE-REVIEWER findings in roadmap schema 1.1 and the author letter, limits committee correspondence to formal research-ethics or human-subjects review, and adds anchored no-follow readers with a Windows fallback. Hermetic fallback tests do not establish native Windows execution.",
+    "gpt-6.2-astra is the upstream provisional OpenAI cross-model verifier recommendation. Its upstream entry-gate citation-transport smoke is not a validation of all API routes or a transfer of the gpt-6-astra panel-claim measurement. Native Codex model policy remains separate and explicit provider/content/cost consent still applies.",
+    "ARS v3.24.5 re-checks citations before academic-paper full-mode Phase 7 after Phase 6 or Option A citation/reference edits; the re-check draft and list become formatter inputs. A changed accepted version is disclosed and confirmation is requested. Standalone chat edits outside that loop remain outside this rule. Non-APA citation compliance is report-only; Tier 0 requires exact normalized title and first-author checks at prompt level, while script DOI scoring remains distinct.",
+    "ARS v3.24.5 preserves formatter content and incoming mismatch warnings, Crossref disputed date handling, empty-title refusal and HTTP-failure handling. A premise check requires an explicit user request, stays single-agent and unmeasured, never decides the whole claim, and retains the documented four-premise and empty-needed-set limitations.",
+    "New reviewer author-letter and premise-rule validators resolve WORKFLOW.md in the Codex distribution; pipeline content locks are recomputed only for the preserved path overlays. Claude setup/control docs and new Claude audit records keep upstream loader names as reference evidence.",
+    "The #907 committee-correspondence entry-point test checks the registered Codex root router instead of the intentionally excluded .claude/CLAUDE.md loader. Reviewer-card adapters include Coverage, Stakeholder Coverage, anchored checks and a fresh confirmation after newly readable input; the full-review caller writes and validates the separate author letter after the final package attachment."
   ]
 }

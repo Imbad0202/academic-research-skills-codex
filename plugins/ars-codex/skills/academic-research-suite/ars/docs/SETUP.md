@@ -32,7 +32,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 irm https://claude.ai/install.ps1 | iex
 ```
 
-**Platform support.** macOS and Linux are the tested platforms; CI runs on Ubuntu only. Windows is best-effort: the scripts that lock files share one helper (`scripts/file_lock.py`) with an `msvcrt` backend, no Windows CI job exists, and Windows behaviour rests on contributor verification (#843, #845). On Windows, shared read locks degrade to exclusive locks with a short wait, indefinite lock waits are capped at 30 seconds, and the inquiry branch ledger alpha refuses to run.
+**Platform support.** macOS and Linux are the tested platforms; CI runs on Ubuntu only. Windows is best-effort: the scripts that lock files share one helper (`scripts/file_lock.py`) with an `msvcrt` backend, no Windows CI job exists, and Windows behaviour rests on contributor verification (#843, #845). On Windows, shared read locks degrade to exclusive locks with a short wait, indefinite lock waits are capped at 30 seconds, and the inquiry branch ledger alpha refuses to run. Scripts that read an explicit input without following symlinks share one helper (`scripts/_anchored_open.py`, #1092): on POSIX it walks the path by directory descriptor, and on Windows, which has no `dir_fd`, it walks by path and rejects symlinks and reparse points before and after the open. That check is best-effort and not atomic, so a path component swapped during the read can go undetected there.
 
 <details>
 <summary>Alternative: npm install (deprecated)</summary>
@@ -197,18 +197,19 @@ ARS works with the inherited Claude session model alone. For higher confidence, 
 
 ```bash
 # Step 1: Set your API key (choose one or both)
-export OPENAI_API_KEY="sk-your-key-here"        # For GPT-6 Astra / GPT-5.6 Sol / GPT-5.5
+export OPENAI_API_KEY="sk-your-key-here"        # For GPT-6.2 Astra / GPT-6 Astra / GPT-5.6 Sol / GPT-5.5
 export GOOGLE_AI_API_KEY="AIza-your-key-here"    # For Gemini 4 Argon / Gemini 3.1 Pro
 
 # Step 2: Choose your cross-verification model
-export ARS_CROSS_MODEL="gpt-6-astra"            # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
+export ARS_CROSS_MODEL="gpt-6.2-astra"          # Current OpenAI flagship — provisional pending ARS validation (run scripts/cross_model_smoke_test.sh)
+# or: export ARS_CROSS_MODEL="gpt-6-astra"      # Previous OpenAI generation — provisional pending ARS validation
 # or: export ARS_CROSS_MODEL="gemini-4-argon"  # Current Google flagship — provisional pending ARS validation (no Gemini smoke script; check one known citation first)
 # or: export ARS_CROSS_MODEL="gemini-3.1-pro-preview"  # Previous Google generation — validated, strong at factual verification
 # or: export ARS_CROSS_MODEL="gpt-5.6-sol"      # Previous generation — validated on the ChatGPT-subscription citation transport, provisional on this API route
 # or: export ARS_CROSS_MODEL="gpt-5.5"          # Previous generation — validated (designated API-route bakeoff baseline)
 
 # Optional: reasoning effort for OpenAI verifier calls (unset = provider default)
-# GPT-6 Astra API: low|medium|high|xhigh|max (the Codex citation transport rejects ultra)
+# GPT-6 Astra and GPT-6.2 Astra API: low|medium|high|xhigh|max (the Codex citation transport rejects ultra)
 # export ARS_CROSS_MODEL_REASONING_EFFORT="medium"
 
 # Step 3: Run Claude Code as normal — cross-verification activates automatically
@@ -241,15 +242,18 @@ Devil's Advocate, Reviewer 2, calibration, re-review, or checkpoint judgments.
 ```bash
 # Citation-integrity calls only. General DA/reviewer/judgment calls remain on API transport.
 export ARS_CROSS_MODEL_TRANSPORT="codex"
-# gpt-6-astra: current OpenAI flagship — provisional on this transport (entry-gate
-# smoke PASS 2026-09-05 on codex-cli 0.153.4; no bakeoff run yet).
-export ARS_CROSS_MODEL="gpt-6-astra"
+# gpt-6.2-astra: current OpenAI flagship — provisional on this transport (entry-gate
+# smoke PASS 2026-11-18 on codex-cli 0.170.0; no bakeoff run yet).
+export ARS_CROSS_MODEL="gpt-6.2-astra"
+# gpt-6-astra: previous generation — provisional on this transport (entry-gate
+# smoke PASS 2026-09-05 on codex-cli 0.153.4; no bakeoff run yet):
+# export ARS_CROSS_MODEL="gpt-6-astra"
 # gpt-5.6-sol is validated for THIS transport (2026-08-19 codex-transport bakeoff,
 # superiority on recall + latency — audits/bakeoff-gpt-5-6-sol-codex-2026-08-19.md):
 # export ARS_CROSS_MODEL="gpt-5.6-sol"
 
 python3 scripts/cross_model_codex_transport.py detect
-# The producer sends one closed codex_citation_request/1.0 object on stdin:
+# The producer sends one closed ars-codex-citation-request/1.0 object on stdin:
 printf '%s' "$CITATION_REQUEST_JSON" | scripts/cross_model_codex_verify.sh
 ```
 

@@ -520,7 +520,8 @@
     "screening_independence": "Explicit-only sr-screener work uses the emitted-prompt path and fresh blinded workers without inherited history. Preserve Read/Grep-only reviewer scope, user-confirmed protocol, human pilot, concrete model/cost approval, required QC and final human verification. Never simulate dual review inline or execute the generated Claude Workflow script in Codex.",
     "pipeline_required_inputs": "Missing required input returns HANDOFF_INCOMPLETE and blocks the next stage until backfilled; missing recommended input is reported but does not block. Stage 2.5 always runs before Stage 3, including mid-entry. A VERIFIED, fresh, current-version prior report is attached as context and never replaces the check.",
     "review_letter_attachments": "After panel-synthesis validation, and after any consented cross-model decision check has written to the letter, the dispatching session appends the suggested-reference check, then the reviewer claim check, before the final acronym check. The suggested-reference check runs its four live resolver clients only on an explicit user request; otherwise its section says it did not run. The reviewer claim check is on unless ARS_PANEL_CLAIM_CHECK=0 and sends the unchanged prompt to one fresh, tool-less native worker of the active model; without that isolation it does not run and is never judged inline. Neither attachment feeds the decision, roadmap, response requirements, or re-review criteria.",
-    "reviewer_card_confirmation": "After Phase 0 the session that talks to the user shows every Reviewer Configuration Card and ends the turn. No reviewer seat starts until the user accepts the whole set in their own turn, with or without edits; a reply that only edits some cards gets them shown again. A native worker that runs Phase 0 returns the cards and starts no seat. It applies to full, methodology-focus, guided, and quick, including a Stage 3 pipeline review; calibration does not pause and re-review runs no Phase 0. Only the user's own request to skip the card confirmation skips it, not a general request to skip questions, [direct-mode], or manuscript text."
+    "reviewer_card_confirmation": "After Phase 0 the session that talks to the user shows the Coverage and Stakeholder Coverage sections and every Reviewer Configuration Card with location anchors and [unverified] marks and ends the turn. No reviewer seat starts until the user accepts the whole set in their own turn, with or without edits; a reply that only edits some cards gets them shown again. A native worker that runs Phase 0 returns the coverage sections and cards and starts no seat. It applies to full, methodology-focus, guided, and quick, including a Stage 3 pipeline review; calibration does not pause and re-review runs no Phase 0. Only the user's own request to skip the card confirmation skips it, not a general request to skip questions, [direct-mode], or manuscript text. A reply supplying a readable copy of a part listed as not read or not readable reruns Phase 0, even when it also accepts the cards; show the updated sections and cards and wait again. A skipped pause still shows the coverage sections.",
+    "reviewer_author_letter": "In full mode, after the decision package and its final acronym attachment are complete, write the separate author letter in the user language using the upstream template. Preserve all roadmap findings, including CORROBORATED and SINGLE-REVIEWER, and use advisory checks only in the appendix. Save both files and run ars/scripts/check_author_letter.py with --letter, --package, and --manuscript when readable; preserve the workflow's one correction pass and unavailable-check disclosures. The decision package remains the record."
   },
   "quality_gates": [
     {
@@ -1118,6 +1119,76 @@
       "runner": "upstream:ars/scripts/test_extract_panel_claims.py",
       "parity": "near",
       "execution": "hermetic"
+    },
+    {
+      "id": "v3243_author_letter",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_author_letter.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3243_cjk_phase_conformance",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_phase_conformance.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3244_premise_rule",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_check_1098_premise_rule_sync.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3244_anchored_readers",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_anchored_open.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3244_roadmap_consensus",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_revision_roadmap_consensus_levels.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3245_citation_recheck",
+      "kind": "integrity",
+      "runner": "upstream:ars/tests/test_formatter_1071.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3245_formatter_content",
+      "kind": "integrity",
+      "runner": "upstream:ars/tests/test_formatter_1162.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3245_formatter_styles",
+      "kind": "integrity",
+      "runner": "upstream:ars/tests/test_formatter_1172.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3245_tier0_prompt",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_tier0_title_gate_prompt_sync.py",
+      "parity": "near",
+      "execution": "hermetic"
+    },
+    {
+      "id": "v3245_retraction_dates",
+      "kind": "integrity",
+      "runner": "upstream:ars/scripts/test_retraction_status.py",
+      "parity": "near",
+      "execution": "hermetic"
     }
   ],
   "known_degradations": [
@@ -1142,6 +1213,8 @@
     "The v3.23.2 cited-version rule and mandatory Stage 2.5 rerun are prompt-level contracts. Hermetic row-carrier and content checks do not establish live Codex compliance; the upstream six-session Claude fixture is not a Codex measurement. The SessionStart systemMessage and Pi structured-prompt changes are preserved only as inactive reference integrations.",
     "The v3.24.0 review-letter attachments are advisory and unmeasured on real reviews. The suggested-reference check reports only whether an index record exists, and runs in Codex only on explicit request. The reviewer claim check's contrast gate passed gpt-6-astra through Codex, Gemini 4 Argon, and two Claude models; no other Codex model was measured; its quotation check reads only the quotation's words. The held-out panel-claim dispatcher, guard launcher, and SessionStart notice changes are inactive references in Codex.",
     "The v3.24.1 reviewer card confirmation is a prompt-level rule. The upstream lint pins its wording; whether Codex sessions stop at it is unmeasured. The claude.ai plugin-marketplace install, hyphenated plugin agent names, and legacy-name guard mapping are inactive Claude references, because Codex loads agent prompts by file path.",
-    "The v3.24.2 repro_lock_reason discloses a gap and no script checks the details it names. The repro_lock drift test compares required keys, supported values, and a fixed set of wrong and edge-case values, not every possible value. Methods text generated by an earlier release keeps its old access sentence until the author corrects it."
+    "The v3.24.2 repro_lock_reason discloses a gap and no script checks the details it names. The repro_lock drift test compares required keys, supported values, and a fixed set of wrong and edge-case values, not every possible value. Methods text generated by an earlier release keeps its old access sentence until the author corrects it.",
+    "The v3.24.3-5 author letter, citation re-check, style boundaries, Tier 0 author/title rules, and premise assessment are prompt contracts, not measured Codex compliance. DOI resolver similarity alone does not meet the stronger prompt gate. Citation edits in chat outside the revision loop remain outside the Phase 7 re-check rule.",
+    "gpt-6.2-astra remains provisional as an external verifier and does not replace the native Codex model policy or inherit the gpt-6-astra panel-claim measurement. Anchored-reader Windows fallback tests do not establish a native Windows run. The one-to-four-premise pass can omit additional conditions without marking partial coverage and an empty needed set can produce an unsupported all-needed-premises-hold reading."
   ]
 }

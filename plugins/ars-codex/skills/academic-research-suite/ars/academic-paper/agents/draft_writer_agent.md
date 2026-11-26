@@ -345,19 +345,21 @@ Quality gate not passed ->
 | `structure_architect_agent` | Paper Outline + Word Count Allocation | Detailed Outline + Evidence Map |
 | `argument_builder_agent` | Argument Blueprint + CER Chains | Claim-Evidence-Reasoning list organized by section |
 | `peer_reviewer_agent` (revision rounds) | Review Report + Revision Instructions | Issues table (Critical/Major/Minor) |
+| `citation_compliance_agent` (`full` mode, first Phase 6 revision round) | Corrected Draft: the Complete Draft with the Phase 5a citation fixes applied; the first Phase 6 revision round edits this version, not the pre-5a draft, and a second revision round edits your Round 1 Revised Draft | Markdown full text |
 
 ### Output Destinations
 
 | Target Agent | Output Content | Data Format |
 |-----------|---------|---------|
-| `citation_compliance_agent` | Complete Draft (with all in-text citations) | This agent's Output Format |
+| `citation_compliance_agent` (initial Phase 5a) | Complete Draft (with all in-text citations) | This agent's Output Format |
 | `abstract_bilingual_agent` | Complete Draft (for abstract writing) | Full text Markdown |
-| `peer_reviewer_agent` | Complete Draft + Draft Metadata | Full text + Word Count table |
-| `formatter_agent` | Final Revised Draft (after passing peer review) | Markdown with citations |
+| `peer_reviewer_agent` | Complete Draft + Draft Metadata (in `full` mode the first review reads the Corrected Draft from `citation_compliance_agent`; later rounds read your Revised Draft + Revision Log) | Full text + Word Count table |
+| `formatter_agent` | In `full` mode, when no citation re-check is due, send the accepted revision or the latest revised draft on the early-formatting or unaccepted revision path. With no revision round (a Round 1 Accept, or early formatting after Phase 5a and before any revision round), the initial Phase 5a Corrected Draft from `citation_compliance_agent` goes to Phase 7. Include the "Acknowledged Limitations" section after Option A. The formatter handles Review Status confirmation. In other modes, send the Final Revised Draft: the version peer review accepted, or, without an Accept, the latest draft, with the "Acknowledged Limitations" section after Option A, which the formatter formats only after the user confirms it (`formatter_agent` § Review Status). | Markdown with citations |
 
 ### Handoff Format Requirements
 
 - **Output to citation_compliance_agent**: All in-text citations must use a consistent format placeholder, such as `(Author, Year)` or `Author (Year)`, without mixing
+- **Pre-Phase 7 citation re-check (`full` mode)**: A re-check is due if any revision round or the Option A edit added, removed, or changed a citation or a reference-list entry. The caller then sends your latest draft to `citation_compliance_agent`, including the "Acknowledged Limitations" section after Option A. The re-check's Corrected Draft is the sole Phase 7 manuscript (#1071).
 - **Revision round receiving peer_reviewer_agent feedback**: Each Issue must have `Section` + `Severity` + `Suggested Fix`, so draft_writer can locate edit points directly
 - **Revision log**: Every revision must output a Revision Log (see format above) so peer_reviewer can quickly track in Round 2
 
@@ -366,7 +368,7 @@ Quality gate not passed ->
 Schema 4 (`## Schema 4: Paper Draft` in `shared/handoff_schemas.md`) is this agent's handoff surface. Its `output_language_pair` field — defined there as Optional — carries the abstract carrier onward:
 
 - **When the PCR (or the dispatch context) carries `output_language_pair`**: serialize it into the Schema 4 handoff under that exact key, with the token as its string value. Take the token **verbatim** — it is an opaque registry token from `shared/output_language_pair.md`. Never normalize it to a locale code, never wrap it in an array, never substitute a derived language label, and never rewrite it.
-- **When the field is absent from the PCR/dispatch context**: **omit the serialized key entirely**. Do not emit it as `null`, as `""`, or as the default token. Absence is the legacy state, and what stays put is exact: the omitted key, the legacy object keys, and the heading literals — so a pre-#862 handoff keeps the same keys, headings, and serialized shape, and every downstream step then omits the value too.
+- **When the field is absent from the PCR/dispatch context**: **omit the serialized key entirely**. Do not emit it as `null`, as `""`, or as the default token. Absence is the legacy state: the key stays omitted, and the legacy object keys and heading literals stay as they are, so every downstream step omits the value too.
 - **Legacy keys are untouched**: `abstract: {english, chinese}` and `keywords: {en, zh_tw}` keep their current names and shapes. The pair does not rename them; under the default pair the rendered headings remain `### English Abstract` and `### Chinese Abstract`.
 - **Invalid values fail visibly**: an unsupported token, a non-string value, `null`, or an empty string stops the handoff and names the registry. Never fall back to the default silently.
 
@@ -599,7 +601,7 @@ In **revision mode** (standalone `academic-paper` revision, which is also what p
 
 For a review-roadmap round, your revision-invocation context carries the
 **anchored draft**, its exact **block manifest**, immutable
-`revision-roadmap/1.0`, exact `claim-surface-manifest/1.0`, complete
+`revision-roadmap/1.1` (or a valid `revision-roadmap/1.0`), exact `claim-surface-manifest/1.0`, complete
 `author-adjudication/1.0`, and the caller-computed raw artifact hashes plus
 `author_decision_digest`. Copy those supplied bindings; do not compute or
 invent them. An integrity-correction round instead carries the anchored draft,

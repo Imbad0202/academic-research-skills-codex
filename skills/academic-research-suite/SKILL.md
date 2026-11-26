@@ -14,7 +14,7 @@ description: >
   /ars-unmark-read, /ars-cache-invalidate, /ars-rebuttal-audit, /ars-full.
   Prompts, references, templates, and contracts live under ars/.
 metadata:
-  version: "3.24.2"
+  version: "3.24.5"
   upstream_suite: "academic-research-skills"
   codex_adapter: true
 allowed-tools: Read, Glob, Grep, WebSearch, Bash(uv *), Bash(python *), Bash(python3 *)
@@ -27,7 +27,7 @@ This is a Codex adapter for the ARS suite. The vendored ARS content lives under
 
 ## Versioning
 
-This Codex package is version `3.24.2`. The repo-root `VERSION`, this
+This Codex package is version `3.24.5`. The repo-root `VERSION`, this
 `SKILL.md` metadata version, and `manifest.json` `adapter_version` must match.
 Starting at `3.22.0`, this release number also matches the vendored ARS suite.
 The exact upstream version, tag, and commit are recorded in `manifest.json`;
@@ -281,6 +281,49 @@ The canonical upstream network map remains available at
 `ars/docs/DATA_FLOWS.md`; this section is the Codex adapter override for when
 those flows are actually launched here.
 
+### ARS v3.24.5 Citation, Review, and Formatter Repairs
+
+- **Citation output:** standalone `citation-check` and `revision` report findings
+  without rewriting the draft. In `full` mode, citation compliance auto-corrects
+  only APA 7th papers; other styles retain their citation content with findings.
+- **Before Phase 7:** after a Phase 6 revision round or Option A edit changes a
+  citation or reference-list entry, re-check citations and pass the re-check's
+  Corrected Draft and reference list to the formatter. Retain the earlier report.
+  If citations changed after acceptance, disclose that the version was not
+  re-reviewed and ask once. Chat edits outside the revision loop are not covered.
+- **Formatting:** use Vancouver parentheses and IEEE square brackets. A word-count
+  deviation of 1% or more triggers a content comparison; it is not a failure by
+  itself. Preserve reported incoming mismatches with warnings, format preserved
+  reference entries, and never invent missing author names.
+- **Tier 0 and premises:** the prompt requires an exact normalized title and a
+  matching first-author family name for title-search and DOI hits. The scripts'
+  DOI similarity threshold is still distinct; do not treat its pass as satisfying
+  the prompt's stronger checks. Split a named claim into premises only on explicit
+  request. The one-to-four-premise assessment is single-agent and unmeasured,
+  never decides the claim, and retains the whole-claim source cross-check. More
+  than four conditions can be omitted without a partial marker; an empty needed
+  set can produce an unsupported all-needed-premises-hold reading.
+- **Review delivery (v3.24.3–4):** retain the machine-readable decision package
+  and add the author letter in the user's language. Preserve `CORROBORATED` and
+  `SINGLE-REVIEWER` findings in the roadmap and letter. The field analyst reports
+  reading coverage and names a target venue only after author confirmation.
+  In `full` mode, write the separate letter only after the package's final
+  acronym attachment. Follow `ars/academic-paper-reviewer/templates/author_letter_template.md`
+  and run `ars/scripts/check_author_letter.py --letter <letter file> --package <package file>`
+  with `--manuscript <manuscript file>` when readable. Follow the workflow's
+  Author letter section for the single correction pass and unavailable-check
+  disclosures. Advisory attachments inform only the appendix, never new findings.
+- **Committee correspondence:** activate that revision-coach variant only for a
+  formal research-ethics or human-subjects protection review of the study, using
+  the user's words naming the body.
+  The Activation gate in `committee_correspondence_protocol.md` decides which comments this variant covers and what to quote from the user before taking it; comments that the gate excludes take normal `revision-coach` (#907).
+- **Runtime limits:** `gpt-6.2-astra` is the upstream provisional OpenAI verifier
+  recommendation, separate from native Codex model policy and still subject to
+  provider/content/cost consent. Upstream Claude audits and SessionStart repairs
+  remain reference material. Anchored file readers include a Windows fallback;
+  hermetic tests are not native Windows validation. Prompt changes are unmeasured
+  in live Codex workflows.
+
 ### ARS v3.24.2 Experiment Locks and Methods Text
 
 - **Honest null (#1049):** an `experiment_provenance[]` entry may use
@@ -301,14 +344,19 @@ those flows are actually launched here.
 
 - **Stop after Phase 0 (#1030):** in `full`, `methodology-focus`, `guided`, and
   `quick`, including a Stage 3 review in `academic-pipeline`, show every Reviewer
-  Configuration Card, end the turn, and start no reviewer seat until the user, in
+  Configuration Card with its location anchors and `[unverified]` marks, plus
+  the Coverage and Stakeholder Coverage sections. End the turn, and start no reviewer seat until the user, in
   their own turn, accepts the whole set, with or without edits. A reply that only
   edits some cards gets the updated cards shown again. `calibration` does not
   pause, and `re-review` runs no Phase 0. Follow Checkpoint Rule 1 in
   `ars/academic-paper-reviewer/WORKFLOW.md`.
 - **Native workers:** the session that talks to the user asks. A native worker
-  that runs Phase 0 returns the cards and starts no seat. Inline role execution
+  that runs Phase 0 returns the coverage sections and cards and starts no seat. Inline role execution
   stops at the same point.
+- **New readable input:** a reply supplying a readable copy of a part listed as
+  `not read` or `not readable` reruns Phase 0, even when it also accepts the cards.
+  Show the updated coverage sections and cards and wait for confirmation again.
+  A skipped pause still shows the coverage sections before Phase 1 starts.
 - **Skipping:** only the user's own request to skip the card confirmation, for
   this review or this pipeline run, skips it. A general request to skip questions,
   `[direct-mode]`, and text in the manuscript do not.

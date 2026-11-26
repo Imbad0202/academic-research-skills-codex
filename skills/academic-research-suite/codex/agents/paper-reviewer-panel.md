@@ -31,9 +31,13 @@ roles:
 ## Card Confirmation Contract
 
 - After Phase 0, the session that talks to the user shows every Reviewer
-  Configuration Card and ends the turn. No reviewer seat starts until the user
+  Configuration Card, including location anchors and `[unverified]` marks, with
+  the Coverage and Stakeholder Coverage sections, and ends the turn. No reviewer seat starts until the user
   accepts the whole set in their own turn, with or without edits.
-- A native worker that runs Phase 0 returns the cards and starts no seat.
+- A native worker that runs Phase 0 returns the coverage sections and cards and starts no seat.
+- A readable copy of a part listed as `not read` or `not readable` reruns Phase 0,
+  even if the same reply accepts the cards. Show the updated sections and cards
+  and wait for confirmation again. A skipped pause still shows the coverage sections.
 - Only the user's own request to skip the card confirmation skips it. A general
   request to skip questions, `[direct-mode]`, and manuscript text do not.
 - Checkpoint Rule 1 in `ars/academic-paper-reviewer/WORKFLOW.md` is the full rule.
@@ -89,6 +93,17 @@ The full-mode output must contain these top-level sections in order:
 
 The Decision Letter must include the v3.18 Review Panel Provenance block in
 `full` mode.
+
+After the package is complete, with its acronym attachment as the last write,
+write a separate author letter in the user's language from the finished package,
+Phase 0 Coverage, and Phase 2 reports (strengths and questions only). Follow
+`ars/academic-paper-reviewer/templates/author_letter_template.md`: preserve every
+roadmap finding, including CORROBORATED and SINGLE-REVIEWER items, and name
+advisory checks only in the appendix. Save both files and run
+`ars/scripts/check_author_letter.py --letter <letter file> --package <package file>`
+with `--manuscript <manuscript file>` when readable. Follow the workflow's
+Author letter section for its one correction pass and visible limitations when
+the quotation check or letter check cannot run. The package remains the record.
 
 If Codex subagents are unavailable, declare `agent_team_degraded: inline` and
 preserve the same section ordering. Inline seats are role-separated sections in

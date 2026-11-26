@@ -34,8 +34,11 @@ Optional gate roles:
 ## Checkpoint Contract
 
 - Stage 3 also stops inside the stage, after the reviewer's Phase 0: show the
-  Reviewer Configuration Cards, end the turn, and start no reviewer seat until
+  Coverage and Stakeholder Coverage sections and the Reviewer Configuration Cards
+  with location anchors and `[unverified]` marks, end the turn, and start no reviewer seat until
   the user accepts the whole set in their own turn.
+- Supplying a newly readable part reruns Phase 0 and requires confirmation of
+  the updated sections and cards, even if that reply accepted the previous set.
 - Every completed stage ends with a visible checkpoint. Continue through already
   authorized transitions; pause only for a required unresolved author decision or
   the user's requested stopping point. Record the decision and evidence that

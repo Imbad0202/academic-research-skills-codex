@@ -4,6 +4,38 @@ All notable changes to the Codex package are documented here.
 
 ## Unreleased
 
+## [3.24.5] - 2026-11-26
+
+### What's Changed
+
+- Synced ARS v3.24.5 at `74453f859a4625954e5d2a7dd30c5d716842d060`,
+  including upstream v3.24.3–5. Preserved the single Codex router, WORKFLOW
+  overlays, inactive Claude integrations, and separately pinned experiment-agent.
+- Added the user-language author letter beside the machine-readable review
+  package, retained CORROBORATED and SINGLE-REVIEWER roadmap findings, and
+  adopted field-analyst reading coverage and author-confirmed venue boundaries.
+  Committee correspondence is scoped to formal research-ethics or human-subjects
+  protection review of the study.
+- Standalone citation-check and revision report findings without rewriting the
+  draft; full-mode citation auto-correction is APA-only. After citation/reference
+  edits in Phase 6 or Option A, full mode re-checks citations before Phase 7 and
+  supplies the corrected draft/list to the formatter. Changed accepted versions
+  are disclosed; chat edits outside the revision loop remain outside this rule.
+- Adopted exact-title/first-author Tier 0 prompt checks, formatter content and
+  style repairs, empty-title refusal, malformed-HTTP handling, and Crossref
+  disputed-date handling. The script DOI threshold remains distinct from the
+  stronger prompt checks. An explicitly requested claim-premise assessment stays
+  single-agent, does not decide the claim, and retains its documented limits.
+- Adopted Han/kana-aware Phase 1 checks, schema-valid Zotero/Obsidian imports,
+  bounded revision-token matching, and anchored file readers with a Windows
+  fallback. Hermetic fixtures do not establish native Windows execution.
+- Recorded `gpt-6.2-astra` as the upstream provisional cross-model verifier
+  recommendation, separate from native Codex model policy. Consent requirements
+  remain in force; prompt changes and live Codex compliance remain unmeasured.
+- Updated metadata, four-language documentation, validation inventory, pipeline
+  content locks, and the materialized plugin mirror. New reviewer validators
+  resolve WORKFLOW.md; Claude setup/control docs keep their upstream names.
+
 ## [3.24.2] - 2026-11-06
 
 ### What's Changed

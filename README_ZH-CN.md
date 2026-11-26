@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.2-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.5-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -48,26 +48,21 @@ skills/academic-research-suite/
 
 ## 版本管理
 
-本 ARS-Codex 打包版本为 `3.24.2`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
+本 ARS-Codex 打包版本为 `3.24.5`。repo 根目录的 `VERSION` 文件、`skills/academic-research-suite/SKILL.md` 中的元数据版本，以及 `skills/academic-research-suite/manifest.json` 中的 `adapter_version` 自 `3.22.0` 起与内嵌 ARS 套件使用相同版本号；原有 `0.1.x` 记录保留原版本号。上游版本、tag 和完整 commit 记录在 `manifest.source_repositories[]` 中。
 
 打包层面的变更汇总在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-当前内嵌的 ARS 源码对齐 **v3.24.2**：
-`Imbad0202/academic-research-skills@fd5ff1b858374219b4d342e38587b66e18f61cbd`。
-本版包含上游 v3.24.1 与 v3.24.2。评审会在 Phase 0 之后暂停：先显示每一张 Reviewer Configuration Card，
-用户在自己的回合接受整组（可附修改）之前，不启动任何评审席位。只有用户本人要求跳过
-卡片确认时才会跳过。这是 prompt 层级的规则，Codex 会话是否确实停下尚未测量。
-没有可如实填写锁定值的实验，可用 `repro_lock: null` 并附理由；较早版本不接受这种写法。
-`check_repro_lock.py` 变得更严格，部分原本通过的 passport 现在会失败。
-sr-screener 研究方法段落的句子已修正；较早版本生成的文字仍是旧句，请自行更正。
-上游的 claude.ai 安装、插件 agent 名称与旧名称 guard 修改，在 Codex 中仍是未启用的参考集成。
-本版没有新增 workflow，原生模型策略保持不变。
-语言配对目前仅支持 `zh-tw-en`；西班牙语触发词不代表已提供西班牙语输出语言包。
-Claude 模型审计和插件评估素材保留供参考，不会改变 Codex 模型策略，也不代表已实测 Codex 性能。
-
-上游嵌套的 `.github/` 工作流和根级 `agents/` 镜像保留用于可追溯性和自测，
-但不是仓库级 CI 或 Codex 入口；`.claude/` 与 `.claude-plugin/` 下的
-Claude/plugin 加载文件按设计排除。
+当前内嵌的 ARS 源码对齐 **v3.24.5**：
+`Imbad0202/academic-research-skills@74453f859a4625954e5d2a7dd30c5d716842d060`。
+本次包含上游 v3.24.3–5：新增与决策包并列的用户语言评审信，保留未达共识门槛的
+roadmap 意见，改进中日文 Phase 1 检查与 Zotero／Obsidian 导入验证。
+独立 citation-check 与 revision 仅报告问题；full 模式在修订循环更改引用后，于 Phase 7 前
+重新检查引用。格式转换保留已报告的不一致项目与警示，并应用目标格式。
+文献查询修复空标题、撤稿日期歧义及异常 HTTP 响应；论点前提检查须由用户明确提出，
+并保留上游列明的限制。`gpt-6.2-astra` 是上游暂定的跨模型验证建议，与 Codex 原生模型策略分开。
+本版没有新增 workflow。提示规则在真实 Codex 会话中的效果尚未测量；
+Windows 替代路径的隔离测试不代表 Windows 原生执行验证。Claude hooks 与审计资料仍供参考。
+输出语言配对目前仅支持 `zh-tw-en`。
 
 ## 模型与执行方式
 
@@ -337,9 +332,9 @@ ARS 最初是为 Claude Code 编写的。在本 Codex 打包版本中：
 - 上游对"新 Claude Code 会话"的引用在本包中等同于新的 Codex 对话；Material Passport 重置语义仍然适用。
 - 如果引用、来源、统计数据或期刊政策无法验证，Codex 应将其标记为未验证，而非编造支撑依据。
 
-### ARS v3.24.2 功能对等
+### ARS v3.24.5 功能对等
 
-本包在 Codex 具有等效概念之处，适配上游 ARS `v3.24.2`（`fd5ff1b858374219b4d342e38587b66e18f61cbd`），并记录模型与 runtime overlay。
+本包在 Codex 具有等效概念之处，适配上游 ARS `v3.24.5`（`74453f859a4625954e5d2a7dd30c5d716842d060`），并记录模型与 runtime overlay。
 
 | 上游 ARS 功能 | Codex 打包版本行为 |
 |---|---|

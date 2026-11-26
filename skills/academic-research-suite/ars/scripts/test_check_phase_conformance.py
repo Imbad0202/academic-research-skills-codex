@@ -196,6 +196,55 @@ def test_short_trigger_is_advisory_not_failure():
     )
 
 
+def _short_warned(value: str) -> bool:
+    plan = parse_plan("methodology", {"D1": {"what_triggers_warn": value}})
+    return any("D1 what_triggers_warn" in warning and "TRIGGER-SHORT" in warning
+               for warning in plan.warnings)
+
+
+@pytest.mark.parametrize(("value", "warned"), [
+    # #1077: a Chinese or Japanese trigger is counted, not split on spaces.
+    ("任一面向分數低於三分時，判定為擋下並要求作者補件", False),
+    ("低於三分", True),
+    ("一二三四五六七八九十一二三四五", True),         # 15 letters
+    ("一二三四五六七八九十一二三四五六", False),       # 16 letters = 8 words
+    ("AIGC 使用率低於三成", True),                      # 2 + 7 points
+    ("評分が三点未満のときはブロックとする", False),    # kana count
+    ("一二三四五六七八九十一二三四五ー", False),       # ー is a kana letter
+    ("一二三四五六七八九十一二三四ー", True),          # 15 points
+    ("ｶﾞ" * 8, True),                                  # NFKC: 8 letters, not 16
+    # Spaced scripts keep the word count.
+    ("평가 점수가 세 점 미만이면 이번 결정을 차단한다", False),
+    ("세 점 미만", True),
+    ("ꀀꀁ ꀂ ꀃ ꀄ ꀅ ꀆ ꀇ ꀈ", False),                    # Yi: 8 words
+    # A lone mark is no word; full-width letters equal half-width ones.
+    ("any score below three — blocks the decision", True),       # 7 words
+    ("any score below three — blocks the final decision", False),
+    ("ａｎｙ ｓｃｏｒｅ ｂｅｌｏｗ ｔｈｒｅｅ ｂｌｏｃｋｓ ｔｈｅ ｆｉｎａｌ ｄｅｃｉｓｉｏｎ", False),
+])
+def test_short_trigger_counts_han_and_kana_letters(value, warned):
+    assert _short_warned(value) is warned
+
+
+def test_tokens_split_han_and_kana_letters_only():
+    assert phase._tokens("用 AIGC 寫的「報告」，ok?") == [
+        "用", "aigc", "寫", "的", "報", "告", "ok?"]
+    assert phase._points("用 AIGC 寫的") == 5
+
+
+def test_tokens_split_hiragana_and_katakana_each_letter():
+    assert phase._tokens("ひらがな") == ["ひ", "ら", "が", "な"]
+    assert phase._tokens("カタカナ") == ["カ", "タ", "カ", "ナ"]
+    assert phase._points("ok ひらがな カタカナ") == 10
+
+
+def test_tokens_apply_nfkc_and_keep_combining_marks():
+    assert phase._tokens("ＡＢＣ \uf967 ｶﾞ") == ["abc", "不", "ガ"]
+    assert phase._tokens("ดี字") == ["ดี", "字"]
+    assert phase._tokens("n\u0304語") == ["n\u0304", "語"]
+    assert phase._tokens("ok?」的") == ["ok", "的"]
+
+
 @pytest.mark.parametrize(
     "mutation",
     [
@@ -245,6 +294,116 @@ def test_manuscript_12_word_shingle_leaks():
             {"title": "Synthetic", "field": "testing", "word_count": 14},
             FULL,
         )
+
+
+def test_a_manuscript_shingle_in_compatibility_ideographs_leaks():
+    # #1074: U+FA08 is a compatibility form of 行. After NFC the manuscript
+    # shingle equals the standard text in Phase 1.
+    words = ["行政%d" % i for i in range(12)]
+    shared = " ".join(words)
+    with pytest.raises(phase.ConformanceError, match="MANUSCRIPT-LEAK"):
+        phase.check_manuscript_leakage(
+            phase1_text("methodology") + "\n" + shared,
+            shared.replace("行", "\ufa08"),
+            {"title": "Synthetic", "field": "t", "word_count": 30}, FULL,
+        )
+
+
+_META = {"title": "Synthetic", "field": "t", "word_count": 30}
+_HAN = "研究結果顯示學生在課程中的參與程度與學習成效之間具有顯著正相關並且"  # 33 Han letters
+_HIRA = "わたしたちはまいにちあさはやくおきてがっこうへいきます"  # 27 hiragana
+_KATA = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒ"  # 27 katakana
+_TWELVE = "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu"
+
+
+def _leaks(phase1_extra, manuscript, metadata=_META):
+    try:
+        phase.check_manuscript_leakage(
+            phase1_text("methodology") + "\n" + phase1_extra,
+            manuscript, metadata, FULL,
+        )
+    except phase.ConformanceError as exc:
+        assert "MANUSCRIPT-LEAK" in str(exc)
+        return True
+    return False
+
+
+@pytest.mark.parametrize("script", [_HAN, _HIRA, _KATA])
+def test_twenty_four_han_or_kana_letters_copied_into_phase1_leak(script):
+    # #1077: 24 letters are 24 points, the length of 12 English words.
+    assert _leaks("計畫：" + script[:24] + "。", "前言。" + script + "。")
+
+
+@pytest.mark.parametrize("script", [_HAN, _HIRA, _KATA])
+def test_twenty_three_han_or_kana_letters_do_not_leak(script):
+    assert not _leaks("計畫：" + script[:23] + "。", "前言。" + script + "。")
+
+
+def test_a_mixed_han_kana_and_latin_copy_leaks():
+    # 4 Latin words (8 points) + 4 kana (4) + 12 Han (12) = 24 points.
+    copied = "the AIGC tool usage について" + "研究結果顯示學生在課程中"
+    assert phase._points(copied) == 24
+    assert _leaks("Plan: " + copied, "Intro. " + copied + " end.")
+    assert not _leaks("Plan: " + copied[:-1], "Intro. " + copied + " end.")
+
+
+def test_a_window_that_jumps_from_23_to_25_points_still_finds_the_copy():
+    # 1 Han letter + 12 words: the window from 註 holds 25 points, and the
+    # next window, the 12 words alone, is the copy.
+    assert _leaks(_TWELVE, "註：" + _TWELVE + " end")
+    odd = "AIGC 的 " + " ".join(_TWELVE.split()[:11])  # 2 + 1 + 22 = 25 points
+    assert _leaks("Plan: " + odd, "前言。" + odd + " end")
+    assert not _leaks("Plan: " + odd.rsplit(" ", 1)[0], "前言。" + odd + " end")
+
+
+def test_a_lone_mark_beside_a_han_letter_is_still_cut_in_the_leak_check():
+    assert phase._tokens("「字」 — ok", keep_marks=True) == ["字", "—", "ok"]
+    # The comma between two Han letters is no token, so a copy that drops
+    # it still matches, and two full stops add no points to 20 letters.
+    assert _leaks(_HAN[:12] + " " + _HAN[12:24],
+                  "前言。" + _HAN[:12] + "，" + _HAN[12:24] + "。")
+    assert not _leaks("結論。" + _HAN[:20] + "。", "前言。" + _HAN[:20] + "。")
+
+
+def test_a_cjk_copy_inside_a_contract_string_is_exempt():
+    contract = json.loads(json.dumps(FULL))
+    contract["note"] = _HAN[:12] + "\n" + _HAN[12:26]
+    phase.check_manuscript_leakage(
+        phase1_text("methodology") + "\n" + _HAN[:26],
+        "前言。" + _HAN[:26] + "。", _META, contract,
+    )
+
+
+def test_a_cjk_copy_inside_the_title_value_is_exempt():
+    title = _HAN[:26]
+    assert not _leaks(title, title + "。正文從這裡開始。", {**_META, "title": title})
+
+
+def test_english_eleven_words_do_not_leak():
+    words = _TWELVE.split()
+    assert not _leaks(" ".join(words[:11]), _TWELVE + " nu xi")
+
+
+def test_english_punctuation_is_cut_only_beside_a_han_letter():
+    # "ok?的" gives the token "ok"; "ok? 的" keeps "ok?" (#1077 decision).
+    tail = "研究結果顯示學生在課程中的參與程度與學習成效"  # 22 Han letters
+    assert _leaks("ok" + tail, "前言 ok?" + tail)
+    assert not _leaks("ok " + tail, "前言 ok? " + tail)
+
+
+def test_a_lone_mark_is_still_a_word_in_the_leak_check():
+    # #1077: the leak check keeps a mark that touches no Han or kana letter
+    # as a word, as the whitespace split did, so English is unchanged.
+    row = "| Dashboard sessions | 14.6 | 9.1 | 0 | 48 |"
+    assert _leaks(row, "Results.\n" + row + "\nEnd.")
+    with_dash = _TWELVE.replace("epsilon", "epsilon —")
+    assert not _leaks(_TWELVE, with_dash + " nu")
+    assert _leaks(with_dash, with_dash + " nu")
+
+
+def test_a_trigger_in_compatibility_ideographs_matches_its_standard_form():
+    # #1074: _normalise() applies NFC; U+FA08 is a compatibility form of 行.
+    assert phase._normalise("\ufa08政") == phase._normalise("行政")
 
 
 def test_metadata_title_shingle_is_exempt():

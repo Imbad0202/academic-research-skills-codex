@@ -2,6 +2,8 @@
 
 This example demonstrates the complete Phase 0-2 workflow of `academic-paper-reviewer`, simulating the review of a paper titled "Impact of Declining Birth Rates on Management Strategies of Taiwan's Private Universities: A Multiple Case Study."
 
+The author confirmed the target journal in this example, so the Field Analysis Report copies that target and names no other journal or venue as a submission target, a recommendation, a tier benchmark, or a reviewer affiliation (#1080). Without a confirmed target, the Field Analysis Report states `criteria_binding_unavailable` and names no journal or venue in any of those roles.
+
 ---
 
 ## Simulated Paper Abstract
@@ -13,20 +15,22 @@ This example demonstrates the complete Phase 0-2 workflow of `academic-paper-rev
 > **Keywords**: declining birth rate, private universities, management strategy, multiple case study, Taiwan higher education
 >
 > **Full text approximately 12,000 words, 67 references cited**
+>
+> **Review target (confirmed by the author)**: *Higher Education*; track: none given; article type: research article
 
 ---
 
 ## Phase 0: Field Analysis & Persona Configuration
 
-### Field Analysis Report
+The Field Analysis Report:
 
-#### Paper Basic Information
+### Paper Basic Information
 - **Title**: Impact of Declining Birth Rates on Management Strategies of Taiwan's Private Universities: A Multiple Case Study
 - **Abstract length**: Approximately 200 words
 - **Full text length**: Approximately 12,000 words
 - **Number of references**: 67
 
-#### Field Analysis
+### Field Analysis
 
 | Dimension | Analysis Result |
 |-----------|----------------|
@@ -34,68 +38,91 @@ This example demonstrates the complete Phase 0-2 workflow of `academic-paper-rev
 | Secondary Disciplines | Strategic Management, Education Policy, Demography |
 | Research Paradigm | Qualitative |
 | Methodology Type | Multiple Case Study |
-| Target Journal Tier | Q2 — Above-average paper quality, complete case study design, but limited international generalizability |
+| Target Journal Tier | *Higher Education*; track: none given; article type: research article |
 | Paper Maturity | Revised draft — Complete structure, but some arguments could be further refined |
 
-#### Recommended Target Journals (Top 3)
-1. **Studies in Higher Education** — Top journal in higher education, accepts qualitative research, but requires stronger theoretical contribution
-2. **Higher Education** — Accepts diverse methodologies and regional studies, broad international readership
-3. **Higher Education Policy** — Policy-oriented, suitable for Taiwan higher education policy topics
+### Target Journal
+- **Venue**: *Higher Education*
+- **Track**: none given
+- **Article type**: research article
 
-#### Reviewer Configuration Cards
+### Coverage
+
+| Part | Status |
+|------|--------|
+| Abstract | read |
+| Body sections §1-§8 | read |
+| Tables | none |
+| Figures | none |
+| Embedded images | none |
+| Appendix | read |
+| References | read |
+
+All main parts were read, so no readable copy is requested.
+
+### Reviewer Configuration Cards
 
 ---
 
-### Reviewer Configuration Card #1
+#### Reviewer Configuration Card #1
 
 **Role**: EIC
 **Display role**: Journal-Fit Reviewer
 **Identity Description**: *Higher Education* (Springer) Associate Editor, specializing in university governance and organizational change research, previously edited a special issue on East Asian higher education, with cross-national comparative research experience on declining birth rates.
 **Review Focus**:
-  1. Paper's appeal to international readers — How Taiwan's case generates cross-national comparative value
-  2. Originality — Given the extensive existing literature on declining birth rates, what is this paper's new contribution
-  3. Overall structural and argumentative coherence
-**Will particularly care about**: "Whether the Taiwan experience is framed as broader theoretical insight, rather than purely local description"
+  1. Paper's appeal to international readers — How Taiwan's case generates cross-national comparative value [§6, §7]
+  2. Originality — Given the extensive existing literature on declining birth rates, what is this paper's new contribution [§2, §5]
+  3. Overall structural and argumentative coherence [§1-§7]
+**Will particularly care about**: "Whether the Taiwan experience is framed as broader theoretical insight, rather than purely local description" [§6, §7]
 **Possible blind spots**: May not be sufficiently familiar with the details of Taiwan's higher education policies
 
 ---
 
-### Reviewer Configuration Card #2
+#### Reviewer Configuration Card #2
 
 **Role**: Peer Reviewer 1 (Methodology)
 **Identity Description**: Qualitative research methodology expert, specializing in multiple case study design (influenced by Yin and Eisenhardt), with multiple published methodological reflection articles in education and organizational management.
 **Review Focus**:
-  1. Eisenhardt (1989) method compliance — Whether true cross-case analysis is conducted, or just 6 independent cases placed side by side
-  2. Sampling strategy — Logic of theoretical sampling, selection criteria for the 6 universities
-  3. Data analysis transparency — Coding process, traceability of theme extraction
-**Will particularly care about**: "Whether the semi-structured interview guide is included in the appendix, whether data saturation is adequately argued"
+  1. Eisenhardt (1989) method compliance — Whether true cross-case analysis is conducted, or just 6 independent cases placed side by side [§3, §4]
+  2. Sampling strategy — Logic of theoretical sampling, selection criteria for the 6 universities [§3.1]
+  3. Data analysis transparency — Coding process, traceability of theme extraction [§3.3, Appendix]
+**Will particularly care about**: "Whether the semi-structured interview guide is included in the appendix, whether data saturation is adequately argued" [Appendix; §3.1, §3.2, §8]
 **Possible blind spots**: May lack intuitive understanding of the specific circumstances of Taiwan's private universities
 
 ---
 
-### Reviewer Configuration Card #3
+#### Reviewer Configuration Card #3
 
 **Role**: Peer Reviewer 2 (Domain)
 **Identity Description**: Taiwan higher education policy researcher, specializing in private university exit mechanisms and university mergers, with long-term collaboration with the Ministry of Education on higher education policy, familiar with the Private School Act amendments and the Exit Act.
 **Review Focus**:
-  1. Policy context accuracy — Whether cited regulations and policies are correct and up-to-date
-  2. Literature review — Whether key literature on Taiwan's declining birth rates and higher education is covered (including Chinese-language literature)
-  3. Academic contribution of the three strategy types — How they differ from existing classifications
-**Will particularly care about**: Whether the "exit strategy" description is consistent with actual exit cases, whether the 2022 "Act for the Exit of Private Senior Secondary Schools and Above" is considered
+  1. Policy context accuracy — Whether cited regulations and policies are correct and up-to-date [§2]
+  2. Literature review — Whether key literature on Taiwan's declining birth rates and higher education is covered (including Chinese-language literature) [§2, References]
+  3. Academic contribution of the three strategy types — How they differ from existing classifications [§2, §5, §6]
+  4. Stakeholders — Who the three strategy types and the practical implications assume will benefit, who bears the cost, and who is left out [§5, §7]
+**Will particularly care about**: Whether the "exit strategy" description is consistent with actual exit cases, whether the 2022 "Act for the Exit of Private Senior Secondary Schools and Above" is considered [§2, §5]
 **Possible blind spots**: May focus too much on the Taiwan context, overlooking the value of international comparison
 
 ---
 
-### Reviewer Configuration Card #4
+#### Reviewer Configuration Card #4
 
 **Role**: Peer Reviewer 3 (Cross-disciplinary/Practical)
 **Identity Description**: Strategic management scholar, specializing in organizational transformation and decline management (organizational decline), using Porter's Five Forces and RBV as primary theoretical tools, with research spanning corporate and nonprofit organizations.
 **Review Focus**:
-  1. Applicability of Porter's competitive strategy and RBV in the higher education context — Universities are not corporations; is the theoretical borrowing appropriate
-  2. Theoretical basis of strategy classification — Are the three strategies inductively derived from data or preset from theory
-  3. Absence of organizational decline theory — Why Cameron & Zammuto or Weitzel & Jonsson decline models are not used
-**Will particularly care about**: "Whether the authors mechanically apply business management theory to universities, considering the unique nature of universities as organized anarchies"
+  1. Applicability of Porter's competitive strategy and RBV in the higher education context — Universities are not corporations; is the theoretical borrowing appropriate [§2, §6]
+  2. Theoretical basis of strategy classification — Are the three strategies inductively derived from data or preset from theory [§3.3, §4]
+  3. Organizational decline theory — Are decline models such as Cameron & Zammuto or Weitzel & Jonsson used, and if not, does the paper say why [§2, References]
+**Will particularly care about**: "Whether the authors mechanically apply business management theory to universities, considering the unique nature of universities as organized anarchies" [§2, §5, §6]
 **Possible blind spots**: Less familiar with the institutional context of Taiwan's higher education
+
+---
+
+### Stakeholder Coverage
+
+Seat: Card #3 (Peer Reviewer 2), Review Focus item 4
+Check: who the three strategy types and the practical implications assume will benefit, who bears the cost, and who is left out [§5, §7]
+Competence basis: Taiwan higher education policy research, which covers who gains and who bears the cost when a private university differentiates, transforms, or exits; research on exits and mergers gives this reviewer experience in assessing effects on students, staff, and local communities
 
 ---
 
@@ -185,7 +212,7 @@ The author's choice of Eisenhardt's (1989) multiple case study method is appropr
    **Confidence**: 5 — core expertise: qualitative sampling adequacy
 
 #### Questions for Authors
-1. Is the interview guide included in the appendix? If not, can it be provided?
+1. The appendix does not include the interview guide. Can it be provided?
 2. Was qualitative analysis software (such as NVivo) used? If so, please indicate in the methodology section.
 
 ---

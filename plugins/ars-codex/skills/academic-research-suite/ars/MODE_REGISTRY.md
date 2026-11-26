@@ -4,7 +4,7 @@ Single source of truth for all modes across the ARS suite. **35 modes** across 5
 
 When adding or modifying modes, update this file first — WORKFLOW.md files and CLAUDE.md should reference this registry.
 
-Last updated: v3.24.2 (2026-11-06)
+Last updated: v3.24.5 (2026-11-26)
 
 ---
 
@@ -29,7 +29,7 @@ Last updated: v3.24.2 (2026-11-06)
 | `plan` | Originality | Chapter Plan + INSIGHT collection (Socratic) | Very High | "guide my paper", "help me plan", "step by step paper" |
 | `outline-only` | Balanced | Detailed outline + evidence map | High | "paper outline", "just need an outline" |
 | `revision` | Fidelity | Revised draft + point-by-point R&R responses | High | "revise paper", "incorporate reviewer feedback" |
-| `revision-coach` | Balanced | Reviewer path: Revision Roadmap + Response Letter Skeleton. Explicit real-committee variant: source-accounted concern tracker + placeholder response skeleton | Medium | "parse reviews", "I got reviewer comments", "track these committee comments" |
+| `revision-coach` | Balanced | Reviewer path: Revision Roadmap + Response Letter Skeleton. Explicit research-ethics-review variant: source-accounted concern tracker + placeholder response skeleton | Medium | "parse reviews", "I got reviewer comments", "track these committee comments" |
 | `abstract-only` | Fidelity | Bilingual abstract (zh-TW + EN) + keywords | Medium | "write abstract" |
 | `lit-review` | Fidelity | Annotated bibliography in paper format | Medium | "literature review paper", "write a lit review" |
 | `format-convert` | Fidelity | Formatted document (LaTeX/DOCX-via-Pandoc/PDF/MD) | Low | "convert to LaTeX", "convert citations to [format]" |

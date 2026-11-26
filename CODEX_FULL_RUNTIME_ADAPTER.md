@@ -72,15 +72,18 @@ python3 skills/academic-research-suite/codex/scripts/ars_codex_full_runtime.py -
   "ars-reviewer full review for this manuscript."
 ```
 
-## ARS v3.23.1 Runtime Boundaries
+## ARS v3.24.5 Runtime Boundaries
 
-The package tracks the ARS v3.23.1 tag at
-`4c5449017f46eb64d112a301d4817d22c7c9f3d9`. Five ARS workflows and the separately
-pinned experiment-agent are exposed through one Codex router. Deterministic
-tools have synthetic tests; screening accuracy and whether a model follows the
-caller instructions remain unmeasured. Upstream Claude audits and
-routing/evaluation runs do not measure Codex effectiveness or change the Codex
-model policy. Claude startup hooks remain inactive.
+The package tracks ARS v3.24.5 at
+`74453f859a4625954e5d2a7dd30c5d716842d060`. Five ARS workflows and the separately
+pinned experiment-agent use one Codex router. The v3.24.3–5 sync adds author
+letters, below-consensus roadmap levels, CJK-aware Phase 1 checks, validated
+imports, anchored readers, and citation/formatter repairs. See the root router's
+v3.24.5 section for execution boundaries. `gpt-6.2-astra` is the upstream
+provisional cross-model verifier recommendation, separate from native Codex
+model policy. Prompt tests do not establish live Codex compliance, and fallback
+fixtures do not establish native Windows execution. Claude startup hooks remain
+inactive reference material.
 
 - The v3.23.1 CSV importer detects only the delimiter and reads double quotes
   using RFC 4180 rules, including escaped quotes beyond the sniff sample.

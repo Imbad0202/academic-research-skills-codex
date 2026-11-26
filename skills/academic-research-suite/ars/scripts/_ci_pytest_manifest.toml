@@ -209,6 +209,14 @@ id = "v3.10-182-arxiv-client"
 path = "scripts/test_arxiv_client.py"
 
 [[pytest]]
+id = "1163-openalex-client"
+path = "scripts/test_openalex_client.py"
+
+[[pytest]]
+id = "1163-crossref-client"
+path = "scripts/test_crossref_client.py"
+
+[[pytest]]
 id = "511-transport-fixture-citation-gate"
 path = "scripts/test_transport_fixture_citation_gate.py"
 
@@ -329,6 +337,10 @@ id = "250-title-fuzzy-false-positive-pin"
 path = "scripts/test_title_fuzzy_false_positive.py"
 
 [[pytest]]
+id = "1146-tier0-prompt-title-gate"
+path = "scripts/test_tier0_title_gate_prompt_sync.py"
+
+[[pytest]]
 id = "396-rubric-weight-consistency"
 path = "scripts/test_check_rubric_weight_consistency.py"
 
@@ -429,6 +441,10 @@ id = "574-phase-conformance-checker"
 path = "scripts/test_check_phase_conformance.py"
 
 [[pytest]]
+id = "1077-unspaced-script-table"
+path = "scripts/test_unspaced_scripts.py"
+
+[[pytest]]
 id = "574-role-scoped-contract-lint"
 path = "scripts/test_check_role_scoped_contract.py"
 
@@ -481,6 +497,10 @@ id = "670-revision-roadmap-integration"
 path = "scripts/test_check_670_revision_roadmap_integration.py"
 
 [[pytest]]
+id = "1100-roadmap-consensus-levels"
+path = "scripts/test_revision_roadmap_consensus_levels.py"
+
+[[pytest]]
 id = "576-persuasion-invariance-fixtures"
 path = "scripts/test_check_persuasion_invariance_fixtures.py"
 
@@ -499,6 +519,10 @@ path = "scripts/test_resume_e4_record.py"
 [[pytest]]
 id = "611-reviewer-sprint-prompt-sync"
 path = "scripts/test_check_reviewer_sprint_prompt_sync.py"
+
+[[pytest]]
+id = "1099-premise-rule-sync"
+path = "scripts/test_check_1098_premise_rule_sync.py"
 
 [[pytest]]
 id = "610-receipt-enum-sync"
@@ -713,6 +737,10 @@ id = "845-shared-file-lock"
 path = "scripts/test_file_lock.py"
 
 [[pytest]]
+id = "1092-anchored-open"
+path = "scripts/test_anchored_open.py"
+
+[[pytest]]
 id = "862-output-language-pair-contract"
 path = "scripts/test_output_language_pair.py"
 
@@ -751,3 +779,7 @@ path = "scripts/test_extract_panel_claims.py"
 [[pytest]]
 id = "1002-dispatch-panel-claim-audit"
 path = "scripts/test_dispatch_panel_claim_audit.py"
+
+[[pytest]]
+id = "1078-author-letter"
+path = "scripts/test_check_author_letter.py"

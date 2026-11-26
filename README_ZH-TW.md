@@ -1,6 +1,6 @@
 # ARS-Codex
 
-[![Version](https://img.shields.io/badge/version-v3.24.2-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-v3.24.5-blue)](VERSION)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20784820-blue)](https://doi.org/10.5281/zenodo.20784820)
 [![Sponsor](https://img.shields.io/badge/sponsor-Buy%20Me%20a%20Coffee-orange?logo=buy-me-a-coffee)](https://buymeacoffee.com/crucify020v)
@@ -45,7 +45,7 @@ skills/academic-research-suite/
 
 ## 版本控制
 
-此 ARS-Codex 套件版本為 `3.24.2`。倉庫根目錄的 `VERSION` 檔案、
+此 ARS-Codex 套件版本為 `3.24.5`。倉庫根目錄的 `VERSION` 檔案、
 `skills/academic-research-suite/SKILL.md` 的 metadata 版本，
 以及 `skills/academic-research-suite/manifest.json` 的 `adapter_version`
 自 `3.22.0` 起與內嵌 ARS 套件使用相同版號；舊有 `0.1.x` 紀錄保留原版號。
@@ -53,18 +53,17 @@ skills/academic-research-suite/
 
 套件層級的變更摘要記錄在 [`CHANGELOG.md`](CHANGELOG.md) 中。
 
-目前內嵌的 ARS 原始碼對齊 **v3.24.2**：
-`Imbad0202/academic-research-skills@fd5ff1b858374219b4d342e38587b66e18f61cbd`。
-本版包含上游 v3.24.1 與 v3.24.2。審查會在 Phase 0 之後暫停：先顯示每一張 Reviewer Configuration Card，
-使用者在自己的回合接受整組（可附修改）之前，不啟動任何審查席位。只有使用者本人要求略過
-卡片確認時才會略過。這是 prompt 層級的規則，Codex 工作階段是否確實停下尚未量測。
-沒有可如實填寫鎖定值的實驗，可用 `repro_lock: null` 並附理由；較早版本不接受這種寫法。
-`check_repro_lock.py` 變得更嚴格，部分原本通過的 passport 現在會失敗。
-sr-screener 研究方法段落的句子已修正；較早版本產生的文字仍是舊句，請自行更正。
-上游的 claude.ai 安裝、插件 agent 名稱與舊名稱 guard 修改，在 Codex 中仍是未啟用的參考整合。
-本版沒有新增 workflow，原生模型策略維持不變。
-語言配對目前僅支援 `zh-tw-en`；西班牙文觸發詞不代表已提供西班牙文輸出語系包。
-Claude 模型稽核與插件評估素材保留供參考，不會改變 Codex 模型策略，也不代表已實測 Codex 效能。
+目前內嵌的 ARS 原始碼對齊 **v3.24.5**：
+`Imbad0202/academic-research-skills@74453f859a4625954e5d2a7dd30c5d716842d060`。
+本次包含上游 v3.24.3–5：新增與決策套件並列的使用者語言審查信，保留未達共識門檻的
+roadmap 意見，改善中日文 Phase 1 檢查與 Zotero／Obsidian 匯入驗證。
+獨立 citation-check 與 revision 僅回報問題；full 模式在修訂循環更動引用後，於 Phase 7 前
+重新檢查引用。格式轉換保留已回報的不一致項目與警示，並套用目標格式。
+文獻查詢修正空標題、撤稿日期歧義及異常 HTTP 回應；論點前提檢查須由使用者明確提出，
+並保留上游列明的限制。`gpt-6.2-astra` 是上游暫定的跨模型驗證建議，與 Codex 原生模型策略分開。
+本版沒有新增 workflow。提示規則在真實 Codex 工作階段的效果尚未量測；
+Windows 替代路徑的隔離測試不代表 Windows 原生執行驗證。Claude hooks 與稽核資料仍供參考。
+輸出語言配對目前僅支援 `zh-tw-en`。
 
 ## 模型與執行方式
 
@@ -328,10 +327,10 @@ ARS 最初是為 Claude Code 撰寫的。在此 Codex 套件中：
 - 如果引用、來源、統計數據或期刊政策無法驗證，Codex 應將其標記為未驗證，
   而非虛構支持內容。
 
-### ARS v3.24.2 功能對等
+### ARS v3.24.5 功能對等
 
-本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.24.2`
-（`fd5ff1b858374219b4d342e38587b66e18f61cbd`），並記錄模型與 runtime overlay。
+本套件在 Codex 具有對等概念之處，適配上游 ARS `v3.24.5`
+（`74453f859a4625954e5d2a7dd30c5d716842d060`），並記錄模型與 runtime overlay。
 
 Codex adapter 對書目網路行為採以下明確邊界：
 

@@ -69,6 +69,16 @@ closed. No experiment changes the native adaptive policy or writes routing state
   envelopes, per-run resource receipts, held-out adjudications, and the local
   go/no-go report.
 
+## ARS v3.24.5 Sync
+
+The v3.24.3–5 patches add the user-language author letter, below-consensus
+roadmap levels, CJK-aware Phase 1 checks, validated imports, anchored readers,
+and citation/formatter repairs. The root router carries their Codex execution
+boundaries. `gpt-6.2-astra` is the upstream provisional cross-model verifier
+recommendation; the native Codex model policy is separate. Prompt conformance
+checks and fallback fixtures do not establish live-model or native Windows
+behavior. Claude setup/control docs remain unchanged upstream references.
+
 ## Agent-Team Semantics
 
 The adapter cannot promise byte-for-byte Claude Code Agent Team behavior.
@@ -109,7 +119,7 @@ Instead it provides an explicit Codex orchestration contract:
   changes are inactive Claude references; Codex loads prompts by file path;
 - an `experiment_provenance[]` entry may use `repro_lock: null` with a reason, and
   `check_repro_lock.py` now fails required values that break their field rule;
-- ARS v3.24.2 retains model tiering as advisory metadata; it is applied only
+- ARS v3.24.5 retains model tiering as advisory metadata; it is applied only
   when a Codex runtime provides explicit per-dispatch model selection;
 - the upstream write-scope guard's plugin-prefix and Windows timeout repairs
   remain inactive Claude-hook references; Codex has no `PreToolUse` write

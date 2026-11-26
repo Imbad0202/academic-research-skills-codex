@@ -21,9 +21,11 @@ def _section() -> str:
 def test_router_stops_after_phase_zero_for_native_workers_and_inline_roles():
     section = _section()
     for required in (
-        "end the turn",
-        "A native worker\n  that runs Phase 0 returns the cards and starts no seat",
+        "End the turn",
+        "A native worker\n  that runs Phase 0 returns the coverage sections and cards and starts no seat",
         "Inline role execution\n  stops at the same point",
+        "Coverage and Stakeholder Coverage",
+        "even when it also accepts the cards",
         "`[direct-mode]`",
         "is unmeasured",
     ):
@@ -57,7 +59,8 @@ def test_gate_rule_and_team_templates_record_the_stop():
     assert gate["runner"] == "upstream:ars/scripts/test_check_reviewer_card_confirmation.py"
     assert gate["execution"] == "hermetic"
     rule = runtime["agent_team_rules"]["reviewer_card_confirmation"]
-    assert "returns the cards and starts no seat" in rule
+    assert "returns the coverage sections and cards and starts no seat" in rule
+    assert "even when it also accepts the cards" in rule
     assert "[direct-mode]" in rule
     panel = (SUITE / "codex/agents/paper-reviewer-panel.md").read_text(encoding="utf-8")
     assert "## Card Confirmation Contract" in panel
